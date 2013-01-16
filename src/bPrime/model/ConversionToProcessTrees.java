@@ -1,5 +1,7 @@
 package bPrime.model;
 
+import java.util.Iterator;
+
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Edge;
 import org.processmining.processtree.ProcessTree;
@@ -12,12 +14,8 @@ public class ConversionToProcessTrees {
 	
 	public static ProcessTree convert(Node root) {
 		ProcessTree tree = new ProcessTreeImpl();
-
-		System.out.println("before conversion: " + root.toString());
 		
 		tree.setRoot(convertNode(tree, root));
-		
-		System.out.println(tree.toString());
 
 		return tree;
 	}
@@ -54,21 +52,51 @@ public class ConversionToProcessTrees {
 		
 		Block newBlock = (Block) newNode;
 		
-		//And give it its children
-		for (Node child : node.children) {
-			org.processmining.processtree.Node newChild = convertNode(tree, child);
-			//Connect new child to parent and connect the edges
-			Edge edge = newBlock.addChild(newChild);
-			newChild.addIncomingEdge(edge);
+		if (node instanceof Loop) {
+			//For loops, the process tree package requires three children: body, redo and exit.
+			
+			Iterator<Node> it = node.children.iterator();
+			//body
+			org.processmining.processtree.Node bodyChild = convertNode(tree, it.next());
+			bodyChild.setProcessTree(tree);
+			tree.addNode(bodyChild);
+			Edge edge = newBlock.addChild(bodyChild);
+			bodyChild.addIncomingEdge(edge);
 			tree.addEdge(edge);
-		}
-		
-		if (node instanceof Loop && node.children.size() < 3) {
-			//For loops a third child is required
+			
+			//redo
+			org.processmining.processtree.Node redoChild = new AbstractBlock.Xor("");
+			redoChild.setProcessTree(tree);
+			tree.addNode(redoChild);
+			Edge edge2 = newBlock.addChild(redoChild);
+			redoChild.addIncomingEdge(edge2);
+			tree.addEdge(edge2);
+			Block newXorBlock = (Block) redoChild;
+			while (it.hasNext()) {
+				org.processmining.processtree.Node redoXorChild = convertNode(tree, it.next());
+				redoXorChild.setProcessTree(tree);
+				tree.addNode(redoXorChild);
+				Edge edgeXor = newXorBlock.addChild(redoXorChild);
+				redoXorChild.addIncomingEdge(edgeXor);
+				tree.addEdge(edgeXor);
+			}
+			
+			//exit
 			Automatic tau = new AbstractTask.Automatic("");
-			Edge edge = newBlock.addChild(tau);
-			tau.addIncomingEdge(edge);
-			tree.addEdge(edge);
+			tau.setProcessTree(tree);
+			tree.addNode(tau);
+			Edge edgeExit = newBlock.addChild(tau);
+			tau.addIncomingEdge(edgeExit);
+			tree.addEdge(edgeExit);
+		} else {
+			//And give it its children
+			for (Node child : node.children) {
+				org.processmining.processtree.Node newChild = convertNode(tree, child);
+				//Connect new child to parent and connect the edges
+				Edge edge = newBlock.addChild(newChild);
+				newChild.addIncomingEdge(edge);
+				tree.addEdge(edge);
+			}
 		}
 		
 		return newNode;
