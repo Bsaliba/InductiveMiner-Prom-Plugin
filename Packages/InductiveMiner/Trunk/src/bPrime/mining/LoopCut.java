@@ -33,7 +33,7 @@ public class LoopCut {
 			}
 		}
 		
-		debug(connectedComponents.toString());
+		//debug(connectedComponents.toString());
 		
 		//initialise the candidates
 		Boolean[] candidates = new Boolean[ccs];
@@ -91,7 +91,7 @@ public class LoopCut {
 			}
 		}
 		
-		debug(result2.toString());
+		//debug(result2.toString());
 		return result2;
 	}
 	
@@ -109,7 +109,7 @@ public class LoopCut {
 		}
 	}
 	
-	private static void debug(String x) {
-		System.out.println(x);
-	}
+	//private static void debug(String x) {
+	//	System.out.println(x);
+	//}
 }
