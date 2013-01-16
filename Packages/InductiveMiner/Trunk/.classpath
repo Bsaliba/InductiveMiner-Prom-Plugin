@@ -44,5 +44,6 @@
 	<classpathentry kind="lib" path="tests/libs-external/cobertura.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProcessTree"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

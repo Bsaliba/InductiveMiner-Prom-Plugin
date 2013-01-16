@@ -2,8 +2,7 @@ package bPrime;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.connections.impl.AbstractConnection;
-
-import bPrime.model.ProcessTreeModel;
+import org.processmining.processtree.ProcessTree;
 
 public class AbstractProcessTreeModelConnection<Parameters> extends AbstractConnection {
 	public final static String LOG = "Log";
@@ -11,7 +10,7 @@ public class AbstractProcessTreeModelConnection<Parameters> extends AbstractConn
 	
 	private Parameters parameters;
 	
-	public AbstractProcessTreeModelConnection(XLog log, ProcessTreeModel model, Parameters parameters) {
+	public AbstractProcessTreeModelConnection(XLog log, ProcessTree model, Parameters parameters) {
 		super("process tree model for log");
 		put(LOG, log);
 		put(MODEL, model);
