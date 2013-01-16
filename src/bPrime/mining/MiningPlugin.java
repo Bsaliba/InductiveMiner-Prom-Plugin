@@ -64,8 +64,9 @@ public class MiningPlugin {
 	
 	private ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		//prepare the log
+		debug("Start conversion to internal log format");
 		Filteredlog filteredLog = new Filteredlog(log, parameters);
-		debug(filteredLog.toString());
+		//debug(filteredLog.toString());
 		
 		//create the model
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
@@ -88,9 +89,9 @@ public class MiningPlugin {
 			model.root = null;
 		}
 		
-		debug(dummyRootNode.toString());
+		//debug(dummyRootNode.toString());
 		model.root = dummyRootNode.getChild(0);
-		debug(model.root.toString());
+		debug("mined model " + model.root.toString());
 		
 		return model;
 	}
@@ -104,7 +105,7 @@ public class MiningPlugin {
 		
 		debug("");
 		debug("==================");
-		debug(log.toString());
+		//debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
@@ -123,12 +124,14 @@ public class MiningPlugin {
 		            	mineProcessTree(sublog, parameters, node, 1, pool);
 		            }
 			});
+			debug("remove tau from log");
 			return;
 		}
 		
 		if (log.getEventClasses().size() == 1 && directlyFollowsRelation.getLongestTrace() == 1 && !directlyFollowsRelation.getTauPresent()) {
 			//log only has one activity
 			target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
+			debug("activity " + log.getEventClasses().iterator().next());
 			return;
 		}
 		
@@ -180,7 +183,7 @@ public class MiningPlugin {
 			final Binoperator node = new Parallel(parallelCut.size());
 			debugCut(node, parallelCut);
 			target.setChild(index, node);
-			debug("set child " + index + " of " + target.toString());
+			//debug("set child " + index + " of " + target.toString());
 			int i = 0;
 			for (Set<XEventClass> activities : parallelCut) {
 				final Filteredlog sublog = log.applyFilter(Operator.PARALLEL, activities);
