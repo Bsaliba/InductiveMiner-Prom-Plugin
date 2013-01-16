@@ -16,11 +16,13 @@ import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.processtree.ProcessTree;
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
 import bPrime.Sets;
 import bPrime.model.Binoperator;
+import bPrime.model.ConversionToProcessTrees;
 import bPrime.model.EventClass;
 import bPrime.model.ExclusiveChoice;
 import bPrime.model.Loop;
@@ -30,19 +32,19 @@ import bPrime.model.ProcessTreeModel.Operator;
 import bPrime.model.Sequence;
 import bPrime.model.Tau;
 
-@Plugin(name = "Mine a Process Tree Model using B'", returnLabels = { "Process Tree Model" }, returnTypes = { ProcessTreeModel.class }, parameterLabels = {
+@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree Model, default", requiredParameterLabels = { 0 })
-	public ProcessTreeModel mineDefault(PluginContext context, XLog log) {
+	@PluginVariant(variantLabel = "Mine a Process Tree, default", requiredParameterLabels = { 0 })
+	public ProcessTree mineDefault(PluginContext context, XLog log) {
 		return this.mineParameters(context, log, new ProcessTreeModelParameters());
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree Model, parameterized", requiredParameterLabels = { 0, 1 })
-	public ProcessTreeModel mineParameters(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
+	public ProcessTree mineParameters(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		Collection<ProcessTreeModelConnection> connections;
 		try {
 			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
@@ -55,8 +57,9 @@ public class MiningPlugin {
 		} catch (ConnectionCannotBeObtained e) {
 		}
 		ProcessTreeModel model = mine(context, log, parameters);
-		context.addConnection(new ProcessTreeModelConnection(log, model, parameters));
-		return model;
+		ProcessTree tree = ConversionToProcessTrees.convert(model.root);
+		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
+		return tree;
 	}
 	
 	private ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {

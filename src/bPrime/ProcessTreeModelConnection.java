@@ -1,11 +1,10 @@
 package bPrime;
 
 import org.deckfour.xes.model.XLog;
-
-import bPrime.model.ProcessTreeModel;
+import org.processmining.processtree.ProcessTree;
 
 public class ProcessTreeModelConnection extends AbstractProcessTreeModelConnection<ProcessTreeModelParameters> {
-	public ProcessTreeModelConnection(XLog log, ProcessTreeModel model, ProcessTreeModelParameters parameters) {
+	public ProcessTreeModelConnection(XLog log, ProcessTree model, ProcessTreeModelParameters parameters) {
 		super(log, model, parameters);
 	}
 }
