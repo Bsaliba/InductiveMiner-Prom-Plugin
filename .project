@@ -3,6 +3,7 @@
 	<name>InductiveMiner</name>
 	<comment></comment>
 	<projects>
+		<project>ProcessTree</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

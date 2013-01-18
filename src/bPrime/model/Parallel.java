@@ -8,6 +8,7 @@ public class Parallel extends Binoperator{
 	}
 
 	public String getOperatorString() {
-		return "&Lambda;";
+		return "/\\";
+		//return "&Lambda;";
 	}
 }

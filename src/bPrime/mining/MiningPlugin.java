@@ -105,7 +105,7 @@ public class MiningPlugin {
 		
 		debug("");
 		debug("==================");
-		//debug(log.toString());
+		debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
@@ -178,7 +178,7 @@ public class MiningPlugin {
 		}
 		
 		//parallel operator
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation.getGraph());
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation);
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
 			debugCut(node, parallelCut);
