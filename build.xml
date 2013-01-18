@@ -133,8 +133,8 @@
 							hasPlugins="true"
 							logo="http://www.promtools.org/prom6/packages/prom_subtitle_hat_300.png"
 						>
-							<!--dependency name="Upstream Package 1 (CHANGE)"/>
-							<dependency name="Upstream Package 2 (CHANGE)"/>
+							<dependency name="ProcessTree"/>
+							<!--dependency name="Upstream Package 2 (CHANGE)"/>
 							<dependency name="Upstream Package 3 (CHANGE)"/-->
 						</package>
 					</packages>
