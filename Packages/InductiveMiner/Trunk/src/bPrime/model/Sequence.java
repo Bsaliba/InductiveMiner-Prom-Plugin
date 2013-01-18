@@ -8,7 +8,8 @@ public class Sequence extends Binoperator {
 	}
 
 	public String getOperatorString() {
-		return "seq";
+		//return "seq";
+		return "->";
 	}
 	
 }
