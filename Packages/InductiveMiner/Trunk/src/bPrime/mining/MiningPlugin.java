@@ -105,7 +105,7 @@ public class MiningPlugin {
 		
 		debug("");
 		debug("==================");
-		//debug(log.toString());
+		debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
