@@ -74,7 +74,7 @@ public class MiningPlugin {
 		ProcessTreeModel model = new ProcessTreeModel(eventClasses);
 		
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool();
+		ThreadPool pool = new ThreadPool(0);
 		
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
@@ -105,7 +105,7 @@ public class MiningPlugin {
 		
 		debug("");
 		debug("==================");
-		debug(log.toString());
+		//debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
@@ -117,6 +117,7 @@ public class MiningPlugin {
 			final Binoperator node = new ExclusiveChoice(2);
 			node.setChild(0, new Tau());
 			target.setChild(index, node);
+			debug("remove epsilon from log");
 			final Filteredlog sublog = log.applyTauFilter();
 			pool.addJob(
 				new Runnable() {
@@ -124,7 +125,6 @@ public class MiningPlugin {
 		            	mineProcessTree(sublog, parameters, node, 1, pool);
 		            }
 			});
-			debug("remove tau from log");
 			return;
 		}
 		

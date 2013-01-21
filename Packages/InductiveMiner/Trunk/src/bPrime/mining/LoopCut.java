@@ -33,6 +33,43 @@ public class LoopCut {
 			}
 		}
 		
+		//find the start activities of each component
+		HashMap<Integer, Set<XEventClass>> startActivities = new HashMap<Integer, Set<XEventClass>>();
+		for (Integer cc=0;cc<ccs;cc++) {
+			startActivities.put(cc, new HashSet<XEventClass>());
+		}
+		for (XEventClass node : drf.getGraph().vertexSet()) {
+			Integer cc = connectedComponents.get(node);
+			for (DefaultEdge edge : drf.getGraph().incomingEdgesOf(node)) {
+				if (cc != connectedComponents.get(drf.getGraph().getEdgeSource(edge))) {
+					//this is a start activity
+					Set<XEventClass> start = startActivities.get(cc);
+					start.add(node);
+					startActivities.put(cc, start);
+				}
+			}
+		}
+		
+		//find the end activities of each component
+		HashMap<Integer, Set<XEventClass>> endActivities = new HashMap<Integer, Set<XEventClass>>();
+		for (Integer cc=0;cc<ccs;cc++) {
+			endActivities.put(cc, new HashSet<XEventClass>());
+		}
+		for (XEventClass node : drf.getGraph().vertexSet()) {
+			Integer cc = connectedComponents.get(node);
+			for (DefaultEdge edge : drf.getGraph().outgoingEdgesOf(node)) {
+				if (cc != connectedComponents.get(drf.getGraph().getEdgeTarget(edge))) {
+					//this is an end activity
+					Set<XEventClass> end = endActivities.get(cc);
+					end.add(node);
+					endActivities.put(cc, end);
+				}
+			}
+		}
+		
+		//debug(startActivities.toString());
+		//debug(endActivities.toString());
+		
 		//debug(connectedComponents.toString());
 		
 		//initialise the candidates
@@ -57,6 +94,30 @@ public class LoopCut {
 			if (!drf.getStartActivities().contains(endActivity)) {
 				for (DefaultEdge edge : drf.getGraph().incomingEdgesOf(endActivity)) {
 					candidates[connectedComponents.get(drf.getGraph().getEdgeSource(edge))] = false;
+				}
+			}
+		}
+		
+		//exclude all candidates that have no connection to all start activities
+		for (Integer cc=0;cc<ccs;cc++) {
+			Set<XEventClass> end = endActivities.get(cc);
+			for (XEventClass node1 : end) {
+				for (XEventClass node2 : drf.getStartActivities()) {
+					if (!drf.getGraph().containsEdge(node1, node2)) {
+						candidates[cc] = false;
+					}
+				}
+			}
+		}
+		
+		//exclude all candidates that have no connection from all end activities
+		for (Integer cc=0;cc<ccs;cc++) {
+			Set<XEventClass> start = startActivities.get(cc);
+			for (XEventClass node1 : start) {
+				for (XEventClass node2 : drf.getEndActivities()) {
+					if (!drf.getGraph().containsEdge(node2, node1)) {
+						candidates[cc] = false;
+					}
 				}
 			}
 		}

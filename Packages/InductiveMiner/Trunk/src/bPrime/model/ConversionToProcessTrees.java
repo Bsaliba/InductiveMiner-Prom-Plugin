@@ -21,6 +21,10 @@ public class ConversionToProcessTrees {
 	}
 	
 	private static org.processmining.processtree.Node convertNode(ProcessTree tree, Node node) {
+		if (node == null) {
+			return null;
+		}
+		
 		org.processmining.processtree.Node newNode = null;
 		
 		if (node instanceof Binoperator) {
