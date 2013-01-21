@@ -69,20 +69,30 @@ public class ConversionToProcessTrees {
 			tree.addEdge(edge);
 			
 			//redo
-			org.processmining.processtree.Node redoChild = new AbstractBlock.Xor("");
-			redoChild.setProcessTree(tree);
-			tree.addNode(redoChild);
-			Edge edge2 = newBlock.addChild(redoChild);
-			redoChild.addIncomingEdge(edge2);
-			tree.addEdge(edge2);
-			Block newXorBlock = (Block) redoChild;
-			while (it.hasNext()) {
-				org.processmining.processtree.Node redoXorChild = convertNode(tree, it.next());
-				redoXorChild.setProcessTree(tree);
-				tree.addNode(redoXorChild);
-				Edge edgeXor = newXorBlock.addChild(redoXorChild);
-				redoXorChild.addIncomingEdge(edgeXor);
-				tree.addEdge(edgeXor);
+			if (node.children.size() > 2) {
+				org.processmining.processtree.Node redoChild = new AbstractBlock.Xor("");
+				redoChild.setProcessTree(tree);
+				tree.addNode(redoChild);
+				Edge edge2 = newBlock.addChild(redoChild);
+				redoChild.addIncomingEdge(edge2);
+				tree.addEdge(edge2);
+				Block newXorBlock = (Block) redoChild;
+				while (it.hasNext()) {
+					org.processmining.processtree.Node redoXorChild = convertNode(tree, it.next());
+					redoXorChild.setProcessTree(tree);
+					tree.addNode(redoXorChild);
+					Edge edgeXor = newXorBlock.addChild(redoXorChild);
+					redoXorChild.addIncomingEdge(edgeXor);
+					tree.addEdge(edgeXor);
+				}
+			} else {
+				//don't add xor node if not needed
+				org.processmining.processtree.Node redoChild = convertNode(tree, it.next());
+				redoChild.setProcessTree(tree);
+				tree.addNode(redoChild);
+				Edge edge2 = newBlock.addChild(redoChild);
+				redoChild.addIncomingEdge(edge2);
+				tree.addEdge(edge2);
 			}
 			
 			//exit
