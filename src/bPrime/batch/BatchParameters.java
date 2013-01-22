@@ -1,4 +1,4 @@
-package bPrime;
+package bPrime.batch;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;

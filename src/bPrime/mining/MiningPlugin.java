@@ -62,7 +62,7 @@ public class MiningPlugin {
 		return tree;
 	}
 	
-	private ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		//prepare the log
 		debug("Start conversion to internal log format");
 		Filteredlog filteredLog = new Filteredlog(log, parameters);
