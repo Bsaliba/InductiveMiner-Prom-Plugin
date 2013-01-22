@@ -21,6 +21,7 @@ import org.processmining.processtree.ProcessTree;
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
 import bPrime.Sets;
+import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
 import bPrime.model.ConversionToProcessTrees;
 import bPrime.model.EventClass;
@@ -74,7 +75,7 @@ public class MiningPlugin {
 		ProcessTreeModel model = new ProcessTreeModel(eventClasses);
 		
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(0);
+		ThreadPool pool = new ThreadPool();
 		
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
