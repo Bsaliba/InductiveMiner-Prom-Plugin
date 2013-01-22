@@ -3,6 +3,7 @@ package bPrime.batch;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.deckfour.xes.model.XLog;
@@ -31,36 +32,35 @@ public class BatchMiningPlugin {
 	public ProcessTrees mineParameters(final PluginContext context, BatchParameters parameters) {
 		final MiningPlugin plugin = new MiningPlugin();
 		final ProcessTrees processTrees = new ProcessTrees();
-		OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
+		final OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
 		File folder = new File(parameters.getFolder());
-		List<String> files = getListOfFiles(folder);
+		List<String> files = getListOfFiles(folder, parameters.getExtensions());
 		
 		//use multiple threads. It makes no sense to read in files using a thread pool, but it makes sense to mine multithreaded
-		ThreadPool pool = new ThreadPool(parameters.getNumberOfThreads());
+		//however, we cannot load all logs in memory, so we need to do this concurrent as well
+		ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
+		
 		
 		for (String file : files) {
-			try {
-				
-				//import the log
-				debug("starting log import " + file);
-				final XLog log = (XLog) logImporter.importFile(context, file);
-				debug("import complete");
-				final Integer index = processTrees.add();
-				final String file2 = file;
-				
-				//mine the log in a thread
-				pool.addJob(
-					new Runnable() {
-			            public void run() {
+			final Integer index = processTrees.add();
+			final String file2 = file;
+			
+			//mine the log in a thread
+			pool.addJob(
+				new Runnable() {
+		            public void run() {
+		            	//import the log
+						debug("starting log import " + file2);
+						try {
+							XLog log = (XLog) logImporter.importFile(context, file2);
+							//debug("import complete");
 			            	ProcessTreeModel tree = plugin.mine(context, log, new ProcessTreeModelParameters());
 							processTrees.set(index, tree.root, file2);
-			            }
-				});
-				
-				debug("mining complete");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+		            }
+			});
 		}
 		
 		try {
@@ -74,11 +74,11 @@ public class BatchMiningPlugin {
 		return processTrees;
 	}
 	
-	private List<String> getListOfFiles(File file) {
+	private List<String> getListOfFiles(File file, Set<String> extensions) {
 		List<String> result = new LinkedList<String>();
 		if (file.isFile()) {
 			String name = file.getName();
-			if (name.substring(name.length()-4, name.length()).equalsIgnoreCase(".xes")) {
+			if (extensions.contains(name.substring(name.length()-4, name.length()))) {
     			//System.out.println("File: " + file.toString());
             	result.add(file.toString());
             }
@@ -86,7 +86,7 @@ public class BatchMiningPlugin {
 			File[] listOfFiles = file.listFiles();
 			if (listOfFiles != null) {
 				for (int i = 0; i < listOfFiles.length; i++) {
-					result.addAll(getListOfFiles(listOfFiles[i]));
+					result.addAll(getListOfFiles(listOfFiles[i], extensions));
 				}
 			}
 		}

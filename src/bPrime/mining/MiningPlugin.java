@@ -1,7 +1,6 @@
 package bPrime.mining;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +19,6 @@ import org.processmining.processtree.ProcessTree;
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
-import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
 import bPrime.model.ConversionToProcessTrees;
@@ -65,7 +63,7 @@ public class MiningPlugin {
 	
 	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		//prepare the log
-		debug("Start conversion to internal log format");
+		//debug("Start conversion to internal log format");
 		Filteredlog filteredLog = new Filteredlog(log, parameters);
 		//debug(filteredLog.toString());
 		
@@ -85,14 +83,14 @@ public class MiningPlugin {
 		try {
 			pool.join();
 		} catch (ExecutionException e) {
-			debug("something failed");
+			//debug("something failed");
 			e.printStackTrace();
 			model.root = null;
 		}
 		
 		//debug(dummyRootNode.toString());
 		model.root = dummyRootNode.getChild(0);
-		debug("mined model " + model.root.toString());
+		//debug("mined model " + model.root.toString());
 		
 		return model;
 	}
@@ -104,8 +102,8 @@ public class MiningPlugin {
 			int index, //in which subtree we must store our result
 			final ThreadPool pool) {
 		
-		debug("");
-		debug("==================");
+		//debug("");
+		//debug("==================");
 		//debug(log.toString());
 		
 		//read the log
@@ -118,7 +116,7 @@ public class MiningPlugin {
 			final Binoperator node = new ExclusiveChoice(2);
 			node.setChild(0, new Tau());
 			target.setChild(index, node);
-			debug("remove epsilon from log");
+			//debug("remove epsilon from log");
 			final Filteredlog sublog = log.applyTauFilter();
 			pool.addJob(
 				new Runnable() {
@@ -132,7 +130,7 @@ public class MiningPlugin {
 		if (log.getEventClasses().size() == 1 && directlyFollowsRelation.getLongestTrace() == 1 && !directlyFollowsRelation.getTauPresent()) {
 			//log only has one activity
 			target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
-			debug("activity " + log.getEventClasses().iterator().next());
+			//debug("activity " + log.getEventClasses().iterator().next());
 			return;
 		}
 		
@@ -140,7 +138,7 @@ public class MiningPlugin {
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getGraph());
 		if (exclusiveChoiceCut.size() > 1) {
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
-			debugCut(node, exclusiveChoiceCut);
+			//debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : exclusiveChoiceCut) {
@@ -161,7 +159,7 @@ public class MiningPlugin {
 		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getGraph());
 		if (sequenceCut.size() > 1) {
 			final Binoperator node = new Sequence(sequenceCut.size());
-			debugCut(node, sequenceCut);
+			//debugCut(node, sequenceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : sequenceCut) {
@@ -182,7 +180,7 @@ public class MiningPlugin {
 		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation);
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
-			debugCut(node, parallelCut);
+			//debugCut(node, parallelCut);
 			target.setChild(index, node);
 			//debug("set child " + index + " of " + target.toString());
 			int i = 0;
@@ -204,7 +202,7 @@ public class MiningPlugin {
 		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
-			debugCut(node, loopCut);
+			//debugCut(node, loopCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : loopCut) {
@@ -222,7 +220,7 @@ public class MiningPlugin {
 		}
 		
 		//flower loop fall-through
-		debug("chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
+		//debug("chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
 		Binoperator node = new Loop(log.getEventClasses().size()+1);
 		node.setChild(0, new Tau());
 		int i = 1;
@@ -234,7 +232,7 @@ public class MiningPlugin {
 		return;
 	}
 	
-	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
+	/*private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
 		String r = "chosen " + node.getOperatorString();
 		Iterator<Set<XEventClass>> it = cut.iterator();
 		while (it.hasNext()) {
@@ -245,5 +243,5 @@ public class MiningPlugin {
 	
 	private void debug(String x) {
 		System.out.println(x);
-	}
+	}*/
 }
