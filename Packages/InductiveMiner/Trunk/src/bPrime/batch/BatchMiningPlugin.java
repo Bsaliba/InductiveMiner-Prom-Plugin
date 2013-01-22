@@ -1,12 +1,6 @@
-package bPrime;
+package bPrime.batch;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,9 +10,12 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.log.OpenLogFilePlugin;
+import org.processmining.processtree.ProcessTree;
 
+import bPrime.ProcessTreeModelParameters;
 import bPrime.mining.MiningPlugin;
-import bPrime.model.ProcessTrees;
+import bPrime.model.ConversionToProcessTrees;
+import bPrime.model.ProcessTreeModel;
 
 @Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Process Trees" }, returnTypes = { ProcessTrees.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
@@ -35,13 +32,15 @@ public class BatchMiningPlugin {
 		MiningPlugin plugin = new MiningPlugin();
 		ProcessTrees processTrees = new ProcessTrees();
 		OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
-		String folder = "G:\\PROM\\";
+		File folder = new File(parameters.getFolder());
 		for (String file : getListOfFiles(folder)) {
 			try {
 				debug("starting log import " + file);
 				XLog log = (XLog) logImporter.importFile(context, file);
 				debug("import complete");
-				processTrees.trees.add(plugin.mineDefault(context, log));
+				ProcessTreeModel tree = plugin.mine(context, log, new ProcessTreeModelParameters());
+				ProcessTree convertedTree = ConversionToProcessTrees.convert(tree.root);
+				processTrees.add(convertedTree, tree.root, file);
 				debug("mining complete");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -50,40 +49,24 @@ public class BatchMiningPlugin {
 		return processTrees;
 	}
 	
-	private List<String> getListOfFiles(String folder) {
-		final List<String> result = new LinkedList<String>();
-		try {
-		    Path startPath = Paths.get(folder);
-		    Files.walkFileTree(startPath, new SimpleFileVisitor<Path>() {
-		        @Override
-		        public FileVisitResult preVisitDirectory(Path dir,
-		                BasicFileAttributes attrs) {
-		            System.out.println("Dir: " + dir.toString());
-		            return FileVisitResult.CONTINUE;
-		        }
-
-		        @Override
-		        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-		        	String name = file.toString();
-		        	System.out.println(name.substring(name.length()-4, name.length()) + "---");
-		            if (name.substring(name.length()-4, name.length()).equalsIgnoreCase(".xes")) {
-		    			System.out.println("File: " + file.toString());
-		            	result.add(file.toString());
-		            }
-		            return FileVisitResult.CONTINUE;
-		        }
-
-		        @Override
-		        public FileVisitResult visitFileFailed(Path file, IOException e) {
-		            return FileVisitResult.CONTINUE;
-		        }
-		    });
-		} catch (IOException e) {
-		    e.printStackTrace();
+	private List<String> getListOfFiles(File file) {
+		List<String> result = new LinkedList<String>();
+		if (file.isFile()) {
+			String name = file.getName();
+			if (name.substring(name.length()-4, name.length()).equalsIgnoreCase(".xes")) {
+    			//System.out.println("File: " + file.toString());
+            	result.add(file.toString());
+            }
+		} else if (file.isDirectory()) {
+			File[] listOfFiles = file.listFiles();
+			if (listOfFiles != null) {
+				for (int i = 0; i < listOfFiles.length; i++) {
+					result.addAll(getListOfFiles(listOfFiles[i]));
+				}
+			}
 		}
-		
 		return result;
-	}
+    }
 	
 	private void debug(String s) {
 		System.out.println(s);
