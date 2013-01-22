@@ -1,4 +1,4 @@
-package bPrime.mining;
+package bPrime;
 
 import java.util.ArrayList;
 import java.util.Collections;
