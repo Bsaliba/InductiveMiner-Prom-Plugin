@@ -45,5 +45,6 @@
 	<classpathentry kind="lib" path="tests/libs-external/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
+	<classpathentry kind="lib" path="packagelib/Log.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
