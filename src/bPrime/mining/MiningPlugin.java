@@ -11,12 +11,13 @@ import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
+import org.processmining.connections.logmodel.LogPetrinetConnectionImpl;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.processtree.ProcessTree;
+import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
@@ -29,11 +30,11 @@ import bPrime.model.Loop;
 import bPrime.model.Parallel;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.ProcessTreeModel.Operator;
-import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 import bPrime.model.Sequence;
 import bPrime.model.Tau;
+import bPrime.model.conversion.ProcessTreeModel2PetriNet;
 
-@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
+/*@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
 	
@@ -61,6 +62,39 @@ public class MiningPlugin {
 		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
 		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
 		return tree;
+	}*/
+@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Petri net" }, returnTypes = { Petrinet.class }, parameterLabels = {
+		"Log", "Parameters" }, userAccessible = true)
+public class MiningPlugin {
+	
+	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
+	public Petrinet mineDefaultPetrinet(PluginContext context, XLog log) {
+		return this.mineParametersPetrinet(context, log, new ProcessTreeModelParameters());
+	}
+	
+	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, parameterized", requiredParameterLabels = { 0, 1 })
+	public Petrinet mineParametersPetrinet(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+		Collection<ProcessTreeModelConnection> connections;
+		try {
+			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
+			for (ProcessTreeModelConnection connection : connections) {
+				if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
+						&& connection.getParameters().equals(parameters)) {
+					return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
+				}
+			}
+		} catch (ConnectionCannotBeObtained e) {
+		}
+		ProcessTreeModel model = mine(context, log, parameters);
+		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convertAndAddToProm(context, model.root);
+		
+		//create connection
+		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+		context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
+		
+		return workflowNet.petrinet;
 	}
 	
 	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
