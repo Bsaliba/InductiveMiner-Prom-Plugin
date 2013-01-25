@@ -47,5 +47,6 @@
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
 	<classpathentry kind="lib" path="packagelib/Log.jar"/>
 	<classpathentry kind="lib" path="stdlib/EfficientStorage.jar"/>
+	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
