@@ -1,6 +1,9 @@
 package bPrime.mining;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -14,6 +17,8 @@ public class DirectlyFollowsRelation {
 	private DefaultDirectedGraph<XEventClass, DefaultEdge> graph;
 	private Set<XEventClass> startActivities;
 	private Set<XEventClass> endActivities;
+	private HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween;
+	private HashMap<XEventClass, Integer> minimumSelfDistances;
 	private boolean tauPresent;
 	private int longestTrace;
 	
@@ -22,6 +27,8 @@ public class DirectlyFollowsRelation {
 		graph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);
 		startActivities = new HashSet<XEventClass>();
 		endActivities = new HashSet<XEventClass>();
+		minimumSelfDistances = new HashMap<XEventClass, Integer>();
+		minimumSelfDistancesBetween = new HashMap<XEventClass, Set<XEventClass>>();
 		tauPresent = false;
 		
 		XEventClass secondFromEventClass;
@@ -38,6 +45,9 @@ public class DirectlyFollowsRelation {
 		
 		//walk trough the log
 		log.initIterator();
+		HashMap<XEventClass, Integer> eventSeenAt;
+		List<XEventClass> readTrace;
+		
 		while (log.hasNextTrace()) {
 			log.nextTrace();
 		
@@ -46,6 +56,8 @@ public class DirectlyFollowsRelation {
 			secondFromEventClass = null;
 			
 			int traceSize = 0;
+			eventSeenAt = new HashMap<XEventClass, Integer>();
+			readTrace = new LinkedList<XEventClass>();
 			
 			while(log.hasNextEvent()) {
 
@@ -53,7 +65,20 @@ public class DirectlyFollowsRelation {
 				fromEventClass = toEventClass;
 				toEventClass = log.nextEvent();
 				
-				traceSize += 1;
+				readTrace.add(toEventClass);
+				
+				if (eventSeenAt.containsKey(toEventClass)) {
+					//we have detected an activity for the second time
+					//check whether this is shorter than what we had already seen
+					if (!minimumSelfDistances.containsKey(toEventClass) || traceSize - eventSeenAt.get(toEventClass) < minimumSelfDistances.get(toEventClass)) {
+						//keep the new minimum self distance
+						minimumSelfDistances.put(toEventClass, traceSize - eventSeenAt.get(toEventClass));
+						
+						//store the new activities in between
+						minimumSelfDistancesBetween.put(toEventClass, new HashSet<XEventClass>(readTrace.subList(eventSeenAt.get(toEventClass)+1, traceSize)));
+					}
+				}
+				eventSeenAt.put(toEventClass, traceSize);
 				
 				if (fromEventClass != null) {
 					
@@ -72,6 +97,8 @@ public class DirectlyFollowsRelation {
 				} else {
 					startActivities.add(toEventClass);
 				}
+				
+				traceSize += 1;
 			}
 			
 			//update the longest-trace-counter
@@ -87,6 +114,7 @@ public class DirectlyFollowsRelation {
 				tauPresent = true;
 			}
 		}
+		System.out.println(minimumSelfDistancesBetween.toString());
 	}
 	
 	public String debugGraph() {
@@ -113,6 +141,13 @@ public class DirectlyFollowsRelation {
 	
 	public int getLongestTrace() {
 		return longestTrace;
+	}
+	
+	public Set<XEventClass> getMinimumSelfDistanceBetween(XEventClass activity) {
+		if (!minimumSelfDistances.containsKey(activity)) {
+			return new HashSet<XEventClass>();
+		}
+		return minimumSelfDistancesBetween.get(activity);
 	}
 	
 }

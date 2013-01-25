@@ -35,6 +35,13 @@ public class ParallelCut {
 			}
 		}
 		
+		//add extra edges to account for too-much-connected-loops
+		for (XEventClass activity : dfr.getGraph().vertexSet()) {
+			for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
+				negatedGraph.addEdge(activity, activity2);
+			}
+		}
+		
 		//debug(dfr.debugGraph());
 		
 		//compute the connected components of the negated graph
@@ -69,10 +76,10 @@ public class ParallelCut {
 				}
 			}
 		}
-		//debug("StartEnd " + ccsWithStartEnd.toString());
-		//debug("Start " + ccsWithStart.toString());
-		//debug("End " + ccsWithEnd.toString());
-		//debug("Nothing " + ccsWithNothing.toString());
+		debug("StartEnd " + ccsWithStartEnd.toString());
+		debug("Start " + ccsWithStart.toString());
+		debug("End " + ccsWithEnd.toString());
+		debug("Nothing " + ccsWithNothing.toString());
 		//add full sets
 		List<Set<XEventClass>> connectedComponents2 = new LinkedList<Set<XEventClass>>(ccsWithStartEnd);
 		//add combinations of end-only and start-only components
@@ -110,7 +117,7 @@ public class ParallelCut {
 		return new HashSet<Set<XEventClass>>(connectedComponents2);
 	}
 	
-	//private static void debug(String x) {
-	//	System.out.println(x);
-	//}
+	private static void debug(String x) {
+		System.out.println(x);
+	}
 }
