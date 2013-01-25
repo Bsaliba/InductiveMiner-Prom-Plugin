@@ -11,7 +11,7 @@ public class BatchParameters {
 	private Set<String> extensions;
 	
 	public BatchParameters() {
-		folder = "d:\\datasets";
+		folder = "d:\\datasets\\generatedLogs";
 		numberOfConcurrentFiles = 4;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
 	}

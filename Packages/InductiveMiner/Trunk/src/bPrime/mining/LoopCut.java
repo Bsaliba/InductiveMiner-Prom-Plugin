@@ -105,6 +105,7 @@ public class LoopCut {
 				for (XEventClass node2 : drf.getStartActivities()) {
 					if (!drf.getGraph().containsEdge(node1, node2)) {
 						candidates[cc] = false;
+						//debug("body part for no connection to all start activities " + cc.toString());
 					}
 				}
 			}
@@ -117,6 +118,7 @@ public class LoopCut {
 				for (XEventClass node2 : drf.getEndActivities()) {
 					if (!drf.getGraph().containsEdge(node2, node1)) {
 						candidates[cc] = false;
+						//debug("body part for no connection from all end activities " + node2.toString() + " " + node1.toString());
 					}
 				}
 			}
@@ -130,14 +132,14 @@ public class LoopCut {
 		
 		//divide the activities
 		for (XEventClass node : drf.getGraph().vertexSet()) {
-			//debug += node.toString() + " in connected component " + connectedComponents.get(node);
+			//debug(node.toString() + " in connected component " + connectedComponents.get(node));
 			int index;
 			if (candidates[connectedComponents.get(node)]) {
 				index = connectedComponents.get(node);
-				//debug += ", redo part of loop";
+				//debug(", redo part of loop");
 			} else {
 				index = 0;
-				//debug += ", body part of loop";
+				//debug(", body part of loop");
 			}
 			Set<XEventClass> s = result.get(index);
 			s.add(node);
