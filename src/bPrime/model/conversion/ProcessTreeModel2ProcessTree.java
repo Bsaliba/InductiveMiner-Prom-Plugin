@@ -1,4 +1,4 @@
-package bPrime.model;
+package bPrime.model.conversion;
 
 import java.util.Iterator;
 
@@ -10,7 +10,16 @@ import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
-public class ConversionToProcessTrees {
+import bPrime.model.Binoperator;
+import bPrime.model.EventClass;
+import bPrime.model.ExclusiveChoice;
+import bPrime.model.Loop;
+import bPrime.model.Node;
+import bPrime.model.Parallel;
+import bPrime.model.Sequence;
+import bPrime.model.Tau;
+
+public class ProcessTreeModel2ProcessTree {
 	
 	public static ProcessTree convert(Node root) {
 		ProcessTree tree = new ProcessTreeImpl();
@@ -59,7 +68,7 @@ public class ConversionToProcessTrees {
 		if (node instanceof Loop) {
 			//For loops, the process tree package requires three children: body, redo and exit.
 			
-			Iterator<Node> it = node.children.iterator();
+			Iterator<Node> it = node.getChildren().iterator();
 			//body
 			org.processmining.processtree.Node bodyChild = convertNode(tree, it.next());
 			bodyChild.setProcessTree(tree);
@@ -69,7 +78,7 @@ public class ConversionToProcessTrees {
 			tree.addEdge(edge);
 			
 			//redo
-			if (node.children.size() > 2) {
+			if (node.getChildren().size() > 2) {
 				org.processmining.processtree.Node redoChild = new AbstractBlock.Xor("");
 				redoChild.setProcessTree(tree);
 				tree.addNode(redoChild);
@@ -104,7 +113,7 @@ public class ConversionToProcessTrees {
 			tree.addEdge(edgeExit);
 		} else {
 			//And give it its children
-			for (Node child : node.children) {
+			for (Node child : node.getChildren()) {
 				org.processmining.processtree.Node newChild = convertNode(tree, child);
 				//Connect new child to parent and connect the edges
 				Edge edge = newBlock.addChild(newChild);

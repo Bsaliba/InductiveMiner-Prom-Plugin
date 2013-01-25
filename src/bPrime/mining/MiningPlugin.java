@@ -23,13 +23,13 @@ import bPrime.ProcessTreeModelParameters;
 import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
-import bPrime.model.ConversionToProcessTrees;
 import bPrime.model.EventClass;
 import bPrime.model.ExclusiveChoice;
 import bPrime.model.Loop;
 import bPrime.model.Parallel;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.ProcessTreeModel.Operator;
+import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 import bPrime.model.Sequence;
 import bPrime.model.Tau;
 
@@ -58,7 +58,7 @@ public class MiningPlugin {
 		} catch (ConnectionCannotBeObtained e) {
 		}
 		ProcessTreeModel model = mine(context, log, parameters);
-		ProcessTree tree = ConversionToProcessTrees.convert(model.root);
+		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
 		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
 		return tree;
 	}
