@@ -17,4 +17,8 @@ public abstract class Node {
 		}
 		return result;
 	}
+	
+	public List<Node> getChildren() {
+		return children;
+	}
 }
