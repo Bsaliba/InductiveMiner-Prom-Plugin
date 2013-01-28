@@ -11,7 +11,7 @@ public class BatchParameters {
 	private Set<String> extensions;
 	
 	public BatchParameters() {
-		folder = "d:\\datasets\\boek\\chapter 5";
+		folder = "d:\\datasets\\boek";
 		numberOfConcurrentFiles = 0;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
 	}
