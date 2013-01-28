@@ -17,7 +17,12 @@ import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.framework.util.Pair;
+import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
@@ -63,19 +68,19 @@ public class MiningPlugin {
 		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
 		return tree;
 	}*/
-@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Petri net" }, returnTypes = { Petrinet.class }, parameterLabels = {
+@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
-	public Petrinet mineDefaultPetrinet(PluginContext context, XLog log) {
+	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
 		return this.mineParametersPetrinet(context, log, new ProcessTreeModelParameters());
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, parameterized", requiredParameterLabels = { 0, 1 })
-	public Petrinet mineParametersPetrinet(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public Object[] mineParametersPetrinet(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		Collection<ProcessTreeModelConnection> connections;
 		try {
 			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
@@ -87,6 +92,7 @@ public class MiningPlugin {
 			}
 		} catch (ConnectionCannotBeObtained e) {
 		}
+		
 		ProcessTreeModel model = mine(context, log, parameters);
 		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convertAndAddToProm(context, model.root);
 		
@@ -94,7 +100,14 @@ public class MiningPlugin {
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
 		context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
 		
-		return workflowNet.petrinet;
+		XEventClass dummy = new XEventClass("", 1);
+		TransEvClassMapping mapping = new TransEvClassMapping(parameters.getClassifier(), dummy);
+		for (Pair<Transition, XEventClass> p : workflowNet.transition2eventClass) {
+			mapping.put(p.getFirst(), p.getSecond());
+		}
+		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
+		
+		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
 	}
 	
 	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
@@ -139,12 +152,12 @@ public class MiningPlugin {
 			final ThreadPool pool) {
 		
 		//debug("");
-		debug("==================");
-		debug(log.toString());
+		//debug("==================");
+		//debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
-		debug(directlyFollowsRelation.debugGraph());
+		//debug(directlyFollowsRelation.debugGraph());
 		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
@@ -175,7 +188,7 @@ public class MiningPlugin {
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getGraph());
 		if (exclusiveChoiceCut.size() > 1) {
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
-			debugCut(node, exclusiveChoiceCut);
+			//debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : exclusiveChoiceCut) {
@@ -196,7 +209,7 @@ public class MiningPlugin {
 		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getGraph());
 		if (sequenceCut.size() > 1) {
 			final Binoperator node = new Sequence(sequenceCut.size());
-			debugCut(node, sequenceCut);
+			//debugCut(node, sequenceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : sequenceCut) {
@@ -217,7 +230,7 @@ public class MiningPlugin {
 		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation);
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
-			debugCut(node, parallelCut);
+			//debugCut(node, parallelCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : parallelCut) {
@@ -238,7 +251,7 @@ public class MiningPlugin {
 		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
-			debugCut(node, loopCut);
+			//debugCut(node, loopCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : loopCut) {
