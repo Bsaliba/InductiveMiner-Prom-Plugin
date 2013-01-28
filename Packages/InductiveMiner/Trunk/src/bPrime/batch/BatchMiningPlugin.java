@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.JOptionPane;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -33,7 +36,30 @@ public class BatchMiningPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, default", requiredParameterLabels = { })
 	public ProcessTrees mineDefault(PluginContext context) {
-		return this.mineParameters(context, new BatchParameters());
+		BatchParameters parameters = new BatchParameters();
+		
+		//ask the user for the folder to be batch processed
+		boolean repeat = true;
+		while (repeat) {
+			String folder = (String) JOptionPane.showInputDialog(null,
+					"What is the folder to batch process?",
+					"Provide Folder",
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					null,
+					parameters.getFolder());
+			if (folder == null) {
+				return null;
+			} else {
+				File x = new File(folder);
+				if (x.exists() && x.isDirectory()) {
+					repeat = false;
+					parameters.setFolder(folder);
+				}
+			}
+		}
+		
+		return this.mineParameters(context, parameters);
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
@@ -58,6 +84,14 @@ public class BatchMiningPlugin {
 			            }
 					}
 				);
+		}
+		
+		try {
+			pool.join();
+		} catch (ExecutionException e) {
+			//debug("something failed");
+			e.printStackTrace();
+			return null;
 		}
     	
     	return result;
@@ -117,106 +151,11 @@ public class BatchMiningPlugin {
     	result.set(index, file, comment);
 	}
 	
-	/*
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine Process Trees, parameterized", requiredParameterLabels = { 1 })
-	public PNRepResult mineParameters(final PluginContext context, BatchParameters parameters) {
-		final MiningPlugin plugin = new MiningPlugin();
-		final PNLogReplayer replayer = new PNLogReplayer();
-		final ProcessTrees processTrees = new ProcessTrees();
-		final OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
-		final AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
-		File folder = new File(parameters.getFolder());
-		List<String> files = getListOfFiles(folder, parameters.getExtensions());
-		
-		//use multiple threads. It makes no sense to read in files using a thread pool, but it makes sense to mine multithreaded
-		//however, we cannot load all logs in memory, so we need to do this concurrent as well
-		//ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
-		
-		ThreadPool pool = new ThreadPool(0);
-		String file = "D:\\datasets\\boek\\chapter 5\\L1.xes";
-		
-		
-		for (String file : files) {
-			final Integer index = processTrees.add();
-			final String file2 = file;
-			
-			PNRepResult replayed = null;
-			
-			/*
-			//mine the log in a thread
-			pool.addJob(
-				new Runnable() {
-		            public void run() {
-		            	//import the log
-						debug("starting log import " + file2);
-						try {
-							//here we go
-							
-							//import the log
-							XLog log = (XLog) logImporter.importFile(context, file2);
-							debug("import complete");
-							
-							//mine the petri net
-			            	Object[] arr = plugin.mineDefaultPetrinet(context, log);
-			            	Petrinet petrinet = (Petrinet) arr[0];
-			            	Marking initialMarking = (Marking) arr[1];
-			            	Marking finalMarking = (Marking) arr[2];
-			            	
-			            	
-			            	//replay the log
-			            	ProcessTreeModelParameters Treeparameters = new ProcessTreeModelParameters();
-			    			XEventClass dummy = new XEventClass("", 1);
-			    			TransEvClassMapping mapping = new TransEvClassMapping(Treeparameters.getClassifier(), dummy);
-			    			IPNReplayAlgorithm algorithm = new BehavAppPruneAlg();
-			    			BehavAppParam replayParameters = new BehavAppParam();
-			    			replayParameters.setInitialMarking(initialMarking);
-			    			replayParameters.setFinalMarkings(finalMarking);
-			    			//weight function
-			    			Map<XEventClass, Integer> xEventClassWeightMap = new HashMap<XEventClass, Integer>();
-			    			xEventClassWeightMap.put(dummy, 1);
-			    			Collection<XEventClass> eventClasses = XLogInfoFactory.createLogInfo(log, Treeparameters.getClassifier()).getEventClasses().getClasses();
-			    			for (XEventClass activity : eventClasses) {
-			    				xEventClassWeightMap.put(activity, 1);
-			    			}
-			    			//replayParameters.setxEventClassWeightMap(xEventClassWeightMap);
-			    			//replay
-			            	//PNRepResult replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
-			    			replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
-			            	
-			            	
-			            	//measure precision/generalisation
-			            	//AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
-			            	
-			            	//debug(precisionGeneralisation.toHTMLString(false));
-			            	
-			            	//processTrees.set(index, tree.root, file2);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-		            /*}
-			});
-		}
-		
-		try {
-			pool.join();
-		} catch (ExecutionException e) {
-			debug("something failed");
-			e.printStackTrace();
-			return null;
-		}
-		
-		return processTrees;
-		
-		return replayed;
-	}*/
-	
 	private List<String> getListOfFiles(File file, Set<String> extensions) {
 		List<String> result = new LinkedList<String>();
 		if (file.isFile()) {
 			String name = file.getName();
 			if (extensions.contains(name.substring(name.length()-4, name.length()))) {
-    			//System.out.println("File: " + file.toString());
             	result.add(file.toString());
             }
 		} else if (file.isDirectory()) {
@@ -230,7 +169,7 @@ public class BatchMiningPlugin {
 		return result;
     }
 	
-	private void debug(String s) {
-		System.out.println(s);
-	}
+	//private void debug(String s) {
+	//	System.out.println(s);
+	//}
 }
