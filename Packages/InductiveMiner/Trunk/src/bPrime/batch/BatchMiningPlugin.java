@@ -86,9 +86,9 @@ public class BatchMiningPlugin {
     	Petrinet petrinet = (Petrinet) arr[0];
     	Marking initialMarking = (Marking) arr[1];
     	Marking finalMarking = (Marking) arr[2];
-		context.getProvidedObjectManager().createProvidedObject("Petri net of " + file, petrinet, context);
+		/*context.getProvidedObjectManager().createProvidedObject("Petri net of " + file, petrinet, context);
     	context.getProvidedObjectManager().createProvidedObject("Initial marking of " + file, initialMarking, context);
-    	context.getProvidedObjectManager().createProvidedObject("Final marking of " + file, finalMarking, context);
+    	context.getProvidedObjectManager().createProvidedObject("Final marking of " + file, finalMarking, context);*/
     	
     	//replay the log
     	PNLogReplayer replayer = new PNLogReplayer();
@@ -104,7 +104,7 @@ public class BatchMiningPlugin {
 		IPNReplayAlgorithm algorithm = new BehavAppPruneAlg();
 		BehavAppParam replayParameters = new BehavAppParam();
 		replayParameters.setInitialMarking(initialMarking);
-		replayParameters.setFinalMarkings(finalMarking);
+		replayParameters.setFinalMarkings(new Marking[] {finalMarking});
 		replayParameters.setCreateConn(true);
 		replayParameters.setGUIMode(false);
     	PNRepResult replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
