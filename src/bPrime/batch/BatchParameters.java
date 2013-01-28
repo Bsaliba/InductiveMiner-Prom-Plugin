@@ -16,6 +16,10 @@ public class BatchParameters {
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
 	}
 	
+	public void setFolder(String folder2) {
+		folder = folder2;
+	}
+	
 	public String getFolder() {
 		return folder;
 	}
