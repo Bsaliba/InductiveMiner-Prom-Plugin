@@ -34,13 +34,9 @@ public class ProcessTreeModel2PetriNet {
 		public Marking finalMarking;
 	}
 	
-	public static WorkflowNet convertAndAddToProm(PluginContext context, Node root) {
-		WorkflowNet workflowNet = convert(root);
-		
+	public static void addMarkingsToProm(PluginContext context, WorkflowNet workflowNet) {
 		context.addConnection(new InitialMarkingConnection(workflowNet.petrinet, workflowNet.initialMarking));
 		context.addConnection(new FinalMarkingConnection(workflowNet.petrinet, workflowNet.finalMarking));
-		
-		return workflowNet;
 	}
 	
 	public static WorkflowNet convert(Node root) {
@@ -53,7 +49,6 @@ public class ProcessTreeModel2PetriNet {
 		workflowNet.initialMarking.add(workflowNet.source);
 		workflowNet.finalMarking = new Marking();
 		workflowNet.finalMarking.add(workflowNet.sink);
-		
 		
 		convertNode(workflowNet, workflowNet.source, workflowNet.sink, root);
 		

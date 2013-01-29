@@ -1,6 +1,7 @@
 package bPrime.batch;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -8,27 +9,30 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JOptionPane;
 
+import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.info.XLogInfo;
+import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
-import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.log.OpenLogFilePlugin;
 import org.processmining.plugins.petrinet.replayer.PNLogReplayer;
-import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
-import org.processmining.plugins.petrinet.replayer.algorithms.behavapp.BehavAppParam;
-import org.processmining.plugins.petrinet.replayer.algorithms.behavapp.BehavAppPruneAlg;
+import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
 import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGen;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes;
 
+import bPrime.ProcessTreeModelParameters;
 import bPrime.ThreadPool;
 import bPrime.mining.MiningPlugin;
+import bPrime.model.ProcessTreeModel;
+import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
 @Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Process Trees" }, returnTypes = { ProcessTrees.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
@@ -71,6 +75,8 @@ public class BatchMiningPlugin {
 		File folder = new File(parameters.getFolder());
 		List<String> files = getListOfFiles(folder, parameters.getExtensions());
 		final ProcessTrees result = new ProcessTrees();
+		final MiningPlugin miningPlugin = new MiningPlugin();
+		final PNLogReplayer replayer = new PNLogReplayer();
 		
 		for (String file2 : files) {
 		
@@ -80,7 +86,7 @@ public class BatchMiningPlugin {
 			pool.addJob(
 					new Runnable() {
 			            public void run() {
-			            	runJob(result, index, context, file);
+			            	runJob(result, index, context, file, miningPlugin, replayer);
 			            }
 					}
 				);
@@ -89,66 +95,90 @@ public class BatchMiningPlugin {
 		try {
 			pool.join();
 		} catch (ExecutionException e) {
-			//debug("something failed");
+			//debug("something failed (thread join)");
 			e.printStackTrace();
 			return null;
 		}
     	
+		//debug("finished batch");
     	return result;
 	}
 	
 	private void runJob(ProcessTrees result, 
 			int index,
 			PluginContext context,
-			String file) {
+			String fileName,
+			MiningPlugin miningPlugin,
+			PNLogReplayer replayer) {
 		//perform the computations, store the result in result[index]
 		
 		//import the log
-		OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
+		//debug(fileName);
 		XLog log;
 		try {
-			log = (XLog) logImporter.importFile(context, file);
+			OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
+			log = (XLog) logImporter.importFile(context, fileName);
 		} catch (Exception e) {
+			//debug("error encountered (log import)");
 			e.printStackTrace();
 			return;
 		}
-		context.getProvidedObjectManager().createProvidedObject("Event log", log, context);
 		
 		//mine the petri net
-		MiningPlugin plugin = new MiningPlugin();
-    	Object[] arr = plugin.mineDefaultPetrinet(context, log);
-    	Petrinet petrinet = (Petrinet) arr[0];
-    	Marking initialMarking = (Marking) arr[1];
-    	Marking finalMarking = (Marking) arr[2];
-		/*context.getProvidedObjectManager().createProvidedObject("Petri net of " + file, petrinet, context);
-    	context.getProvidedObjectManager().createProvidedObject("Initial marking of " + file, initialMarking, context);
-    	context.getProvidedObjectManager().createProvidedObject("Final marking of " + file, finalMarking, context);*/
+		ProcessTreeModelParameters parameters = new ProcessTreeModelParameters();
+		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, parameters);
+		ProcessTreeModel model = (ProcessTreeModel) arr[0];
+		WorkflowNet workflowNet = (WorkflowNet) arr[1];
+		Petrinet petrinet = workflowNet.petrinet;
+		Marking initialMarking = workflowNet.initialMarking;
+		Marking finalMarking = workflowNet.finalMarking;
+		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
+		XEventClass dummy = mapping.getDummyEventClass();
     	
     	//replay the log
-    	PNLogReplayer replayer = new PNLogReplayer();
+		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+		Collection<XEventClass> activities = info.getEventClasses().getClasses();
 		
-		TransEvClassMapping mapping = null;
+		PetrinetReplayerWithILP algorithm = new PetrinetReplayerWithILP();
+		CostBasedCompleteParam replayParameters = new CostBasedCompleteParam(activities, dummy, petrinet.getTransitions(), 1, 1);
+		replayParameters.setInitialMarking(initialMarking);
+		replayParameters.setFinalMarkings(new Marking[] {finalMarking});
+		replayParameters.setCreateConn(false);
+		replayParameters.setGUIMode(false);
+		//replayParameters.setUseLogWeight(false);
+		//Map<XEventClass, Integer> weightMap = new HashMap<XEventClass, Integer>();
+		//weightMap.put(dummy, 0);
+		//for (XEventClass activity : activities) {
+		//	weightMap.put(activity, 1);
+		//}
+		//replayParameters.setxEventClassWeightMap(weightMap);
+		PNRepResult replayed = null;
 		try {
-			EvClassLogPetrinetConnection conn = context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, petrinet, log);
-			mapping = conn.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
-		} catch (ConnectionCannotBeObtained e) {
+			replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
+		} catch (Exception e) {
+			//debug("error encountered (replay algorithm)");
 			e.printStackTrace();
 			return;
 		}
-		IPNReplayAlgorithm algorithm = new BehavAppPruneAlg();
-		BehavAppParam replayParameters = new BehavAppParam();
-		replayParameters.setInitialMarking(initialMarking);
-		replayParameters.setFinalMarkings(new Marking[] {finalMarking});
-		replayParameters.setCreateConn(true);
-		replayParameters.setGUIMode(false);
-    	PNRepResult replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
     	
     	//measure precision/generalisation
     	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
     	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
     	
-    	String comment = "precision " + precisionGeneralisation.getPrecision() + "<br>generalisation " + precisionGeneralisation.getGeneralization();
-    	result.set(index, file, comment);
+    	//clean up
+    	/*for (ProvidedObjectID id : context.getProvidedObjectManager().getProvidedObjects()) {
+    		try {
+				context.getProvidedObjectManager().deleteProvidedObject(id);
+			} catch (ProvidedObjectDeletedException e) {
+				e.printStackTrace();
+			}
+    	}*/
+    	
+    	String comment = model.toHTMLString(false) + 
+    			"<br>precision " + precisionGeneralisation.getPrecision() +
+    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
+    	
+    	result.set(index, fileName, comment);
 	}
 	
 	private List<String> getListOfFiles(File file, Set<String> extensions) {

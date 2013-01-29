@@ -1,7 +1,7 @@
 package bPrime.mining;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +26,6 @@ import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMap
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
-import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
 import bPrime.model.EventClass;
@@ -38,6 +37,7 @@ import bPrime.model.ProcessTreeModel.Operator;
 import bPrime.model.Sequence;
 import bPrime.model.Tau;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet;
+import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
 /*@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
@@ -93,21 +93,36 @@ public class MiningPlugin {
 		} catch (ConnectionCannotBeObtained e) {
 		}
 		
-		ProcessTreeModel model = mine(context, log, parameters);
-		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convertAndAddToProm(context, model.root);
+		//call the connectionless function
+		Object[] arr = mineParametersPetrinetWithoutConnections(context, log, parameters);
+		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = (WorkflowNet) arr[1];
+		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		
-		//create connection
+		ProcessTreeModel2PetriNet.addMarkingsToProm(context, workflowNet);
+		
+		//create connections
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
 		context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
 		
+		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
+		
+		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
+	}
+	
+	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+		ProcessTreeModel model = mine(context, log, parameters);
+		WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convert(model.root);
+		
+		//create mapping
+		Set<XEventClass> activities = new HashSet<XEventClass>();
 		XEventClass dummy = new XEventClass("", 1);
 		TransEvClassMapping mapping = new TransEvClassMapping(parameters.getClassifier(), dummy);
 		for (Pair<Transition, XEventClass> p : workflowNet.transition2eventClass) {
 			mapping.put(p.getFirst(), p.getSecond());
+			activities.add(p.getSecond());
 		}
-		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
 		
-		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
+		return new Object[] {model, workflowNet, mapping, activities};
 	}
 	
 	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
@@ -281,6 +296,7 @@ public class MiningPlugin {
 		return;
 	}
 	
+	/*
 	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
 		String r = "chosen " + node.getOperatorString();
 		Iterator<Set<XEventClass>> it = cut.iterator();
@@ -293,4 +309,5 @@ public class MiningPlugin {
 	private void debug(String x) {
 		System.out.println(x);
 	}
+	*/
 }

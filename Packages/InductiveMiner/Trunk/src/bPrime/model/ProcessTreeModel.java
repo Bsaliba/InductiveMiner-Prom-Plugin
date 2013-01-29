@@ -139,16 +139,16 @@ public class ProcessTreeModel implements HTMLToString{
 		//print the model
 		if (root != null) {
 			buffer.append(root.toString());
-			debug("HTML generation " + root.toString());
+			//debug("HTML generation " + root.toString());
 		} else {
-			debug("HTML generation with empty root");
+			//debug("HTML generation with empty root");
 			buffer.append(html);
 		}
 		
 		if (includeHTMLTags) {
 			buffer.append("</html>");
 		}
-		debug("Answer: " + buffer.toString());
+		//debug("Answer: " + buffer.toString());
 		return buffer.toString();
 	}
 	
@@ -169,7 +169,7 @@ public class ProcessTreeModel implements HTMLToString{
 		return maxCardinality;
 	}*/
 	
-	private void debug(String x) {
-		System.out.println(x);
-	}
+	//private void debug(String x) {
+	//	System.out.println(x);
+	//}
 }
