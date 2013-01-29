@@ -48,5 +48,7 @@
 	<classpathentry kind="lib" path="packagelib/Log.jar"/>
 	<classpathentry kind="lib" path="stdlib/EfficientStorage.jar"/>
 	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
+	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
+	<classpathentry kind="lib" path="packagelib/PNetAlignmentAnalysis.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
