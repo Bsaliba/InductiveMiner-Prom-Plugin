@@ -114,7 +114,7 @@ public class DirectlyFollowsRelation {
 				tauPresent = true;
 			}
 		}
-		System.out.println(minimumSelfDistancesBetween.toString());
+		//debug(minimumSelfDistancesBetween.toString());
 	}
 	
 	public String debugGraph() {

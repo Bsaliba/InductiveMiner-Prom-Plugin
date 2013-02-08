@@ -242,7 +242,15 @@ public class MiningPlugin {
 		}
 		
 		//parallel operator
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation);
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
+		
+		//sometimes, a parallel and loop cut are both possible
+		//in that case, recompute a stricter parallel cut using minimum-self-distance
+		if (parallelCut.size() > 1 && loopCut.size() > 1) {
+			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+		}
+		
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
 			//debugCut(node, parallelCut);
@@ -263,7 +271,6 @@ public class MiningPlugin {
 		}
 		
 		//loop operator
-		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
 			//debugCut(node, loopCut);

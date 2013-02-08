@@ -9,11 +9,14 @@ public class BatchParameters {
 	private String folder;
 	private int numberOfConcurrentFiles;
 	private Set<String> extensions;
+	private boolean measurePrecision;
 	
 	public BatchParameters() {
-		folder = "d:\\datasets\\boek\\chapter 5";
-		numberOfConcurrentFiles = 4;
+		//folder = "d:\\datasets\\boek\\chapter 5";
+		folder = "D:\\datasets\\generatedLogs";
+		numberOfConcurrentFiles = 3;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
+		measurePrecision = false;
 	}
 	
 	public void setFolder(String folder2) {
@@ -30,5 +33,9 @@ public class BatchParameters {
 	
 	public Set<String> getExtensions() {
 		return extensions;
+	}
+	
+	public boolean getMeasurePrecision() {
+		return measurePrecision;
 	}
 }
