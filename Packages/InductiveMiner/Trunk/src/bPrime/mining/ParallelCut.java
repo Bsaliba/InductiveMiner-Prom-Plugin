@@ -14,7 +14,7 @@ import org.jgrapht.graph.DefaultEdge;
 import bPrime.Sets;
 
 public class ParallelCut {
-	public static Set<Set<XEventClass>> findParallelCut(DirectlyFollowsRelation dfr) {
+	public static Set<Set<XEventClass>> findParallelCut(DirectlyFollowsRelation dfr, boolean useMinimumSelfDistance) {
 		
 		//construct the negated graph
 		DirectedGraph<XEventClass, DefaultEdge> negatedGraph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);
@@ -35,10 +35,13 @@ public class ParallelCut {
 			}
 		}
 		
-		//add extra edges to account for too-much-connected-loops
-		for (XEventClass activity : dfr.getGraph().vertexSet()) {
-			for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
-				negatedGraph.addEdge(activity, activity2);
+		//if wanted, apply an extension to the B' algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
+		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
+		if (useMinimumSelfDistance) {
+			for (XEventClass activity : dfr.getGraph().vertexSet()) {
+				for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
+					negatedGraph.addEdge(activity, activity2);
+				}
 			}
 		}
 		

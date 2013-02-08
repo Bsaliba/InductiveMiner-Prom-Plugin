@@ -50,77 +50,77 @@ public class ProcessTreeModel2PetriNet {
 		workflowNet.finalMarking = new Marking();
 		workflowNet.finalMarking.add(workflowNet.sink);
 		
-		convertNode(workflowNet, workflowNet.source, workflowNet.sink, root);
+		convertNode(workflowNet, workflowNet.source, workflowNet.sink, root, false, true);
 		
 		return workflowNet;
 	}
 	
-	private static void convertNode(WorkflowNet workflowNet, Place source, Place sink, Node node) {
+	private static void convertNode(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			Node node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		if (node instanceof Tau) {
-			convertTau(workflowNet, source, sink, (Tau) node);
+			convertTau(workflowNet, source, sink, (Tau) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof EventClass) {
-			convertActivity(workflowNet, source, sink, (EventClass) node);
+			convertActivity(workflowNet, source, sink, (EventClass) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof ExclusiveChoice) {
-			convertExclusiveChoice(workflowNet, source, sink, (ExclusiveChoice) node);
+			convertExclusiveChoice(workflowNet, source, sink, (ExclusiveChoice) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof Sequence) {
-			convertSequence(workflowNet, source, sink, (Sequence) node);
+			convertSequence(workflowNet, source, sink, (Sequence) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof Parallel) {
-			convertParallel(workflowNet, source, sink, (Parallel) node);
+			convertParallel(workflowNet, source, sink, (Parallel) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof Loop) {
-			convertLoop(workflowNet, source, sink, (Loop) node);
+			convertLoop(workflowNet, source, sink, (Loop) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		}
 	}
 
-	private static void convertTau(WorkflowNet workflowNet, Place source, Place sink, Tau node) {
+	private static void convertTau(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			Tau node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		Transition t = workflowNet.petrinet.addTransition("");
 		t.setInvisible(true);
 		workflowNet.petrinet.addArc(source, t);
 		workflowNet.petrinet.addArc(t, sink);
 	}
 	
-	private static void convertActivity(WorkflowNet workflowNet, Place source, Place sink, EventClass node) {
+	private static void convertActivity(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			EventClass node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		Transition t = workflowNet.petrinet.addTransition(node.toString());
 		workflowNet.petrinet.addArc(source, t);
 		workflowNet.petrinet.addArc(t, sink);
 		workflowNet.transition2eventClass.add(new Pair<Transition,XEventClass>(t, node.eventClass));
 	}
 	
-	private static void convertExclusiveChoice(WorkflowNet workflowNet, Place source, Place sink, ExclusiveChoice node) {
-		//for each child, create two silent transitions and source and sink places
+	private static void convertExclusiveChoice(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			ExclusiveChoice node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {	
 		for (Node child : node.getChildren()) {
-			Transition t1 = workflowNet.petrinet.addTransition("");
-			t1.setInvisible(true);
-			workflowNet.petrinet.addArc(source, t1);
-			Place childSource = workflowNet.petrinet.addPlace("source " + node.toString());
-			workflowNet.petrinet.addArc(t1, childSource);
-			
-			Transition t2 = workflowNet.petrinet.addTransition("");
-			t2.setInvisible(true);
-			workflowNet.petrinet.addArc(t2, sink);
-			Place childSink = workflowNet.petrinet.addPlace("sink " + node.toString());
-			workflowNet.petrinet.addArc(childSink, t2);
-			
-			convertNode(workflowNet, childSource, childSink, child);
+			convertNode(workflowNet, source, sink, child, true, true);
 		}
 	}
 	
-	private static void convertSequence(WorkflowNet workflowNet, Place source, Place sink, Sequence node) {
+	private static void convertSequence(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			Sequence node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		int last = node.getChildren().size();
 		int i = 0;
-		Place lastSink = null;
+		Place lastSink = source;
 		for (Node child : node.getChildren()) {
-			Place childSource;
-			if (i == 0) {
-				childSource = source;
-			} else {
-				childSource = workflowNet.petrinet.addPlace(i + " source " + node.toString());
-				
-				//add tau transition
-				Transition t = workflowNet.petrinet.addTransition("");
-				t.setInvisible(true);
-				workflowNet.petrinet.addArc(lastSink, t);
-				workflowNet.petrinet.addArc(t, childSource);
-			}
 			Place childSink;
 			if (i == last - 1) {
 				childSink = sink;
@@ -128,13 +128,21 @@ public class ProcessTreeModel2PetriNet {
 				childSink = workflowNet.petrinet.addPlace(i + " sink " + node.toString());
 			}
 			
-			convertNode(workflowNet, childSource, childSink, child);
+			boolean assureBefore = (i == 0 && assureNoInputPlacementment);
+			boolean assureAfter = (i == last - 1 && assureNoOutputRemoval) || (i < last - 1);
+			
+			convertNode(workflowNet, lastSink, childSink, child, assureBefore, assureAfter);
 			lastSink = childSink;
 			i++;
 		}
 	}
 	
-	private static void convertParallel(WorkflowNet workflowNet, Place source, Place sink, Parallel node) {
+	private static void convertParallel(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			Parallel node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		//add split tau
 		Transition t1 = workflowNet.petrinet.addTransition("");
 		t1.setInvisible(true);
@@ -154,44 +162,66 @@ public class ProcessTreeModel2PetriNet {
 			Place childSink = workflowNet.petrinet.addPlace("sink " + i + " " + node.toString());
 			workflowNet.petrinet.addArc(childSink, t2);
 			
-			convertNode(workflowNet, childSource, childSink, child);
+			convertNode(workflowNet, childSource, childSink, child, false, false);
 			i++;
 		}
 	}
 	
-	private static void convertLoop(WorkflowNet workflowNet, Place source, Place sink, Loop node) {
-		//create child 1 sink place
-		Place child1Sink = workflowNet.petrinet.addPlace("sink 1 " + node.toString());
+	private static void convertLoop(WorkflowNet workflowNet, 
+			Place source, 
+			Place sink, 
+			Loop node,
+			boolean assureNoInputPlacementment,
+			boolean assureNoOutputRemoval) {
 		
-		//create transition from child 1 sink place to sink
-		Transition t1 = workflowNet.petrinet.addTransition("");
-		t1.setInvisible(true);
-		workflowNet.petrinet.addArc(child1Sink, t1);
-		workflowNet.petrinet.addArc(t1, sink);	
-		
-		//convert the first child
-		Iterator<Node> i = node.getChildren().iterator();
-		convertNode(workflowNet, source, child1Sink, i.next());
-		
-		//convert the other children
-		while (i.hasNext()) {
+		Place child1Source;
+		if (assureNoInputPlacementment) {
+			//create child 1 source place
+			child1Source = workflowNet.petrinet.addPlace("source 1 " + node.toString());
 			
-			//create child sink and source
-			Place childNSource = workflowNet.petrinet.addPlace("source " + i + " " + node.toString());
-			Place childNSink = workflowNet.petrinet.addPlace("sink " + i + " " + node.toString());
+			//create transition from child 1 sink place to sink
+			Transition t1 = workflowNet.petrinet.addTransition("");
+			t1.setInvisible(true);
+			workflowNet.petrinet.addArc(source, t1);
+			workflowNet.petrinet.addArc(t1, child1Source);
+		} else {
+			child1Source = source;
+		}
+		
+		Place child1Sink;
+		if (assureNoOutputRemoval) {
+			//create child 1 sink place
+			child1Sink = workflowNet.petrinet.addPlace("sink 1 " + node.toString());
 			
-			//create transitions connecting them
+			//create transition from child 1 sink place to sink
 			Transition t2 = workflowNet.petrinet.addTransition("");
 			t2.setInvisible(true);
 			workflowNet.petrinet.addArc(child1Sink, t2);
-			workflowNet.petrinet.addArc(t2, childNSource);
+			workflowNet.petrinet.addArc(t2, sink);
+		} else {
+			child1Sink = sink;
+		}
+		
+		//convert the first child
+		Iterator<Node> i = node.getChildren().iterator();
+		convertNode(workflowNet, child1Source, child1Sink, i.next(), assureNoInputPlacementment, true);
+		
+		//convert the other children
+		while (i.hasNext()) {
+			/*
+			//create child sink and source
+			Place childNSource = workflowNet.petrinet.addPlace("source " + i + " " + node.toString());
 			
+			//create transitions connecting them
 			Transition t3 = workflowNet.petrinet.addTransition("");
 			t3.setInvisible(true);
-			workflowNet.petrinet.addArc(childNSink, t3);
-			workflowNet.petrinet.addArc(t3, source);
+			workflowNet.petrinet.addArc(child1Sink, t3);
+			workflowNet.petrinet.addArc(t3, childNSource);
 			
-			convertNode(workflowNet, childNSource, childNSink, i.next());			
+			convertNode(workflowNet, childNSource, child1Source, i.next(), true, assureNoOutputRemoval);
+			*/
+			
+			convertNode(workflowNet, child1Sink, child1Source, i.next(), true, true);			
 		}
 	}	
 }

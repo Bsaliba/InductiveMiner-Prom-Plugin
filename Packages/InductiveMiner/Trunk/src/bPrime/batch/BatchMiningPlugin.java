@@ -77,6 +77,7 @@ public class BatchMiningPlugin {
 		final ProcessTrees result = new ProcessTrees();
 		final MiningPlugin miningPlugin = new MiningPlugin();
 		final PNLogReplayer replayer = new PNLogReplayer();
+		final boolean measurePrecision = parameters.getMeasurePrecision();
 		
 		for (String file2 : files) {
 		
@@ -86,7 +87,13 @@ public class BatchMiningPlugin {
 			pool.addJob(
 					new Runnable() {
 			            public void run() {
-			            	runJob(result, index, context, file, miningPlugin, replayer);
+			            	runJob(result, 
+			            			index, 
+			            			context, 
+			            			file, 
+			            			miningPlugin, 
+			            			replayer, 
+			            			measurePrecision);
 			            }
 					}
 				);
@@ -109,7 +116,8 @@ public class BatchMiningPlugin {
 			PluginContext context,
 			String fileName,
 			MiningPlugin miningPlugin,
-			PNLogReplayer replayer) {
+			PNLogReplayer replayer,
+			boolean measurePrecision) {
 		//perform the computations, store the result in result[index]
 		
 		//import the log
@@ -135,48 +143,46 @@ public class BatchMiningPlugin {
 		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		XEventClass dummy = mapping.getDummyEventClass();
     	
-    	//replay the log
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		Collection<XEventClass> activities = info.getEventClasses().getClasses();
+		String comment;
+		if (measurePrecision) {
 		
-		PetrinetReplayerWithILP algorithm = new PetrinetReplayerWithILP();
-		CostBasedCompleteParam replayParameters = new CostBasedCompleteParam(activities, dummy, petrinet.getTransitions(), 1, 1);
-		replayParameters.setInitialMarking(initialMarking);
-		replayParameters.setFinalMarkings(new Marking[] {finalMarking});
-		replayParameters.setCreateConn(false);
-		replayParameters.setGUIMode(false);
-		//replayParameters.setUseLogWeight(false);
-		//Map<XEventClass, Integer> weightMap = new HashMap<XEventClass, Integer>();
-		//weightMap.put(dummy, 0);
-		//for (XEventClass activity : activities) {
-		//	weightMap.put(activity, 1);
-		//}
-		//replayParameters.setxEventClassWeightMap(weightMap);
-		PNRepResult replayed = null;
-		try {
-			replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
-		} catch (Exception e) {
-			//debug("error encountered (replay algorithm)");
-			e.printStackTrace();
-			return;
-		}
-    	
-    	//measure precision/generalisation
-    	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
-    	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
-    	
-    	//clean up
-    	/*for (ProvidedObjectID id : context.getProvidedObjectManager().getProvidedObjects()) {
-    		try {
-				context.getProvidedObjectManager().deleteProvidedObject(id);
-			} catch (ProvidedObjectDeletedException e) {
+	    	//replay the log
+			XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+			Collection<XEventClass> activities = info.getEventClasses().getClasses();
+			
+			PetrinetReplayerWithILP algorithm = new PetrinetReplayerWithILP();
+			CostBasedCompleteParam replayParameters = new CostBasedCompleteParam(activities, dummy, petrinet.getTransitions(), 1, 1);
+			replayParameters.setInitialMarking(initialMarking);
+			replayParameters.setFinalMarkings(new Marking[] {finalMarking});
+			replayParameters.setCreateConn(false);
+			replayParameters.setGUIMode(false);
+			//replayParameters.setUseLogWeight(false);
+			//Map<XEventClass, Integer> weightMap = new HashMap<XEventClass, Integer>();
+			//weightMap.put(dummy, 0);
+			//for (XEventClass activity : activities) {
+			//	weightMap.put(activity, 1);
+			//}
+			//replayParameters.setxEventClassWeightMap(weightMap);
+			PNRepResult replayed = null;
+			try {
+				replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
+			} catch (Exception e) {
+				//debug("error encountered (replay algorithm)");
 				e.printStackTrace();
+				return;
 			}
-    	}*/
-    	
-    	String comment = model.toHTMLString(false) + 
-    			"<br>precision " + precisionGeneralisation.getPrecision() +
-    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
+	    	
+	    	//measure precision/generalisation
+	    	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
+	    	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
+	    	
+	    	comment = model.toHTMLString(false) + 
+	    			"<br>precision " + precisionGeneralisation.getPrecision() +
+	    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
+		} else {
+			comment = model.toHTMLString(false);
+		}
+		
     	
     	result.set(index, fileName, comment);
 	}
