@@ -50,5 +50,21 @@
 	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
 	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
 	<classpathentry kind="lib" path="packagelib/PNetAlignmentAnalysis.jar"/>
+	<classpathentry kind="lib" path="/JoosBuijs/stdlib/freehep-graphics2d-2.1.1.jar"/>
+	<classpathentry kind="lib" path="/JoosBuijs/stdlib/freehep-graphicsio-pdf-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-export-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphics2d-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-emf-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-java-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-pdf-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-ps-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-svg-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-swf-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-tests-2.1.1.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-io-2.0.2.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-swing-2.0.3.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-util-2.0.2.jar"/>
+	<classpathentry kind="lib" path="stdlib/freehep-xml-2.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
