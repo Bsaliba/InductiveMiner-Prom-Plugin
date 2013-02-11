@@ -7,14 +7,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
-import bPrime.Pair;
 import bPrime.ProcessTreeModelParameters;
 
 public class DirectlyFollowsRelation {
-	private DefaultDirectedGraph<XEventClass, DefaultEdge> graph;
+	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
 	private Set<XEventClass> startActivities;
 	private Set<XEventClass> endActivities;
 	private HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween;
@@ -24,18 +23,15 @@ public class DirectlyFollowsRelation {
 	
 	public DirectlyFollowsRelation(Filteredlog log, ProcessTreeModelParameters parameters) {
 		//initialise
-		graph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);
+		graph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		startActivities = new HashSet<XEventClass>();
 		endActivities = new HashSet<XEventClass>();
 		minimumSelfDistances = new HashMap<XEventClass, Integer>();
 		minimumSelfDistancesBetween = new HashMap<XEventClass, Set<XEventClass>>();
 		tauPresent = false;
 		
-		XEventClass secondFromEventClass;
 		XEventClass fromEventClass;
 		XEventClass toEventClass;
-		Set<XEventClass> lengthOneLoops = new HashSet<XEventClass>();
-		Set<Pair<XEventClass, XEventClass>> lengthTwoLoops = new HashSet<Pair<XEventClass, XEventClass>>();
 		longestTrace = 0;
 		
 		//add the nodes to the graph
@@ -50,10 +46,10 @@ public class DirectlyFollowsRelation {
 		
 		while (log.hasNextTrace()) {
 			log.nextTrace();
+			Integer cardinality = log.getCurrentCardinality();
 		
 			toEventClass = null;
 			fromEventClass = null;
-			secondFromEventClass = null;
 			
 			int traceSize = 0;
 			eventSeenAt = new HashMap<XEventClass, Integer>();
@@ -61,7 +57,6 @@ public class DirectlyFollowsRelation {
 			
 			while(log.hasNextEvent()) {
 
-				secondFromEventClass = fromEventClass;
 				fromEventClass = toEventClass;
 				toEventClass = log.nextEvent();
 				
@@ -83,17 +78,9 @@ public class DirectlyFollowsRelation {
 				if (fromEventClass != null) {
 					
 					//add edge to directly-follows graph
-					graph.addEdge(fromEventClass, toEventClass);
+					DefaultWeightedEdge edge = graph.addEdge(fromEventClass, toEventClass);
+					graph.setEdgeWeight(edge, cardinality);
 					
-					//check whether we found a witness of a length-one-loop
-					if (fromEventClass == toEventClass) {
-						lengthOneLoops.add(fromEventClass);
-					}
-					
-					//check whether we found a witness of a length-two-loop
-					if (secondFromEventClass != null && secondFromEventClass == toEventClass) {
-						lengthTwoLoops.add(new Pair<XEventClass, XEventClass>(secondFromEventClass, fromEventClass));
-					}
 				} else {
 					startActivities.add(toEventClass);
 				}
@@ -123,7 +110,7 @@ public class DirectlyFollowsRelation {
 		return result;
 	}
 
-	public DefaultDirectedGraph<XEventClass, DefaultEdge> getGraph() {
+	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getGraph() {
 		return graph;
 	}
 

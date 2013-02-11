@@ -167,8 +167,8 @@ public class MiningPlugin {
 			final ThreadPool pool) {
 		
 		//debug("");
-		//debug("==================");
-		//debug(log.toString());
+		debug("==================");
+		debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
@@ -311,10 +311,9 @@ public class MiningPlugin {
 			r += " {" + Sets.implode(it.next(), ", ") + "}";
 		}
 		debug(r);
-	}
+	}*/
 	
 	private void debug(String x) {
 		System.out.println(x);
 	}
-	*/
 }
