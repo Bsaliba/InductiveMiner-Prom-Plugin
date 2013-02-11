@@ -12,15 +12,16 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.StrongConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import bPrime.Sets;
 
 public class SequenceCut {
 	
-	public static List<Set<XEventClass>> findSequenceCut(DirectedGraph<XEventClass, DefaultEdge> G) {
+	public static List<Set<XEventClass>> findSequenceCut(DirectedGraph<XEventClass, DefaultWeightedEdge> G) {
 		
 		//compute the strongly connected components of the directly-follows graph G
-		StrongConnectivityInspector<XEventClass, DefaultEdge> SCCg = new StrongConnectivityInspector<XEventClass, DefaultEdge>(G);
+		StrongConnectivityInspector<XEventClass, DefaultWeightedEdge> SCCg = new StrongConnectivityInspector<XEventClass, DefaultWeightedEdge>(G);
 		Set<Set<XEventClass>> SCCs = new HashSet<Set<XEventClass>>(SCCg.stronglyConnectedSets());
 		
 		//condense the strongly connected components
@@ -30,7 +31,7 @@ public class SequenceCut {
 			condensedGraph1.addVertex(SCC);
 		}
 		//add edges
-		for (DefaultEdge edge : G.edgeSet()) {
+		for (DefaultWeightedEdge edge : G.edgeSet()) {
 			//find the connected components belonging to these nodes
 			XEventClass u = G.getEdgeSource(edge);
 			Set<XEventClass> SCCu = Sets.findComponentWith(SCCs, u);

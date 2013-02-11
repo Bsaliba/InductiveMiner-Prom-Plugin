@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 
 public class LoopCut {
@@ -40,7 +40,7 @@ public class LoopCut {
 		}
 		for (XEventClass node : drf.getGraph().vertexSet()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultEdge edge : drf.getGraph().incomingEdgesOf(node)) {
+			for (DefaultWeightedEdge edge : drf.getGraph().incomingEdgesOf(node)) {
 				if (cc != connectedComponents.get(drf.getGraph().getEdgeSource(edge))) {
 					//this is a start activity
 					Set<XEventClass> start = startActivities.get(cc);
@@ -57,7 +57,7 @@ public class LoopCut {
 		}
 		for (XEventClass node : drf.getGraph().vertexSet()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultEdge edge : drf.getGraph().outgoingEdgesOf(node)) {
+			for (DefaultWeightedEdge edge : drf.getGraph().outgoingEdgesOf(node)) {
 				if (cc != connectedComponents.get(drf.getGraph().getEdgeTarget(edge))) {
 					//this is an end activity
 					Set<XEventClass> end = endActivities.get(cc);
@@ -83,7 +83,7 @@ public class LoopCut {
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
 		for (XEventClass startActivity : drf.getStartActivities()) {
 			if (!drf.getEndActivities().contains(startActivity)) {
-				for (DefaultEdge edge : drf.getGraph().outgoingEdgesOf(startActivity)) {
+				for (DefaultWeightedEdge edge : drf.getGraph().outgoingEdgesOf(startActivity)) {
 					candidates[connectedComponents.get(drf.getGraph().getEdgeTarget(edge))] = false;
 				}
 			}
@@ -92,7 +92,7 @@ public class LoopCut {
 		//exclude all candidates that can reach an end activity (which is not a start activity)
 		for (XEventClass endActivity : drf.getEndActivities()) {
 			if (!drf.getStartActivities().contains(endActivity)) {
-				for (DefaultEdge edge : drf.getGraph().incomingEdgesOf(endActivity)) {
+				for (DefaultWeightedEdge edge : drf.getGraph().incomingEdgesOf(endActivity)) {
 					candidates[connectedComponents.get(drf.getGraph().getEdgeSource(edge))] = false;
 				}
 			}
@@ -159,13 +159,13 @@ public class LoopCut {
 	}
 	
 	private static void labelConnectedComponents(
-			DefaultDirectedGraph<XEventClass, DefaultEdge> graph,
+			DefaultDirectedGraph<XEventClass, DefaultWeightedEdge> graph,
 			XEventClass node, 
 			HashMap<XEventClass, Integer> connectedComponents, 
 			Integer connectedComponent) {
 		if (!connectedComponents.containsKey(node)) {
 			connectedComponents.put(node, connectedComponent);
-			for (DefaultEdge edge : graph.edgesOf(node)) {
+			for (DefaultWeightedEdge edge : graph.edgesOf(node)) {
 				labelConnectedComponents(graph, graph.getEdgeSource(edge), connectedComponents, connectedComponent);
 				labelConnectedComponents(graph, graph.getEdgeTarget(edge), connectedComponents, connectedComponent);
 			}
