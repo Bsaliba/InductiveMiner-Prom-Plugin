@@ -1,23 +1,37 @@
 package bPrime.batch;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
+import org.freehep.graphics2d.VectorGraphics;
+import org.freehep.graphicsio.pdf.PDFGraphics2D;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.models.jgraph.ProMJGraph;
+import org.processmining.models.jgraph.ProMJGraphVisualizer;
+import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
@@ -68,7 +82,7 @@ public class BatchMiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, parameterized", requiredParameterLabels = { 1 })
-	public ProcessTrees mineParameters(final PluginContext context, BatchParameters parameters) {
+	public ProcessTrees mineParameters(final PluginContext context, final BatchParameters parameters) {
 		
 		//initialise for thread splitting
 		ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
@@ -93,7 +107,8 @@ public class BatchMiningPlugin {
 			            			file, 
 			            			miningPlugin, 
 			            			replayer, 
-			            			measurePrecision);
+			            			measurePrecision,
+			            			parameters);
 			            }
 					}
 				);
@@ -106,6 +121,21 @@ public class BatchMiningPlugin {
 			e.printStackTrace();
 			return null;
 		}
+		
+		//write the result to an HTML file
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter( new FileWriter( "D:\\output\\index.html"));
+			writer.write(result.toHTMLString(true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
     	
 		//debug("finished batch");
     	return result;
@@ -117,7 +147,8 @@ public class BatchMiningPlugin {
 			String fileName,
 			MiningPlugin miningPlugin,
 			PNLogReplayer replayer,
-			boolean measurePrecision) {
+			boolean measurePrecision,
+			BatchParameters batchParameters) {
 		//perform the computations, store the result in result[index]
 		
 		//import the log
@@ -132,9 +163,9 @@ public class BatchMiningPlugin {
 			return;
 		}
 		
-		//mine the petri net
-		ProcessTreeModelParameters parameters = new ProcessTreeModelParameters();
-		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, parameters);
+		//mine the Petri net
+		ProcessTreeModelParameters mineParameters = new ProcessTreeModelParameters();
+		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, mineParameters);
 		ProcessTreeModel model = (ProcessTreeModel) arr[0];
 		WorkflowNet workflowNet = (WorkflowNet) arr[1];
 		Petrinet petrinet = workflowNet.petrinet;
@@ -143,11 +174,70 @@ public class BatchMiningPlugin {
 		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		XEventClass dummy = mapping.getDummyEventClass();
     	
-		String comment;
+		//Visualise the Petri net
+		File outputFilePDF;
+		File outputFilePNG;
+		if (batchParameters.getPetrinetOutputFolder() != null) {
+			String x = new File(fileName).getName();
+			if (x.indexOf(".") > 0) {
+			    x = x.substring(0, x.lastIndexOf("."));
+			}
+			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + ".pdf");
+			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + ".png");
+		} else {
+			outputFilePDF = new File(fileName + ".pdf");
+			outputFilePNG = new File(fileName + ".png");
+		}
+		Dimension dimension = batchParameters.getPetrinetOutputDimension();
+		ProMJGraphPanel graphPanel = ProMJGraphVisualizer.instance().visualizeGraphWithoutRememberingLayout(petrinet);
+		graphPanel.setSize(dimension);
+		
+		ProMJGraph graph = (ProMJGraph) graphPanel.getComponent();
+		graph.setSize(dimension);
+		
+		//output pdf
+		try {
+			VectorGraphics g = new PDFGraphics2D(outputFilePDF, dimension);
+			g.setProperties(new Properties());
+			g.startExport();
+			graph.print(g);
+			g.endExport();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		//output png
+		Color bg = null;
+		bg = graph.getBackground();
+		int inset = 2;
+		BufferedImage img = graph.getImage(bg, inset);
+		try {
+			ImageIO.write(img, "png", outputFilePNG);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		img.flush();
+		
+		/*PetriNetVisualization visualisation = new PetriNetVisualization(); 
+		JComponent visualisationComponent = visualisation.visualize(context, petrinet);
+		visualisationComponent.doLayout();
+		debug(String.valueOf(visualisationComponent.getHeight()));
+		Graphics visualisationGraphics = visualisationComponent.getGraphics();
+		debug(visualisationGraphics.toString());
+		Image visualisedPetrinet = visualisationComponent.createImage(1000, 1000);
+		
+		try {
+			ImageIO.write((RenderedImage) visualisedPetrinet, "png", imageFile);
+		} catch (Exception e1) {
+			debug("Image generation failed.");
+			e1.printStackTrace();
+		}*/
+		
+		String comment = "";
 		if (measurePrecision) {
 		
 	    	//replay the log
-			XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+			XLogInfo info = XLogInfoFactory.createLogInfo(log, mineParameters.getClassifier());
 			Collection<XEventClass> activities = info.getEventClasses().getClasses();
 			
 			PetrinetReplayerWithILP algorithm = new PetrinetReplayerWithILP();
@@ -176,13 +266,11 @@ public class BatchMiningPlugin {
 	    	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
 	    	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
 	    	
-	    	comment = model.toHTMLString(false) + 
-	    			"<br>precision " + precisionGeneralisation.getPrecision() +
+	    	comment = "<br>precision " + precisionGeneralisation.getPrecision() +
 	    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
-		} else {
-			comment = model.toHTMLString(false);
 		}
 		
+		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"'>";
     	
     	result.set(index, fileName, comment);
 	}
@@ -205,7 +293,7 @@ public class BatchMiningPlugin {
 		return result;
     }
 	
-	//private void debug(String s) {
-	//	System.out.println(s);
-	//}
+	private void debug(String s) {
+		System.out.println(s);
+	}
 }
