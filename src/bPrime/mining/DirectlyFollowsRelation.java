@@ -79,6 +79,10 @@ public class DirectlyFollowsRelation {
 					
 					//add edge to directly-follows graph
 					DefaultWeightedEdge edge = graph.addEdge(fromEventClass, toEventClass);
+					if (edge == null) {
+						edge = graph.getEdge(fromEventClass, toEventClass);
+						cardinality = (int) (cardinality + graph.getEdgeWeight(edge));
+					}
 					graph.setEdgeWeight(edge, cardinality);
 					
 				} else {
@@ -106,7 +110,11 @@ public class DirectlyFollowsRelation {
 	
 	public String debugGraph() {
 		String result = "nodes: " + graph.vertexSet().toString();
-		result += "\nedges: " + graph.edgeSet().toString();
+		result += "\nedges: ";
+		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+			result += "\t(" + graph.getEdgeSource(edge);
+			result += " => " + graph.getEdgeTarget(edge) + " " + ((int) graph.getEdgeWeight(edge)) + ") ";
+		}
 		return result;
 	}
 
