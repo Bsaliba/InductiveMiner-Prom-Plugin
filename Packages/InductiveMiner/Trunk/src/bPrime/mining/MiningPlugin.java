@@ -172,7 +172,7 @@ public class MiningPlugin {
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
-		//debug(directlyFollowsRelation.debugGraph());
+		debug(directlyFollowsRelation.debugGraph());
 		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
