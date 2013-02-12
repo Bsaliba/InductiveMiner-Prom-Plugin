@@ -7,9 +7,13 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 
 public class ProcessTreeModelParameters {
 	private XEventClassifier classifier;
+	private boolean filterNoise;
+	private int noiseThreshold;
 	
 	public ProcessTreeModelParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
+		filterNoise = true;
+		noiseThreshold = 3;
 	}
 	
 	public void setClassifier(XEventClassifier classifier) {
@@ -20,6 +24,14 @@ public class ProcessTreeModelParameters {
 	
 	public XEventClassifier getClassifier() {
 		return this.classifier;
+	}
+	
+	public boolean getFilterNoise() {
+		return this.filterNoise;
+	}
+	
+	public int getNoiseThreshold() {
+		return noiseThreshold;
 	}
 	
 	public boolean equals(Object object) {

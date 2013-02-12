@@ -1,6 +1,7 @@
 package bPrime.mining;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -191,14 +192,6 @@ public class DirectlyFollowsRelation {
 	}
 	
 	public void toDot(String fileName) {
-		//Writer out = new BufferedWriter(new OutputStreamWriter(System.out));
-		FileWriter out;
-		try {
-			out = new FileWriter(fileName + ".dot");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
 		DOTExporter<XEventClass, DefaultWeightedEdge> dotExporter = 
 	        new DOTExporter<XEventClass, DefaultWeightedEdge>(
         		new VertexNameProvider<XEventClass>() {
@@ -238,11 +231,38 @@ public class DirectlyFollowsRelation {
 					} 
 				}
         	);
-		dotExporter.export(out, graph);
+		
+		//Writer out = new BufferedWriter(new OutputStreamWriter(System.out));
+		//debug("to dot before file IO");
+		FileWriter out = null;
 		try {
-			Runtime.getRuntime().exec("\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+fileName+".png\" \""+fileName+".dot\"");
+			out = new FileWriter(fileName + ".dot");
+			dotExporter.export(out, graph);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return;
+		} finally {
+			if (out != null) {
+				try {
+					out.flush();
+					out.close();
+				} catch (IOException e) {
+					//debug("flushing/closed failed");
+				}
+			}
+		}
+		
+		try {
+			Process p = Runtime.getRuntime().exec("\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+fileName+".png\" \""+fileName+".dot\"");
+			p.waitFor();
+			new File(fileName + ".dot").delete();
+		} catch (IOException e) {
+			e.printStackTrace();
+			new File(fileName + ".dot").deleteOnExit();
+			return;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			new File(fileName + ".dot").deleteOnExit();
 			return;
 		}
 	}
@@ -312,5 +332,9 @@ public class DirectlyFollowsRelation {
 		
 		String hexColour = Integer.toHexString(colour.getRGB());
 		return "#" + hexColour.substring(2, hexColour.length());
+	}
+	
+	private void debug(String x) {
+		System.out.println(x);
 	}
 }
