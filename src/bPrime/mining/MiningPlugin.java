@@ -179,43 +179,36 @@ public class MiningPlugin {
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
-		if (log.getEventClasses().size() > 1) {
-			recursionStepsCounter++;
-			directlyFollowsRelation.toDot("D://directlyFollowsGraphs//graph" + recursionStepsCounter);
-		}
-		//debug(directlyFollowsRelation.debugGraph());
-		
-		//filter noise from the directly-follows relation
-		directlyFollowsRelation.filterNoise(10);
-		//debug(directlyFollowsRelation.debugGraph());
 		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
 		if (directlyFollowsRelation.getTauPresent()) {
-			/*
 			//log contains the empty trace
-			final Binoperator node = new ExclusiveChoice(2);
-			node.setChild(0, new Tau());
-			target.setChild(index, node);
 			//debug("remove epsilon from log");
-			final Filteredlog sublog = log.applyTauFilter();
-			pool.addJob(
-				new Runnable() {
-		            public void run() {
-		            	mineProcessTree(sublog, parameters, node, 1, pool);
-		            }
-			});
-			*/
 			
-			//filter the taus from the log
-			final Filteredlog sublog = log.applyTauFilter();
-			pool.addJob(
-				new Runnable() {
-		            public void run() {
-		            	mineProcessTree(sublog, parameters, target, index, pool);
-		            }
-			});
-			
+			if (parameters.getFilterNoise()) {
+				//remove taus as noise
+				//filter the taus from the log
+				final Filteredlog sublog = log.applyTauFilter();
+				pool.addJob(
+					new Runnable() {
+			            public void run() {
+			            	mineProcessTree(sublog, parameters, target, index, pool);
+			            }
+				});
+			} else {
+				//filter taus and reflect in model 
+				final Binoperator node = new ExclusiveChoice(2);
+				node.setChild(0, new Tau());
+				target.setChild(index, node);
+				final Filteredlog sublog = log.applyTauFilter();
+				pool.addJob(
+					new Runnable() {
+			            public void run() {
+			            	mineProcessTree(sublog, parameters, node, 1, pool);
+			            }
+				});
+			}
 			return;
 		}
 		
@@ -224,6 +217,18 @@ public class MiningPlugin {
 			target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
 			//debug("activity " + log.getEventClasses().iterator().next());
 			return;
+		}
+		
+		
+		//output fancy images and filter noise if wanted
+		recursionStepsCounter++;
+		directlyFollowsRelation.toDot("D://output//directlyFollowsGraphs//graph" + recursionStepsCounter);
+		//debug(directlyFollowsRelation.debugGraph());
+		if (parameters.getFilterNoise()) {
+			//filter noise from the directly-follows relation
+			directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
+			//debug(directlyFollowsRelation.debugGraph());
+			directlyFollowsRelation.toDot("D://output//directlyFollowsGraphs//graph" + recursionStepsCounter + "-afterNoise");
 		}
 		
 		//exclusive choice operator
@@ -318,7 +323,7 @@ public class MiningPlugin {
 		}
 		
 		//flower loop fall-through
-		//debug("chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
+		debug("step " + recursionStepsCounter + " chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
 		Binoperator node = new Loop(log.getEventClasses().size()+1);
 		node.setChild(0, new Tau());
 		int i = 1;
@@ -332,7 +337,7 @@ public class MiningPlugin {
 	
 	
 	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
-		String r = "cut " + recursionStepsCounter + " chosen " + node.getOperatorString();
+		String r = "step " + recursionStepsCounter + " chosen " + node.getOperatorString();
 		Iterator<Set<XEventClass>> it = cut.iterator();
 		while (it.hasNext()) {
 			r += " {" + Sets.implode(it.next(), ", ") + "}";
