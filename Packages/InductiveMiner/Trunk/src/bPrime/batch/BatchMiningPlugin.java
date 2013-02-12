@@ -5,13 +5,11 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -22,8 +20,6 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
-import org.freehep.graphics2d.VectorGraphics;
-import org.freehep.graphicsio.pdf.PDFGraphics2D;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
@@ -177,6 +173,7 @@ public class BatchMiningPlugin {
 		//Visualise the Petri net
 		File outputFilePDF;
 		File outputFilePNG;
+		File outputFileTXT;
 		if (batchParameters.getPetrinetOutputFolder() != null) {
 			String x = new File(fileName).getName();
 			if (x.indexOf(".") > 0) {
@@ -184,9 +181,11 @@ public class BatchMiningPlugin {
 			}
 			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + ".pdf");
 			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + ".png");
+			outputFileTXT = new File(batchParameters.getPetrinetOutputFolder(), x + ".txt");
 		} else {
 			outputFilePDF = new File(fileName + ".pdf");
 			outputFilePNG = new File(fileName + ".png");
+			outputFileTXT = new File(fileName + ".TXT");
 		}
 		Dimension dimension = batchParameters.getPetrinetOutputDimension();
 		ProMJGraphPanel graphPanel = ProMJGraphVisualizer.instance().visualizeGraphWithoutRememberingLayout(petrinet);
@@ -195,6 +194,7 @@ public class BatchMiningPlugin {
 		ProMJGraph graph = (ProMJGraph) graphPanel.getComponent();
 		graph.setSize(dimension);
 		
+		/*
 		//output pdf
 		try {
 			VectorGraphics g = new PDFGraphics2D(outputFilePDF, dimension);
@@ -205,6 +205,7 @@ public class BatchMiningPlugin {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		*/
 		
 		//output png
 		Color bg = null;
