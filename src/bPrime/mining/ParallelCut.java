@@ -58,11 +58,11 @@ public class ParallelCut {
 		List<Set<XEventClass>> ccsWithNothing = new LinkedList<Set<XEventClass>>();
 		for (Set<XEventClass> cc : connectedComponents) {
 			Boolean hasStart = true;
-			if (Sets.intersection(cc, dfr.getStartActivities()).size() == 0) {
+			if (Sets.intersection(cc, dfr.getStartActivities().toSet()).size() == 0) {
 				hasStart = false;
 			}
 			Boolean hasEnd = true;
-			if (Sets.intersection(cc, dfr.getEndActivities()).size() == 0) {
+			if (Sets.intersection(cc, dfr.getEndActivities().toSet()).size() == 0) {
 				hasEnd = false;
 			}
 			if (hasStart) {

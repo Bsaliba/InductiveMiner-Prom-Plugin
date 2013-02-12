@@ -17,10 +17,10 @@ public class LoopCut {
 		
 		//initialise the start and end activities as a connected component
 		HashMap<XEventClass, Integer> connectedComponents = new HashMap<XEventClass, Integer>();
-		for (XEventClass startActivity : drf.getStartActivities()) {
+		for (XEventClass startActivity : drf.getStartActivities().toSet()) {
 			connectedComponents.put(startActivity, 0);
 		}
-		for (XEventClass endActivity : drf.getEndActivities()) {
+		for (XEventClass endActivity : drf.getEndActivities().toSet()) {
 			connectedComponents.put(endActivity, 0);
 		}
 		
@@ -81,7 +81,7 @@ public class LoopCut {
 		}
 		
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
-		for (XEventClass startActivity : drf.getStartActivities()) {
+		for (XEventClass startActivity : drf.getStartActivities().toSet()) {
 			if (!drf.getEndActivities().contains(startActivity)) {
 				for (DefaultWeightedEdge edge : drf.getGraph().outgoingEdgesOf(startActivity)) {
 					candidates[connectedComponents.get(drf.getGraph().getEdgeTarget(edge))] = false;
@@ -90,7 +90,7 @@ public class LoopCut {
 		}
 		
 		//exclude all candidates that can reach an end activity (which is not a start activity)
-		for (XEventClass endActivity : drf.getEndActivities()) {
+		for (XEventClass endActivity : drf.getEndActivities().toSet()) {
 			if (!drf.getStartActivities().contains(endActivity)) {
 				for (DefaultWeightedEdge edge : drf.getGraph().incomingEdgesOf(endActivity)) {
 					candidates[connectedComponents.get(drf.getGraph().getEdgeSource(edge))] = false;
@@ -102,7 +102,7 @@ public class LoopCut {
 		for (Integer cc=0;cc<ccs;cc++) {
 			Set<XEventClass> end = endActivities.get(cc);
 			for (XEventClass node1 : end) {
-				for (XEventClass node2 : drf.getStartActivities()) {
+				for (XEventClass node2 : drf.getStartActivities().toSet()) {
 					if (!drf.getGraph().containsEdge(node1, node2)) {
 						candidates[cc] = false;
 						//debug("body part for no connection to all start activities " + cc.toString());
@@ -115,7 +115,7 @@ public class LoopCut {
 		for (Integer cc=0;cc<ccs;cc++) {
 			Set<XEventClass> start = startActivities.get(cc);
 			for (XEventClass node1 : start) {
-				for (XEventClass node2 : drf.getEndActivities()) {
+				for (XEventClass node2 : drf.getEndActivities().toSet()) {
 					if (!drf.getGraph().containsEdge(node2, node1)) {
 						candidates[cc] = false;
 						//debug("body part for no connection from all end activities " + node2.toString() + " " + node1.toString());

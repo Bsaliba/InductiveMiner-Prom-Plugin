@@ -2,6 +2,7 @@ package bPrime.mining;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,7 @@ import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMap
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.ProcessTreeModelParameters;
+import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
 import bPrime.model.EventClass;
@@ -125,11 +127,16 @@ public class MiningPlugin {
 		return new Object[] {model, workflowNet, mapping, activities};
 	}
 	
+	private int recursionStepsCounter;
 	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		//prepare the log
 		//debug("Start conversion to internal log format");
 		Filteredlog filteredLog = new Filteredlog(log, parameters);
+		
+		//debug initial log
 		//debug(filteredLog.toString());
+		debug("\n\nStart mining");
+		recursionStepsCounter = -1;
 		
 		//create the model
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
@@ -162,21 +169,30 @@ public class MiningPlugin {
 	private void mineProcessTree(
 			Filteredlog log, 
 			final ProcessTreeModelParameters parameters, 
-			Binoperator target, //the target where we must store our result 
-			int index, //in which subtree we must store our result
+			final Binoperator target, //the target where we must store our result 
+			final int index, //in which subtree we must store our result
 			final ThreadPool pool) {
 		
 		//debug("");
-		debug("==================");
-		debug(log.toString());
+		//debug("==================");
+		//debug(log.toString());
 		
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
-		debug(directlyFollowsRelation.debugGraph());
+		if (log.getEventClasses().size() > 1) {
+			recursionStepsCounter++;
+			directlyFollowsRelation.toDot("D://directlyFollowsGraphs//graph" + recursionStepsCounter);
+		}
+		//debug(directlyFollowsRelation.debugGraph());
+		
+		//filter noise from the directly-follows relation
+		directlyFollowsRelation.filterNoise(10);
+		//debug(directlyFollowsRelation.debugGraph());
 		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
 		if (directlyFollowsRelation.getTauPresent()) {
+			/*
 			//log contains the empty trace
 			final Binoperator node = new ExclusiveChoice(2);
 			node.setChild(0, new Tau());
@@ -189,6 +205,17 @@ public class MiningPlugin {
 		            	mineProcessTree(sublog, parameters, node, 1, pool);
 		            }
 			});
+			*/
+			
+			//filter the taus from the log
+			final Filteredlog sublog = log.applyTauFilter();
+			pool.addJob(
+				new Runnable() {
+		            public void run() {
+		            	mineProcessTree(sublog, parameters, target, index, pool);
+		            }
+			});
+			
 			return;
 		}
 		
@@ -203,7 +230,7 @@ public class MiningPlugin {
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getGraph());
 		if (exclusiveChoiceCut.size() > 1) {
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
-			//debugCut(node, exclusiveChoiceCut);
+			debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : exclusiveChoiceCut) {
@@ -224,7 +251,7 @@ public class MiningPlugin {
 		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getGraph());
 		if (sequenceCut.size() > 1) {
 			final Binoperator node = new Sequence(sequenceCut.size());
-			//debugCut(node, sequenceCut);
+			debugCut(node, sequenceCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : sequenceCut) {
@@ -253,7 +280,7 @@ public class MiningPlugin {
 		
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
-			//debugCut(node, parallelCut);
+			debugCut(node, parallelCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : parallelCut) {
@@ -273,7 +300,7 @@ public class MiningPlugin {
 		//loop operator
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
-			//debugCut(node, loopCut);
+			debugCut(node, loopCut);
 			target.setChild(index, node);
 			int i = 0;
 			for (Set<XEventClass> activities : loopCut) {
@@ -303,15 +330,15 @@ public class MiningPlugin {
 		return;
 	}
 	
-	/*
+	
 	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
-		String r = "chosen " + node.getOperatorString();
+		String r = "cut " + recursionStepsCounter + " chosen " + node.getOperatorString();
 		Iterator<Set<XEventClass>> it = cut.iterator();
 		while (it.hasNext()) {
 			r += " {" + Sets.implode(it.next(), ", ") + "}";
 		}
 		debug(r);
-	}*/
+	}
 	
 	private void debug(String x) {
 		System.out.println(x);
