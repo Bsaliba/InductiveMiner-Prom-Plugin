@@ -244,17 +244,21 @@ public class MiningPlugin {
 		//exclusive choice operator
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getGraph());
 		if (exclusiveChoiceCut.size() > 1) {
+			//set the result
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
 			debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
+			
+			//recurse
+			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice(exclusiveChoiceCut);
 			int i = 0;
-			for (Set<XEventClass> activities : exclusiveChoiceCut) {
-				final Filteredlog sublog = log.applyFilter(Operator.EXCLUSIVE_CHOICE, activities);
+			for (Filteredlog sublog : sublogs) {
+				final Filteredlog sublog2 = sublog;
 				final int j = i;
 				pool.addJob(
 						new Runnable() {
 				            public void run() {
-				            	mineProcessTree(sublog, parameters, node, j, pool);
+				            	mineProcessTree(sublog2, parameters, node, j, pool);
 				            }
 				});
 				i++;
