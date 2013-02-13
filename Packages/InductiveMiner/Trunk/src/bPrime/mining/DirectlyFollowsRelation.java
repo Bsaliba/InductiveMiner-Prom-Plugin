@@ -138,8 +138,7 @@ public class DirectlyFollowsRelation {
 		}
 	}
 	
-	public void filterNoise(Integer threshold) {
-		float threshold2 = 1/threshold;
+	public void filterNoise(float threshold) {
 		//filter start activities
 		Iterator<Pair<XEventClass, Integer>> it = startActivities.iterator();
 		while (it.hasNext()) {
