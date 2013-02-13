@@ -1,8 +1,5 @@
 package bPrime.batch;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -25,9 +21,6 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.jgraph.ProMJGraph;
-import org.processmining.models.jgraph.ProMJGraphVisualizer;
-import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
@@ -42,6 +35,8 @@ import bPrime.ProcessTreeModelParameters;
 import bPrime.ThreadPool;
 import bPrime.mining.MiningPlugin;
 import bPrime.model.ProcessTreeModel;
+import bPrime.model.conversion.Dot2Image;
+import bPrime.model.conversion.ProcessTreeModel2Dot;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
 @Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Process Trees" }, returnTypes = { ProcessTrees.class }, parameterLabels = {
@@ -171,28 +166,30 @@ public class BatchMiningPlugin {
 		XEventClass dummy = mapping.getDummyEventClass();
     	
 		//Visualise the Petri net
-		File outputFilePDF;
+		//File outputFilePDF;
 		File outputFilePNG;
-		File outputFileTXT;
+		//File outputFileTXT;
 		if (batchParameters.getPetrinetOutputFolder() != null) {
 			String x = new File(fileName).getName();
 			if (x.indexOf(".") > 0) {
 			    x = x.substring(0, x.lastIndexOf("."));
 			}
-			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + ".pdf");
+			//outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + ".pdf");
 			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + ".png");
-			outputFileTXT = new File(batchParameters.getPetrinetOutputFolder(), x + ".txt");
+			//outputFileTXT = new File(batchParameters.getPetrinetOutputFolder(), x + ".txt");
 		} else {
-			outputFilePDF = new File(fileName + ".pdf");
+			//outputFilePDF = new File(fileName + ".pdf");
 			outputFilePNG = new File(fileName + ".png");
-			outputFileTXT = new File(fileName + ".TXT");
+			//outputFileTXT = new File(fileName + ".TXT");
 		}
+		/*
 		Dimension dimension = batchParameters.getPetrinetOutputDimension();
 		ProMJGraphPanel graphPanel = ProMJGraphVisualizer.instance().visualizeGraphWithoutRememberingLayout(petrinet);
 		graphPanel.setSize(dimension);
 		
 		ProMJGraph graph = (ProMJGraph) graphPanel.getComponent();
 		graph.setSize(dimension);
+		*/
 		
 		/*
 		//output pdf
@@ -207,6 +204,7 @@ public class BatchMiningPlugin {
 		}
 		*/
 		
+		/*
 		//output png
 		Color bg = null;
 		bg = graph.getBackground();
@@ -218,6 +216,10 @@ public class BatchMiningPlugin {
 			e1.printStackTrace();
 		}
 		img.flush();
+		*/
+		
+		ProcessTreeModel2Dot converter2dot = new ProcessTreeModel2Dot();
+		Dot2Image.dot2image(converter2dot.convert(model.root), outputFilePNG);
 		
 		/*PetriNetVisualization visualisation = new PetriNetVisualization(); 
 		JComponent visualisationComponent = visualisation.visualize(context, petrinet);

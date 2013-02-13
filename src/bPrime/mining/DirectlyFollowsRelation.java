@@ -239,6 +239,7 @@ public class DirectlyFollowsRelation {
 		File dotFile;
 		try {
 			dotFile = File.createTempFile("directlyFollowsGraph", ".dot");
+			//dotFile = new File("D:\\graph2.dot");
 			out = new FileWriter(dotFile);
 			dotExporter.export(out, graph);
 		} catch (IOException e) {
