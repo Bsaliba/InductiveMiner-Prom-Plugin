@@ -8,14 +8,14 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 public class MiningParameters {
 	private XEventClassifier classifier;
 	private boolean filterNoise;
-	private int noiseThreshold;
+	private float noiseThreshold;
 	
 	private String outputDFGfileName;
 	
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		filterNoise = true;
-		noiseThreshold = 10;
+		noiseThreshold = (float) 0.1;
 		outputDFGfileName = null;
 	}
 	
@@ -33,8 +33,12 @@ public class MiningParameters {
 		return this.filterNoise;
 	}
 	
-	public int getNoiseThreshold() {
+	public float getNoiseThreshold() {
 		return noiseThreshold;
+	}
+	
+	public void setNoiseThreshold() {
+		this.noiseThreshold = noiseThreshold;
 	}
 	
 	public String getOutputDFGfileName() {

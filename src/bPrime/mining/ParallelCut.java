@@ -1,6 +1,5 @@
 package bPrime.mining;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +20,9 @@ public class ParallelCut {
 		//if that is the case, return
 		if (dfr.getStartActivities().toSet().size() == 0 ||
 				dfr.getEndActivities().toSet().size() == 0) {
-			return new HashSet<Set<XEventClass>>((Collection<? extends Set<XEventClass>>) new HashSet<XEventClass>(dfr.getGraph().vertexSet()));
+			Set<Set<XEventClass>> emptyResult = new HashSet<Set<XEventClass>>();
+			emptyResult.add(dfr.getGraph().vertexSet());
+			return emptyResult;
 		}
 		
 		//construct the negated graph
