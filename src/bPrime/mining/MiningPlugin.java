@@ -222,13 +222,13 @@ public class MiningPlugin {
 		
 		//output fancy images and filter noise if wanted
 		recursionStepsCounter++;
-		directlyFollowsRelation.toDot("D://output//directlyFollowsGraphs//graph" + recursionStepsCounter);
+		directlyFollowsRelation.toDot("D:\\output\\directlyFollowsGraphs\\graph" + recursionStepsCounter);
 		//debug(directlyFollowsRelation.debugGraph());
 		if (parameters.getFilterNoise()) {
 			//filter noise from the directly-follows relation
 			directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
 			//debug(directlyFollowsRelation.debugGraph());
-			directlyFollowsRelation.toDot("D://output//directlyFollowsGraphs//graph" + recursionStepsCounter + "-afterNoise");
+			directlyFollowsRelation.toDot("D:\\output\\directlyFollowsGraphs\\graph" + recursionStepsCounter + "-afterNoise");
 		}
 		
 		//exclusive choice operator
