@@ -35,7 +35,8 @@ public class DirectlyFollowsRelation {
 	private int strongestEndActivity;
 	
 	public DirectlyFollowsRelation(Filteredlog log, ProcessTreeModelParameters parameters) {
-		//initialise
+		
+		//initialise, read the log
 		graph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		startActivities = new MultiSet<XEventClass>();
 		endActivities = new MultiSet<XEventClass>();
@@ -145,7 +146,7 @@ public class DirectlyFollowsRelation {
 		Iterator<Pair<XEventClass, Integer>> it = startActivities.iterator();
 		while (it.hasNext()) {
 			Pair<XEventClass, Integer> pair = it.next();
-			if (pair.getRight() < threshold) {
+			if (pair.getRight() < strongestStartActivity * 0.1) {
 				it.remove();
 			}
 		}
@@ -154,7 +155,7 @@ public class DirectlyFollowsRelation {
 		Iterator<Pair<XEventClass, Integer>> it2 = endActivities.iterator();
 		while (it2.hasNext()) {
 			Pair<XEventClass, Integer> pair = it2.next();
-			if (pair.getRight() < threshold) {
+			if (pair.getRight() < strongestEndActivity * 0.1) {
 				it2.remove();
 			}
 		}
@@ -162,7 +163,7 @@ public class DirectlyFollowsRelation {
 		//filter edges
 		Set<DefaultWeightedEdge> removeSet = new HashSet<DefaultWeightedEdge>();
 		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			if (graph.getEdgeWeight(edge) < threshold) {
+			if (graph.getEdgeWeight(edge) < strongestEdge * 0.1) {
 				removeSet.add(edge);
 			}
 		}
@@ -235,8 +236,10 @@ public class DirectlyFollowsRelation {
 		//Writer out = new BufferedWriter(new OutputStreamWriter(System.out));
 		//debug("to dot before file IO");
 		FileWriter out = null;
+		File dotFile;
 		try {
-			out = new FileWriter(fileName + ".dot");
+			dotFile = File.createTempFile("directlyFollowsGraph", ".dot");
+			out = new FileWriter(dotFile);
 			dotExporter.export(out, graph);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -253,16 +256,12 @@ public class DirectlyFollowsRelation {
 		}
 		
 		try {
-			Process p = Runtime.getRuntime().exec("\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+fileName+".png\" \""+fileName+".dot\"");
-			p.waitFor();
-			new File(fileName + ".dot").delete();
+			String command = "\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+fileName+".png\" \""+dotFile.getAbsolutePath()+"\"";
+			Process p = Runtime.getRuntime().exec(command);
+			dotFile.deleteOnExit();
+			//debug(command);
 		} catch (IOException e) {
 			e.printStackTrace();
-			new File(fileName + ".dot").deleteOnExit();
-			return;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			new File(fileName + ".dot").deleteOnExit();
 			return;
 		}
 	}
