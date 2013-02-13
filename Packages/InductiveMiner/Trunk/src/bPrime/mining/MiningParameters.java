@@ -1,21 +1,21 @@
-package bPrime;
+package bPrime.mining;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 
-public class ProcessTreeModelParameters {
+public class MiningParameters {
 	private XEventClassifier classifier;
 	private boolean filterNoise;
 	private int noiseThreshold;
 	
 	private String outputDFGfileName;
 	
-	public ProcessTreeModelParameters() {
+	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		filterNoise = true;
-		noiseThreshold = 3;
+		noiseThreshold = 10;
 		outputDFGfileName = null;
 	}
 	
@@ -46,8 +46,8 @@ public class ProcessTreeModelParameters {
 	}
 	
 	public boolean equals(Object object) {
-		if (object instanceof ProcessTreeModelParameters) {
-			ProcessTreeModelParameters parameters = (ProcessTreeModelParameters) object;
+		if (object instanceof MiningParameters) {
+			MiningParameters parameters = (MiningParameters) object;
 			if (classifier.equals(parameters.classifier)) {
 				return true;
 			}

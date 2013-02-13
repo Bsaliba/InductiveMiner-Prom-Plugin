@@ -18,7 +18,6 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 
 import bPrime.MultiSet;
 import bPrime.Pair;
-import bPrime.ProcessTreeModelParameters;
 
 public class DirectlyFollowsRelation {
 	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
@@ -32,7 +31,7 @@ public class DirectlyFollowsRelation {
 	private int strongestStartActivity;
 	private int strongestEndActivity;
 	
-	public DirectlyFollowsRelation(Filteredlog log, ProcessTreeModelParameters parameters) {
+	public DirectlyFollowsRelation(Filteredlog log, MiningParameters parameters) {
 		
 		//initialise, read the log
 		graph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
@@ -140,11 +139,12 @@ public class DirectlyFollowsRelation {
 	}
 	
 	public void filterNoise(Integer threshold) {
+		float threshold2 = 1/threshold;
 		//filter start activities
 		Iterator<Pair<XEventClass, Integer>> it = startActivities.iterator();
 		while (it.hasNext()) {
 			Pair<XEventClass, Integer> pair = it.next();
-			if (pair.getRight() < strongestStartActivity * 0.1) {
+			if (pair.getRight() < strongestStartActivity * threshold) {
 				it.remove();
 			}
 		}
@@ -153,7 +153,7 @@ public class DirectlyFollowsRelation {
 		Iterator<Pair<XEventClass, Integer>> it2 = endActivities.iterator();
 		while (it2.hasNext()) {
 			Pair<XEventClass, Integer> pair = it2.next();
-			if (pair.getRight() < strongestEndActivity * 0.1) {
+			if (pair.getRight() < strongestEndActivity * threshold) {
 				it2.remove();
 			}
 		}
@@ -161,7 +161,7 @@ public class DirectlyFollowsRelation {
 		//filter edges
 		Set<DefaultWeightedEdge> removeSet = new HashSet<DefaultWeightedEdge>();
 		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			if (graph.getEdgeWeight(edge) < strongestEdge * 0.1) {
+			if (graph.getEdgeWeight(edge) < strongestEdge * threshold) {
 				removeSet.add(edge);
 			}
 		}
