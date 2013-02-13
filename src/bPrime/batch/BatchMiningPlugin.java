@@ -154,8 +154,29 @@ public class BatchMiningPlugin {
 			return;
 		}
 		
-		//mine the Petri net
+		//set up files for output
+		File outputFilePDF;
+		File outputFilePNG;
+		String outputFileDFG;
+		if (batchParameters.getPetrinetOutputFolder() != null) {
+			String x = new File(fileName).getName();
+			if (x.indexOf(".") > 0) {
+			    x = x.substring(0, x.lastIndexOf("."));
+			}
+			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.pdf");
+			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.png");
+			outputFileDFG = new File(batchParameters.getPetrinetOutputFolder(), x + "--dfg").getPath();
+		} else {
+			outputFilePDF = new File(fileName + ".pdf");
+			outputFilePNG = new File(fileName + ".png");
+			outputFileDFG = new File(fileName).getPath() + "-DFG";
+		}
+		
+		//enable output of directly-follows images
 		ProcessTreeModelParameters mineParameters = new ProcessTreeModelParameters();
+		mineParameters.setOutputDFGfileName(outputFileDFG);
+		
+		//mine the Petri net
 		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, mineParameters);
 		ProcessTreeModel model = (ProcessTreeModel) arr[0];
 		WorkflowNet workflowNet = (WorkflowNet) arr[1];
@@ -164,78 +185,12 @@ public class BatchMiningPlugin {
 		Marking finalMarking = workflowNet.finalMarking;
 		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		XEventClass dummy = mapping.getDummyEventClass();
-    	
+		
 		//Visualise the Petri net
-		//File outputFilePDF;
-		File outputFilePNG;
-		//File outputFileTXT;
-		if (batchParameters.getPetrinetOutputFolder() != null) {
-			String x = new File(fileName).getName();
-			if (x.indexOf(".") > 0) {
-			    x = x.substring(0, x.lastIndexOf("."));
-			}
-			//outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + ".pdf");
-			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + ".png");
-			//outputFileTXT = new File(batchParameters.getPetrinetOutputFolder(), x + ".txt");
-		} else {
-			//outputFilePDF = new File(fileName + ".pdf");
-			outputFilePNG = new File(fileName + ".png");
-			//outputFileTXT = new File(fileName + ".TXT");
-		}
-		/*
-		Dimension dimension = batchParameters.getPetrinetOutputDimension();
-		ProMJGraphPanel graphPanel = ProMJGraphVisualizer.instance().visualizeGraphWithoutRememberingLayout(petrinet);
-		graphPanel.setSize(dimension);
-		
-		ProMJGraph graph = (ProMJGraph) graphPanel.getComponent();
-		graph.setSize(dimension);
-		*/
-		
-		/*
-		//output pdf
-		try {
-			VectorGraphics g = new PDFGraphics2D(outputFilePDF, dimension);
-			g.setProperties(new Properties());
-			g.startExport();
-			graph.print(g);
-			g.endExport();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		*/
-		
-		/*
-		//output png
-		Color bg = null;
-		bg = graph.getBackground();
-		int inset = 2;
-		BufferedImage img = graph.getImage(bg, inset);
-		try {
-			ImageIO.write(img, "png", outputFilePNG);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		img.flush();
-		*/
-		
 		ProcessTreeModel2Dot converter2dot = new ProcessTreeModel2Dot();
-		Dot2Image.dot2image(converter2dot.convert(model.root), outputFilePNG);
+		Dot2Image.dot2image(converter2dot.convert(model.root), outputFilePNG, outputFilePDF);
 		
-		/*PetriNetVisualization visualisation = new PetriNetVisualization(); 
-		JComponent visualisationComponent = visualisation.visualize(context, petrinet);
-		visualisationComponent.doLayout();
-		debug(String.valueOf(visualisationComponent.getHeight()));
-		Graphics visualisationGraphics = visualisationComponent.getGraphics();
-		debug(visualisationGraphics.toString());
-		Image visualisedPetrinet = visualisationComponent.createImage(1000, 1000);
-		
-		try {
-			ImageIO.write((RenderedImage) visualisedPetrinet, "png", imageFile);
-		} catch (Exception e1) {
-			debug("Image generation failed.");
-			e1.printStackTrace();
-		}*/
-		
+		//measure precision
 		String comment = "";
 		if (measurePrecision) {
 		
@@ -273,7 +228,7 @@ public class BatchMiningPlugin {
 	    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
 		}
 		
-		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"'>";
+		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"' style='width: 1900px;'>";
     	
     	result.set(index, fileName, comment);
 	}

@@ -1,5 +1,6 @@
 package bPrime.mining;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import bPrime.model.ProcessTreeModel;
 import bPrime.model.ProcessTreeModel.Operator;
 import bPrime.model.Sequence;
 import bPrime.model.Tau;
+import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
@@ -219,16 +221,25 @@ public class MiningPlugin {
 			return;
 		}
 		
-		
-		//output fancy images and filter noise if wanted
 		recursionStepsCounter++;
-		directlyFollowsRelation.toDot("D:\\output\\directlyFollowsGraphs\\graph" + recursionStepsCounter);
+		
+		//output an image before noise filtering if wanted
+		if (parameters.getOutputDFGfileName() != null) {
+			Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
+					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + ".png"), 
+					null);
+		}
 		//debug(directlyFollowsRelation.debugGraph());
 		if (parameters.getFilterNoise()) {
 			//filter noise from the directly-follows relation
 			directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
-			//debug(directlyFollowsRelation.debugGraph());
-			directlyFollowsRelation.toDot("D:\\output\\directlyFollowsGraphs\\graph" + recursionStepsCounter + "-afterNoise");
+			
+			//output an image after the noise filtering if wanted
+			if (parameters.getOutputDFGfileName() != null) {
+				Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
+						new File(parameters.getOutputDFGfileName() + recursionStepsCounter + "-afterNoise.png"), 
+						null);
+			}
 		}
 		
 		//exclusive choice operator
