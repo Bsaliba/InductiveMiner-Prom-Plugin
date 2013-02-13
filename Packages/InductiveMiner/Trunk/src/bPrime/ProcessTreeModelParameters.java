@@ -10,10 +10,13 @@ public class ProcessTreeModelParameters {
 	private boolean filterNoise;
 	private int noiseThreshold;
 	
+	private String outputDFGfileName;
+	
 	public ProcessTreeModelParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		filterNoise = true;
 		noiseThreshold = 3;
+		outputDFGfileName = null;
 	}
 	
 	public void setClassifier(XEventClassifier classifier) {
@@ -32,6 +35,14 @@ public class ProcessTreeModelParameters {
 	
 	public int getNoiseThreshold() {
 		return noiseThreshold;
+	}
+	
+	public String getOutputDFGfileName() {
+		return outputDFGfileName; 
+	}
+
+	public void setOutputDFGfileName(String outputFileName) {
+		this.outputDFGfileName = outputFileName;
 	}
 	
 	public boolean equals(Object object) {

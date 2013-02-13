@@ -1,9 +1,7 @@
 package bPrime.mining;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -192,7 +190,7 @@ public class DirectlyFollowsRelation {
 		return result;
 	}
 	
-	public void toDot(String fileName) {
+	public String toDot() {
 		DOTExporter<XEventClass, DefaultWeightedEdge> dotExporter = 
 	        new DOTExporter<XEventClass, DefaultWeightedEdge>(
         		new VertexNameProvider<XEventClass>() {
@@ -233,38 +231,9 @@ public class DirectlyFollowsRelation {
 				}
         	);
 		
-		//Writer out = new BufferedWriter(new OutputStreamWriter(System.out));
-		//debug("to dot before file IO");
-		FileWriter out = null;
-		File dotFile;
-		try {
-			dotFile = File.createTempFile("directlyFollowsGraph", ".dot");
-			//dotFile = new File("D:\\graph2.dot");
-			out = new FileWriter(dotFile);
-			dotExporter.export(out, graph);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		} finally {
-			if (out != null) {
-				try {
-					out.flush();
-					out.close();
-				} catch (IOException e) {
-					//debug("flushing/closed failed");
-				}
-			}
-		}
-		
-		try {
-			String command = "\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+fileName+".png\" \""+dotFile.getAbsolutePath()+"\"";
-			Process p = Runtime.getRuntime().exec(command);
-			dotFile.deleteOnExit();
-			//debug(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+		StringWriter out = new StringWriter();
+		dotExporter.export(out, graph);
+		return out.toString();
 	}
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getGraph() {
