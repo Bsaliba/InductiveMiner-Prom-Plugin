@@ -27,7 +27,6 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 import bPrime.ProcessTreeModelConnection;
-import bPrime.ProcessTreeModelParameters;
 import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
@@ -79,12 +78,12 @@ public class MiningPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
-		return this.mineParametersPetrinet(context, log, new ProcessTreeModelParameters());
+		return this.mineParametersPetrinet(context, log, new MiningParameters());
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, parameterized", requiredParameterLabels = { 0, 1 })
-	public Object[] mineParametersPetrinet(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public Object[] mineParametersPetrinet(PluginContext context, XLog log, MiningParameters parameters) {
 		Collection<ProcessTreeModelConnection> connections;
 		try {
 			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
@@ -113,7 +112,7 @@ public class MiningPlugin {
 		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
 	}
 	
-	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log, MiningParameters parameters) {
 		ProcessTreeModel model = mine(context, log, parameters);
 		WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convert(model.root);
 		
@@ -130,7 +129,7 @@ public class MiningPlugin {
 	}
 	
 	private int recursionStepsCounter;
-	public ProcessTreeModel mine(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public ProcessTreeModel mine(PluginContext context, XLog log, MiningParameters parameters) {
 		//prepare the log
 		//debug("Start conversion to internal log format");
 		Filteredlog filteredLog = new Filteredlog(log, parameters);
@@ -170,7 +169,7 @@ public class MiningPlugin {
 	
 	private void mineProcessTree(
 			Filteredlog log, 
-			final ProcessTreeModelParameters parameters, 
+			final MiningParameters parameters, 
 			final Binoperator target, //the target where we must store our result 
 			final int index, //in which subtree we must store our result
 			final ThreadPool pool) {

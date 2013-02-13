@@ -1,5 +1,6 @@
 package bPrime.mining;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,13 @@ import bPrime.Sets;
 
 public class ParallelCut {
 	public static Set<Set<XEventClass>> findParallelCut(DirectlyFollowsRelation dfr, boolean useMinimumSelfDistance) {
+		
+		//noise filtering can have removed all start and end activities.
+		//if that is the case, return
+		if (dfr.getStartActivities().toSet().size() == 0 ||
+				dfr.getEndActivities().toSet().size() == 0) {
+			return new HashSet<Set<XEventClass>>((Collection<? extends Set<XEventClass>>) new HashSet<XEventClass>(dfr.getGraph().vertexSet()));
+		}
 		
 		//construct the negated graph
 		DirectedGraph<XEventClass, DefaultEdge> negatedGraph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);

@@ -31,9 +31,9 @@ import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGen;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes;
 
-import bPrime.ProcessTreeModelParameters;
 import bPrime.ThreadPool;
 import bPrime.mining.MiningPlugin;
+import bPrime.mining.MiningParameters;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2Dot;
@@ -45,7 +45,7 @@ public class BatchMiningPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, default", requiredParameterLabels = { })
 	public ProcessTrees mineDefault(PluginContext context) {
-		BatchParameters parameters = new BatchParameters();
+		BatchMiningParameters parameters = new BatchMiningParameters();
 		
 		//ask the user for the folder to be batch processed
 		boolean repeat = true;
@@ -73,7 +73,7 @@ public class BatchMiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, parameterized", requiredParameterLabels = { 1 })
-	public ProcessTrees mineParameters(final PluginContext context, final BatchParameters parameters) {
+	public ProcessTrees mineParameters(final PluginContext context, final BatchMiningParameters parameters) {
 		
 		//initialise for thread splitting
 		ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
@@ -139,7 +139,7 @@ public class BatchMiningPlugin {
 			MiningPlugin miningPlugin,
 			PNLogReplayer replayer,
 			boolean measurePrecision,
-			BatchParameters batchParameters) {
+			BatchMiningParameters batchParameters) {
 		//perform the computations, store the result in result[index]
 		
 		//import the log
@@ -173,7 +173,7 @@ public class BatchMiningPlugin {
 		}
 		
 		//enable output of directly-follows images
-		ProcessTreeModelParameters mineParameters = new ProcessTreeModelParameters();
+		MiningParameters mineParameters = new MiningParameters();
 		mineParameters.setOutputDFGfileName(outputFileDFG);
 		
 		//mine the Petri net
@@ -228,7 +228,7 @@ public class BatchMiningPlugin {
 	    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
 		}
 		
-		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"' style='width: 1900px;'>";
+		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"' style='max-width: 1900px; max-height: 900px;'>";
     	
     	result.set(index, fileName, comment);
 	}

@@ -16,7 +16,6 @@ import org.deckfour.xes.model.XTrace;
 
 import bPrime.MultiSet;
 import bPrime.Pair;
-import bPrime.ProcessTreeModelParameters;
 import bPrime.model.ProcessTreeModel.Operator;
 
 public class Filteredlog {
@@ -31,7 +30,7 @@ public class Filteredlog {
 	private Iterator<XEventClass> iteratorEvent;
 	private XEventClass nextEvent;
 	
-	public Filteredlog(XLog log, ProcessTreeModelParameters parameters) {
+	public Filteredlog(XLog log, MiningParameters parameters) {
 		
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
 		eventClasses = new HashSet<XEventClass>(info.getEventClasses().getClasses());
