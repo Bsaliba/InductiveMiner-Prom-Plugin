@@ -1,5 +1,7 @@
 package bPrime.mining;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -129,6 +131,65 @@ public class Filteredlog {
 		return new Filteredlog(result, eventClasses);
 	}
 	
+	 public Set<Filteredlog> applyFilterExclusiveChoice(Set<Set<XEventClass>> sigmas) {
+		
+		//initialise the sublogs, make a hashmap of activities
+		HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> result = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
+		HashMap<XEventClass, Set<XEventClass>> map = new HashMap<XEventClass, Set<XEventClass>>();
+		for (Set<XEventClass> sigma : sigmas) {
+			result.put(sigma, new MultiSet<List<XEventClass>>());
+			for (XEventClass activity : sigma) {
+				map.put(activity, sigma);
+			}
+		}
+		
+		//debug
+		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
+		
+		//walk through the traces and add them to the result
+		for (List<XEventClass> trace : internalLog.toSet()) {
+			
+			//walk through the events and count how many go in each sigma
+			HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
+			for (Set<XEventClass> sigma : sigmas) {
+				eventCounter.put(sigma, 0);
+			}
+			for (XEventClass event : trace) {
+				Set<XEventClass> sigma = map.get(event);
+				eventCounter.put(sigma, eventCounter.get(sigma) + 1);
+			}
+			
+			//put the trace in the sublog of the sigma that accounts for at least half of the events
+			for (Set<XEventClass> sigma : sigmas) {
+				if (eventCounter.get(sigma) * 2 > trace.size()) {
+					//make a copy of the trace, leaving out the noise
+					List<XEventClass> newTrace = new ArrayList<XEventClass>();
+					for (XEventClass event : trace) {
+						if (sigma.contains(event)) {
+							newTrace.add(event);
+						} else {
+							//debug
+							noise.add(event, internalLog.getCardinalityOf(trace));							
+						}
+					}
+					
+					MultiSet<List<XEventClass>> sublog = result.get(sigma);
+					sublog.add(newTrace, internalLog.getCardinalityOf(trace));
+					result.put(sigma, sublog);
+				}
+			}
+		}
+		
+		debug(" Filtered noise: " + noise.toString());
+		
+		//make a copy of the arguments
+		Set<Filteredlog> result2 = new HashSet<Filteredlog>();
+		for (Set<XEventClass> sigma : sigmas) {
+			result2.add(new Filteredlog(result.get(sigma), new HashSet<XEventClass>(sigma)));
+		}
+		return result2;
+	} 
+	
 	public String toString() {
 		String result = "";
 		
@@ -188,5 +249,9 @@ public class Filteredlog {
 	
 	public Set<XEventClass> getEventClasses() {
 		return this.eventClasses;
+	}
+	
+	private void debug(String x) {
+		System.out.println(x);
 	}
 }

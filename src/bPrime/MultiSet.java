@@ -62,4 +62,8 @@ public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
         };
         return it;
 	}
+	
+	public String toString() {
+		return cardinalities.toString();
+	}
 }

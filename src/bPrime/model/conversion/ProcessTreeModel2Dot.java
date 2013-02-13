@@ -27,11 +27,9 @@ public class ProcessTreeModel2Dot {
 	
 	public class dotPlace extends dotNode {
 		public dotPlace(String label) {
-			//super("label=\""+label+"\"");
 			super("label=\"\", shape=\"circle\"");
 		}
 		public dotPlace(String label, String style) {
-			//super("label=\""+label+"\"");
 			super("label=\"\", shape=\"circle\", "+ style);
 		}
 	}
@@ -121,6 +119,7 @@ public class ProcessTreeModel2Dot {
 		int i = 0;
 		dotPlace lastSink = source;
 		for (Node child : node.getChildren()) {
+			beginCluster();
 			dotPlace childSink;
 			if (i == last - 1) {
 				childSink = sink;
@@ -131,7 +130,6 @@ public class ProcessTreeModel2Dot {
 			boolean assureBefore = (i == 0 && assureNoInputPlacementment);
 			boolean assureAfter = (i == last - 1 && assureNoOutputRemoval) || (i < last - 1);
 			
-			beginCluster();
 			convertNode(lastSink, childSink, child, assureBefore, assureAfter);
 			endCluster();
 			lastSink = childSink;
