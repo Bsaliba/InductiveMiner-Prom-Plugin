@@ -1,5 +1,6 @@
 package bPrime;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -8,9 +9,11 @@ import java.util.Set;
 public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
 	
 	private HashMap<X, Integer> cardinalities;
+	private int size;
 	
 	public MultiSet() {
 		cardinalities = new HashMap<X, Integer>();
+		size = 0;
 	}
 	
 	public boolean add(X element) {
@@ -25,7 +28,19 @@ public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
 			Integer newCardinality = cardinalities.get(element) + cardinality;
 			cardinalities.put(element, newCardinality);
 		}
+		size += cardinality;
 		return true;
+	}
+	
+	public boolean addAll(Collection<X> collection) {
+		for (X element : collection) {
+			add(element);
+		}
+		return true;
+	}
+	
+	public int size() {
+		return size;
 	}
 	
 	public Set<X> toSet() {
@@ -37,7 +52,11 @@ public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
 	}
 	
 	public Integer getCardinalityOf(X element) {
-		return cardinalities.get(element);
+		if (contains(element)) {
+			return cardinalities.get(element);
+		} else {
+			return 0;
+		}
 	}
 
 	public Iterator<Pair<X, Integer>> iterator() {
