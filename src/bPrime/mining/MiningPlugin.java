@@ -187,7 +187,7 @@ public class MiningPlugin {
 			//log contains the empty trace
 			//debug("remove epsilon from log");
 			
-			if (parameters.getFilterNoise()) {
+			if (parameters.getFilterTaus()) {
 				//remove taus as noise
 				//filter the taus from the log
 				final Filteredlog sublog = log.applyTauFilter();
@@ -249,7 +249,7 @@ public class MiningPlugin {
 			debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
 			
-			//recurse
+			//filter the log and recurse
 			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice(exclusiveChoiceCut);
 			int i = 0;
 			for (Filteredlog sublog : sublogs) {
@@ -269,9 +269,14 @@ public class MiningPlugin {
 		//sequence operator
 		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getGraph());
 		if (sequenceCut.size() > 1) {
+			//set the result
 			final Binoperator node = new Sequence(sequenceCut.size());
 			debugCut(node, sequenceCut);
 			target.setChild(index, node);
+			
+			List<Filteredlog> sublogs = log.applyFilterSequence(sequenceCut);
+			
+			//filter the log and recurse
 			int i = 0;
 			for (Set<XEventClass> activities : sequenceCut) {
 				final Filteredlog sublog = log.applyFilter(Operator.SEQUENCE, activities);

@@ -26,6 +26,7 @@ public class Filteredlog {
 	protected MultiSet<List<XEventClass>> internalLog;
 	
 	private Set<XEventClass> eventClasses;
+	private final int eventSize;
 	
 	private Iterator<Pair<List<XEventClass>, Integer>> iteratorTrace;
 	private Pair<List<XEventClass>, Integer> nextTrace;
@@ -36,6 +37,7 @@ public class Filteredlog {
 		
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
 		eventClasses = new HashSet<XEventClass>(info.getEventClasses().getClasses());
+		int newEventSize = 0;
 		
 		//transform the log to an internal format
 		internalLog = new MultiSet<List<XEventClass>>();
@@ -43,15 +45,18 @@ public class Filteredlog {
 			List<XEventClass> internalTrace = new LinkedList<XEventClass>();
 			for (XEvent event : trace) {
 				internalTrace.add(info.getEventClasses().getClassOf(event));
+				newEventSize++;
 			}
 			internalLog.add(internalTrace);
 		}
+		
+		eventSize = newEventSize;
 	}
 	
-	public Filteredlog(MultiSet<List<XEventClass>> log, Set<XEventClass> eventClasses) {
-		//this.log = filteredLog.log;
+	public Filteredlog(MultiSet<List<XEventClass>> log, Set<XEventClass> eventClasses, int eventSize) {
 		this.internalLog = log;
 		this.eventClasses = eventClasses;
+		this.eventSize = eventSize;
 	}
 	
 	public Filteredlog applyTauFilter() {
@@ -63,7 +68,7 @@ public class Filteredlog {
 				result.add(trace, cardinality);
 			}
 		}
-		return new Filteredlog(result, eventClasses);
+		return new Filteredlog(result, eventClasses, eventSize);
 	}
 	
 	public Filteredlog applyFilter(Operator operator, Set<XEventClass> arguments) {
@@ -73,10 +78,11 @@ public class Filteredlog {
 		if (arguments.size() == 0) {
 			Set<XEventClass> eventClasses = new HashSet<XEventClass>(arguments);
 			result.add(new LinkedList<XEventClass>());
-			return new Filteredlog(result, eventClasses);
+			return new Filteredlog(result, eventClasses, 0);
 		}
 		
 		//walk through the traces and add them to the result
+		int newEventSize = 0;
 		for (Pair<List<XEventClass>, Integer> pair : internalLog) {
 			List<XEventClass> trace = pair.getLeft();
 			Integer cardinality = pair.getRight();
@@ -122,28 +128,31 @@ public class Filteredlog {
 			}
 			if (keep) {
 				result.add(newTrace, cardinality);
+				newEventSize += newTrace.size() * cardinality;
 			}
 		}
 		
 		//make a copy of the arguments
 		Set<XEventClass> eventClasses = new HashSet<XEventClass>(arguments);
 		
-		return new Filteredlog(result, eventClasses);
+		return new Filteredlog(result, eventClasses, newEventSize);
 	}
 	
 	 public Set<Filteredlog> applyFilterExclusiveChoice(Set<Set<XEventClass>> sigmas) {
 		
-		//initialise the sublogs, make a hashmap of activities
-		HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> result = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
-		HashMap<XEventClass, Set<XEventClass>> map = new HashMap<XEventClass, Set<XEventClass>>();
+		//initialise the sublogs, make a hashmap of activities, initialise event counters
+		HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> mapSigma2sublog = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
+		HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma = new HashMap<XEventClass, Set<XEventClass>>();
+		HashMap<Set<XEventClass>, Integer> mapSigma2eventSize = new HashMap<Set<XEventClass>, Integer>();
 		for (Set<XEventClass> sigma : sigmas) {
-			result.put(sigma, new MultiSet<List<XEventClass>>());
+			mapSigma2sublog.put(sigma, new MultiSet<List<XEventClass>>());
+			mapSigma2eventSize.put(sigma, 0);
 			for (XEventClass activity : sigma) {
-				map.put(activity, sigma);
+				mapActivity2sigma.put(activity, sigma);
 			}
 		}
 		
-		//debug
+		//debug noise
 		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
 		
 		//walk through the traces and add them to the result
@@ -155,11 +164,11 @@ public class Filteredlog {
 				eventCounter.put(sigma, 0);
 			}
 			for (XEventClass event : trace) {
-				Set<XEventClass> sigma = map.get(event);
+				Set<XEventClass> sigma = mapActivity2sigma.get(event);
 				eventCounter.put(sigma, eventCounter.get(sigma) + 1);
 			}
 			
-			//put the trace in the sublog of the sigma that accounts for at least half of the events
+			//put the trace in the sublog of the sigma that accounts for more than half of the events
 			for (Set<XEventClass> sigma : sigmas) {
 				if (eventCounter.get(sigma) * 2 > trace.size()) {
 					//make a copy of the trace, leaving out the noise
@@ -173,22 +182,48 @@ public class Filteredlog {
 						}
 					}
 					
-					MultiSet<List<XEventClass>> sublog = result.get(sigma);
+					MultiSet<List<XEventClass>> sublog = mapSigma2sublog.get(sigma);
 					sublog.add(newTrace, internalLog.getCardinalityOf(trace));
-					result.put(sigma, sublog);
+					mapSigma2sublog.put(sigma, sublog);
+					mapSigma2eventSize.put(sigma, mapSigma2eventSize.get(sigma) + (trace.size() * internalLog.getCardinalityOf(trace)));
 				}
 			}
 		}
 		
-		debug(" Filtered noise: " + noise.toString());
+		if (noise.size() > 0) {
+			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
+		}
 		
-		//make a copy of the arguments
+		//make a copy of the arguments and the new filtered sublogs
 		Set<Filteredlog> result2 = new HashSet<Filteredlog>();
 		for (Set<XEventClass> sigma : sigmas) {
-			result2.add(new Filteredlog(result.get(sigma), new HashSet<XEventClass>(sigma)));
+			result2.add(new Filteredlog(mapSigma2sublog.get(sigma), new HashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
 		}
 		return result2;
 	} 
+	 
+	public List<Filteredlog> applyFilterSequence(List<Set<XEventClass>> sigmas) {
+		//temporary test for noise filtering
+		FilteredlogSequenceNoiseFilter noiseFilter = new FilteredlogSequenceNoiseFilter(sigmas);
+		
+		//walk through the traces and add them to the result
+		for (List<XEventClass> trace : internalLog.toSet()) {
+			debug(trace.toString());
+			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
+		}
+		
+		List<Filteredlog> result = noiseFilter.getSublogs();
+		
+		//debug("  " + internalLog.toString());
+		//debug("  " + result.toString());
+		
+		MultiSet<XEventClass> noise = noiseFilter.getNoise();
+		if (noise.size() > 0) {
+			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
+		}
+		
+		return result;
+	}
 	
 	public String toString() {
 		String result = "";
