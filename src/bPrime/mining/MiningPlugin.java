@@ -183,26 +183,35 @@ public class MiningPlugin {
 		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
-		if (directlyFollowsRelation.getTauPresent()) {
+		if (directlyFollowsRelation.getNumberOfEpsilonTraces() != 0) {
 			//log contains the empty trace
-			//debug("remove epsilon from log");
+			//debug(log.toString());
+			//debug("remove epsilon from log" + directlyFollowsRelation.getNumberOfEpsilonTraces() + " / " + directlyFollowsRelation.getLengthStrongestTrace());
 			
-			if (parameters.getFilterTaus()) {
-				//remove taus as noise
-				//filter the taus from the log
-				final Filteredlog sublog = log.applyTauFilter();
+			if (directlyFollowsRelation.getNumberOfEpsilonTraces() < directlyFollowsRelation.getLengthStrongestTrace() * parameters.getNoiseThreshold()) {
+				//there are not enough empty traces, the empty traces are considered noise
+				debug(" Filtered noise: " + directlyFollowsRelation.getNumberOfEpsilonTraces() + " empty traces.");
+				
+				//filter the empty traces from the log and recurse
+				final Filteredlog sublog = log.applyEpsilonFilter();
+				
+				//debug(" Size after epsilon filter: " + String.valueOf(sublog.getSize()));
+				
 				pool.addJob(
 					new Runnable() {
 			            public void run() {
 			            	mineProcessTree(sublog, parameters, target, index, pool);
 			            }
 				});
+				
 			} else {
-				//filter taus and reflect in model 
+				//There are too much empty traces to consider them noise.
+				//Mine an xor(tau, ..) and recurse.
 				final Binoperator node = new ExclusiveChoice(2);
 				node.setChild(0, new Tau());
 				target.setChild(index, node);
-				final Filteredlog sublog = log.applyTauFilter();
+				
+				final Filteredlog sublog = log.applyEpsilonFilter();
 				pool.addJob(
 					new Runnable() {
 			            public void run() {
@@ -213,7 +222,7 @@ public class MiningPlugin {
 			return;
 		}
 		
-		if (log.getEventClasses().size() == 1 && directlyFollowsRelation.getLongestTrace() == 1 && !directlyFollowsRelation.getTauPresent()) {
+		if (log.getEventClasses().size() == 1 && directlyFollowsRelation.getLongestTrace() == 1) {
 			//log only has one activity
 			target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
 			//debug("activity " + log.getEventClasses().iterator().next());
@@ -221,6 +230,7 @@ public class MiningPlugin {
 		}
 		
 		recursionStepsCounter++;
+		debug("Log size: " + String.valueOf(log.getSize()));
 		
 		//output an image before noise filtering if wanted
 		if (parameters.getOutputDFGfileName() != null) {
@@ -229,20 +239,18 @@ public class MiningPlugin {
 					null);
 		}
 		//debug(directlyFollowsRelation.debugGraph());
-		if (parameters.getFilterNoise()) {
-			//filter noise from the directly-follows relation
-			directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
-			
-			//output an image after the noise filtering if wanted
-			if (parameters.getOutputDFGfileName() != null) {
-				Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
-						new File(parameters.getOutputDFGfileName() + recursionStepsCounter + "-afterNoise.png"), 
-						null);
-			}
+		//filter noise from the directly-follows relation
+		directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
+		
+		//output an image after the noise filtering if wanted
+		if (parameters.getOutputDFGfileName() != null) {
+			Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
+					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + "-afterNoise.png"), 
+					null);
 		}
 		
 		//exclusive choice operator
-		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getGraph());
+		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getDirectlyFollowsGraph());
 		if (exclusiveChoiceCut.size() > 1) {
 			//set the result
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
@@ -267,7 +275,8 @@ public class MiningPlugin {
 		}
 		
 		//sequence operator
-		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getGraph());
+		//List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getDirectlyFollowsGraph());
+		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getEventuallyFollowsGraph());
 		if (sequenceCut.size() > 1) {
 			//set the result
 			final Binoperator node = new Sequence(sequenceCut.size());

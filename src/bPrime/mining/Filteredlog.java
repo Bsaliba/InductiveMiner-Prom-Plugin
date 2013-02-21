@@ -2,8 +2,8 @@ package bPrime.mining;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,26 +17,25 @@ import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
 
 import bPrime.MultiSet;
-import bPrime.Pair;
 import bPrime.model.ProcessTreeModel.Operator;
 
 public class Filteredlog {
 	
 	//protected XLog log;
-	protected MultiSet<List<XEventClass>> internalLog;
+	private MultiSet<List<XEventClass>> internalLog;
 	
 	private Set<XEventClass> eventClasses;
 	private final int eventSize;
 	
-	private Iterator<Pair<List<XEventClass>, Integer>> iteratorTrace;
-	private Pair<List<XEventClass>, Integer> nextTrace;
+	private Iterator<List<XEventClass>> iteratorTrace;
+	private List<XEventClass> nextTrace;
 	private Iterator<XEventClass> iteratorEvent;
 	private XEventClass nextEvent;
 	
 	public Filteredlog(XLog log, MiningParameters parameters) {
 		
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		eventClasses = new HashSet<XEventClass>(info.getEventClasses().getClasses());
+		eventClasses = new LinkedHashSet<XEventClass>(info.getEventClasses().getClasses());
 		int newEventSize = 0;
 		
 		//transform the log to an internal format
@@ -59,13 +58,11 @@ public class Filteredlog {
 		this.eventSize = eventSize;
 	}
 	
-	public Filteredlog applyTauFilter() {
+	public Filteredlog applyEpsilonFilter() {
 		MultiSet<List<XEventClass>> result = new MultiSet<List<XEventClass>>();
-		for (Pair<List<XEventClass>, Integer> pair : internalLog) {
-			List<XEventClass> trace = pair.getLeft();
-			Integer cardinality = pair.getRight();
+		for (List<XEventClass> trace : internalLog) {
 			if (trace.size() > 0) {
-				result.add(trace, cardinality);
+				result.add(trace, internalLog.getCardinalityOf(trace));
 			}
 		}
 		return new Filteredlog(result, eventClasses, eventSize);
@@ -76,16 +73,14 @@ public class Filteredlog {
 		
 		//if the set to filter is empty, return the singleton empty trace
 		if (arguments.size() == 0) {
-			Set<XEventClass> eventClasses = new HashSet<XEventClass>(arguments);
+			Set<XEventClass> eventClasses = new LinkedHashSet<XEventClass>(arguments);
 			result.add(new LinkedList<XEventClass>());
 			return new Filteredlog(result, eventClasses, 0);
 		}
 		
 		//walk through the traces and add them to the result
 		int newEventSize = 0;
-		for (Pair<List<XEventClass>, Integer> pair : internalLog) {
-			List<XEventClass> trace = pair.getLeft();
-			Integer cardinality = pair.getRight();
+		for (List<XEventClass> trace : internalLog) {
 			List<XEventClass> newTrace = new LinkedList<XEventClass>();
 			Boolean keep = false;
 			for (XEventClass eventClass : trace) {
@@ -114,7 +109,7 @@ public class Filteredlog {
 							keep = true;
 						} else {
 							if (keep) {
-								result.add(newTrace, cardinality);
+								result.add(newTrace, internalLog.getCardinalityOf(trace));
 							}
 							newTrace = new LinkedList<XEventClass>();
 							keep = false;
@@ -127,13 +122,13 @@ public class Filteredlog {
 				}
 			}
 			if (keep) {
-				result.add(newTrace, cardinality);
-				newEventSize += newTrace.size() * cardinality;
+				result.add(newTrace, internalLog.getCardinalityOf(trace));
+				newEventSize += newTrace.size() * internalLog.getCardinalityOf(trace);
 			}
 		}
 		
 		//make a copy of the arguments
-		Set<XEventClass> eventClasses = new HashSet<XEventClass>(arguments);
+		Set<XEventClass> eventClasses = new LinkedHashSet<XEventClass>(arguments);
 		
 		return new Filteredlog(result, eventClasses, newEventSize);
 	}
@@ -195,9 +190,9 @@ public class Filteredlog {
 		}
 		
 		//make a copy of the arguments and the new filtered sublogs
-		Set<Filteredlog> result2 = new HashSet<Filteredlog>();
+		Set<Filteredlog> result2 = new LinkedHashSet<Filteredlog>();
 		for (Set<XEventClass> sigma : sigmas) {
-			result2.add(new Filteredlog(mapSigma2sublog.get(sigma), new HashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
+			result2.add(new Filteredlog(mapSigma2sublog.get(sigma), new LinkedHashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
 		}
 		return result2;
 	} 
@@ -208,21 +203,15 @@ public class Filteredlog {
 		
 		//walk through the traces and add them to the result
 		for (List<XEventClass> trace : internalLog.toSet()) {
-			debug(trace.toString());
 			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
 		}
-		
-		List<Filteredlog> result = noiseFilter.getSublogs();
-		
-		//debug("  " + internalLog.toString());
-		//debug("  " + result.toString());
 		
 		MultiSet<XEventClass> noise = noiseFilter.getNoise();
 		if (noise.size() > 0) {
 			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
 		}
 		
-		return result;
+		return noiseFilter.getSublogs();
 	}
 	
 	public String toString() {
@@ -238,6 +227,10 @@ public class Filteredlog {
 			result += "(" + getCurrentCardinality() + ")\n";
 		}
 		return result;
+	}
+	
+	public int getSize() {
+		return internalLog.size();
 	}
 	
 	public void initIterator() {
@@ -258,11 +251,11 @@ public class Filteredlog {
 		}
 		
 		nextTrace = iteratorTrace.next();
-		iteratorEvent = nextTrace.getLeft().iterator();
+		iteratorEvent = nextTrace.iterator();
 	}
 	
 	public Integer getCurrentCardinality() {
-		return nextTrace.getRight();
+		return internalLog.getCardinalityOf(nextTrace);
 	}
 	
 	public boolean hasNextEvent() {

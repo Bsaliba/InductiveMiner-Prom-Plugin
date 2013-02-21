@@ -68,13 +68,21 @@ public class ProcessTreeModel2Dot {
 		} else if (node instanceof EventClass) {
 			convertActivity(source, sink, (EventClass) node, assureNoInputPlacementment, assureNoOutputRemoval);
 		} else if (node instanceof ExclusiveChoice) {
+			beginCluster(true);
 			convertExclusiveChoice(source, sink, (ExclusiveChoice) node, assureNoInputPlacementment, assureNoOutputRemoval);
+			endCluster(true);
 		} else if (node instanceof Sequence) {
+			beginCluster(true);
 			convertSequence(source, sink, (Sequence) node, assureNoInputPlacementment, assureNoOutputRemoval);
+			endCluster(true);
 		} else if (node instanceof Parallel) {
+			beginCluster(true);
 			convertParallel(source, sink, (Parallel) node, assureNoInputPlacementment, assureNoOutputRemoval);
+			endCluster(true);
 		} else if (node instanceof Loop) {
+			beginCluster(true);
 			convertLoop(source, sink, (Loop) node, assureNoInputPlacementment, assureNoOutputRemoval);
+			endCluster(true);
 		}
 	}
 	
@@ -104,9 +112,9 @@ public class ProcessTreeModel2Dot {
 			boolean assureNoInputPlacementment,
 			boolean assureNoOutputRemoval) {
 		for (Node child : node.getChildren()) {
-			beginCluster();
+			beginCluster(false);
 			convertNode(source, sink, child, true, true);
-			endCluster();
+			endCluster(false);
 		}
 	}
 	
@@ -119,7 +127,7 @@ public class ProcessTreeModel2Dot {
 		int i = 0;
 		dotPlace lastSink = source;
 		for (Node child : node.getChildren()) {
-			beginCluster();
+			beginCluster(false);
 			dotPlace childSink;
 			if (i == last - 1) {
 				childSink = sink;
@@ -131,7 +139,7 @@ public class ProcessTreeModel2Dot {
 			boolean assureAfter = (i == last - 1 && assureNoOutputRemoval) || (i < last - 1);
 			
 			convertNode(lastSink, childSink, child, assureBefore, assureAfter);
-			endCluster();
+			endCluster(false);
 			lastSink = childSink;
 			i++;
 		}
@@ -142,7 +150,7 @@ public class ProcessTreeModel2Dot {
 			Parallel node,
 			boolean assureNoInputPlacementment,
 			boolean assureNoOutputRemoval) {
-		beginCluster();
+		beginCluster(false);
 		//add split tau
 		dotTransition t1 = new dotTransition();
 		addArc(source, t1);		
@@ -164,7 +172,7 @@ public class ProcessTreeModel2Dot {
 			
 			i++;
 		}
-		endCluster();
+		endCluster(false);
 	}
 	
 	private void convertLoop(dotPlace source, 
@@ -201,15 +209,15 @@ public class ProcessTreeModel2Dot {
 		
 		//convert the first child
 		Iterator<Node> i = node.getChildren().iterator();
-		beginCluster();
+		beginCluster(false);
 		convertNode(child1Source, child1Sink, i.next(), assureNoInputPlacementment, true);
-		endCluster();
+		endCluster(false);
 		
 		//convert the other children
 		while (i.hasNext()) {
-			beginCluster();
+			beginCluster(false);
 			convertNode(child1Sink, child1Source, i.next(), true, true);
-			endCluster();
+			endCluster(false);
 		}
 	}	
 	
@@ -217,12 +225,16 @@ public class ProcessTreeModel2Dot {
 		 dot += "\"" + from.id + "\" -> \"" + to.id + "\";\n";
 	}
 	
-	private void beginCluster() {
-		dot += "subgraph \"cluster_"+ UUID.randomUUID().toString() + "\" {\n";
+	private void beginCluster(boolean border) {
+		if (!border) {
+			dot += "subgraph \"cluster_"+ UUID.randomUUID().toString() + "\" {\n";
+		}
 	}
 	
-	private void endCluster() {
+	private void endCluster(boolean border) {
 		//dot += "}\n";
-		dot += "color=\"#E0E0FF\";}\n";
+		if (!border) {
+			dot += "color=\"#E0E0FF\";}\n";
+		}
 	}
 }

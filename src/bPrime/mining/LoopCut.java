@@ -26,9 +26,9 @@ public class LoopCut {
 		
 		//find the other connected components
 		Integer ccs = 1;
-		for (XEventClass node : drf.getGraph().vertexSet()) {
+		for (XEventClass node : drf.getDirectlyFollowsGraph().vertexSet()) {
 			if (!connectedComponents.containsKey(node)) {
-				labelConnectedComponents(drf.getGraph(), node, connectedComponents, ccs);
+				labelConnectedComponents(drf.getDirectlyFollowsGraph(), node, connectedComponents, ccs);
 				ccs += 1;
 			}
 		}
@@ -38,10 +38,10 @@ public class LoopCut {
 		for (Integer cc=0;cc<ccs;cc++) {
 			startActivities.put(cc, new HashSet<XEventClass>());
 		}
-		for (XEventClass node : drf.getGraph().vertexSet()) {
+		for (XEventClass node : drf.getDirectlyFollowsGraph().vertexSet()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultWeightedEdge edge : drf.getGraph().incomingEdgesOf(node)) {
-				if (cc != connectedComponents.get(drf.getGraph().getEdgeSource(edge))) {
+			for (DefaultWeightedEdge edge : drf.getDirectlyFollowsGraph().incomingEdgesOf(node)) {
+				if (cc != connectedComponents.get(drf.getDirectlyFollowsGraph().getEdgeSource(edge))) {
 					//this is a start activity
 					Set<XEventClass> start = startActivities.get(cc);
 					start.add(node);
@@ -55,10 +55,10 @@ public class LoopCut {
 		for (Integer cc=0;cc<ccs;cc++) {
 			endActivities.put(cc, new HashSet<XEventClass>());
 		}
-		for (XEventClass node : drf.getGraph().vertexSet()) {
+		for (XEventClass node : drf.getDirectlyFollowsGraph().vertexSet()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultWeightedEdge edge : drf.getGraph().outgoingEdgesOf(node)) {
-				if (cc != connectedComponents.get(drf.getGraph().getEdgeTarget(edge))) {
+			for (DefaultWeightedEdge edge : drf.getDirectlyFollowsGraph().outgoingEdgesOf(node)) {
+				if (cc != connectedComponents.get(drf.getDirectlyFollowsGraph().getEdgeTarget(edge))) {
 					//this is an end activity
 					Set<XEventClass> end = endActivities.get(cc);
 					end.add(node);
@@ -83,8 +83,8 @@ public class LoopCut {
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
 		for (XEventClass startActivity : drf.getStartActivities().toSet()) {
 			if (!drf.getEndActivities().contains(startActivity)) {
-				for (DefaultWeightedEdge edge : drf.getGraph().outgoingEdgesOf(startActivity)) {
-					candidates[connectedComponents.get(drf.getGraph().getEdgeTarget(edge))] = false;
+				for (DefaultWeightedEdge edge : drf.getDirectlyFollowsGraph().outgoingEdgesOf(startActivity)) {
+					candidates[connectedComponents.get(drf.getDirectlyFollowsGraph().getEdgeTarget(edge))] = false;
 				}
 			}
 		}
@@ -92,8 +92,8 @@ public class LoopCut {
 		//exclude all candidates that can reach an end activity (which is not a start activity)
 		for (XEventClass endActivity : drf.getEndActivities().toSet()) {
 			if (!drf.getStartActivities().contains(endActivity)) {
-				for (DefaultWeightedEdge edge : drf.getGraph().incomingEdgesOf(endActivity)) {
-					candidates[connectedComponents.get(drf.getGraph().getEdgeSource(edge))] = false;
+				for (DefaultWeightedEdge edge : drf.getDirectlyFollowsGraph().incomingEdgesOf(endActivity)) {
+					candidates[connectedComponents.get(drf.getDirectlyFollowsGraph().getEdgeSource(edge))] = false;
 				}
 			}
 		}
@@ -103,7 +103,7 @@ public class LoopCut {
 			Set<XEventClass> end = endActivities.get(cc);
 			for (XEventClass node1 : end) {
 				for (XEventClass node2 : drf.getStartActivities().toSet()) {
-					if (!drf.getGraph().containsEdge(node1, node2)) {
+					if (!drf.getDirectlyFollowsGraph().containsEdge(node1, node2)) {
 						candidates[cc] = false;
 						//debug("body part for no connection to all start activities " + cc.toString());
 					}
@@ -116,7 +116,7 @@ public class LoopCut {
 			Set<XEventClass> start = startActivities.get(cc);
 			for (XEventClass node1 : start) {
 				for (XEventClass node2 : drf.getEndActivities().toSet()) {
-					if (!drf.getGraph().containsEdge(node2, node1)) {
+					if (!drf.getDirectlyFollowsGraph().containsEdge(node2, node1)) {
 						candidates[cc] = false;
 						//debug("body part for no connection from all end activities " + node2.toString() + " " + node1.toString());
 					}
@@ -131,7 +131,7 @@ public class LoopCut {
 		}
 		
 		//divide the activities
-		for (XEventClass node : drf.getGraph().vertexSet()) {
+		for (XEventClass node : drf.getDirectlyFollowsGraph().vertexSet()) {
 			//debug(node.toString() + " in connected component " + connectedComponents.get(node));
 			int index;
 			if (candidates[connectedComponents.get(node)]) {

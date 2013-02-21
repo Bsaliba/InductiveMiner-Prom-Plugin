@@ -12,21 +12,25 @@ public class BatchMiningParameters {
 	private int numberOfConcurrentFiles;
 	private Set<String> extensions;
 	private boolean measurePrecision;
+	private String SplitOutputFolder;
 	
 	public BatchMiningParameters() {
-		//folder = "d:\\datasets\\boek\\chapter 5";
+		//folder = "d:\\datasets\\generatedLogs";
 		folder = "D:\\datasets\\selected";
 		
 		PetrinetOutputFolder = "D:\\output";
 		//PetrinetOutputFolder = null;
-		//PetrinetOutputDimension = new Dimension(1000, 500);
+		
+		SplitOutputFolder = "D:\\output";
+		//SplitOutputFolder = null;
+
 		numberOfConcurrentFiles = 0;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
 		measurePrecision = false;
 	}
 	
-	public void setFolder(String folder2) {
-		folder = folder2;
+	public void setFolder(String folder) {
+		this.folder = folder;
 	}
 	
 	public String getFolder() {
@@ -37,9 +41,9 @@ public class BatchMiningParameters {
 		return PetrinetOutputFolder;
 	}
 	
-	//public Dimension getPetrinetOutputDimension() {
-	//	return PetrinetOutputDimension;
-	//}
+	public String getSplitOutputFolder() {
+		return SplitOutputFolder;
+	}
 	
 	public int getNumberOfConcurrentFiles() {
 		return numberOfConcurrentFiles;

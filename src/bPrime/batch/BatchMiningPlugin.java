@@ -32,8 +32,8 @@ import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGen;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes;
 
 import bPrime.ThreadPool;
-import bPrime.mining.MiningPlugin;
 import bPrime.mining.MiningParameters;
+import bPrime.mining.MiningPlugin;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2Dot;
@@ -155,9 +155,9 @@ public class BatchMiningPlugin {
 		}
 		
 		//set up files for output
-		File outputFilePDF;
-		File outputFilePNG;
-		String outputFileDFG;
+		File outputFilePDF = null;
+		File outputFilePNG = null;
+		String outputFileDFG = null;
 		if (batchParameters.getPetrinetOutputFolder() != null) {
 			String x = new File(fileName).getName();
 			if (x.indexOf(".") > 0) {
@@ -165,16 +165,16 @@ public class BatchMiningPlugin {
 			}
 			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.pdf");
 			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.png");
-			outputFileDFG = new File(batchParameters.getPetrinetOutputFolder(), x + "--dfg").getPath();
-		} else {
-			outputFilePDF = new File(fileName + ".pdf");
-			outputFilePNG = new File(fileName + ".png");
-			outputFileDFG = new File(fileName).getPath() + "-DFG";
+			if (batchParameters.getSplitOutputFolder() != null) {
+				outputFileDFG = new File(batchParameters.getSplitOutputFolder(), x + "--dfg").getPath();
+			}
 		}
 		
 		//enable output of directly-follows images
 		MiningParameters mineParameters = new MiningParameters();
-		mineParameters.setOutputDFGfileName(outputFileDFG);
+		if (batchParameters.getSplitOutputFolder() != null) {
+			mineParameters.setOutputDFGfileName(outputFileDFG);
+		}
 		
 		//mine the Petri net
 		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, mineParameters);
