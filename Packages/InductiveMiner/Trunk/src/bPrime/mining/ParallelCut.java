@@ -21,7 +21,7 @@ public class ParallelCut {
 		if (dfr.getStartActivities().toSet().size() == 0 ||
 				dfr.getEndActivities().toSet().size() == 0) {
 			Set<Set<XEventClass>> emptyResult = new HashSet<Set<XEventClass>>();
-			emptyResult.add(dfr.getGraph().vertexSet());
+			emptyResult.add(dfr.getDirectlyFollowsGraph().vertexSet());
 			return emptyResult;
 		}
 		
@@ -29,16 +29,17 @@ public class ParallelCut {
 		DirectedGraph<XEventClass, DefaultEdge> negatedGraph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);
 		
 		//add the vertices
-		for (XEventClass e : dfr.getGraph().vertexSet()) {
+		for (XEventClass e : dfr.getDirectlyFollowsGraph().vertexSet()) {
 			negatedGraph.addVertex(e);
 		}
 		
 		//walk through the edges and negate them
-		for (XEventClass e1 : dfr.getGraph().vertexSet()) {
-			for (XEventClass e2 : dfr.getGraph().vertexSet()) {
+		for (XEventClass e1 : dfr.getDirectlyFollowsGraph().vertexSet()) {
+			for (XEventClass e2 : dfr.getDirectlyFollowsGraph().vertexSet()) {
 				if (e1 != e2) {
-					if (!dfr.getGraph().containsEdge(e1, e2) || !dfr.getGraph().containsEdge(e2, e1)) {
+					if (!dfr.getDirectlyFollowsGraph().containsEdge(e1, e2) || !dfr.getDirectlyFollowsGraph().containsEdge(e2, e1)) {
 						negatedGraph.addEdge(e1, e2);
+						debug("add negated edge " + e1 + " -> " + e2);
 					}
 				}
 			}
@@ -47,7 +48,7 @@ public class ParallelCut {
 		//if wanted, apply an extension to the B' algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
 		if (useMinimumSelfDistance) {
-			for (XEventClass activity : dfr.getGraph().vertexSet()) {
+			for (XEventClass activity : dfr.getDirectlyFollowsGraph().vertexSet()) {
 				for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
 					negatedGraph.addEdge(activity, activity2);
 				}
@@ -88,10 +89,10 @@ public class ParallelCut {
 				}
 			}
 		}
-		//debug("StartEnd " + ccsWithStartEnd.toString());
-		//debug("Start " + ccsWithStart.toString());
-		//debug("End " + ccsWithEnd.toString());
-		//debug("Nothing " + ccsWithNothing.toString());
+		debug("StartEnd " + ccsWithStartEnd.toString());
+		debug("Start " + ccsWithStart.toString());
+		debug("End " + ccsWithEnd.toString());
+		debug("Nothing " + ccsWithNothing.toString());
 		//add full sets
 		List<Set<XEventClass>> connectedComponents2 = new LinkedList<Set<XEventClass>>(ccsWithStartEnd);
 		//add combinations of end-only and start-only components
@@ -129,7 +130,7 @@ public class ParallelCut {
 		return new HashSet<Set<XEventClass>>(connectedComponents2);
 	}
 	
-	//private static void debug(String x) {
-	//	System.out.println(x);
-	//}
+	private static void debug(String x) {
+		System.out.println(x);
+	}
 }

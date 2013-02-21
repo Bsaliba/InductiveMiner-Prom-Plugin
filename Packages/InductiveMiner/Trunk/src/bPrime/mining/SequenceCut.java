@@ -95,7 +95,7 @@ public class SequenceCut {
 			//add an edge if it is not internal
 			if (SCCv != SCCu) {
 				condensedGraph2.addEdge(SCCu, SCCv); //this returns null if the edge was already present
-				//debug ("nodes in condensed graph 2 " + implode(condensedGraph2.vertexSet(), ", "));
+				//debug ("nodes in condensed graph 2 " + Sets.implode(condensedGraph2.vertexSet(), ", "));
 			}
 		}
 		

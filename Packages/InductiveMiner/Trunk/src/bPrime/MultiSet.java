@@ -3,16 +3,18 @@ package bPrime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
+public class MultiSet<X> implements Iterable<X> {
 	
 	private HashMap<X, Integer> cardinalities;
 	private int size;
 	
 	public MultiSet() {
-		cardinalities = new HashMap<X, Integer>();
+		//use a linked hash map here, as it provides O(1) iteration complexity
+		cardinalities = new LinkedHashMap<X, Integer>();
 		size = 0;
 	}
 	
@@ -58,25 +60,32 @@ public class MultiSet<X> implements Iterable<Pair<X, Integer>> {
 			return 0;
 		}
 	}
+	
+	/*
+	 * 
+	 * Iterator over the elements of the multiset as if it were a set
+	 * Get cardinalities using getCardinality().
+	 * 
+	 */
+	public Iterator<X> iterator() {
+		
+		Iterator<X> it = new Iterator<X>() {
 
-	public Iterator<Pair<X, Integer>> iterator() {
-		Iterator<Pair<X, Integer>> it = new Iterator<Pair<X, Integer>>() {
-
-			private Iterator<Entry<X, Integer>> it = cardinalities.entrySet().iterator();
+			private Iterator<Entry<X, Integer>> it2 = cardinalities.entrySet().iterator();
 
             @Override
             public boolean hasNext() {
-            	return it.hasNext();
+            	return it2.hasNext();
             }
 
             @Override
-            public Pair<X, Integer> next() {
-            	Entry<X, Integer> n = it.next();
-                return new Pair<X, Integer>(n.getKey(), n.getValue());
+            public X next() {
+            	Entry<X, Integer> n = it2.next();
+                return n.getKey();
             }
 
 			public void remove() {
-				it.remove();
+				it2.remove();
 			}
         };
         return it;

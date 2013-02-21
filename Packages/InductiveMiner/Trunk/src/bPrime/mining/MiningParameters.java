@@ -7,17 +7,13 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
-	private boolean filterNoise;
-	private boolean filterTaus;
 	private float noiseThreshold;
 	
 	private String outputDFGfileName;
 	
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
-		filterNoise = true;
-		filterTaus = true;
-		noiseThreshold = (float) 0.4;
+		noiseThreshold = (float) 0.01;
 		outputDFGfileName = null;
 	}
 	
@@ -29,10 +25,6 @@ public class MiningParameters {
 	
 	public XEventClassifier getClassifier() {
 		return this.classifier;
-	}
-	
-	public boolean getFilterNoise() {
-		return this.filterNoise;
 	}
 	
 	public float getNoiseThreshold() {
@@ -63,13 +55,5 @@ public class MiningParameters {
 	
 	public int hashCode() {
 		return classifier.hashCode();
-	}
-
-	public boolean getFilterTaus() {
-		return filterTaus;
-	}
-
-	public void setFilterTaus(boolean ignoreTaus) {
-		this.filterTaus = ignoreTaus;
 	}
 }

@@ -17,37 +17,42 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import bPrime.MultiSet;
-import bPrime.Pair;
 
 public class DirectlyFollowsRelation {
-	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
+	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
+	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
 	private MultiSet<XEventClass> startActivities;
 	private MultiSet<XEventClass> endActivities;
 	private HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween;
 	private HashMap<XEventClass, Integer> minimumSelfDistances;
-	private boolean tauPresent;
+	private int numberOfEpsilonTraces;
 	private int longestTrace;
-	private int strongestEdge;
+	private int lengthStrongestTrace;
+	private int strongestDirectEdge;
+	private int strongestEventualEdge;
 	private int strongestStartActivity;
 	private int strongestEndActivity;
 	
 	public DirectlyFollowsRelation(Filteredlog log, MiningParameters parameters) {
 		
 		//initialise, read the log
-		graph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		directlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		startActivities = new MultiSet<XEventClass>();
 		endActivities = new MultiSet<XEventClass>();
 		minimumSelfDistances = new HashMap<XEventClass, Integer>();
 		minimumSelfDistancesBetween = new HashMap<XEventClass, Set<XEventClass>>();
-		tauPresent = false;
+		numberOfEpsilonTraces = 0;
+		longestTrace = 0;
+		lengthStrongestTrace = 0;
 		
 		XEventClass fromEventClass;
 		XEventClass toEventClass;
-		longestTrace = 0;
 		
 		//add the nodes to the graph
 		for (XEventClass a : log.getEventClasses()) {
-			graph.addVertex(a);
+			directlyFollowsGraph.addVertex(a);
+			eventuallyFollowsGraph.addVertex(a);
 		}
 		
 		//walk trough the log
@@ -71,6 +76,19 @@ public class DirectlyFollowsRelation {
 				fromEventClass = toEventClass;
 				toEventClass = log.nextEvent();
 				
+				//add connections to the eventually-follows graph
+				DefaultWeightedEdge edge;
+				Integer newEventuallyCardinality;
+				for (XEventClass eventuallySeen : readTrace) {
+					edge = eventuallyFollowsGraph.addEdge(eventuallySeen, toEventClass);
+					newEventuallyCardinality = cardinality;
+					if (edge == null) {
+						edge = eventuallyFollowsGraph.getEdge(eventuallySeen, toEventClass);
+						newEventuallyCardinality += (int) eventuallyFollowsGraph.getEdgeWeight(edge);
+					}
+					eventuallyFollowsGraph.setEdgeWeight(edge, newEventuallyCardinality);
+				}
+				
 				readTrace.add(toEventClass);
 				
 				if (eventSeenAt.containsKey(toEventClass)) {
@@ -89,13 +107,13 @@ public class DirectlyFollowsRelation {
 				if (fromEventClass != null) {
 					
 					//add edge to directly-follows graph
-					DefaultWeightedEdge edge = graph.addEdge(fromEventClass, toEventClass);
+					edge = directlyFollowsGraph.addEdge(fromEventClass, toEventClass);
 					Integer newCardinality = cardinality;
 					if (edge == null) {
-						edge = graph.getEdge(fromEventClass, toEventClass);
-						newCardinality = newCardinality + (int) (graph.getEdgeWeight(edge));
+						edge = directlyFollowsGraph.getEdge(fromEventClass, toEventClass);
+						newCardinality = newCardinality + (int) (directlyFollowsGraph.getEdgeWeight(edge));
 					}
-					graph.setEdgeWeight(edge, newCardinality);
+					directlyFollowsGraph.setEdgeWeight(edge, newCardinality);
 					
 				} else {
 					startActivities.add(toEventClass, cardinality);
@@ -109,87 +127,104 @@ public class DirectlyFollowsRelation {
 				longestTrace = traceSize;
 			}
 			
+			lengthStrongestTrace = Math.max(lengthStrongestTrace, cardinality);
+			
 			if (toEventClass != null) {
 				endActivities.add(toEventClass, cardinality);
 			}
 			
 			if (traceSize == 0) {
-				tauPresent = true;
+				numberOfEpsilonTraces = numberOfEpsilonTraces + cardinality;
 			}
 		}
 		//debug(minimumSelfDistancesBetween.toString());
 		
 		//find the edge with the greatest weight
-		strongestEdge = 0;
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			strongestEdge = Math.max(strongestEdge, (int) graph.getEdgeWeight(edge));
+		strongestDirectEdge = 0;
+		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
+			strongestDirectEdge = Math.max(strongestDirectEdge, (int) directlyFollowsGraph.getEdgeWeight(edge));
+		}
+		
+		//find the edge with the greatest weight
+		strongestEventualEdge = 0;
+		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
+			strongestEventualEdge = Math.max(strongestEventualEdge, (int) eventuallyFollowsGraph.getEdgeWeight(edge));
 		}
 		
 		//find the strongest start activity
 		strongestStartActivity = 0;
-		for (Pair<XEventClass, Integer> pair : startActivities) {
-			strongestStartActivity = Math.max(strongestStartActivity, pair.getRight());
+		for (XEventClass activity : startActivities) {
+			strongestStartActivity = Math.max(strongestStartActivity, startActivities.getCardinalityOf(activity));
 		}
 		
 		//find the strongest end activity
 		strongestEndActivity = 0;
-		for (Pair<XEventClass, Integer> pair : endActivities) {
-			strongestEndActivity = Math.max(strongestEndActivity, pair.getRight());
+		for (XEventClass activity : endActivities) {
+			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
 	}
 	
 	public void filterNoise(float threshold) {
 		//filter start activities
-		Iterator<Pair<XEventClass, Integer>> it = startActivities.iterator();
+		Iterator<XEventClass> it = startActivities.iterator();
 		while (it.hasNext()) {
-			Pair<XEventClass, Integer> pair = it.next();
-			if (pair.getRight() < strongestStartActivity * threshold) {
+			if (startActivities.getCardinalityOf(it.next()) < strongestStartActivity * threshold) {
 				it.remove();
 			}
 		}
 		
 		//filter end activities
-		Iterator<Pair<XEventClass, Integer>> it2 = endActivities.iterator();
+		Iterator<XEventClass> it2 = endActivities.iterator();
 		while (it2.hasNext()) {
-			Pair<XEventClass, Integer> pair = it2.next();
-			if (pair.getRight() < strongestEndActivity * threshold) {
+			if (endActivities.getCardinalityOf(it2.next()) < strongestEndActivity * threshold) {
 				it2.remove();
 			}
 		}
 		
-		//filter edges
+		//filter edges in directly-follows graph
 		Set<DefaultWeightedEdge> removeSet = new HashSet<DefaultWeightedEdge>();
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			if (graph.getEdgeWeight(edge) < strongestEdge * threshold) {
+		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
+			if (directlyFollowsGraph.getEdgeWeight(edge) < strongestDirectEdge * threshold) {
 				removeSet.add(edge);
 			}
 		}
-		graph.removeAllEdges(removeSet);
+		directlyFollowsGraph.removeAllEdges(removeSet);
+		
+		//filter edges in eventually-follows graph
+		removeSet = new HashSet<DefaultWeightedEdge>();
+		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
+			if (eventuallyFollowsGraph.getEdgeWeight(edge) < strongestEventualEdge * threshold) {
+				removeSet.add(edge);
+			}
+		}
+		eventuallyFollowsGraph.removeAllEdges(removeSet);
 	}
 	
 	public String debugGraph() {
-		String result = "nodes: " + graph.vertexSet().toString();
+		String result = "nodes: " + directlyFollowsGraph.vertexSet().toString();
 		
 		result += "\nstart nodes: ";
-		for (Pair<XEventClass, Integer> pair : startActivities) {
-			result += pair.getLeft() + " (" + pair.getRight() + ") ";
+		for (XEventClass event : startActivities) {
+			result += event + " (" + startActivities.getCardinalityOf(event) + ") ";
 		}
 		
 		result += "\nend nodes: ";
-		for (Pair<XEventClass, Integer> pair : endActivities) {
-			result += pair.getLeft() + " (" + pair.getRight() + ") ";
+		for (XEventClass event : endActivities) {
+			result += event + " (" + endActivities.getCardinalityOf(event) + ") ";
 		}
 		
 		result += "\nedges: ";
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			result += "\t(" + graph.getEdgeSource(edge);
-			result += " => " + graph.getEdgeTarget(edge) + " " + ((int) graph.getEdgeWeight(edge)) + ") ";
+		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
+			result += "\t(" + directlyFollowsGraph.getEdgeSource(edge);
+			result += " => " + directlyFollowsGraph.getEdgeTarget(edge) + " " + ((int) directlyFollowsGraph.getEdgeWeight(edge)) + ") ";
 		}
 		
 		return result;
 	}
 	
 	public String toDot() {
+		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsGraph;
+		
 		DOTExporter<XEventClass, DefaultWeightedEdge> dotExporter = 
 	        new DOTExporter<XEventClass, DefaultWeightedEdge>(
         		new VertexNameProvider<XEventClass>() {
@@ -224,7 +259,7 @@ public class DirectlyFollowsRelation {
 						//hack the color into the label of the edge using kind-of sql-injection
 						int weight = (int) graph.getEdgeWeight(edge);
 						String result = String.valueOf(weight);
-						result += "\" color=\"" + colourMapBlackBody(weight, strongestEdge);
+						result += "\" color=\"" + colourMapBlackBody(weight, strongestDirectEdge);
 						return result;
 					} 
 				}
@@ -235,8 +270,12 @@ public class DirectlyFollowsRelation {
 		return out.toString();
 	}
 
-	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getGraph() {
-		return graph;
+	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {
+		return directlyFollowsGraph;
+	}
+	
+	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getEventuallyFollowsGraph() {
+		return eventuallyFollowsGraph;
 	}
 
 	public MultiSet<XEventClass> getStartActivities() {
@@ -247,8 +286,12 @@ public class DirectlyFollowsRelation {
 		return endActivities;
 	}
 	
-	public boolean getTauPresent() {
-		return tauPresent;
+	public int getNumberOfEpsilonTraces() {
+		return numberOfEpsilonTraces;
+	}
+	
+	public int getLengthStrongestTrace() {
+		return lengthStrongestTrace;
 	}
 	
 	public int getLongestTrace() {

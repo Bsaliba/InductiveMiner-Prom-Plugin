@@ -14,42 +14,11 @@ import bPrime.MultiSet;
 
 public class FilteredlogSequenceNoiseFilter {
 	
-	private class Bucket {
-		public Set<XEventClass> sigma;
-		private int length;
-		private List<XEventClass> subtrace;
-		
-		public Bucket(XEventClass event, Set<XEventClass> sigma) {
-			subtrace = new LinkedList<XEventClass>();
-			subtrace.add(event);
-			this.sigma = sigma;
-			length = 1;
-		}
-		
-		public boolean add(XEventClass event) {
-			if (sigma.contains(event)) {
-				subtrace.add(event);
-				length++;
-				return true;
-			}
-			return false;
-		}
-		
-		public List<XEventClass> getSubtrace() {
-			return subtrace;
-		}
-	}
-	
 	private List<Set<XEventClass>> sigmas;
-	private HashMap<XEventClass, Set<XEventClass>> mapEvent2sigma;
-	private HashMap<Set<XEventClass>, Integer> mapSigma2order;
 	private MultiSet<XEventClass> noise;
 	private List<MultiSet<List<XEventClass>>> sublogs;
 	private HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> mapSigma2sublog;
 	private HashMap<Set<XEventClass>, Integer> mapSigma2eventSize;
-	
-	private List<Bucket> optimalBuckets;
-	private int minCost;
 	
 	public FilteredlogSequenceNoiseFilter(List<Set<XEventClass>> sigmas) {
 		this.sigmas = sigmas;
@@ -57,82 +26,63 @@ public class FilteredlogSequenceNoiseFilter {
 		sublogs = new ArrayList<MultiSet<List<XEventClass>>>();
 		
 		//initialise the sublogs, make a hashmap of activities
-		mapEvent2sigma = new HashMap<XEventClass, Set<XEventClass>>();
-		mapSigma2order = new HashMap<Set<XEventClass>, Integer>();
 		mapSigma2sublog = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
 		mapSigma2eventSize = new HashMap<Set<XEventClass>, Integer>();
-		int i = 0;
 		for (Set<XEventClass> sigma : sigmas) {
-			for (XEventClass activity : sigma) {
-				mapEvent2sigma.put(activity, sigma);
-			}
 			mapSigma2eventSize.put(sigma, 0);
-			mapSigma2order.put(sigma, i);
 			MultiSet<List<XEventClass>> sublog = new MultiSet<List<XEventClass>>();
 			sublogs.add(sublog);
 			mapSigma2sublog.put(sigma, sublog);
-			i++;
 		}
 	}
 	
 	/*
-	 * Add a trace to be filtered and to be added to its sublog
+	 * Add a trace to be filtered and to be added to its sublogs
 	 */
-	
 	public void filterTrace(List<XEventClass> trace, int cardinality) {
-		minCost = trace.size();
+		int atPosition = 0;
+		int lastPosition = 0;
+		List<XEventClass> newTrace;
+		Set<XEventClass> ignore = new HashSet<XEventClass>(); 
 		
-		//divide the trace into buckets
-		List<Bucket> buckets = new ArrayList<Bucket>();
-		for (XEventClass event : trace) {
-			if (buckets.size() == 0) {
-				buckets.add(new Bucket(event, mapEvent2sigma.get(event)));
-			} else {
-				Bucket bucket = buckets.get(buckets.size()-1);
-				if (!bucket.add(event)) {
-					buckets.add(new Bucket(event, mapEvent2sigma.get(event)));
-				} else {
-					buckets.set(buckets.size()-1, bucket);
-				}
-			}
-		}
-		
-		//find the optimal combination of buckets
-		filterBuckets(buckets, 0);
-		
-		//put the subtraces of the buckets into their respective sublogs
-		List<List<XEventClass>> result = new LinkedList<List<XEventClass>>();
-		Iterator<Bucket> it = optimalBuckets.iterator();
-		Bucket currentBucket = null;
-		if (it.hasNext()) {
-			currentBucket = it.next();
-		}
+		int i = 0;
 		for (Set<XEventClass> sigma : sigmas) {
-			List<XEventClass> sigmaSubTrace = new LinkedList<XEventClass>();
-			while (currentBucket != null && currentBucket.sigma == sigma) {
-				sigmaSubTrace.addAll(currentBucket.subtrace);
-				if (it.hasNext()) {
-					currentBucket = it.next();
+			
+			if (i < sigmas.size() - 1) {
+				atPosition = findOptimalSplit(trace, sigma, atPosition, ignore);
+			} else {
+				//if this is the last sigma, there's no point in splitting
+				atPosition = trace.size();
+			}
+			
+			ignore.addAll(sigma);
+			
+			//split the trace
+			newTrace = new LinkedList<XEventClass>();
+			for (XEventClass event : trace.subList(lastPosition, atPosition)) {
+				if (sigma.contains(event)) {
+					newTrace.add(event);
 				} else {
-					currentBucket = null;
+					noise.add(event, cardinality);
 				}
 			}
-			mapSigma2sublog.get(sigma).add(sigmaSubTrace, cardinality);
-			mapSigma2eventSize.put(sigma, mapSigma2eventSize.get(sigma) + (sigmaSubTrace.size() * cardinality));
-			result.add(sigmaSubTrace);
+
+			MultiSet<List<XEventClass>> sublog = mapSigma2sublog.get(sigma);
+			sublog.add(newTrace, cardinality);
+			mapSigma2eventSize.put(sigma, mapSigma2eventSize.get(sigma) + newTrace.size() * cardinality);
+			
+			lastPosition = atPosition;
+			i++;
 		}
 		
-		//for statistical purposes, collect noisy traces
-		for (Bucket bucket : buckets) {
-			if (!optimalBuckets.contains(bucket)) {
-				//this bucket was removed, add it to the noise multiset
-				noise.addAll(bucket.getSubtrace());
-			}
-		}
 	}
 	
+	
+	/*
+	 * Return the result of the filtering as a list of Filteredlogs.
+	 */
 	public List<Filteredlog> getSublogs() {
-		//make a copy of the arguments and the new filtered sublogs
+		//make a copy of the arguments and return the new filtered sublogs
 		List<Filteredlog> result = new ArrayList<Filteredlog>();
 		Iterator<MultiSet<List<XEventClass>>> it = sublogs.iterator();
 		for (Set<XEventClass> sigma : sigmas) {
@@ -141,63 +91,57 @@ public class FilteredlogSequenceNoiseFilter {
 		return result;
 	}
 	
+	/*
+	 * Return a multiset of the events that were classified as noise up till now
+	 */
 	public MultiSet<XEventClass> getNoise() {
 		return noise;
 	}
-	/*
-	private int findOptimalSplit(List<XEventClass> trace, ) {
-		
-	}
-	*/
 	
-	/*
-	 * Apply a brute-force approach to find the least-costing bucket list that represents a valid trace.
-	 * Use pruning to shorten search times, but we suspect it is still NP-hard.
-	 * 
-	 */
-	private void filterBuckets(List<Bucket> buckets, int cost) {
-		//check whether this list of buckets is a valid sequence
-		if (checkValidity(buckets)) {
-			
-			//the bucketlist we found is valid. remember it
-			if (cost < minCost) {
-				minCost = cost;
-				optimalBuckets = buckets;
-				debug("minCost " + minCost);
-			}
-			return;
+	private static int findOptimalSplit(List<XEventClass> trace, 
+			Set<XEventClass> sigma, 
+			int startPosition,
+			Set<XEventClass> ignore) {
+		int positionLeastCost = 0;
+		int leastCost = 0;
+		int cost = 0;
+		int position = 0;
+		
+		Iterator<XEventClass> it = trace.iterator();
+		
+		//debug("find optimal split in " + trace.toString() + " for " + sigma.toString());
+		
+		//move to the start position
+		while (position < startPosition && it.hasNext()) {
+			position = position + 1;
+			positionLeastCost = positionLeastCost + 1;
+			it.next();
 		}
 		
-		for (Bucket bucket : buckets) {
-			//drop this bucket from the list and recurse if it would save us anything
-			if (cost + bucket.length < minCost) {
-				List<Bucket> newBuckets = new ArrayList<Bucket>(buckets);
-				newBuckets.remove(bucket);
-				filterBuckets(newBuckets, cost + bucket.length);
-			}
-		}
-	}
-	
-	private boolean checkValidity(List<Bucket> buckets) {
-		Iterator<Bucket> it = buckets.iterator();
-		if (!it.hasNext()) {
-			return true;
-		}
-		Bucket lastBucket = it.next();
-		Bucket newBucket;
+		XEventClass event;
 		while (it.hasNext()) {
-			newBucket = it.next();
-			
-			if (mapSigma2order.get(lastBucket.sigma) > mapSigma2order.get(newBucket.sigma)) {
-				return false;
+			event = it.next();
+			if (ignore.contains(event)) {
+				//skip
+			} else if (sigma.contains(event)) {
+				cost = cost - 1;
+			} else {
+				cost = cost + 1;
 			}
 			
-			lastBucket = newBucket;
+			position = position + 1;
+			
+			if (cost < leastCost) {
+				leastCost = cost;
+				positionLeastCost = position;
+			}
 		}
-		return true;
+		
+		//debug(String.valueOf(positionLeastCost));
+		return positionLeastCost;
 	}
 	
-	private void debug(String x) {
+	private static void debug(String x) {
 		System.out.println(x);
 	}
 }
