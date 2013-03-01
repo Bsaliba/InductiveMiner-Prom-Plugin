@@ -302,13 +302,19 @@ public class MiningPlugin {
 		}
 		
 		//parallel operator
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+		//do not use the filtered version of the directly follows relation
+		//read the log
+		DirectlyFollowsRelation directlyFollowsRelation2 = new DirectlyFollowsRelation(log, parameters);
+		
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation2, false);
+		//Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
 		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 		
 		//sometimes, a parallel and loop cut are both possible
 		//in that case, recompute a stricter parallel cut using minimum-self-distance
 		if (parallelCut.size() > 1 && loopCut.size() > 1) {
-			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+			//parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation2, true);
 		}
 		
 		if (parallelCut.size() > 1) {

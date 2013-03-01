@@ -39,12 +39,12 @@ import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2Dot;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
-@Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Process Trees" }, returnTypes = { ProcessTrees.class }, parameterLabels = {
+@Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Batch Process Trees" }, returnTypes = { BatchProcessTrees.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class BatchMiningPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine Process Trees, default", requiredParameterLabels = { })
-	public ProcessTrees mineDefault(PluginContext context) {
+	@PluginVariant(variantLabel = "Mine Batch Process Trees, default", requiredParameterLabels = { })
+	public BatchProcessTrees mineDefault(PluginContext context) {
 		BatchMiningParameters parameters = new BatchMiningParameters();
 		
 		//ask the user for the folder to be batch processed
@@ -68,18 +68,30 @@ public class BatchMiningPlugin {
 			}
 		}
 		
+		String noiseThresholdString = (String) JOptionPane.showInputDialog(null,
+				"What is the noise threshold?",
+				"Noise threshold",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				null,
+				parameters.getNoiseThreshold());
+		if (noiseThresholdString == null) {
+			return null;
+		}
+		parameters.setNoiseThreshold(Float.parseFloat(noiseThresholdString));
+		
 		return this.mineParameters(context, parameters);
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, parameterized", requiredParameterLabels = { 1 })
-	public ProcessTrees mineParameters(final PluginContext context, final BatchMiningParameters parameters) {
+	public BatchProcessTrees mineParameters(final PluginContext context, final BatchMiningParameters parameters) {
 		
 		//initialise for thread splitting
 		ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
 		File folder = new File(parameters.getFolder());
 		List<String> files = getListOfFiles(folder, parameters.getExtensions());
-		final ProcessTrees result = new ProcessTrees();
+		final BatchProcessTrees result = new BatchProcessTrees();
 		final MiningPlugin miningPlugin = new MiningPlugin();
 		final PNLogReplayer replayer = new PNLogReplayer();
 		final boolean measurePrecision = parameters.getMeasurePrecision();
@@ -132,7 +144,7 @@ public class BatchMiningPlugin {
     	return result;
 	}
 	
-	private void runJob(ProcessTrees result, 
+	private void runJob(BatchProcessTrees result, 
 			int index,
 			PluginContext context,
 			String fileName,
@@ -170,11 +182,12 @@ public class BatchMiningPlugin {
 			}
 		}
 		
-		//enable output of directly-follows images
+		//enable output of directly-follows images if wanted
 		MiningParameters mineParameters = new MiningParameters();
 		if (batchParameters.getSplitOutputFolder() != null) {
 			mineParameters.setOutputDFGfileName(outputFileDFG);
 		}
+		mineParameters.setNoiseThreshold(batchParameters.getNoiseThreshold());
 		
 		//mine the Petri net
 		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, mineParameters);
