@@ -10,18 +10,22 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import bPrime.Sets;
 
 public class ParallelCut {
 	public static Set<Set<XEventClass>> findParallelCut(DirectlyFollowsRelation dfr, boolean useMinimumSelfDistance) {
 		
+		//choose the graph to use: directly-follows or eventually-follows
+		DirectedGraph<XEventClass, DefaultWeightedEdge> graph = dfr.getEventuallyFollowsGraph();
+		
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return
 		if (dfr.getStartActivities().toSet().size() == 0 ||
 				dfr.getEndActivities().toSet().size() == 0) {
 			Set<Set<XEventClass>> emptyResult = new HashSet<Set<XEventClass>>();
-			emptyResult.add(dfr.getDirectlyFollowsGraph().vertexSet());
+			emptyResult.add(graph.vertexSet());
 			return emptyResult;
 		}
 		
@@ -29,17 +33,17 @@ public class ParallelCut {
 		DirectedGraph<XEventClass, DefaultEdge> negatedGraph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(DefaultEdge.class);
 		
 		//add the vertices
-		for (XEventClass e : dfr.getDirectlyFollowsGraph().vertexSet()) {
+		for (XEventClass e : graph.vertexSet()) {
 			negatedGraph.addVertex(e);
 		}
 		
 		//walk through the edges and negate them
-		for (XEventClass e1 : dfr.getDirectlyFollowsGraph().vertexSet()) {
-			for (XEventClass e2 : dfr.getDirectlyFollowsGraph().vertexSet()) {
+		for (XEventClass e1 : graph.vertexSet()) {
+			for (XEventClass e2 : graph.vertexSet()) {
 				if (e1 != e2) {
-					if (!dfr.getDirectlyFollowsGraph().containsEdge(e1, e2) || !dfr.getDirectlyFollowsGraph().containsEdge(e2, e1)) {
+					if (!graph.containsEdge(e1, e2) || !graph.containsEdge(e2, e1)) {
 						negatedGraph.addEdge(e1, e2);
-						debug("add negated edge " + e1 + " -> " + e2);
+						//debug("add negated edge " + e1 + " -> " + e2);
 					}
 				}
 			}
@@ -48,7 +52,7 @@ public class ParallelCut {
 		//if wanted, apply an extension to the B' algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
 		if (useMinimumSelfDistance) {
-			for (XEventClass activity : dfr.getDirectlyFollowsGraph().vertexSet()) {
+			for (XEventClass activity : graph.vertexSet()) {
 				for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
 					negatedGraph.addEdge(activity, activity2);
 				}
@@ -89,10 +93,10 @@ public class ParallelCut {
 				}
 			}
 		}
-		debug("StartEnd " + ccsWithStartEnd.toString());
-		debug("Start " + ccsWithStart.toString());
-		debug("End " + ccsWithEnd.toString());
-		debug("Nothing " + ccsWithNothing.toString());
+		//debug("StartEnd " + ccsWithStartEnd.toString());
+		//debug("Start " + ccsWithStart.toString());
+		//debug("End " + ccsWithEnd.toString());
+		//debug("Nothing " + ccsWithNothing.toString());
 		//add full sets
 		List<Set<XEventClass>> connectedComponents2 = new LinkedList<Set<XEventClass>>(ccsWithStartEnd);
 		//add combinations of end-only and start-only components

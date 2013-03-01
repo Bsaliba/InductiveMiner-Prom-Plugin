@@ -8,12 +8,12 @@ import java.util.List;
 
 import org.processmining.framework.util.HTMLToString;
 
-public class ProcessTrees implements HTMLToString {
+public class BatchProcessTrees implements HTMLToString {
 	private List<String> names;
 	private List<String> comments;
 	private long start;
 	
-	public ProcessTrees() {
+	public BatchProcessTrees() {
 		names = Collections.synchronizedList(new ArrayList<String>());
 		comments = Collections.synchronizedList(new ArrayList<String>());
 

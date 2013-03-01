@@ -13,6 +13,7 @@ public class BatchMiningParameters {
 	private Set<String> extensions;
 	private boolean measurePrecision;
 	private String SplitOutputFolder;
+	private float noiseThreshold;
 	
 	public BatchMiningParameters() {
 		//folder = "d:\\datasets\\generatedLogs";
@@ -21,8 +22,10 @@ public class BatchMiningParameters {
 		PetrinetOutputFolder = "D:\\output";
 		//PetrinetOutputFolder = null;
 		
-		SplitOutputFolder = "D:\\output";
-		//SplitOutputFolder = null;
+		//SplitOutputFolder = "D:\\output";
+		SplitOutputFolder = null;
+		
+		setNoiseThreshold((float) 0.05);
 
 		numberOfConcurrentFiles = 0;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
@@ -55,5 +58,13 @@ public class BatchMiningParameters {
 	
 	public boolean getMeasurePrecision() {
 		return measurePrecision;
+	}
+
+	public float getNoiseThreshold() {
+		return noiseThreshold;
+	}
+
+	public void setNoiseThreshold(float noiseThreshold) {
+		this.noiseThreshold = noiseThreshold;
 	}
 }

@@ -13,7 +13,7 @@ public class MiningParameters {
 	
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
-		noiseThreshold = (float) 0.01;
+		noiseThreshold = (float) 0.001;
 		outputDFGfileName = null;
 	}
 	
