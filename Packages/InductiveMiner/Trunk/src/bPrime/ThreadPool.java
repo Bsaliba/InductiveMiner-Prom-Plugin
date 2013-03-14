@@ -1,8 +1,6 @@
 package bPrime;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,7 +9,7 @@ import java.util.concurrent.Future;
 public class ThreadPool {
 	private ExecutorService pool;
 	private int numberOfThreads;
-	private List<Future<?>> jobs;
+	private ConcurrentLinkedQueue<Future<?>> jobs;
 	
 	//constructor, makes an estimate of the number of threads.
 	public ThreadPool() {
@@ -42,8 +40,8 @@ public class ThreadPool {
 			ExecutionException error = null;
 			
 			//wait for all jobs to finish
-			while (jobs.size() > 0) {
-				Future<?> job = jobs.remove(0);
+			while (!jobs.isEmpty()) {
+				Future<?> job = jobs.poll();
 				try {
 					job.get();
 				} catch (InterruptedException e) {
@@ -67,7 +65,7 @@ public class ThreadPool {
 	private void init() {
 		if (numberOfThreads > 0) {
 			pool = Executors.newFixedThreadPool(numberOfThreads);
-			jobs = Collections.synchronizedList(new ArrayList<Future<?>>());
+			jobs = new ConcurrentLinkedQueue<Future<?>>();
 		}
 	}
 }
