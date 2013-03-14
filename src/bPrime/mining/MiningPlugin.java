@@ -145,7 +145,7 @@ public class MiningPlugin {
 		ProcessTreeModel model = new ProcessTreeModel(eventClasses);
 		
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(0);
+		ThreadPool pool = new ThreadPool();
 		
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
@@ -302,7 +302,7 @@ public class MiningPlugin {
 		}
 		
 		//parallel operator
-		//do not use the filtered version of the directly follows relation
+		//use the unfiltered version of the directly follows relation
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation2 = new DirectlyFollowsRelation(log, parameters);
 		
