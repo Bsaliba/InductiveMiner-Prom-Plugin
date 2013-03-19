@@ -13,18 +13,15 @@ import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
-import org.processmining.connections.logmodel.LogPetrinetConnectionImpl;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.framework.util.Pair;
-import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
-import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
+import org.processmining.processtree.ProcessTree;
 
 import bPrime.ProcessTreeModelConnection;
 import bPrime.Sets;
@@ -41,20 +38,21 @@ import bPrime.model.Tau;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
+import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 
-/*@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
+@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, default", requiredParameterLabels = { 0 })
 	public ProcessTree mineDefault(PluginContext context, XLog log) {
-		return this.mineParameters(context, log, new ProcessTreeModelParameters());
+		return this.mineParameters(context, log, new MiningParameters());
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
-	public ProcessTree mineParameters(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
+	public ProcessTree mineParameters(PluginContext context, XLog log, MiningParameters parameters) {
 		Collection<ProcessTreeModelConnection> connections;
 		try {
 			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
@@ -70,7 +68,8 @@ public class MiningPlugin {
 		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
 		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
 		return tree;
-	}*/
+	}
+	/*
 @Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
@@ -110,7 +109,7 @@ public class MiningPlugin {
 		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
 		
 		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
-	}
+	}*/
 	
 	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log, MiningParameters parameters) {
 		ProcessTreeModel model = mine(context, log, parameters);
@@ -145,7 +144,7 @@ public class MiningPlugin {
 		ProcessTreeModel model = new ProcessTreeModel(eventClasses);
 		
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool();
+		ThreadPool pool = new ThreadPool(0);
 		
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
@@ -318,6 +317,11 @@ public class MiningPlugin {
 		}
 		
 		if (parallelCut.size() > 1) {
+			
+			//noise tryout
+			//ParallelCut.allPossibilities(directlyFollowsRelation2, pool);
+			//debug(log.toString());
+			
 			final Binoperator node = new Parallel(parallelCut.size());
 			debugCut(node, parallelCut);
 			target.setChild(index, node);
