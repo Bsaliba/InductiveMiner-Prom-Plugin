@@ -1,9 +1,12 @@
 package bPrime.mining;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.DirectedGraph;
@@ -13,12 +16,13 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import bPrime.Sets;
+import bPrime.ThreadPool;
 
 public class ParallelCut {
 	public static Set<Set<XEventClass>> findParallelCut(DirectlyFollowsRelation dfr, boolean useMinimumSelfDistance) {
 		
 		//choose the graph to use: directly-follows or eventually-follows
-		DirectedGraph<XEventClass, DefaultWeightedEdge> graph = dfr.getEventuallyFollowsGraph();
+		DirectedGraph<XEventClass, DefaultWeightedEdge> graph = dfr.getDirectlyFollowsGraph();
 		
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return
@@ -132,6 +136,168 @@ public class ParallelCut {
 		}
 		
 		return new HashSet<Set<XEventClass>>(connectedComponents2);
+	}
+	
+	public static void allPossibilities(DirectlyFollowsRelation dfr, ThreadPool pool) {
+		DefaultDirectedGraph<XEventClass, DefaultWeightedEdge> graph = dfr.getDirectlyFollowsGraph();
+		final double possibilities = Math.pow(2, graph.vertexSet().size() - 1) - 1;
+		debug("parallel possibilities: " + possibilities);
+		
+		final int size = graph.vertexSet().size();
+		debug("cut sizes " + size);
+		
+		//create the activity - index mapping
+		HashMap<XEventClass, Integer> activityToIndex = new HashMap<XEventClass, Integer>();
+		final HashMap<Integer, XEventClass> indexToActivity = new HashMap<Integer, XEventClass>();
+		int k = 0;
+		for (XEventClass activity : graph.vertexSet()) {
+			activityToIndex.put(activity, k);
+			indexToActivity.put(k, activity);
+			k++;
+		}
+		
+		//create the edge weight matrix
+		final long[][] weightMatrix = new long [size][size];
+		final long[] startVector = new long[size];
+		final long[] endVector = new long[size];
+		int from;
+		int to;
+		for (from=0;from<size;from++) {
+			for (to=0;to<size;to++) {
+				weightMatrix[from][to] = 0;
+			}
+			startVector[from] = dfr.getStartActivities().getCardinalityOf(indexToActivity.get(from));
+			endVector[from] = dfr.getEndActivities().getCardinalityOf(indexToActivity.get(from));
+		}
+		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+			from = activityToIndex.get(graph.getEdgeSource(edge));
+			to = activityToIndex.get(graph.getEdgeTarget(edge));
+			weightMatrix[from][to] = (long) graph.getEdgeWeight(edge);
+		}
+		
+		//prepare the threading
+		//final AtomicLong atomicCutNr = new AtomicLong(274877775871L - 1);
+		final AtomicLong atomicCutNr = new AtomicLong(-1);
+		
+		int threads = 1;
+		for (int t=0;t<threads;t++) {
+			pool.addJob(
+					new Runnable() {
+			            public void run() {
+			            	double bestAverage = 0;
+			        		long bestCutNr = 0;
+			        		
+			            	//walk through the cuts
+			        		boolean[] cut = new boolean[size];
+			        		int x;
+			        		int y;
+			        		int i;
+			        		int cutSize;
+			        		long sum;
+			        		long intraIn, intraOut, interIn, interOut;
+			        		double interIntraMeasure;
+			        		double interIntraMeasureSum;
+			        		double numberOfPotentialEdges;
+			        		double average;
+			        		long cutNr = atomicCutNr.incrementAndGet();
+			        		while (cutNr < possibilities) {
+			        			//construct the cut
+			        			i = size - 1;
+			        			cut[i] = true;
+			        			cutSize = 1;
+			        			i--;
+			        		    while (i >= 0) {
+			        		        cut[i] = (cutNr & (1L << i)) != 0;
+			        		        if (cut[i]) {
+			        		        	cutSize++;
+			        		        }
+			        		        i--;
+			        		    }
+			        			//debug(Arrays.toString(cut));
+			        			
+			        			//walk through the weight matrix
+			        			sum = 0;
+			        			interIntraMeasureSum = 0;
+			        			for (x=0;x<size;x++) {
+			        				intraIn = 0;
+				        			intraOut = 0;
+				        			interIn = 0;
+				        			interOut = 0;
+			        				for (y=0;y<size;y++) {
+			        					if (cut[x] != cut[y]) {
+			        						//inter
+			        						sum += weightMatrix[x][y];
+			        						interOut += weightMatrix[x][y];
+			        						interIn += weightMatrix[y][x];
+			        					} else {
+			        						//intra
+			        						intraOut += weightMatrix[x][y];
+			        						intraIn += weightMatrix[y][x];
+			        					}
+			        				}
+			        				interIntraMeasure = (interOut + interIn) / ((interOut + intraOut + endVector[x])*1.0) / 2;
+			        				interIntraMeasureSum += interIntraMeasure;
+			        				debug(" " + indexToActivity.get(x) + " inter: " + (interOut + interIn) + " intra: " + (intraOut + intraIn) + " measure: " + interIntraMeasure);
+			        			}
+			        			
+			        			numberOfPotentialEdges = cutSize * (size - cutSize) * 2.0;
+			        			
+			        			average = sum / numberOfPotentialEdges;
+			        			
+			        			//if (average > bestAverage) {
+			        				debug("");
+			        				//debug("new best cut found");
+			        				debug(Arrays.toString(cut));
+			        				for (int j=0;j<size;j++) {
+					        			if (!cut[j]) {
+					        				debug(indexToActivity.get(j).toString() + " in 1");
+					        			} else {
+					        				debug(indexToActivity.get(j).toString() + " in 2");
+					        			}
+					        		}
+			        				debug("cut nr " + cutNr);
+			        				debug("total weight cut-crossing edges " + sum);
+			        				debug("number of potential cut-crossing edges " + numberOfPotentialEdges );
+			        				debug("average weight of cut-crossing edges " + average);
+			        				debug("inter-intra measure " + interIntraMeasureSum);
+			        				debug("");
+			        				//bestAverage = average;
+			        				//bestCutNr = cutNr;
+			        			//}
+			        			
+			        			if (cutNr % 1000000 == 0) {
+			        				debug("progress " + cutNr + " of " + possibilities);
+			        			}
+			        			
+			        			cutNr = atomicCutNr.incrementAndGet();
+			        		}
+			        		/*
+			        		debug("best cut of this thread " + bestCutNr + " with average weight of " + bestAverage);
+			        		//reconstruct the bestcut
+		        			i = size - 1;
+		        			cut[i] = true;
+		        			cutSize = 1;
+		        			i--;
+		        		    while (i >= 0) {
+		        		        cut[i] = (bestCutNr & (1L << i)) != 0;
+		        		        if (cut[i]) {
+		        		        	cutSize++;
+		        		        }
+		        		        i--;
+		        		    }
+		        		    
+			        		for (int j=0;j<size;j++) {
+			        			if (!cut[j]) {
+			        				debug(indexToActivity.get(j).toString() + " on \\Sigma^{\\parallelOp}_1");
+			        			} else {
+			        				debug(indexToActivity.get(j).toString() + " on \\Sigma^{\\parallelOp}_2");
+			        			}
+			        		}
+			        		*/
+			            }
+					});
+			//debug("average strength of cut " + average);
+		}
 	}
 	
 	private static void debug(String x) {
