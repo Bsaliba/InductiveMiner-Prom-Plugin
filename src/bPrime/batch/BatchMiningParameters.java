@@ -16,14 +16,14 @@ public class BatchMiningParameters {
 	private float noiseThreshold;
 	
 	public BatchMiningParameters() {
-		//folder = "d:\\datasets\\generatedLogs";
-		folder = "D:\\datasets\\selected";
+		folder = "d:\\datasets\\generatedLogs";
+		//folder = "D:\\datasets\\selected";
 		
 		PetrinetOutputFolder = "D:\\output";
 		//PetrinetOutputFolder = null;
 		
-		//SplitOutputFolder = "D:\\output";
-		SplitOutputFolder = null;
+		SplitOutputFolder = "D:\\output";
+		//SplitOutputFolder = null;
 		
 		setNoiseThreshold((float) 0.05);
 
