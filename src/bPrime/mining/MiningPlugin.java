@@ -166,6 +166,25 @@ public class MiningPlugin {
 		return model;
 	}
 	
+	private void outputImage(MiningParameters parameters, 
+			DirectlyFollowsRelation directlyFollowsRelation,
+			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered,
+			Collection<Set<XEventClass>> cut) {
+		//output an image of the directly follows graph
+		
+		if (parameters.getOutputDFGfileName() != null) {
+			//original
+			Dot2Image.dot2image(directlyFollowsRelation.toDot(cut), 
+					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + ".png"), 
+					null);
+			//noise filtered
+			Dot2Image.dot2image(directlyFollowsRelationNoiseFiltered.toDot(cut), 
+					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + "-noiseFiltered.png"), 
+					null);
+			debug("dfr-images " + recursionStepsCounter);
+		}
+	}
+	
 	private void mineProcessTree(
 			Filteredlog log, 
 			final MiningParameters parameters, 
@@ -180,15 +199,20 @@ public class MiningPlugin {
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
 		
+		//filter noise
+		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
+		
 		//this clause is not proven in the paper
 		//filter out the empty traces by adding an xor-operator
 		if (directlyFollowsRelation.getNumberOfEpsilonTraces() != 0) {
-			//log contains the empty trace
+			//the log contains the empty trace
+			
 			//debug(log.toString());
 			//debug("remove epsilon from log" + directlyFollowsRelation.getNumberOfEpsilonTraces() + " / " + directlyFollowsRelation.getLengthStrongestTrace());
 			
 			if (directlyFollowsRelation.getNumberOfEpsilonTraces() < directlyFollowsRelation.getLengthStrongestTrace() * parameters.getNoiseThreshold()) {
 				//there are not enough empty traces, the empty traces are considered noise
+				
 				debug(" Filtered noise: " + directlyFollowsRelation.getNumberOfEpsilonTraces() + " empty traces.");
 				
 				//filter the empty traces from the log and recurse
@@ -204,7 +228,7 @@ public class MiningPlugin {
 				});
 				
 			} else {
-				//There are too much empty traces to consider them noise.
+				//There are too many empty traces to consider them noise.
 				//Mine an xor(tau, ..) and recurse.
 				final Binoperator node = new ExclusiveChoice(2);
 				node.setChild(0, new Tau());
@@ -221,43 +245,59 @@ public class MiningPlugin {
 			return;
 		}
 		
-		if (log.getEventClasses().size() == 1 && directlyFollowsRelation.getLongestTrace() == 1) {
-			//log only has one activity
-			target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
-			//debug("activity " + log.getEventClasses().iterator().next());
-			return;
+		if (log.getEventClasses().size() == 1) {
+			//the log contains just one activity
+			
+				
+			//assuming application of the activity follows a geometric distribution, we estimate parameter ^p
+				
+			//calculate the event-per-trace size of the log
+			double p = log.getNumberOfTraces() / ((log.getNumberOfEvents() + log.getNumberOfTraces())*1.0);
+			debug("traces: " + log.getNumberOfTraces());
+			debug("events: " + log.getNumberOfEvents());
+			debug("p-value " + String.valueOf(p));
+			debug(log.toString());
+			
+			if (p >= 1 - parameters.getNoiseThreshold()) {
+				//the probability to stop is so high, we better ignore all non-empty traces
+				debug("short traces, discover tau");
+				target.setChild(index, new Tau());
+				return;
+			} else if (p < parameters.getNoiseThreshold()) {
+				//the probability to stop is so low, we better ignore all empty traces
+				debug("long traces, filter empty traces");
+				final Filteredlog sublog = log.applyEpsilonFilter();
+				pool.addJob(
+					new Runnable() {
+			            public void run() {
+			            	mineProcessTree(sublog, parameters, target, index, pool);
+			            }
+				});
+				return;
+			} else if (p >= 0.5) {
+				//the average is somewhere between 0 and 1 events per trace.
+				//consider it as clear evidence of a single activity
+				debug("neither vlees nor vis, discover activity");
+				target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
+				return;
+			}
 		}
-		
+
+		debug("Log size: " + String.valueOf(log.getNumberOfTraces()));
 		recursionStepsCounter++;
-		debug("Log size: " + String.valueOf(log.getSize()));
-		
-		//output an image before noise filtering if wanted
-		if (parameters.getOutputDFGfileName() != null) {
-			Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
-					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + ".png"), 
-					null);
-		}
-		//debug(directlyFollowsRelation.debugGraph());
-		//filter noise from the directly-follows relation
-		directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
-		
-		//output an image after the noise filtering if wanted
-		if (parameters.getOutputDFGfileName() != null) {
-			Dot2Image.dot2image(directlyFollowsRelation.toDot(), 
-					new File(parameters.getOutputDFGfileName() + recursionStepsCounter + "-afterNoise.png"), 
-					null);
-		}
 		
 		//exclusive choice operator
-		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation.getDirectlyFollowsGraph());
+		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelationNoiseFiltered.getDirectlyFollowsGraph());
 		if (exclusiveChoiceCut.size() > 1) {
 			//set the result
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
-			debugCut(node, exclusiveChoiceCut);
 			target.setChild(index, node);
 			
+			debugCut(node, exclusiveChoiceCut);
+			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, exclusiveChoiceCut);
+			
 			//filter the log and recurse
-			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice(exclusiveChoiceCut);
+			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice2(exclusiveChoiceCut);
 			int i = 0;
 			for (Filteredlog sublog : sublogs) {
 				final Filteredlog sublog2 = sublog;
@@ -270,50 +310,47 @@ public class MiningPlugin {
 				});
 				i++;
 			}
+			
 			return;
 		}
 		
 		//sequence operator
-		//List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getDirectlyFollowsGraph());
-		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation.getEventuallyFollowsGraph());
+		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelationNoiseFiltered.getEventuallyFollowsGraph());
 		if (sequenceCut.size() > 1) {
 			//set the result
 			final Binoperator node = new Sequence(sequenceCut.size());
-			debugCut(node, sequenceCut);
 			target.setChild(index, node);
+			
+			debugCut(node, sequenceCut);
+			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, sequenceCut);
 			
 			List<Filteredlog> sublogs = log.applyFilterSequence(sequenceCut);
 			
 			//filter the log and recurse
 			int i = 0;
-			for (Set<XEventClass> activities : sequenceCut) {
-				final Filteredlog sublog = log.applyFilter(Operator.SEQUENCE, activities);
+			for (Filteredlog sublog : sublogs) {
+				final Filteredlog sublog2 = sublog;
 				final int j = i;
 				pool.addJob(
 						new Runnable() {
 				            public void run() {
-				            	mineProcessTree(sublog, parameters, node, j, pool);
+				            	mineProcessTree(sublog2, parameters, node, j, pool);
 				            }
 				});
 				i++;
 			}
+			
 			return;
 		}
 		
-		//parallel operator
-		//use the unfiltered version of the directly follows relation
-		//read the log
-		DirectlyFollowsRelation directlyFollowsRelation2 = new DirectlyFollowsRelation(log, parameters);
-		
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation2, false);
-		//Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
-		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
+		//parallel and loop operator
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelationNoiseFiltered);
 		
 		//sometimes, a parallel and loop cut are both possible
 		//in that case, recompute a stricter parallel cut using minimum-self-distance
 		if (parallelCut.size() > 1 && loopCut.size() > 1) {
-			//parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
-			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation2, true);
+			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 		}
 		
 		if (parallelCut.size() > 1) {
@@ -323,8 +360,11 @@ public class MiningPlugin {
 			//debug(log.toString());
 			
 			final Binoperator node = new Parallel(parallelCut.size());
-			debugCut(node, parallelCut);
 			target.setChild(index, node);
+			
+			debugCut(node, parallelCut);
+			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, parallelCut);
+			
 			int i = 0;
 			for (Set<XEventClass> activities : parallelCut) {
 				final Filteredlog sublog = log.applyFilter(Operator.PARALLEL, activities);
@@ -337,14 +377,18 @@ public class MiningPlugin {
 				});
 				i++;
 			}
+			
 			return;
 		}
 		
 		//loop operator
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
-			debugCut(node, loopCut);
 			target.setChild(index, node);
+			
+			debugCut(node, loopCut);
+			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, loopCut);
+			
 			int i = 0;
 			for (Set<XEventClass> activities : loopCut) {
 				final Filteredlog sublog = log.applyFilter(Operator.LOOP, activities);
@@ -357,19 +401,24 @@ public class MiningPlugin {
 				});
 				i++;
 			}
+			
 			return;
 		}
 		
 		//flower loop fall-through
-		debug("step " + recursionStepsCounter + " chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
 		Binoperator node = new Loop(log.getEventClasses().size()+1);
 		node.setChild(0, new Tau());
+		
+		debug("step " + recursionStepsCounter + " chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
+		outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, null);
+		
 		int i = 1;
 		for (XEventClass a : log.getEventClasses()) {
 			node.setChild(i, new EventClass(a));
 			i++;
 		}
 		target.setChild(index, node);
+		
 		return;
 	}
 	

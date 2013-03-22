@@ -133,6 +133,22 @@ public class Filteredlog {
 		return new Filteredlog(result, eventClasses, newEventSize);
 	}
 	
+	public Set<Filteredlog> applyFilterExclusiveChoice2(Set<Set<XEventClass>> sigmas) {
+		FilteredlogExclusiveChoiceNoiseFilter noiseFilter = new FilteredlogExclusiveChoiceNoiseFilter(sigmas);
+		
+		//walk through the traces and add them to the result
+		for (List<XEventClass> trace : internalLog.toSet()) {
+			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
+		}
+		
+		MultiSet<XEventClass> noise = noiseFilter.getNoise();
+		if (noise.size() > 0) {
+			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
+		}
+		
+		return noiseFilter.getSublogs();
+	}
+	
 	 public Set<Filteredlog> applyFilterExclusiveChoice(Set<Set<XEventClass>> sigmas) {
 		
 		//initialise the sublogs, make a hashmap of activities, initialise event counters
@@ -229,8 +245,12 @@ public class Filteredlog {
 		return result;
 	}
 	
-	public int getSize() {
+	public int getNumberOfTraces() {
 		return internalLog.size();
+	}
+	
+	public int getNumberOfEvents() {
+		return eventSize;
 	}
 	
 	public void initIterator() {

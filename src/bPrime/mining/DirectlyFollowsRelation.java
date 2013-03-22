@@ -1,18 +1,15 @@
 package bPrime.mining;
 
 import java.awt.Color;
-import java.io.StringWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.ext.DOTExporter;
-import org.jgrapht.ext.EdgeNameProvider;
-import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -164,40 +161,98 @@ public class DirectlyFollowsRelation {
 		}
 	}
 	
-	public void filterNoise(float threshold) {
+	private DirectlyFollowsRelation(
+			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
+			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
+			MultiSet<XEventClass> startActivities,
+			MultiSet<XEventClass> endActivities,
+			HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween,
+			HashMap<XEventClass, Integer> minimumSelfDistances,
+			int numberOfEpsilonTraces,
+			int longestTrace,
+			int lengthStrongestTrace,
+			int strongestDirectEdge,
+			int strongestEventualEdge,
+			int strongestStartActivity,
+			int strongestEndActivity) {
+		this.directlyFollowsGraph = directlyFollowsGraph;
+		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
+		this.startActivities = startActivities;
+		this.endActivities = endActivities;
+		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
+		this.minimumSelfDistances = minimumSelfDistances;
+		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
+		this.longestTrace = longestTrace;
+		this.lengthStrongestTrace = lengthStrongestTrace;
+		this.strongestDirectEdge = strongestDirectEdge;
+		this.strongestEventualEdge = strongestEventualEdge;
+		this.strongestStartActivity = strongestStartActivity;
+		this.strongestEndActivity= strongestEndActivity;
+	}
+	
+	public DirectlyFollowsRelation filterNoise(float threshold) {
 		//filter start activities
-		Iterator<XEventClass> it = startActivities.iterator();
-		while (it.hasNext()) {
-			if (startActivities.getCardinalityOf(it.next()) < strongestStartActivity * threshold) {
-				it.remove();
+		MultiSet<XEventClass> filteredStartActivities = new MultiSet<XEventClass>();
+		for (XEventClass activity : startActivities) {
+			if (startActivities.getCardinalityOf(activity) >= strongestStartActivity * threshold) {
+				filteredStartActivities.add(activity, startActivities.getCardinalityOf(activity));
 			}
 		}
 		
 		//filter end activities
-		Iterator<XEventClass> it2 = endActivities.iterator();
-		while (it2.hasNext()) {
-			if (endActivities.getCardinalityOf(it2.next()) < strongestEndActivity * threshold) {
-				it2.remove();
+		MultiSet<XEventClass> filteredEndActivities = new MultiSet<XEventClass>();
+		for (XEventClass activity : endActivities) {
+			if (endActivities.getCardinalityOf(activity) >= strongestEndActivity * threshold) {
+				filteredEndActivities.add(activity, endActivities.getCardinalityOf(activity));
 			}
 		}
 		
-		//filter edges in directly-follows graph
-		Set<DefaultWeightedEdge> removeSet = new HashSet<DefaultWeightedEdge>();
+		//filter directly-follows graph
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		//add nodes
+		for (XEventClass activity : directlyFollowsGraph.vertexSet()) {
+			filteredDirectlyFollowsGraph.addVertex(activity);
+		}
+		//add edges
 		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
-			if (directlyFollowsGraph.getEdgeWeight(edge) < strongestDirectEdge * threshold) {
-				removeSet.add(edge);
+			if (directlyFollowsGraph.getEdgeWeight(edge) >= strongestDirectEdge * threshold) {
+				XEventClass from = directlyFollowsGraph.getEdgeSource(edge);
+				XEventClass to = directlyFollowsGraph.getEdgeTarget(edge);
+				DefaultWeightedEdge filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
+				filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge, directlyFollowsGraph.getEdgeWeight(edge));
 			}
 		}
-		directlyFollowsGraph.removeAllEdges(removeSet);
 		
-		//filter edges in eventually-follows graph
-		removeSet = new HashSet<DefaultWeightedEdge>();
+		//filter eventually-follows graph
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		//add nodes
+		for (XEventClass activity : eventuallyFollowsGraph.vertexSet()) {
+			filteredEventuallyFollowsGraph.addVertex(activity);
+		}
+		//add edges
 		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
-			if (eventuallyFollowsGraph.getEdgeWeight(edge) < strongestEventualEdge * threshold) {
-				removeSet.add(edge);
+			if (eventuallyFollowsGraph.getEdgeWeight(edge) >= strongestEventualEdge * threshold) {
+				XEventClass from = eventuallyFollowsGraph.getEdgeSource(edge);
+				XEventClass to = eventuallyFollowsGraph.getEdgeTarget(edge);
+				DefaultWeightedEdge filteredEdge = filteredEventuallyFollowsGraph.addEdge(from, to);
+				filteredEventuallyFollowsGraph.setEdgeWeight(filteredEdge, eventuallyFollowsGraph.getEdgeWeight(edge));
 			}
 		}
-		eventuallyFollowsGraph.removeAllEdges(removeSet);
+		
+		return new DirectlyFollowsRelation(
+				filteredDirectlyFollowsGraph, 
+				filteredEventuallyFollowsGraph, 
+				filteredStartActivities, 
+				filteredEndActivities,
+				minimumSelfDistancesBetween,
+				minimumSelfDistances,
+				numberOfEpsilonTraces,
+				longestTrace,
+				lengthStrongestTrace,
+				strongestDirectEdge,
+				strongestEventualEdge,
+				strongestStartActivity,
+				strongestEndActivity);
 	}
 	
 	public String debugGraph() {
@@ -222,9 +277,63 @@ public class DirectlyFollowsRelation {
 		return result;
 	}
 	
-	public String toDot() {
+	public String toDot(Collection<Set<XEventClass>> cut) {
+		if (cut == null) {
+			return toDot();
+		}
+		
 		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsGraph;
 		
+		String dot = "digraph G {\n";
+		dot += "rankdir=LR;\n";
+		
+		//prepare the nodes
+		HashMap<XEventClass, String> activityToNode = new HashMap<XEventClass, String>();
+		for (Set<XEventClass> branch : cut) {
+			dot += "subgraph \"cluster_"+ UUID.randomUUID().toString() + "\" {\n";
+			for (XEventClass activity : branch) {
+				String id = UUID.randomUUID().toString();
+				activityToNode.put(activity, id);
+				dot += "\"" + id + "\" [ label=\""+ activity.toString() +"\", shape=\"box\"";
+				
+				//determine node colour using start and end activities
+				if (startActivities.contains(activity) && endActivities.contains(activity)) {
+					dot += ", style=\"filled\""
+							+ ", fillcolor=\""
+							+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
+							+ ":" + colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity)
+							+ "\"";
+				} else if (startActivities.contains(activity)) {
+					dot += ", style=\"filled\""
+							+ ", fillcolor=\"" 
+							+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
+							+ ":white\"";
+				} else if (endActivities.contains(activity)) {
+					dot += ", style=\"filled\""
+							+ ", fillcolor=\"white:" 
+							+ colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity)
+							+ "\"";
+				}
+				
+				dot += "];\n";
+			}
+			dot += "color=\"blue\";}\n";
+		}
+		
+		//add the edges
+		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+			XEventClass from = graph.getEdgeSource(edge);
+			XEventClass to = graph.getEdgeTarget(edge);
+			int weight = (int) graph.getEdgeWeight(edge);
+			dot += "\"" + activityToNode.get(from) + "\" -> \"" + activityToNode.get(to) + "\" ["
+					+ "label=\"" + String.valueOf(weight) + "\", "
+					+ "color=\"" + colourMapBlackBody(weight, strongestDirectEdge) + "\""
+					+ "];\n";
+		}
+		
+		dot += "}\n";
+		return dot;
+		/*
 		DOTExporter<XEventClass, DefaultWeightedEdge> dotExporter = 
 	        new DOTExporter<XEventClass, DefaultWeightedEdge>(
         		new VertexNameProvider<XEventClass>() {
@@ -268,6 +377,13 @@ public class DirectlyFollowsRelation {
 		StringWriter out = new StringWriter();
 		dotExporter.export(out, graph);
 		return out.toString();
+		*/
+	}
+	
+	public String toDot() {
+		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
+		cut.add(directlyFollowsGraph.vertexSet());
+		return toDot(cut);
 	}
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {
