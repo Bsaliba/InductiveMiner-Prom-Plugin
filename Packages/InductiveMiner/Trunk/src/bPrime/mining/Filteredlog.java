@@ -230,6 +230,24 @@ public class Filteredlog {
 		return noiseFilter.getSublogs();
 	}
 	
+	public List<Filteredlog> applyFilterLoop(List<Set<XEventClass>> sigmas) {
+		//temporary test for noise filtering
+		FilteredlogLoopNoiseFilter noiseFilter = new FilteredlogLoopNoiseFilter(sigmas);
+		
+		//walk through the traces and add them to the result
+		for (List<XEventClass> trace : internalLog.toSet()) {
+			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
+		}
+		
+		MultiSet<XEventClass> noise = noiseFilter.getNoise();
+		if (noise.size() > 0) {
+			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
+		}
+		
+		return noiseFilter.getSublogs();
+	}
+	
+	
 	public String toString() {
 		String result = "";
 		
