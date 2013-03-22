@@ -389,14 +389,17 @@ public class MiningPlugin {
 			debugCut(node, loopCut);
 			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, loopCut);
 			
+			
+			//filter the log and recurse
+			List<Filteredlog> sublogs = log.applyFilterLoop(loopCut);
 			int i = 0;
-			for (Set<XEventClass> activities : loopCut) {
-				final Filteredlog sublog = log.applyFilter(Operator.LOOP, activities);
+			for (Filteredlog sublog : sublogs) {
+				final Filteredlog sublog2 = sublog;
 				final int j = i;
 				pool.addJob(
 						new Runnable() {
 				            public void run() {
-				            	mineProcessTree(sublog, parameters, node, j, pool);
+				            	mineProcessTree(sublog2, parameters, node, j, pool);
 				            }
 				});
 				i++;
