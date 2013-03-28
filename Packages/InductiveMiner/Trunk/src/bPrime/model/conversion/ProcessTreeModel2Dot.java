@@ -47,7 +47,7 @@ public class ProcessTreeModel2Dot {
 	
 	private String dot;
 	
-	public String convert(Node root) {
+	public String convert2PetriNet(Node root) {
 		dot = "digraph G {\n";
 		dot += "rankdir=LR;\n";
 		dotPlace Source = new dotPlace("source", "style=filled, fillcolor=\"green\"");

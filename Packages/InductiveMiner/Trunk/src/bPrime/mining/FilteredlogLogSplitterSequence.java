@@ -1,7 +1,5 @@
 package bPrime.mining;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,30 +10,13 @@ import org.deckfour.xes.classification.XEventClass;
 
 import bPrime.MultiSet;
 
-public class FilteredlogSequenceNoiseFilter {
+public class FilteredlogLogSplitterSequence extends FilteredlogLogSplitter {
 	
-	private List<Set<XEventClass>> sigmas;
-	private MultiSet<XEventClass> noise;
-	private List<MultiSet<List<XEventClass>>> sublogs;
-	private HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> mapSigma2sublog;
-	private HashMap<Set<XEventClass>, Integer> mapSigma2eventSize;
-	
-	public FilteredlogSequenceNoiseFilter(List<Set<XEventClass>> sigmas) {
-		this.sigmas = sigmas;
-		noise = new MultiSet<XEventClass>();
-		sublogs = new ArrayList<MultiSet<List<XEventClass>>>();
-		
-		//initialise the sublogs, make a hashmap of activities
-		mapSigma2sublog = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
-		mapSigma2eventSize = new HashMap<Set<XEventClass>, Integer>();
-		for (Set<XEventClass> sigma : sigmas) {
-			mapSigma2eventSize.put(sigma, 0);
-			MultiSet<List<XEventClass>> sublog = new MultiSet<List<XEventClass>>();
-			sublogs.add(sublog);
-			mapSigma2sublog.put(sigma, sublog);
-		}
+	public FilteredlogLogSplitterSequence(List<Set<XEventClass>> sigmas) {
+		super(sigmas);
 	}
-	
+
+
 	/*
 	 * Add a trace to be filtered and to be added to its sublogs
 	 */
@@ -63,7 +44,7 @@ public class FilteredlogSequenceNoiseFilter {
 				if (sigma.contains(event)) {
 					newTrace.add(event);
 				} else {
-					noise.add(event, cardinality);
+					noiseEvents.add(event, cardinality);
 				}
 			}
 
@@ -76,28 +57,7 @@ public class FilteredlogSequenceNoiseFilter {
 		}
 		
 	}
-	
-	
-	/*
-	 * Return the result of the filtering as a list of Filteredlogs.
-	 */
-	public List<Filteredlog> getSublogs() {
-		//make a copy of the arguments and return the new filtered sublogs
-		List<Filteredlog> result = new ArrayList<Filteredlog>();
-		Iterator<MultiSet<List<XEventClass>>> it = sublogs.iterator();
-		for (Set<XEventClass> sigma : sigmas) {
-			result.add(new Filteredlog(it.next(), new HashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
-		}
-		return result;
-	}
-	
-	/*
-	 * Return a multiset of the events that were classified as noise up till now
-	 */
-	public MultiSet<XEventClass> getNoise() {
-		return noise;
-	}
-	
+		
 	private static int findOptimalSplit(List<XEventClass> trace, 
 			Set<XEventClass> sigma, 
 			int startPosition,
@@ -139,9 +99,5 @@ public class FilteredlogSequenceNoiseFilter {
 		
 		//debug(String.valueOf(positionLeastCost));
 		return positionLeastCost;
-	}
-	
-	private static void debug(String x) {
-		System.out.println(x);
 	}
 }

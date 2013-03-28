@@ -1,13 +1,13 @@
 package bPrime.mining;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.info.XLogInfo;
@@ -17,7 +17,6 @@ import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
 
 import bPrime.MultiSet;
-import bPrime.model.ProcessTreeModel.Operator;
 
 public class Filteredlog {
 	
@@ -68,7 +67,7 @@ public class Filteredlog {
 		return new Filteredlog(result, eventClasses, eventSize);
 	}
 	
-	public Filteredlog applyFilter(Operator operator, Set<XEventClass> arguments) {
+	public Filteredlog applyFilter(Set<XEventClass> arguments) {
 		MultiSet<List<XEventClass>> result = new MultiSet<List<XEventClass>>();
 		
 		//if the set to filter is empty, return the singleton empty trace
@@ -84,42 +83,10 @@ public class Filteredlog {
 			List<XEventClass> newTrace = new LinkedList<XEventClass>();
 			Boolean keep = false;
 			for (XEventClass eventClass : trace) {
-				switch (operator) {
-					case SEQUENCE:
-						if (arguments.contains(eventClass)) {
-							newTrace.add(eventClass);
-						}
-						keep = true;
-						break;
-					case EXCLUSIVE_CHOICE:
-						if (arguments.contains(eventClass)) {
-							newTrace.add(eventClass);
-							keep = true;
-						}
-						break;
-					case PARALLEL:
-						if (arguments.contains(eventClass)) {
-							newTrace.add(eventClass);
-						}
-						keep = true;
-						break;
-					case LOOP:
-						if (arguments.contains(eventClass)) {
-							newTrace.add(eventClass);
-							keep = true;
-						} else {
-							if (keep) {
-								result.add(newTrace, internalLog.getCardinalityOf(trace));
-							}
-							newTrace = new LinkedList<XEventClass>();
-							keep = false;
-						}
-						break;
-					case ACTIVITY :
-						break;
-					default :
-						break;
+				if (arguments.contains(eventClass)) {
+					newTrace.add(eventClass);
 				}
+				keep = true;
 			}
 			if (keep) {
 				result.add(newTrace, internalLog.getCardinalityOf(trace));
@@ -133,118 +100,73 @@ public class Filteredlog {
 		return new Filteredlog(result, eventClasses, newEventSize);
 	}
 	
-	public Set<Filteredlog> applyFilterExclusiveChoice2(Set<Set<XEventClass>> sigmas) {
-		FilteredlogExclusiveChoiceNoiseFilter noiseFilter = new FilteredlogExclusiveChoiceNoiseFilter(sigmas);
-		
-		//walk through the traces and add them to the result
+	public void applyFilterActivity(XEventClass activity, MultiSet<XEventClass> noiseEvents, AtomicInteger noiseEmptyTraces) {
+		//walk through the traces and count noise
+		boolean seenActivity;
+		MultiSet<XEventClass> noiseEventsSplit = new MultiSet<XEventClass>();
+		int noiseEmptyTracesSplit = 0;
 		for (List<XEventClass> trace : internalLog.toSet()) {
-			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
-		}
-		
-		MultiSet<XEventClass> noise = noiseFilter.getNoise();
-		if (noise.size() > 0) {
-			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
-		}
-		
-		return noiseFilter.getSublogs();
-	}
-	
-	 public Set<Filteredlog> applyFilterExclusiveChoice(Set<Set<XEventClass>> sigmas) {
-		
-		//initialise the sublogs, make a hashmap of activities, initialise event counters
-		HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>> mapSigma2sublog = new HashMap<Set<XEventClass>, MultiSet<List<XEventClass>>>();
-		HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma = new HashMap<XEventClass, Set<XEventClass>>();
-		HashMap<Set<XEventClass>, Integer> mapSigma2eventSize = new HashMap<Set<XEventClass>, Integer>();
-		for (Set<XEventClass> sigma : sigmas) {
-			mapSigma2sublog.put(sigma, new MultiSet<List<XEventClass>>());
-			mapSigma2eventSize.put(sigma, 0);
-			for (XEventClass activity : sigma) {
-				mapActivity2sigma.put(activity, sigma);
-			}
-		}
-		
-		//debug noise
-		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
-		
-		//walk through the traces and add them to the result
-		for (List<XEventClass> trace : internalLog.toSet()) {
-			
-			//walk through the events and count how many go in each sigma
-			HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
-			for (Set<XEventClass> sigma : sigmas) {
-				eventCounter.put(sigma, 0);
-			}
+			seenActivity = false;
 			for (XEventClass event : trace) {
-				Set<XEventClass> sigma = mapActivity2sigma.get(event);
-				eventCounter.put(sigma, eventCounter.get(sigma) + 1);
-			}
-			
-			//put the trace in the sublog of the sigma that accounts for more than half of the events
-			for (Set<XEventClass> sigma : sigmas) {
-				if (eventCounter.get(sigma) * 2 > trace.size()) {
-					//make a copy of the trace, leaving out the noise
-					List<XEventClass> newTrace = new ArrayList<XEventClass>();
-					for (XEventClass event : trace) {
-						if (sigma.contains(event)) {
-							newTrace.add(event);
-						} else {
-							//debug
-							noise.add(event, internalLog.getCardinalityOf(trace));							
-						}
-					}
-					
-					MultiSet<List<XEventClass>> sublog = mapSigma2sublog.get(sigma);
-					sublog.add(newTrace, internalLog.getCardinalityOf(trace));
-					mapSigma2sublog.put(sigma, sublog);
-					mapSigma2eventSize.put(sigma, mapSigma2eventSize.get(sigma) + (trace.size() * internalLog.getCardinalityOf(trace)));
+				if (event == activity && !seenActivity) {
+					//correct activity, first time in this trace
+					//not noise
+					seenActivity = true;
+				} else {
+					//this event is noise
+					noiseEventsSplit.add(event, internalLog.getCardinalityOf(trace));
 				}
 			}
+			
+			//end of trace, if we have not seen the activity this trace must be represented by an empty trace
+			if (!seenActivity) {
+				noiseEmptyTracesSplit += internalLog.getCardinalityOf(trace);
+			}
 		}
 		
-		if (noise.size() > 0) {
-			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
-		}
+		debug(" filtered empty traces: "+ noiseEmptyTracesSplit + ", noise events: (" + ((float) noiseEventsSplit.size()/eventSize*100) + "%) " + noiseEventsSplit.toString());
 		
-		//make a copy of the arguments and the new filtered sublogs
-		Set<Filteredlog> result2 = new LinkedHashSet<Filteredlog>();
-		for (Set<XEventClass> sigma : sigmas) {
-			result2.add(new Filteredlog(mapSigma2sublog.get(sigma), new LinkedHashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
+		noiseEmptyTraces.addAndGet(noiseEmptyTracesSplit);
+		synchronized (noiseEvents) {
+			noiseEvents.addAll(noiseEventsSplit);
 		}
-		return result2;
-	} 
-	 
-	public List<Filteredlog> applyFilterSequence(List<Set<XEventClass>> sigmas) {
-		//temporary test for noise filtering
-		FilteredlogSequenceNoiseFilter noiseFilter = new FilteredlogSequenceNoiseFilter(sigmas);
-		
-		//walk through the traces and add them to the result
-		for (List<XEventClass> trace : internalLog.toSet()) {
-			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
-		}
-		
-		MultiSet<XEventClass> noise = noiseFilter.getNoise();
-		if (noise.size() > 0) {
-			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
-		}
-		
-		return noiseFilter.getSublogs();
 	}
 	
-	public List<Filteredlog> applyFilterLoop(List<Set<XEventClass>> sigmas) {
-		//temporary test for noise filtering
-		FilteredlogLoopNoiseFilter noiseFilter = new FilteredlogLoopNoiseFilter(sigmas);
-		
+	public Set<Filteredlog> applyFilterExclusiveChoice(Set<Set<XEventClass>> sigmas, MultiSet<XEventClass> noiseEvents) {
+		FilteredlogLogSplitterExclusiveChoice logSplitter = new FilteredlogLogSplitterExclusiveChoice(sigmas);
+		return new HashSet<Filteredlog>(applyFilter(logSplitter, noiseEvents));
+	}
+	
+	public List<Filteredlog> applyFilterSequence(List<Set<XEventClass>> sigmas, MultiSet<XEventClass> noiseEvents) {
+		FilteredlogLogSplitterSequence logSplitter = new FilteredlogLogSplitterSequence(sigmas);
+		return applyFilter(logSplitter, noiseEvents);
+	}
+	
+	public Set<Filteredlog> applyFilterParallel(Set<Set<XEventClass>> sigmas, MultiSet<XEventClass> noiseEvents) {
+		FilteredlogLogSplitterParallel logSplitter = new FilteredlogLogSplitterParallel(sigmas);
+		return new HashSet<Filteredlog>(applyFilter(logSplitter, noiseEvents));
+	}
+	
+	public List<Filteredlog> applyFilterLoop(List<Set<XEventClass>> sigmas, MultiSet<XEventClass> noiseEvents) {
+		FilteredlogLogSplitterLoop logSplitter = new FilteredlogLogSplitterLoop(sigmas);
+		return applyFilter(logSplitter, noiseEvents);
+	}
+	
+	private List<Filteredlog> applyFilter(FilteredlogLogSplitter logSplitter, MultiSet<XEventClass> noiseEvents) {
 		//walk through the traces and add them to the result
 		for (List<XEventClass> trace : internalLog.toSet()) {
-			noiseFilter.filterTrace(trace, internalLog.getCardinalityOf(trace));
+			logSplitter.filterTrace(trace, internalLog.getCardinalityOf(trace));
 		}
 		
-		MultiSet<XEventClass> noise = noiseFilter.getNoise();
-		if (noise.size() > 0) {
-			debug(" Filtered noise: (" + ((float) noise.size()/eventSize*100) + "%) " + noise.toString());
+		MultiSet<XEventClass> noiseEventsSplit = logSplitter.getNoiseEvents();
+		synchronized (noiseEvents) {
+			noiseEvents.addAll(noiseEventsSplit);
+		}
+		if (noiseEventsSplit.size() > 0) {
+			debug(" filtered noise events: (" + ((float) noiseEventsSplit.size()/eventSize*100) + "%) " + noiseEventsSplit.toString());
 		}
 		
-		return noiseFilter.getSublogs();
+		return logSplitter.getSublogs();
 	}
 	
 	

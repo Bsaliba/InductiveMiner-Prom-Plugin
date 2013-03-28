@@ -14,12 +14,12 @@ public class Dot2Image {
 			out.flush();
 			out.close();
 			if (pngFile != null) {
-				String command = "\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpng -o\""+pngFile.getAbsolutePath()+"\" \""+dotFile.getAbsolutePath()+"\"";
+				String command = "\"C:\\Program Files (x86)\\Graphviz2.31\\bin\\dot.exe\" -Tpng -o\""+pngFile.getAbsolutePath()+"\" \""+dotFile.getAbsolutePath()+"\"";
 				Runtime.getRuntime().exec(command);
 				dotFile.deleteOnExit();
 			}
 			if (pdfFile != null) {
-				String command = "\"C:\\Program Files (x86)\\Graphviz2.30\\bin\\dot.exe\" -Tpdf -o\""+pdfFile.getAbsolutePath()+"\" \""+dotFile.getAbsolutePath()+"\"";
+				String command = "\"C:\\Program Files (x86)\\Graphviz2.31\\bin\\dot.exe\" -Tpdf -o\""+pdfFile.getAbsolutePath()+"\" \""+dotFile.getAbsolutePath()+"\"";
 				Runtime.getRuntime().exec(command);
 				dotFile.deleteOnExit();
 			}

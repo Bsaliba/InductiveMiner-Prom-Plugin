@@ -178,7 +178,7 @@ public class BatchMiningPlugin {
 			outputFilePDF = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.pdf");
 			outputFilePNG = new File(batchParameters.getPetrinetOutputFolder(), x + "- petrinet.png");
 			if (batchParameters.getSplitOutputFolder() != null) {
-				outputFileDFG = new File(batchParameters.getSplitOutputFolder(), x + "--dfg").getPath();
+				outputFileDFG = new File(batchParameters.getSplitOutputFolder(), x + "--").getPath();
 			}
 		}
 		
@@ -201,7 +201,7 @@ public class BatchMiningPlugin {
 		
 		//Visualise the Petri net
 		ProcessTreeModel2Dot converter2dot = new ProcessTreeModel2Dot();
-		Dot2Image.dot2image(converter2dot.convert(model.root), outputFilePNG, outputFilePDF);
+		Dot2Image.dot2image(converter2dot.convert2PetriNet(model.root), outputFilePNG, outputFilePDF);
 		
 		//measure precision
 		String comment = "";
@@ -237,11 +237,13 @@ public class BatchMiningPlugin {
 	    	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
 	    	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
 	    	
-	    	comment = "<br>precision " + precisionGeneralisation.getPrecision() +
-	    			"<br>generalisation " + precisionGeneralisation.getGeneralization();
+	    	comment = "precision " + precisionGeneralisation.getPrecision() + "<br>" +
+	    			"generalisation " + precisionGeneralisation.getGeneralization() + "<br>";
 		}
 		
-		comment = "mined process tree " + model.toHTMLString(false) + comment + "<br><img src='"+outputFilePNG.getName()+"' style='max-width: 1900px; max-height: 900px;'>";
+		comment += "fitness " + model.fitness + "<br>";
+		comment += model.toHTMLString(false) + "<br>";
+		comment += "<img src='"+outputFilePNG.getName()+"' style='max-width: 1900px; max-height: 900px;'>";
     	
     	result.set(index, fileName, comment);
 	}

@@ -214,12 +214,35 @@ public class DirectlyFollowsRelation {
 			filteredDirectlyFollowsGraph.addVertex(activity);
 		}
 		//add edges
+		
+		/*
+		//method 1: global threshold
 		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
 			if (directlyFollowsGraph.getEdgeWeight(edge) >= strongestDirectEdge * threshold) {
 				XEventClass from = directlyFollowsGraph.getEdgeSource(edge);
 				XEventClass to = directlyFollowsGraph.getEdgeTarget(edge);
 				DefaultWeightedEdge filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
 				filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge, directlyFollowsGraph.getEdgeWeight(edge));
+			}
+		}
+		*/
+		
+		//method 2: local threshold
+		for (XEventClass activity : directlyFollowsGraph.vertexSet()) {
+			//find the maximum outgoing weight of this node
+			Integer maxWeightOut = endActivities.getCardinalityOf(activity);
+			for (DefaultWeightedEdge edge : directlyFollowsGraph.outgoingEdgesOf(activity)) {
+				maxWeightOut = Math.max(maxWeightOut, (int) directlyFollowsGraph.getEdgeWeight(edge));
+			}
+			
+			//add all edges that are strong enough
+			for (DefaultWeightedEdge edge : directlyFollowsGraph.outgoingEdgesOf(activity)) {
+				if (directlyFollowsGraph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
+					XEventClass from = directlyFollowsGraph.getEdgeSource(edge);
+					XEventClass to = directlyFollowsGraph.getEdgeTarget(edge);
+					DefaultWeightedEdge filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
+					filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge, directlyFollowsGraph.getEdgeWeight(edge));
+				}
 			}
 		}
 		
@@ -230,12 +253,34 @@ public class DirectlyFollowsRelation {
 			filteredEventuallyFollowsGraph.addVertex(activity);
 		}
 		//add edges
+		/*
+		//method 1: global threshold
 		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
 			if (eventuallyFollowsGraph.getEdgeWeight(edge) >= strongestEventualEdge * threshold) {
 				XEventClass from = eventuallyFollowsGraph.getEdgeSource(edge);
 				XEventClass to = eventuallyFollowsGraph.getEdgeTarget(edge);
 				DefaultWeightedEdge filteredEdge = filteredEventuallyFollowsGraph.addEdge(from, to);
 				filteredEventuallyFollowsGraph.setEdgeWeight(filteredEdge, eventuallyFollowsGraph.getEdgeWeight(edge));
+			}
+		}
+		*/
+		
+		//method 2: local threshold
+		for (XEventClass activity : eventuallyFollowsGraph.vertexSet()) {
+			//find the maximum outgoing weight of this node
+			Integer maxWeightOut = endActivities.getCardinalityOf(activity);
+			for (DefaultWeightedEdge edge : eventuallyFollowsGraph.outgoingEdgesOf(activity)) {
+				maxWeightOut = Math.max(maxWeightOut, (int) eventuallyFollowsGraph.getEdgeWeight(edge));
+			}
+			
+			//add all edges that are strong enough
+			for (DefaultWeightedEdge edge : eventuallyFollowsGraph.outgoingEdgesOf(activity)) {
+				if (eventuallyFollowsGraph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
+					XEventClass from = eventuallyFollowsGraph.getEdgeSource(edge);
+					XEventClass to = eventuallyFollowsGraph.getEdgeTarget(edge);
+					DefaultWeightedEdge filteredEdge = filteredEventuallyFollowsGraph.addEdge(from, to);
+					filteredEventuallyFollowsGraph.setEdgeWeight(filteredEdge, eventuallyFollowsGraph.getEdgeWeight(edge));
+				}
 			}
 		}
 		
@@ -277,12 +322,17 @@ public class DirectlyFollowsRelation {
 		return result;
 	}
 	
-	public String toDot(Collection<Set<XEventClass>> cut) {
+	public String toDot(Collection<Set<XEventClass>> cut, boolean useEventuallyFollows) {
 		if (cut == null) {
-			return toDot();
+			return toDot(useEventuallyFollows);
 		}
 		
-		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsGraph;
+		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
+		if (!useEventuallyFollows) {
+			graph = directlyFollowsGraph;
+		} else {
+			graph = eventuallyFollowsGraph;
+		}
 		
 		String dot = "digraph G {\n";
 		dot += "rankdir=LR;\n";
@@ -380,10 +430,10 @@ public class DirectlyFollowsRelation {
 		*/
 	}
 	
-	public String toDot() {
+	public String toDot(boolean useEventuallyFollows) {
 		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
 		cut.add(directlyFollowsGraph.vertexSet());
-		return toDot(cut);
+		return toDot(cut, useEventuallyFollows);
 	}
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {

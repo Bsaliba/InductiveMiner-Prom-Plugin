@@ -41,6 +41,13 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
+	public boolean addAll(MultiSet<X> collection) {
+		for (X element : collection) {
+			add(element, collection.getCardinalityOf(element));
+		}
+		return true;
+	}
+	
 	public int size() {
 		return size;
 	}

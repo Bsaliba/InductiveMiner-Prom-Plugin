@@ -12,19 +12,13 @@ import org.deckfour.xes.classification.XEventClasses;
 import org.processmining.framework.util.HTMLToString;
 
 public class ProcessTreeModel implements HTMLToString{
-	public enum Operator {
-		ACTIVITY,
-		SEQUENCE,
-		LOOP,
-		EXCLUSIVE_CHOICE,
-		PARALLEL
-	}
 	
 	//private Map<XEventClass, Map<XEventClass, Integer>> successionMap;
 	//int minCardinality = Integer.MAX_VALUE, maxCardinality = 0;
 	//public String debug = "";
 	
 	public Node root = null;
+	public double fitness;
 	private String html = "";
 	
 	public ProcessTreeModel(InputStream input) throws IOException {
