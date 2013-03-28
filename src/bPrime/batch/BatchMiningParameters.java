@@ -8,7 +8,6 @@ import java.util.Set;
 public class BatchMiningParameters {
 	private String folder;
 	private String PetrinetOutputFolder;
-	//private Dimension PetrinetOutputDimension;
 	private int numberOfConcurrentFiles;
 	private Set<String> extensions;
 	private boolean measurePrecision;
@@ -25,11 +24,11 @@ public class BatchMiningParameters {
 		SplitOutputFolder = "D:\\output";
 		//SplitOutputFolder = null;
 		
-		setNoiseThreshold((float) 0.05);
+		setNoiseThreshold((float) 0.2);
 
 		numberOfConcurrentFiles = 0;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
-		measurePrecision = false;
+		measurePrecision = true;
 	}
 	
 	public void setFolder(String folder) {
