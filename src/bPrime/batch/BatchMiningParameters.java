@@ -21,14 +21,14 @@ public class BatchMiningParameters {
 		PetrinetOutputFolder = "D:\\output";
 		//PetrinetOutputFolder = null;
 		
-		SplitOutputFolder = "D:\\output";
-		//SplitOutputFolder = null;
+		//SplitOutputFolder = "D:\\output";
+		SplitOutputFolder = null;
 		
 		setNoiseThreshold((float) 0.2);
 
 		numberOfConcurrentFiles = 0;
-		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml"));
-		measurePrecision = true;
+		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml", ".mxml"));
+		measurePrecision = false;
 	}
 	
 	public void setFolder(String folder) {

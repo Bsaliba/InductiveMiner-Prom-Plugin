@@ -33,7 +33,7 @@ import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes
 
 import bPrime.ThreadPool;
 import bPrime.mining.MiningParameters;
-import bPrime.mining.MiningPlugin;
+import bPrime.mining.Miner;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2Dot;
@@ -92,7 +92,7 @@ public class BatchMiningPlugin {
 		File folder = new File(parameters.getFolder());
 		List<String> files = getListOfFiles(folder, parameters.getExtensions());
 		final BatchProcessTrees result = new BatchProcessTrees();
-		final MiningPlugin miningPlugin = new MiningPlugin();
+		final Miner miningPlugin = new Miner();
 		final PNLogReplayer replayer = new PNLogReplayer();
 		final boolean measurePrecision = parameters.getMeasurePrecision();
 		
@@ -148,7 +148,7 @@ public class BatchMiningPlugin {
 			int index,
 			PluginContext context,
 			String fileName,
-			MiningPlugin miningPlugin,
+			Miner miningPlugin,
 			PNLogReplayer replayer,
 			boolean measurePrecision,
 			BatchMiningParameters batchParameters) {
