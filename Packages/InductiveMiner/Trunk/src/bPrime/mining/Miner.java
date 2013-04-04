@@ -17,18 +17,12 @@ import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
-import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
-import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
-import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.framework.util.Pair;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
-import org.processmining.processtree.ProcessTree;
 
 import bPrime.MultiSet;
-import bPrime.ProcessTreeModelConnection;
 import bPrime.Sets;
 import bPrime.ThreadPool;
 import bPrime.model.Binoperator;
@@ -42,78 +36,16 @@ import bPrime.model.Tau;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
-import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 
-@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
-		"Log", "Parameters" }, userAccessible = true)
-public class MiningPlugin {
+public class Miner {
 	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree, default", requiredParameterLabels = { 0 })
-	public ProcessTree mineDefault(PluginContext context, XLog log) {
-		return this.mineParameters(context, log, new MiningParameters());
-	}
-	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
-	public ProcessTree mineParameters(PluginContext context, XLog log, MiningParameters parameters) {
-		Collection<ProcessTreeModelConnection> connections;
-		try {
-			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
-			for (ProcessTreeModelConnection connection : connections) {
-				if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
-						&& connection.getParameters().equals(parameters)) {
-					return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
-				}
-			}
-		} catch (ConnectionCannotBeObtained e) {
-		}
-		ProcessTreeModel model = mine(context, log, parameters);
-		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
-		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
-		return tree;
-	}
 	/*
-@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
-		"Log", "Parameters" }, userAccessible = true)
-public class MiningPlugin {
-	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
-	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
-		return this.mineParametersPetrinet(context, log, new MiningParameters());
-	}
-	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree Petri net, parameterized", requiredParameterLabels = { 0, 1 })
-	public Object[] mineParametersPetrinet(PluginContext context, XLog log, MiningParameters parameters) {
-		Collection<ProcessTreeModelConnection> connections;
-		try {
-			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
-			for (ProcessTreeModelConnection connection : connections) {
-				if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
-						&& connection.getParameters().equals(parameters)) {
-					return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
-				}
-			}
-		} catch (ConnectionCannotBeObtained e) {
-		}
-		
-		//call the connectionless function
-		Object[] arr = mineParametersPetrinetWithoutConnections(context, log, parameters);
-		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = (WorkflowNet) arr[1];
-		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
-		
-		ProcessTreeModel2PetriNet.addMarkingsToProm(context, workflowNet);
-		
-		//create connections
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
-		
-		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
-		
-		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
-	}*/
+	 * basic usage:
+	 * 
+	 * Process tree
+	 * - call mine, will return a ProcessTreeModel object (= internal process tree representation)
+	 * - call ProcessTreeModel2ProcessTree.convert(model.root); to obtain a ProcessTree
+	 */
 	
 	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log, MiningParameters parameters) {
 		ProcessTreeModel model = mine(context, log, parameters);

@@ -8,7 +8,6 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 public class MiningParameters {
 	private XEventClassifier classifier;
 	private float noiseThreshold;
-	
 	private String outputDFGfileName;
 	
 	public MiningParameters() {
