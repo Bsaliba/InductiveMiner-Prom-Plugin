@@ -24,9 +24,9 @@ import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 public class MiningPluginPetrinet {
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
-	//public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
-	//	return this.mineParametersPetrinet(context, log, new MiningParameters());
-	//}
+	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
+		return this.mineParametersPetrinet(context, log, new MiningParameters());
+	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, parameterized", requiredParameterLabels = { 0, 1 })
