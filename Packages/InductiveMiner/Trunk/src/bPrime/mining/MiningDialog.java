@@ -34,30 +34,29 @@ public class MiningDialog extends JPanel {
 		
 		//noise threshold
 		JLabel noiseLabel = factory.createLabel("Noise threshold");
-		//final NiceDoubleSlider noiseSlider = factory.createNiceDoubleSlider("", 0, 1, parameters.getNoiseThreshold(), Orientation.HORIZONTAL);
-		final JSlider noiseSlider = factory.createSlider(0);
+		thresholdsPanel.add(noiseLabel);
+		noiseLabel.setBounds(20, 50, 100, 20);
+		
+		final JLabel noiseValue = factory.createLabel(String.format("%.3f", parameters.getNoiseThreshold()));
+		thresholdsPanel.add(noiseValue);
+		noiseValue.setBounds(485, 50, 100, 20);
+		
+		JLabel noiseExplanation = factory.createLabel("If set to 0.000, perfect log fitness is guaranteed.");
+		thresholdsPanel.add(noiseExplanation);
+		noiseExplanation.setBounds(20, 70, 400, 20);
+		
+		final JSlider noiseSlider = factory.createSlider(SwingConstants.HORIZONTAL);
 		noiseSlider.setMinimum(0);
 		noiseSlider.setMaximum(1000);
 		noiseSlider.setValue((int) (parameters.getNoiseThreshold() * 1000));
-		final JLabel noiseValue = factory.createLabel(String.format("%.2f", parameters.getNoiseThreshold()));
-		
 		noiseSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				parameters.setNoiseThreshold((float) (noiseSlider.getValue() / 1000.0));
 				noiseValue.setText(String.format("%.2f", parameters.getNoiseThreshold()));
 			}
 		});
-		
-		noiseLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		noiseLabel.setForeground(new Color(40,40,40));
-
-		thresholdsPanel.add(noiseLabel);
 		thresholdsPanel.add(noiseSlider);
-		thresholdsPanel.add(noiseValue);
-		
-		noiseLabel.setBounds(20, 50, 100, 20);
-		noiseSlider.setBounds(122, 50, 360, 20);
-		noiseValue.setBounds(490, 50, 100, 20);
+		noiseSlider.setBounds(115, 52, 360, 20);
 		
 		setLayout(null);
 		add(thresholdsPanel);
