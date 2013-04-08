@@ -32,8 +32,11 @@ import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGen;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes;
 
 import bPrime.ThreadPool;
-import bPrime.mining.MiningParameters;
+import bPrime.measure.measureDirectlyFollowsPrecision;
+import bPrime.mining.DirectlyFollowsRelation;
+import bPrime.mining.Filteredlog;
 import bPrime.mining.Miner;
+import bPrime.mining.MiningParameters;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.conversion.Dot2Image;
 import bPrime.model.conversion.ProcessTreeModel2Dot;
@@ -203,8 +206,14 @@ public class BatchMiningPlugin {
 		ProcessTreeModel2Dot converter2dot = new ProcessTreeModel2Dot();
 		Dot2Image.dot2image(converter2dot.convert2PetriNet(model.root), outputFilePNG, outputFilePDF);
 		
-		//measure precision
 		String comment = "";
+		
+		//measure edge-precision
+		Filteredlog internalLog = new Filteredlog(log, mineParameters);
+		DirectlyFollowsRelation dfr = new DirectlyFollowsRelation(internalLog, mineParameters);
+		comment += "edge-precision " + measureDirectlyFollowsPrecision.measure(dfr, model) + "<br>";
+		
+		//measure precision
 		if (measurePrecision) {
 		
 	    	//replay the log
@@ -237,7 +246,7 @@ public class BatchMiningPlugin {
 	    	AlignmentPrecGen precisionMeasurer = new AlignmentPrecGen();
 	    	AlignmentPrecGenRes precisionGeneralisation = precisionMeasurer.measureConformanceAssumingCorrectAlignment(context, mapping, replayed, petrinet, initialMarking, true);
 	    	
-	    	comment = "precision " + precisionGeneralisation.getPrecision() + "<br>" +
+	    	comment += "precision " + precisionGeneralisation.getPrecision() + "<br>" +
 	    			"generalisation " + precisionGeneralisation.getGeneralization() + "<br>";
 		}
 		

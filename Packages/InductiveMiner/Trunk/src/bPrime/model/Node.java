@@ -21,4 +21,9 @@ public abstract class Node {
 	public List<Node> getChildren() {
 		return children;
 	}
+	
+	/*
+	public abstract boolean canProduceEpsilon();
+	public abstract Set<Pair<XEventClass, XEventClass>> getDirectlyFollowsEdges();
+	*/
 }

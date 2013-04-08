@@ -11,4 +11,10 @@ public class Loop extends Binoperator {
 		return "loop";
 	}
 
+	/*
+	public boolean canProduceEpsilon() {
+		return children.get(0).canProduceEpsilon();
+	}
+	*/
+
 }
