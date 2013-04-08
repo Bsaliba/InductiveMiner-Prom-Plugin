@@ -21,9 +21,9 @@ import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 public class MiningPluginProcessTree {
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree, default", requiredParameterLabels = { 0 })
-	//public ProcessTree mineDefault(PluginContext context, XLog log) {
-	//	return this.mineParameters(context, log, new MiningParameters());
-	//}
+	public ProcessTree mineDefault(PluginContext context, XLog log) {
+		return this.mineParameters(context, log, new MiningParameters());
+	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
