@@ -20,4 +20,10 @@ public class EventClass extends Node {
 		return s;
 	}
 
+	/*
+	public boolean canProduceEpsilon() {
+		return false;
+	}
+	*/
+
 }
