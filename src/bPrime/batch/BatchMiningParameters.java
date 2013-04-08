@@ -1,12 +1,13 @@
 package bPrime.batch;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 
 public class BatchMiningParameters {
-	private String folder;
+	private File folder;
 	private String PetrinetOutputFolder;
 	private int numberOfConcurrentFiles;
 	private Set<String> extensions;
@@ -15,8 +16,7 @@ public class BatchMiningParameters {
 	private float noiseThreshold;
 	
 	public BatchMiningParameters() {
-		folder = "d:\\datasets\\generatedLogs";
-		//folder = "D:\\datasets\\selected";
+		folder = new File("d:\\datasets");
 		
 		PetrinetOutputFolder = "D:\\output";
 		//PetrinetOutputFolder = null;
@@ -31,11 +31,11 @@ public class BatchMiningParameters {
 		measurePrecision = false;
 	}
 	
-	public void setFolder(String folder) {
+	public void setFolder(File folder) {
 		this.folder = folder;
 	}
 	
-	public String getFolder() {
+	public File getFolder() {
 		return folder;
 	}
 	
@@ -57,6 +57,10 @@ public class BatchMiningParameters {
 	
 	public boolean getMeasurePrecision() {
 		return measurePrecision;
+	}
+	
+	public void setMeasurePrecision(boolean measurePrecision) {
+		this.measurePrecision = measurePrecision;
 	}
 
 	public float getNoiseThreshold() {

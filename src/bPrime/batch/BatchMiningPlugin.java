@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.JOptionPane;
-
+import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
+import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
@@ -32,9 +32,6 @@ import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGen;
 import org.processmining.plugins.pnalignanalysis.conformance.AlignmentPrecGenRes;
 
 import bPrime.ThreadPool;
-import bPrime.measure.measureDirectlyFollowsPrecision;
-import bPrime.mining.DirectlyFollowsRelation;
-import bPrime.mining.Filteredlog;
 import bPrime.mining.Miner;
 import bPrime.mining.MiningParameters;
 import bPrime.model.ProcessTreeModel;
@@ -45,6 +42,7 @@ import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 @Plugin(name = "Batch mine Process Trees using B'", returnLabels = { "Batch Process Trees" }, returnTypes = { BatchProcessTrees.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class BatchMiningPlugin {
+	/*
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Batch Process Trees, default", requiredParameterLabels = { })
 	public BatchProcessTrees mineDefault(PluginContext context) {
@@ -85,6 +83,19 @@ public class BatchMiningPlugin {
 		
 		return this.mineParameters(context, parameters);
 	}
+	*/
+	
+	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@PluginVariant(variantLabel = "Mine Process Trees, dialog", requiredParameterLabels = { })
+	public BatchProcessTrees mineGuiPetrinet(UIPluginContext context) {
+		BatchMiningParameters parameters = new BatchMiningParameters();
+		BatchMiningDialog dialog = new BatchMiningDialog(parameters);
+		InteractionResult result = context.showWizard("Batch mine Petri nets using B'", true, true, dialog);
+		if (result != InteractionResult.FINISHED) {
+			return null;
+		}
+		return mineParameters(context, parameters);
+	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine Process Trees, parameterized", requiredParameterLabels = { 1 })
@@ -92,7 +103,7 @@ public class BatchMiningPlugin {
 		
 		//initialise for thread splitting
 		ThreadPool pool = new ThreadPool(parameters.getNumberOfConcurrentFiles());
-		File folder = new File(parameters.getFolder());
+		File folder = parameters.getFolder();
 		List<String> files = getListOfFiles(folder, parameters.getExtensions());
 		final BatchProcessTrees result = new BatchProcessTrees();
 		final Miner miningPlugin = new Miner();
@@ -192,7 +203,7 @@ public class BatchMiningPlugin {
 		}
 		mineParameters.setNoiseThreshold(batchParameters.getNoiseThreshold());
 		
-		//mine the Petri net
+		//mine the Petri net with B'
 		Object[] arr = miningPlugin.mineParametersPetrinetWithoutConnections(context, log, mineParameters);
 		ProcessTreeModel model = (ProcessTreeModel) arr[0];
 		WorkflowNet workflowNet = (WorkflowNet) arr[1];
@@ -208,11 +219,6 @@ public class BatchMiningPlugin {
 		
 		String comment = "";
 		
-		//measure edge-precision
-		Filteredlog internalLog = new Filteredlog(log, mineParameters);
-		DirectlyFollowsRelation dfr = new DirectlyFollowsRelation(internalLog, mineParameters);
-		comment += "edge-precision " + measureDirectlyFollowsPrecision.measure(dfr, model) + "<br>";
-		
 		//measure precision
 		if (measurePrecision) {
 		
@@ -226,13 +232,6 @@ public class BatchMiningPlugin {
 			replayParameters.setFinalMarkings(new Marking[] {finalMarking});
 			replayParameters.setCreateConn(false);
 			replayParameters.setGUIMode(false);
-			//replayParameters.setUseLogWeight(false);
-			//Map<XEventClass, Integer> weightMap = new HashMap<XEventClass, Integer>();
-			//weightMap.put(dummy, 0);
-			//for (XEventClass activity : activities) {
-			//	weightMap.put(activity, 1);
-			//}
-			//replayParameters.setxEventClassWeightMap(weightMap);
 			PNRepResult replayed = null;
 			try {
 				replayed = replayer.replayLog(context, petrinet, log, mapping, algorithm, replayParameters);
