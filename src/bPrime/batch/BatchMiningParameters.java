@@ -26,7 +26,7 @@ public class BatchMiningParameters {
 		
 		setNoiseThreshold((float) 0.2);
 
-		numberOfConcurrentFiles = 0;
+		numberOfConcurrentFiles = 4;
 		extensions = new HashSet<String>(Arrays.asList(".xes", ".xml", ".mxml"));
 		measurePrecision = false;
 	}
