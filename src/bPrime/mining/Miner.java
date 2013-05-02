@@ -13,9 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.deckfour.xes.classification.XEventClasses;
-import org.deckfour.xes.info.XLogInfo;
-import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.Pair;
@@ -75,9 +72,7 @@ public class Miner {
 		recursionStepsCounter = -1;
 		
 		//create the model
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		XEventClasses eventClasses = info.getEventClasses();
-		ProcessTreeModel model = new ProcessTreeModel(eventClasses);
+		ProcessTreeModel model = new ProcessTreeModel();
 		final MultiSet<XEventClass> noiseEvents = new MultiSet<XEventClass>();
 		final AtomicInteger noiseEmptyTraces = new AtomicInteger();
 		

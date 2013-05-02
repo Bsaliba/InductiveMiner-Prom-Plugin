@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 
-import org.deckfour.xes.classification.XEventClasses;
 import org.processmining.framework.util.HTMLToString;
 
 public class ProcessTreeModel implements HTMLToString{
@@ -26,7 +25,7 @@ public class ProcessTreeModel implements HTMLToString{
 		importFromStream(input);
 	}
 	
-	public ProcessTreeModel(XEventClasses eventClasses) {
+	public ProcessTreeModel() {
 		//successionMap = new HashMap<XEventClass, Map<XEventClass, Integer>>();
 		//for (XEventClass fromEventClass : eventClasses.getClasses()) {
 		//	Map<XEventClass, Integer> successorMap = new HashMap<XEventClass, Integer>();

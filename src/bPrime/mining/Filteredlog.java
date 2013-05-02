@@ -20,7 +20,6 @@ import bPrime.MultiSet;
 
 public class Filteredlog {
 	
-	//protected XLog log;
 	private MultiSet<List<XEventClass>> internalLog;
 	
 	private Set<XEventClass> eventClasses;
@@ -34,7 +33,23 @@ public class Filteredlog {
 	public Filteredlog(XLog log, MiningParameters parameters) {
 		
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		eventClasses = new LinkedHashSet<XEventClass>(info.getEventClasses().getClasses());
+		eventClasses = new LinkedHashSet<XEventClass>();
+		for (XEventClass e : info.getEventClasses().getClasses()) {
+			eventClasses.add(e);
+		}
+		
+		//test whether this is a problem
+		System.out.println("=================================(filteredlog.java)");
+		System.out.println(info.getEventClasses());
+		System.out.println(info.getEventClasses().toString());
+		System.out.println(info.getEventClasses().getClasses());
+		System.out.println(info.getEventClasses().getClasses().toString());
+		System.out.println(info.getEventClasses(parameters.getClassifier()));
+		System.out.println(info.getEventClasses(parameters.getClassifier()).toString());
+		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses());
+		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses().toString());
+		//apparently, it is not
+		
 		int newEventSize = 0;
 		
 		//transform the log to an internal format
@@ -49,6 +64,18 @@ public class Filteredlog {
 		}
 		
 		eventSize = newEventSize;
+		
+		//test whether this is a problem
+		System.out.println("=================================(filteredlog.java)(2)");
+		System.out.println(info.getEventClasses());
+		System.out.println(info.getEventClasses().toString());
+		System.out.println(info.getEventClasses().getClasses());
+		System.out.println(info.getEventClasses().getClasses().toString());
+		System.out.println(info.getEventClasses(parameters.getClassifier()));
+		System.out.println(info.getEventClasses(parameters.getClassifier()).toString());
+		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses());
+		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses().toString());
+		//apparently, it is not
 	}
 	
 	public Filteredlog(MultiSet<List<XEventClass>> log, Set<XEventClass> eventClasses, int eventSize) {
