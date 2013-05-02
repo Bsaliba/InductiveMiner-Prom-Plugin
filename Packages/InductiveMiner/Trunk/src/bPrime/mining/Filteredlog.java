@@ -44,6 +44,8 @@ public class Filteredlog {
 		System.out.println(info.getEventClasses().toString());
 		System.out.println(info.getEventClasses().getClasses());
 		System.out.println(info.getEventClasses().getClasses().toString());
+		System.out.println(parameters.getClassifier());
+		System.out.println(parameters.getClassifier().toString());
 		System.out.println(info.getEventClasses(parameters.getClassifier()));
 		System.out.println(info.getEventClasses(parameters.getClassifier()).toString());
 		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses());
