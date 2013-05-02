@@ -46,7 +46,9 @@ public class MiningParameters {
 		if (object instanceof MiningParameters) {
 			MiningParameters parameters = (MiningParameters) object;
 			if (classifier.equals(parameters.classifier)) {
-				return true;
+				if (noiseThreshold == parameters.getNoiseThreshold()) {
+					return true;
+				}
 			}
 		}
 		return false;
