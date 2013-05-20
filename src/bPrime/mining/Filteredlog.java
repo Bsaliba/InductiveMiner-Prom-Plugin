@@ -38,20 +38,6 @@ public class Filteredlog {
 			eventClasses.add(e);
 		}
 		
-		//test whether this is a problem
-		System.out.println("=================================(filteredlog.java)");
-		System.out.println(info.getEventClasses());
-		System.out.println(info.getEventClasses().toString());
-		System.out.println(info.getEventClasses().getClasses());
-		System.out.println(info.getEventClasses().getClasses().toString());
-		System.out.println(parameters.getClassifier());
-		System.out.println(parameters.getClassifier().toString());
-		System.out.println(info.getEventClasses(parameters.getClassifier()));
-		System.out.println(info.getEventClasses(parameters.getClassifier()).toString());
-		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses());
-		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses().toString());
-		//apparently, it is not
-		
 		int newEventSize = 0;
 		
 		//transform the log to an internal format
@@ -67,6 +53,7 @@ public class Filteredlog {
 		
 		eventSize = newEventSize;
 		
+		/*
 		//test whether this is a problem
 		System.out.println("=================================(filteredlog.java)(2)");
 		System.out.println(info.getEventClasses());
@@ -78,6 +65,7 @@ public class Filteredlog {
 		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses());
 		System.out.println(info.getEventClasses(parameters.getClassifier()).getClasses().toString());
 		//apparently, it is not
+		*/
 	}
 	
 	public Filteredlog(MultiSet<List<XEventClass>> log, Set<XEventClass> eventClasses, int eventSize) {
