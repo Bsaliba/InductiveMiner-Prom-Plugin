@@ -16,7 +16,7 @@ import bPrime.ProcessTreeModelConnection;
 import bPrime.model.ProcessTreeModel;
 import bPrime.model.conversion.ProcessTreeModel2ProcessTree;
 
-@Plugin(name = "Mine a Process Tree using B'", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
+@Plugin(name = "Mine a Process Tree using Inductive Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPluginProcessTree {
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")

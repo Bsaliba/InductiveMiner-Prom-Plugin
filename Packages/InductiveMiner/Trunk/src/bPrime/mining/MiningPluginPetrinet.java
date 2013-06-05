@@ -18,7 +18,7 @@ import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMap
 import bPrime.model.conversion.ProcessTreeModel2PetriNet;
 import bPrime.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 
-@Plugin(name = "Mine a Petri net using B'", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
+@Plugin(name = "Mine a Petri net using Inductive Miner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 
 public class MiningPluginPetrinet {
