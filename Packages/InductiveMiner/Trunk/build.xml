@@ -136,7 +136,7 @@
 							<dependency name="ProcessTree"/>
 							<dependency name="PetriNets"/>
 							<dependency name="PNetReplayer"/>
-							<dependency name="PNetAlignmentAnalysis"/>
+							<!--<dependency name="PNetAlignmentAnalysis"/>-->
 							<!--dependency name="Upstream Package 2 (CHANGE)"/>
 							<dependency name="Upstream Package 3 (CHANGE)"/-->
 						</package>
