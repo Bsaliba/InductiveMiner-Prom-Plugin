@@ -18,6 +18,7 @@ public class Triple<A,B,C> {
 	@Override
 	public int hashCode() { return a.hashCode() ^ b.hashCode() ^ c.hashCode(); }
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	  public boolean equals(Object o) {
 	    if (o == null) return false;

@@ -11,7 +11,6 @@ import javax.swing.event.ChangeListener;
 
 import org.deckfour.xes.model.XLog;
 
-import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
 public class MiningDialog extends JPanel {
@@ -21,7 +20,6 @@ public class MiningDialog extends JPanel {
 	public MiningDialog(XLog log, final MiningParameters parameters) {
 		
 		SlickerFactory factory = SlickerFactory.instance();
-		SlickerDecorator decorator = SlickerDecorator.instance();
 		
 		JPanel thresholdsPanel = factory.createRoundedPanel(15, Color.gray);
 		thresholdsPanel.setLayout(null);

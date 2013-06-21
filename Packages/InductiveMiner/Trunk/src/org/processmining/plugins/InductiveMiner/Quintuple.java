@@ -24,6 +24,7 @@ public class Quintuple<A,B,C,D,E> {
 	@Override
 	public int hashCode() { return a.hashCode() ^ b.hashCode() ^ c.hashCode() ^ d.hashCode() ^ e.hashCode(); }
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	  public boolean equals(Object o) {
 	    if (o == null) return false;
