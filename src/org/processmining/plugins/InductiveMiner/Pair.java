@@ -16,7 +16,8 @@ public class Pair<L,R> {
 	  @Override
 	  public int hashCode() { return left.hashCode() ^ right.hashCode(); }
 
-	  @Override
+	  @SuppressWarnings("rawtypes")
+	@Override
 	  public boolean equals(Object o) {
 	    if (o == null) return false;
 	    if (!(o instanceof Pair)) return false;

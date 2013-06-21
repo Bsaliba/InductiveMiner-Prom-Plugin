@@ -21,6 +21,7 @@ public class Quadruple<A,B,C,D> {
 		@Override
 		public int hashCode() { return a.hashCode() ^ b.hashCode() ^ c.hashCode() ^ d.hashCode(); }
 		
+		@SuppressWarnings("rawtypes")
 		@Override
 		  public boolean equals(Object o) {
 		    if (o == null) return false;

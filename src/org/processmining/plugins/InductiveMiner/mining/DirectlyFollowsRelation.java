@@ -384,51 +384,6 @@ public class DirectlyFollowsRelation {
 		
 		dot += "}\n";
 		return dot;
-		/*
-		DOTExporter<XEventClass, DefaultWeightedEdge> dotExporter = 
-	        new DOTExporter<XEventClass, DefaultWeightedEdge>(
-        		new VertexNameProvider<XEventClass>() {
-					public String getVertexName(XEventClass activity) {
-						return "\"" + activity.toString() + "\"";
-					}
-        		},
-        		new VertexNameProvider<XEventClass>() {
-					public String getVertexName(XEventClass activity) {
-						String result = activity.toString();
-						result += "\" shape=\"box";
-						if (startActivities.contains(activity) && endActivities.contains(activity)) {
-							result += "\" style=\"filled";
-							result += "\" fillcolor=\""
-									+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
-									+ ":" + colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity);
-						} else if (startActivities.contains(activity)) {
-							result += "\" style=\"filled";
-							result += "\" fillcolor=\"" 
-									+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
-									+ ":white";
-						} else if (endActivities.contains(activity)) {
-							result += "\" style=\"filled";
-							result += "\" fillcolor=\"white:" 
-									+ colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity);
-						}
-						return result;
-					}
-        		},
-        		new EdgeNameProvider<DefaultWeightedEdge>() { 
-					public String getEdgeName(DefaultWeightedEdge edge) {
-						//hack the color into the label of the edge using kind-of sql-injection
-						int weight = (int) graph.getEdgeWeight(edge);
-						String result = String.valueOf(weight);
-						result += "\" color=\"" + colourMapBlackBody(weight, strongestDirectEdge);
-						return result;
-					} 
-				}
-        	);
-		
-		StringWriter out = new StringWriter();
-		dotExporter.export(out, graph);
-		return out.toString();
-		*/
 	}
 	
 	public String toDot(boolean useEventuallyFollows) {
@@ -512,7 +467,9 @@ public class DirectlyFollowsRelation {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 	
+	/*
 	private void debug(String x) {
 		System.out.println(x);
 	}
+	*/
 }
