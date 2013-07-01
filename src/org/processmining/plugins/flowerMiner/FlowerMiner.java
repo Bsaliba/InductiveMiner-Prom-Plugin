@@ -50,7 +50,8 @@ public class FlowerMiner {
 	}
 	
 	/*
-	 * 'mines' a flower model, returns array of Object (petrinet, initial marking, final marking, mapping)
+	 * 'mines' a flower model
+	 * returns array of Object (petrinet, initial marking, final marking, mapping)
 	 */
 	public Object[] mineParametersPetrinet(XLogInfo logInfo, XEventClassifier classifier, XEventClass dummy) {
 		
