@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +39,6 @@ import org.processmining.plugins.InductiveMiner.model.conversion.Dot2Image;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
-
 
 public class Miner {
 
@@ -85,7 +85,7 @@ public class Miner {
 		final AtomicInteger noiseEmptyTraces = new AtomicInteger();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(0);
+		ThreadPool pool = new ThreadPool();
 
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
@@ -326,6 +326,35 @@ public class Miner {
 			return;
 		}
 
+		/*
+		//tau loop
+		if (Sets.intersection(directlyFollowsRelation.getStartActivities().toSet(),
+				directlyFollowsRelation.getEndActivities().toSet()).size() == 0) {
+			List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
+			cut.add(new HashSet<XEventClass>());
+			cut.get(0).addAll(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
+			List<Filteredlog> sublogs = log.applyFilterTauLoop(cut, noiseEvents, directlyFollowsRelation
+					.getStartActivities().toSet(), directlyFollowsRelation.getEndActivities().toSet());
+
+			final Filteredlog sublog = sublogs.get(0);
+			if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
+				final Binoperator node = new Loop(2);
+				target.setChild(index, node);
+				Tau tau = new Tau();
+				node.setChild(1, tau);
+				pool.addJob(new Runnable() {
+					public void run() {
+						mineProcessTree(sublog, parameters, node, 0, pool, noiseEvents, noiseEmptyTraces);
+					}
+				});
+				debug("Chosen tau loop");
+				return;
+			} else {
+				debug("tau loop would run forever");
+			}
+		}
+		*/
+
 		//with noise
 		//filter noise
 		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters
@@ -455,6 +484,33 @@ public class Miner {
 			return;
 		}
 
+		//tau loop
+		if (Sets.intersection(directlyFollowsRelationNoiseFiltered.getStartActivities().toSet(),
+				directlyFollowsRelationNoiseFiltered.getEndActivities().toSet()).size() == 0 || true) {
+			List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
+			cut.add(new HashSet<XEventClass>());
+			cut.get(0).addAll(directlyFollowsRelationNoiseFiltered.getDirectlyFollowsGraph().vertexSet());
+			List<Filteredlog> sublogs = log.applyFilterTauLoop(cut, noiseEvents, directlyFollowsRelationNoiseFiltered
+					.getStartActivities().toSet(), directlyFollowsRelationNoiseFiltered.getEndActivities().toSet());
+
+			final Filteredlog sublog = sublogs.get(0);
+			if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
+				final Binoperator node = new Loop(2);
+				target.setChild(index, node);
+				Tau tau = new Tau();
+				node.setChild(1, tau);
+				pool.addJob(new Runnable() {
+					public void run() {
+						mineProcessTree(sublog, parameters, node, 0, pool, noiseEvents, noiseEmptyTraces);
+					}
+				});
+				debug("Chosen tau loop");
+				return;
+			} else {
+				debug("tau loop would run forever");
+			}
+		}
+
 		//flower loop fall-through
 		Binoperator node = new Loop(log.getEventClasses().size() + 1);
 		node.setChild(0, new Tau());
@@ -462,13 +518,14 @@ public class Miner {
 		debug("step " + recursionStepsCounter + " chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ")
 				+ "}");
 		outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, null, false);
-		
+
 		//output XES
 		XLog xLog = log.toLog();
 		XSerializer logSerializer = new XesXmlSerializer();
 		debug(xLog.size() + "");
 		try {
-			FileOutputStream out = new FileOutputStream(new File(parameters.getOutputFlowerLogFileName() + "" + recursionStepsCounter));
+			FileOutputStream out = new FileOutputStream(new File(parameters.getOutputFlowerLogFileName() + ""
+					+ recursionStepsCounter));
 			logSerializer.serialize(xLog, out);
 			out.close();
 		} catch (IOException e) {
