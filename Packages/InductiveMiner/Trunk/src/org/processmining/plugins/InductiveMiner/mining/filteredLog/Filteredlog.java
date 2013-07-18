@@ -162,6 +162,11 @@ public class Filteredlog {
 		return applyFilter(logSplitter, noiseEvents);
 	}
 	
+	public List<Filteredlog> applyFilterTauLoop(List<Set<XEventClass>> sigmas, MultiSet<XEventClass> noiseEvents, Set<XEventClass> startActivities, Set<XEventClass> endActivities) {
+		FilteredlogLogSplitterTauLoop logSplitter = new FilteredlogLogSplitterTauLoop(sigmas, startActivities, endActivities);
+		return applyFilter(logSplitter, noiseEvents);
+	}
+	
 	private List<Filteredlog> applyFilter(FilteredlogLogSplitter logSplitter, MultiSet<XEventClass> noiseEvents) {
 		//walk through the traces and add them to the result
 		for (List<XEventClass> trace : internalLog.toSet()) {
