@@ -26,16 +26,17 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 import org.processmining.plugins.InductiveMiner.model.Binoperator;
 import org.processmining.plugins.InductiveMiner.model.EventClass;
 import org.processmining.plugins.InductiveMiner.model.ExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.model.Loop;
+import org.processmining.plugins.InductiveMiner.model.Node;
 import org.processmining.plugins.InductiveMiner.model.Parallel;
 import org.processmining.plugins.InductiveMiner.model.ProcessTreeModel;
 import org.processmining.plugins.InductiveMiner.model.Sequence;
 import org.processmining.plugins.InductiveMiner.model.Tau;
-import org.processmining.plugins.InductiveMiner.model.conversion.Dot2Image;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
@@ -68,6 +69,8 @@ public class Miner {
 	}
 
 	private int recursionStepsCounter;
+	private final MultiSet<XEventClass> noiseEvents = new MultiSet<XEventClass>();
+	private final AtomicInteger noiseEmptyTraces = new AtomicInteger();
 
 	public ProcessTreeModel mine(PluginContext context, XLog log, MiningParameters parameters) {
 		//prepare the log
@@ -81,15 +84,15 @@ public class Miner {
 
 		//create the model
 		ProcessTreeModel model = new ProcessTreeModel();
-		final MultiSet<XEventClass> noiseEvents = new MultiSet<XEventClass>();
-		final AtomicInteger noiseEmptyTraces = new AtomicInteger();
 
 		//initialise the thread pool
 		ThreadPool pool = new ThreadPool();
+		noiseEmptyTraces.set(0);
+		noiseEvents.empty();
 
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);
-		mineProcessTree(filteredLog, parameters, dummyRootNode, 0, pool, noiseEvents, noiseEmptyTraces);
+		mineProcessTree(filteredLog, parameters, dummyRootNode, 0, pool);
 
 		//wait for all jobs to terminate
 		try {
@@ -103,7 +106,7 @@ public class Miner {
 		//output noise statistics
 		double fitness = 1 - (noiseEvents.size() + noiseEmptyTraces.get())
 				/ (filteredLog.getNumberOfEvents() + filteredLog.getNumberOfTraces() * 1.0);
-		debug("Filtered empty traces: " + noiseEmptyTraces + ", noise events: "
+		debug("Filtered empty traces: " + noiseEmptyTraces + ", noise events: " + noiseEvents.size() + " "
 				+ ((float) noiseEvents.size() / filteredLog.getNumberOfEvents() * 100) + "% " + noiseEvents);
 		debug("\"Fitness\": " + fitness);
 		model.fitness = fitness;
@@ -117,10 +120,11 @@ public class Miner {
 
 	private void mineProcessTree(Filteredlog log, final MiningParameters parameters, final Binoperator target, //the target where we must store our result 
 			final int index, //in which subtree we must store our result
-			final ThreadPool pool, final MultiSet<XEventClass> noiseEvents, final AtomicInteger noiseEmptyTraces) {
+			final ThreadPool pool) {
 
 		debug("");
 		debug("==================");
+		debug("Log size: " + String.valueOf(log.getNumberOfTraces()));
 		//debug(log.toString());
 
 		//read the log
@@ -130,7 +134,12 @@ public class Miner {
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
 			//empty log, return tau
 			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
-			target.setChild(index, new Tau());
+			Node node = new Tau();
+			target.setChild(index, node);
+			
+			node.metadata.put("numberOfEvents", new Integer(0));
+			node.metadata.put("numberOfTraces", new Integer(0));
+			
 			return;
 		}
 
@@ -141,22 +150,28 @@ public class Miner {
 
 			//calculate the event-per-trace size of the log
 			double p = log.getNumberOfTraces() / ((log.getNumberOfEvents() + log.getNumberOfTraces()) * 1.0);
-			debug("Single activity " + log.getEventClasses().iterator().next());
-			debug(" traces: " + log.getNumberOfTraces());
-			debug(" events: " + log.getNumberOfEvents());
-			debug(" p-value: " + String.valueOf(p));
+			
+			//debug("Single activity " + log.getEventClasses().iterator().next());
+			//debug(" traces: " + log.getNumberOfTraces());
+			//debug(" events: " + log.getNumberOfEvents());
+			//debug(" p-value: " + String.valueOf(p));
 
 			if (0.5 - parameters.getNoiseThreshold() <= p && p <= 0.5 + parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
 				debug(" discover activity");
 
-				//update noise counters
-				log.applyFilterActivity(log.getEventClasses().iterator().next(), noiseEvents, noiseEmptyTraces);
+				Node node = new EventClass(log.getEventClasses().iterator().next());
+				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+				node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+				target.setChild(index, node);
 
-				target.setChild(index, new EventClass(log.getEventClasses().iterator().next()));
+				//update noise counters
+				FilterResults results = log.applyFilterActivity(log.getEventClasses().iterator().next());
+				registerFilteredNoise(node, results);
+
 				return;
 			}
-			debug(" do not discover activity");
+			//debug(" do not discover activity");
 			//else, the probability to stop is too low or too high, and we better output a flower model
 		}
 
@@ -164,72 +179,54 @@ public class Miner {
 		if (directlyFollowsRelation.getNumberOfEpsilonTraces() != 0) {
 			//the log contains empty traces
 
-			//debug(log.toString());
-			//debug("remove epsilon from log" + directlyFollowsRelation.getNumberOfEpsilonTraces() + " / " + directlyFollowsRelation.getLengthStrongestTrace());
-
 			if (directlyFollowsRelation.getNumberOfEpsilonTraces() < directlyFollowsRelation.getLengthStrongestTrace()
 					* parameters.getNoiseThreshold()) {
 				//there are not enough empty traces, the empty traces are considered noise
 
-				debug("Filtered empty traces: " + directlyFollowsRelation.getNumberOfEpsilonTraces());
-				noiseEmptyTraces.addAndGet(directlyFollowsRelation.getNumberOfEpsilonTraces());
-
 				//filter the empty traces from the log and recurse
-				final Filteredlog sublog = log.applyEpsilonFilter();
+				FilterResults result = log.applyEpsilonFilter();
+				final Filteredlog sublog = result.sublogs.iterator().next();
 
-				//debug(" Size after epsilon filter: " + String.valueOf(sublog.getSize()));
+				//save the filtered empty traces as metadata
+				registerFilteredNoise(target, result);
+				
+				debug(" filter empty traces");
 
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog, parameters, target, index, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
+				recurse(parameters, pool, sublog, target, index);
+				return;
 
 			} else {
 				//There are too many empty traces to consider them noise.
 				//Mine an xor(tau, ..) and recurse.
 				final Binoperator node = new ExclusiveChoice(2);
-				node.setChild(0, new Tau());
+				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+				node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 				target.setChild(index, node);
+				
+				FilterResults result = log.applyEpsilonFilter();
+				
+				Tau tau = new Tau();
+				node.setChild(0, tau);
+				tau.metadata.put("numberOfEvents", new Integer(0));
+				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));	
+				
+				debug(" mine x(tau, ..)");
+				
+				final Filteredlog sublog = result.sublogs.iterator().next();
+				recurse(parameters, pool, sublog, node, 1);
 
-				final Filteredlog sublog = log.applyEpsilonFilter();
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog, parameters, node, 1, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
+				return;
 			}
-			return;
 		}
-
-		debug("Log size: " + String.valueOf(log.getNumberOfTraces()));
 		recursionStepsCounter++;
 
 		//exclusive choice operator
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation
 				.getDirectlyFollowsGraph());
 		if (exclusiveChoiceCut.size() > 1) {
-			//set the result
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
-			target.setChild(index, node);
-
-			debugCut(node, exclusiveChoiceCut);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelation, exclusiveChoiceCut, false);
-
-			//filter the log and recurse
-			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice(exclusiveChoiceCut, noiseEvents);
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
-			}
-
+			FilterResults filterResults = log.applyFilterExclusiveChoice(exclusiveChoiceCut);
+			outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCut, node, filterResults, log);
 			return;
 		}
 
@@ -237,28 +234,9 @@ public class Miner {
 		List<Set<XEventClass>> sequenceCut = SequenceCut.findSequenceCut(directlyFollowsRelation
 				.getDirectlyFollowsGraph());
 		if (sequenceCut.size() > 1) {
-			//set the result
 			final Binoperator node = new Sequence(sequenceCut.size());
-			target.setChild(index, node);
-
-			debugCut(node, sequenceCut);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelation, sequenceCut, true);
-
-			List<Filteredlog> sublogs = log.applyFilterSequence(sequenceCut, noiseEvents);
-
-			//filter the log and recurse
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
-			}
-
+			FilterResults filterResults = log.applyFilterSequence(sequenceCut);
+			outputAndRecurse(parameters, target, index, pool, sequenceCut, node, filterResults, log);
 			return;
 		}
 
@@ -272,290 +250,243 @@ public class Miner {
 			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 		}
 
+		//parallel operator
 		if (parallelCut.size() > 1) {
-
-			//noise tryout
-			//ParallelCut.allPossibilities(directlyFollowsRelation2, pool);
-			//debug(log.toString());
-
 			final Binoperator node = new Parallel(parallelCut.size());
-			target.setChild(index, node);
-
-			debugCut(node, parallelCut);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelation, parallelCut, false);
-
-			Set<Filteredlog> sublogs = log.applyFilterParallel(parallelCut, noiseEvents);
-
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
-			}
-
+			FilterResults filterResults = log.applyFilterParallel(parallelCut);
+			outputAndRecurse(parameters, target, index, pool, parallelCut, node, filterResults, log);
 			return;
 		}
 
 		//loop operator
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
-			target.setChild(index, node);
-
-			debugCut(node, loopCut);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelation, loopCut, false);
-
-			//filter the log and recurse
-			List<Filteredlog> sublogs = log.applyFilterLoop(loopCut, noiseEvents);
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
-			}
-
+			FilterResults filterResults = log.applyFilterLoop(loopCut);
+			outputAndRecurse(parameters, target, index, pool, loopCut, node, filterResults, log);
 			return;
 		}
 
-		/*
-		//tau loop
-		if (Sets.intersection(directlyFollowsRelation.getStartActivities().toSet(),
-				directlyFollowsRelation.getEndActivities().toSet()).size() == 0) {
-			List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
-			cut.add(new HashSet<XEventClass>());
-			cut.get(0).addAll(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
-			List<Filteredlog> sublogs = log.applyFilterTauLoop(cut, noiseEvents, directlyFollowsRelation
-					.getStartActivities().toSet(), directlyFollowsRelation.getEndActivities().toSet());
+		//apply noise filtering
+		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = null;
+		if (parameters.getNoiseThreshold() != 0) {
+			debug("filter noise");
 
-			final Filteredlog sublog = sublogs.get(0);
-			if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
-				final Binoperator node = new Loop(2);
-				target.setChild(index, node);
-				Tau tau = new Tau();
-				node.setChild(1, tau);
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog, parameters, node, 0, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				debug("Chosen tau loop");
+			//filter noise
+			directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
+
+			//exclusive choice operator
+			Set<Set<XEventClass>> exclusiveChoiceCutNoise = ExclusiveChoiceCut
+					.findExclusiveChoiceCut(directlyFollowsRelationNoiseFiltered.getDirectlyFollowsGraph());
+			if (exclusiveChoiceCutNoise.size() > 1) {
+				final Binoperator node = new ExclusiveChoice(exclusiveChoiceCutNoise.size());
+				FilterResults filterResults = log.applyFilterExclusiveChoice(exclusiveChoiceCutNoise);
+				outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCutNoise, node, filterResults, log);
 				return;
-			} else {
-				debug("tau loop would run forever");
-			}
-		}
-		*/
-
-		//with noise
-		//filter noise
-		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters
-				.getNoiseThreshold());
-
-		//exclusive choice operator
-		Set<Set<XEventClass>> exclusiveChoiceCutNoise = ExclusiveChoiceCut
-				.findExclusiveChoiceCut(directlyFollowsRelationNoiseFiltered.getDirectlyFollowsGraph());
-		if (exclusiveChoiceCutNoise.size() > 1) {
-			//set the result
-			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCutNoise.size());
-			target.setChild(index, node);
-
-			debugCut(node, exclusiveChoiceCutNoise);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered,
-					exclusiveChoiceCutNoise, false);
-
-			//filter the log and recurse
-			Set<Filteredlog> sublogs = log.applyFilterExclusiveChoice(exclusiveChoiceCutNoise, noiseEvents);
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
 			}
 
-			return;
-		}
-
-		//sequence operator
-		List<Set<XEventClass>> sequenceCutNoise = SequenceCut.findSequenceCut(directlyFollowsRelationNoiseFiltered
-				.getEventuallyFollowsGraph());
-		if (sequenceCutNoise.size() > 1) {
-			//set the result
-			final Binoperator node = new Sequence(sequenceCutNoise.size());
-			target.setChild(index, node);
-
-			debugCut(node, sequenceCutNoise);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, sequenceCutNoise,
-					true);
-
-			List<Filteredlog> sublogs = log.applyFilterSequence(sequenceCutNoise, noiseEvents);
-
-			//filter the log and recurse
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
+			//sequence operator
+			List<Set<XEventClass>> sequenceCutNoise = SequenceCut.findSequenceCut(directlyFollowsRelationNoiseFiltered
+					.getEventuallyFollowsGraph());
+			if (sequenceCutNoise.size() > 1) {
+				final Binoperator node = new Sequence(sequenceCutNoise.size());
+				FilterResults filterResults = log.applyFilterSequence(sequenceCutNoise);
+				outputAndRecurse(parameters, target, index, pool, sequenceCutNoise, node, filterResults, log);
+				return;
 			}
 
-			return;
-		}
+			//parallel and loop operator
+			Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+			List<Set<XEventClass>> loopCutNoise = LoopCut.findLoopCut(directlyFollowsRelationNoiseFiltered);
 
-		//parallel and loop operator
-		Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, false);
-		List<Set<XEventClass>> loopCutNoise = LoopCut.findLoopCut(directlyFollowsRelationNoiseFiltered);
-
-		//sometimes, a parallel and loop cut are both possible
-		//in that case, recompute a stricter parallel cut using minimum-self-distance
-		if (parallelCutNoise.size() > 1 && loopCutNoise.size() > 1) {
-			parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, true);
-		}
-
-		if (parallelCutNoise.size() > 1) {
-
-			//noise tryout
-			//ParallelCut.allPossibilities(directlyFollowsRelation2, pool);
-			//debug(log.toString());
-
-			final Binoperator node = new Parallel(parallelCutNoise.size());
-			target.setChild(index, node);
-
-			debugCut(node, parallelCutNoise);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, parallelCutNoise,
-					false);
-
-			Set<Filteredlog> sublogs = log.applyFilterParallel(parallelCutNoise, noiseEvents);
-
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
+			//sometimes, a parallel and loop cut are both possible
+			//in that case, recompute a stricter parallel cut using minimum-self-distance
+			if (parallelCutNoise.size() > 1 && loopCutNoise.size() > 1) {
+				parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 			}
 
-			return;
-		}
-
-		//loop operator
-		if (loopCutNoise.size() > 1) {
-			final Binoperator node = new Loop(loopCutNoise.size());
-			target.setChild(index, node);
-
-			debugCut(node, loopCutNoise);
-			outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, loopCutNoise, false);
-
-			//filter the log and recurse
-			List<Filteredlog> sublogs = log.applyFilterLoop(loopCutNoise, noiseEvents);
-			int i = 0;
-			for (Filteredlog sublog : sublogs) {
-				final Filteredlog sublog2 = sublog;
-				final int j = i;
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog2, parameters, node, j, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				i++;
+			//parallel operator
+			if (parallelCutNoise.size() > 1) {
+				final Binoperator node = new Parallel(parallelCutNoise.size());
+				FilterResults filterResults = log.applyFilterParallel(parallelCutNoise);
+				outputAndRecurse(parameters, target, index, pool, parallelCutNoise, node, filterResults, log);
+				return;
 			}
 
-			return;
+			//loop operator
+			if (loopCutNoise.size() > 1) {
+				final Binoperator node = new Loop(loopCutNoise.size());
+				FilterResults filterResults = log.applyFilterLoop(loopCutNoise);
+				outputAndRecurse(parameters, target, index, pool, loopCutNoise, node, filterResults, log);
+				return;
+			}
 		}
 
 		//tau loop
-		if (Sets.intersection(directlyFollowsRelationNoiseFiltered.getStartActivities().toSet(),
-				directlyFollowsRelationNoiseFiltered.getEndActivities().toSet()).size() == 0 || true) {
-			List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
-			cut.add(new HashSet<XEventClass>());
-			cut.get(0).addAll(directlyFollowsRelationNoiseFiltered.getDirectlyFollowsGraph().vertexSet());
-			List<Filteredlog> sublogs = log.applyFilterTauLoop(cut, noiseEvents, directlyFollowsRelationNoiseFiltered
-					.getStartActivities().toSet(), directlyFollowsRelationNoiseFiltered.getEndActivities().toSet());
+		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered);
+		if (tauloopSublog != null) {
+			final Binoperator node = new Loop(2);
+			target.setChild(index, node);
+			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+			
+			Tau tau = new Tau();
+			node.setChild(1, tau);
 
-			final Filteredlog sublog = sublogs.get(0);
-			if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
-				final Binoperator node = new Loop(2);
-				target.setChild(index, node);
-				Tau tau = new Tau();
-				node.setChild(1, tau);
-				pool.addJob(new Runnable() {
-					public void run() {
-						mineProcessTree(sublog, parameters, node, 0, pool, noiseEvents, noiseEmptyTraces);
-					}
-				});
-				debug("Chosen tau loop");
-				return;
-			} else {
-				debug("tau loop would run forever");
-			}
+			debug("Chosen tau loop");
+
+			recurse(parameters, pool, tauloopSublog, node, 0);
+			return;
 		}
 
 		//flower loop fall-through
-		Binoperator node = new Loop(log.getEventClasses().size() + 1);
-		node.setChild(0, new Tau());
+		{
+			debug("Chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
 
-		debug("step " + recursionStepsCounter + " chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ")
-				+ "}");
-		outputImage(parameters, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered, null, false);
+			Binoperator node = new Loop(log.getEventClasses().size() + 1);
+			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+			node.setChild(0, new Tau());
+			
+			//filter the log
+			List<Set<XEventClass>> sigmas = new LinkedList<Set<XEventClass>>();
+			sigmas.add(new HashSet<XEventClass>());
+			for (XEventClass a : log.getEventClasses()) {
+				Set<XEventClass> sigma = new HashSet<XEventClass>();
+				sigma.add(a);
+				sigmas.add(sigma);
+			}
+			FilterResults result = log.applyFilterLoop(sigmas);
+			
+			int i = 1;
+			Iterator<Filteredlog> it = result.sublogs.iterator();
+			for (XEventClass a : log.getEventClasses()) {
+				Node child = new EventClass(a);
+				
+				Filteredlog sublog = it.next();
+				child.metadata.put("numberOfEvents", new Integer(sublog.getNumberOfEvents()));
+				child.metadata.put("numberOfTraces", new Integer(sublog.getNumberOfTraces()));
+				
+				node.setChild(i, child);
+				i++;
+			}
+			target.setChild(index, node);
 
-		//output XES
-		XLog xLog = log.toLog();
-		XSerializer logSerializer = new XesXmlSerializer();
-		debug(xLog.size() + "");
-		try {
-			FileOutputStream out = new FileOutputStream(new File(parameters.getOutputFlowerLogFileName() + ""
-					+ recursionStepsCounter));
-			logSerializer.serialize(xLog, out);
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			//output XES
+			outputXES(log, parameters, node);
+
+			return;
+		}
+	}
+
+	private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
+			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation,
+			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered) {
+
+		DirectlyFollowsRelation dfr;
+		if (parameters.getNoiseThreshold() != 0) {
+			dfr = directlyFollowsRelationNoiseFiltered;
+		} else {
+			dfr = directlyFollowsRelation;
 		}
 
-		int i = 1;
-		for (XEventClass a : log.getEventClasses()) {
-			node.setChild(i, new EventClass(a));
-			i++;
-		}
-		target.setChild(index, node);
+		List<Set<XEventClass>> tauLoopCut = new LinkedList<Set<XEventClass>>();
+		tauLoopCut.add(new HashSet<XEventClass>());
+		tauLoopCut.get(0).addAll(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
+		FilterResults filterResults = log.applyFilterTauLoop(tauLoopCut, dfr.getStartActivities().toSet(), dfr
+				.getEndActivities().toSet());
+		final Filteredlog sublog = ((List<Filteredlog>) filterResults.sublogs).get(0);
 
+		if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
+			return sublog;
+		}
+		
+		return null;
+	}
+
+	private void outputXES(Filteredlog log, final MiningParameters parameters, Node node) {
+		if (parameters.getOutputFlowerLogFileName() != null) {
+			XLog xLog = log.toXLog();
+			XSerializer logSerializer = new XesXmlSerializer();
+			try {
+				File file = new File(parameters.getOutputFlowerLogFileName() + "" + recursionStepsCounter);
+				FileOutputStream out = new FileOutputStream(file);
+				logSerializer.serialize(xLog, out);
+				out.close();
+				node.metadata.put("logFile", file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return;
 	}
 
-	private void outputImage(MiningParameters parameters, DirectlyFollowsRelation directlyFollowsRelation,
-			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered, Collection<Set<XEventClass>> cut,
-			boolean includeEventuallyFollows) {
-		//output an image of the directly follows graph
+	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
+			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
+			FilterResults filterResults, Filteredlog log) {
 
-		if (parameters.getOutputDFGfileName() != null) {
-			//original
-			Dot2Image.dot2image(directlyFollowsRelation.toDot(cut, false), new File(parameters.getOutputDFGfileName()
-					+ recursionStepsCounter + "dfg.png"), null);
-			//noise filtered
-			Dot2Image
-					.dot2image(directlyFollowsRelationNoiseFiltered.toDot(cut, false),
-							new File(parameters.getOutputDFGfileName() + recursionStepsCounter
-									+ "dfg-noiseFiltered.png"), null);
+		//store metadata
+		newTargetNode.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+		newTargetNode.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+
+		registerFilteredNoise(newTargetNode, filterResults);
+
+		//output the cut
+		debugCut(newTargetNode, cut);
+
+		//set the result
+		target.setChild(index, newTargetNode);
+		int i = 0;
+		for (Filteredlog sublog : filterResults.sublogs) {
+			final Filteredlog sublog2 = sublog;
+			final int j = i;
+			recurse(parameters, pool, sublog2, newTargetNode, j);
+			i++;
+		}
+	}
+
+	private void recurse(final MiningParameters parameters, final ThreadPool pool, final Filteredlog sublog,
+			final Binoperator newTargetNode, final int newTargetChildIndex) {
+		pool.addJob(new Runnable() {
+			public void run() {
+				mineProcessTree(sublog, parameters, newTargetNode, newTargetChildIndex, pool);
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private void registerFilteredNoise(Node node, FilterResults result) {
+
+		//noisy events
+		if (result.filteredEvents != null) {
+			//store as metadata
+			if (!node.metadata.containsKey("filteredEvents")) {
+				node.metadata.put("filteredEvents", new MultiSet<XEventClass>());
+			}
+			
+			//global
+			synchronized (noiseEvents) {
+				noiseEvents.addAll(result.filteredEvents);
+			}
+			
+			//local
+			MultiSet<XEventClass> s = ((MultiSet<XEventClass>) node.metadata.get("filteredEvents"));
+			synchronized (s) {
+				s.addAll(result.filteredEvents);
+			}
+		}
+
+		//empty traces
+		if (result.filteredEmptyTraces != 0) {
+			//store as metadata
+			if (!node.metadata.containsKey("filteredEmptyTraces")) {
+				node.metadata.put("filteredEmptyTraces", new AtomicInteger(0));
+			}
+			
+			//global
+			noiseEmptyTraces.addAndGet(result.filteredEmptyTraces);
+			
+			//local
+			((AtomicInteger) node.metadata.get("filteredEmptyTraces")).addAndGet(result.filteredEmptyTraces);
 		}
 	}
 

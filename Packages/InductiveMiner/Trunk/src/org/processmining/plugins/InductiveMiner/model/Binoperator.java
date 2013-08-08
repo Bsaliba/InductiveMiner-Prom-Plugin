@@ -12,7 +12,6 @@ public abstract class Binoperator extends Node {
 	
 	public Binoperator(int countChildren) {
 		super();
-		//children = new ArrayList<Node>();
 		for (int i = 0; i < countChildren; i++) {
 			children.add(null);
 		}

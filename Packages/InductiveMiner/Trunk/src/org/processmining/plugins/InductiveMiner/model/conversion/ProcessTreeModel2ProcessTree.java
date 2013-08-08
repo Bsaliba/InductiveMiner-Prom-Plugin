@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.model.conversion;
 
 import java.util.Iterator;
 
+import org.processmining.plugins.InductiveMiner.mining.metrics.fitness;
 import org.processmining.plugins.InductiveMiner.model.Binoperator;
 import org.processmining.plugins.InductiveMiner.model.EventClass;
 import org.processmining.plugins.InductiveMiner.model.ExclusiveChoice;
@@ -17,12 +18,19 @@ import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
+import org.processmining.processtree.property.impl.NrOfResources;
 
 
 public class ProcessTreeModel2ProcessTree {
 	
 	public static ProcessTree convert(Node root) {
 		ProcessTree tree = new ProcessTreeImpl();
+		
+		fitness.computeFitness(root);
+		debug("empty traces " + root.metadata.get("subtreeFilteredEmptyTraces").toString());
+		debug("filtered events " + root.metadata.get("subtreeFilteredEvents").toString());
+		debug("fitness " + root.metadata.get("subtreeFitness").toString());
+		debug(root.toString());
 		
 		tree.setRoot(convertNode(tree, root));
 
@@ -57,6 +65,7 @@ public class ProcessTreeModel2ProcessTree {
 		
 		newNode.setProcessTree(tree);
 		tree.addNode(newNode);
+		attachFitness(node, newNode);
 		
 		//Non block are leafs which end here
 		if (!(newNode instanceof Block)) {
@@ -121,8 +130,21 @@ public class ProcessTreeModel2ProcessTree {
 				tree.addEdge(edge);
 			}
 		}
-		
+
 		return newNode;
+	}
+	
+	private static void attachFitness(Node node, org.processmining.processtree.Node newNode) {
+		Integer f = (Integer) node.metadata.get("subtreeFitness");
+		try {
+			newNode.setIndependentProperty(NrOfResources.class, f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void debug(String x) {
+		System.out.println(x);
 	}
 	
 }
