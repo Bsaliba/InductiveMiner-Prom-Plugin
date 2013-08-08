@@ -48,6 +48,11 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
+	public void empty() {
+		cardinalities = new LinkedHashMap<X, Integer>();
+		size = 0;
+	}
+	
 	public int size() {
 		return size;
 	}

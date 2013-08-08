@@ -23,7 +23,7 @@ import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
-@Plugin(name = "Mine a Petri net using FlowerMiner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
+@Plugin(name = "Mine a Petri net using Flower Miner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
 		"Log" }, userAccessible = true)
 public class FlowerMiner {
 	
