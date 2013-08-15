@@ -44,11 +44,9 @@ public class fitness {
 				fitness = 1;
 			}
 			node.metadata.put("subtreeFitness", new Integer((int) Math.round(fitness * 100) ));
-			debug("subtree fitness " + fitness + " " + node.toString());
+			//debug("subtree fitness " + fitness + " " + node.toString());
 		}
 	}
 	
-	private static void debug(String x) {
-		System.out.println(x);
-	}
+	//private static void debug(String x) {System.out.println(x);}
 }

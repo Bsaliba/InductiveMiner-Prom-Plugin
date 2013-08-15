@@ -23,7 +23,7 @@ public class MiningDialog extends JPanel {
 		
 		JPanel thresholdsPanel = factory.createRoundedPanel(15, Color.gray);
 		thresholdsPanel.setLayout(null);
-		thresholdsPanel.setBounds(0, 0, 520, 240);
+		thresholdsPanel.setBounds(0, 0, 570, 240);
 		
 		JLabel thresholdTitle = factory.createLabel("Thresholds");
 		thresholdTitle.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 18));
@@ -35,11 +35,11 @@ public class MiningDialog extends JPanel {
 		thresholdsPanel.add(noiseLabel);
 		noiseLabel.setBounds(20, 50, 100, 20);
 		
-		final JLabel noiseValue = factory.createLabel(String.format("%.3f", parameters.getNoiseThreshold()));
+		final JLabel noiseValue = factory.createLabel(String.format("%.2f", parameters.getNoiseThreshold()));
 		thresholdsPanel.add(noiseValue);
-		noiseValue.setBounds(485, 50, 100, 20);
+		noiseValue.setBounds(535, 50, 100, 20);
 		
-		JLabel noiseExplanation = factory.createLabel("If set to 0.000, perfect log fitness is guaranteed.");
+		JLabel noiseExplanation = factory.createLabel("If set to 0.00, perfect log fitness is guaranteed.");
 		thresholdsPanel.add(noiseExplanation);
 		noiseExplanation.setBounds(20, 70, 400, 20);
 		
@@ -54,7 +54,37 @@ public class MiningDialog extends JPanel {
 			}
 		});
 		thresholdsPanel.add(noiseSlider);
-		noiseSlider.setBounds(115, 52, 360, 20);
+		noiseSlider.setBounds(165, 52, 360, 20);
+		
+		//incomplete threshold
+		JLabel incompleteLabel = factory.createLabel("Incomplete threshold");
+		thresholdsPanel.add(incompleteLabel);
+		incompleteLabel.setBounds(20, 110, 150, 20);
+		
+		final JLabel incompleteValue = factory.createLabel(String.format("%.2f", parameters.getIncompleteThreshold()));
+		thresholdsPanel.add(incompleteValue);
+		incompleteValue.setBounds(535, 110, 100, 20);
+		
+		final JSlider incompleteSlider = factory.createSlider(SwingConstants.HORIZONTAL);
+		incompleteSlider.setMinimum(0);
+		incompleteSlider.setMaximum(1000);
+		incompleteSlider.setValue((int) (parameters.getIncompleteThreshold() * 1000));
+		incompleteSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				parameters.setIncompleteThreshold((float) (incompleteSlider.getValue() / 1000.0));
+				incompleteValue.setText(String.format("%.2f", parameters.getIncompleteThreshold()));
+			}
+		});
+		thresholdsPanel.add(incompleteSlider);
+		incompleteSlider.setBounds(165, 112, 360, 20);
+		
+		//JLabel incompleteExplanation = factory.createLabel("The degree to which incompleteness is to be ignored.");
+		//thresholdsPanel.add(incompleteExplanation);
+		//incompleteExplanation.setBounds(20, 120, 400, 20);
+		
+		//JLabel bothExplanation = factory.createLabel("If both set to 0.00 and the log is complete, rediscoverability of some systems is guaranteed.");
+		//thresholdsPanel.add(bothExplanation);
+		//bothExplanation.setBounds(20, 160, 560, 20);
 		
 		setLayout(null);
 		add(thresholdsPanel);

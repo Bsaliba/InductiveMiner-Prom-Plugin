@@ -25,6 +25,7 @@ import org.processmining.plugins.InductiveMiner.ThreadPool;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
@@ -86,7 +87,7 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool();
+		ThreadPool pool = new ThreadPool(0);
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -136,10 +137,10 @@ public class Miner {
 			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
 			Node node = new Tau();
 			target.setChild(index, node);
-			
+
 			node.metadata.put("numberOfEvents", new Integer(0));
 			node.metadata.put("numberOfTraces", new Integer(0));
-			
+
 			return;
 		}
 
@@ -150,7 +151,7 @@ public class Miner {
 
 			//calculate the event-per-trace size of the log
 			double p = log.getNumberOfTraces() / ((log.getNumberOfEvents() + log.getNumberOfTraces()) * 1.0);
-			
+
 			//debug("Single activity " + log.getEventClasses().iterator().next());
 			//debug(" traces: " + log.getNumberOfTraces());
 			//debug(" events: " + log.getNumberOfEvents());
@@ -189,7 +190,7 @@ public class Miner {
 
 				//save the filtered empty traces as metadata
 				registerFilteredNoise(target, result);
-				
+
 				debug(" filter empty traces");
 
 				recurse(parameters, pool, sublog, target, index);
@@ -202,16 +203,16 @@ public class Miner {
 				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 				node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 				target.setChild(index, node);
-				
+
 				FilterResults result = log.applyEpsilonFilter();
-				
+
 				Tau tau = new Tau();
 				node.setChild(0, tau);
 				tau.metadata.put("numberOfEvents", new Integer(0));
-				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));	
-				
+				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));
+
 				debug(" mine x(tau, ..)");
-				
+
 				final Filteredlog sublog = result.sublogs.iterator().next();
 				recurse(parameters, pool, sublog, node, 1);
 
@@ -266,6 +267,8 @@ public class Miner {
 			return;
 		}
 
+		debug("fall through");
+
 		//apply noise filtering
 		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = null;
 		if (parameters.getNoiseThreshold() != 0) {
@@ -273,6 +276,8 @@ public class Miner {
 
 			//filter noise
 			directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
+			DirectlyFollowsRelation directlyFollowsRelationIncompleteCorrected = directlyFollowsRelationNoiseFiltered
+					.addIncompleteEdges(parameters.getIncompleteThreshold());
 
 			//exclusive choice operator
 			Set<Set<XEventClass>> exclusiveChoiceCutNoise = ExclusiveChoiceCut
@@ -295,13 +300,14 @@ public class Miner {
 			}
 
 			//parallel and loop operator
-			Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+			Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(
+					directlyFollowsRelationIncompleteCorrected, false);
 			List<Set<XEventClass>> loopCutNoise = LoopCut.findLoopCut(directlyFollowsRelationNoiseFiltered);
 
 			//sometimes, a parallel and loop cut are both possible
 			//in that case, recompute a stricter parallel cut using minimum-self-distance
 			if (parallelCutNoise.size() > 1 && loopCutNoise.size() > 1) {
-				parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+				parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelationIncompleteCorrected, true);
 			}
 
 			//parallel operator
@@ -321,14 +327,28 @@ public class Miner {
 			}
 		}
 
+		//exhaustive parallel cut
+		{
+			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
+			Object[] arr = pce.solve();
+			if (arr != null) {
+				Set<Set<XEventClass>> parallelCutIncomplete = (Set<Set<XEventClass>>) arr[1];
+				final Binoperator node = new Parallel(parallelCutIncomplete.size());
+				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
+				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
+				return;
+			}
+		}
+
 		//tau loop
-		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered);
+		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation,
+				directlyFollowsRelationNoiseFiltered);
 		if (tauloopSublog != null) {
 			final Binoperator node = new Loop(2);
 			target.setChild(index, node);
 			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
-			
+
 			Tau tau = new Tau();
 			node.setChild(1, tau);
 
@@ -346,7 +366,7 @@ public class Miner {
 			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 			node.setChild(0, new Tau());
-			
+
 			//filter the log
 			List<Set<XEventClass>> sigmas = new LinkedList<Set<XEventClass>>();
 			sigmas.add(new HashSet<XEventClass>());
@@ -356,16 +376,16 @@ public class Miner {
 				sigmas.add(sigma);
 			}
 			FilterResults result = log.applyFilterLoop(sigmas);
-			
+
 			int i = 1;
 			Iterator<Filteredlog> it = result.sublogs.iterator();
 			for (XEventClass a : log.getEventClasses()) {
 				Node child = new EventClass(a);
-				
+
 				Filteredlog sublog = it.next();
 				child.metadata.put("numberOfEvents", new Integer(sublog.getNumberOfEvents()));
 				child.metadata.put("numberOfTraces", new Integer(sublog.getNumberOfTraces()));
-				
+
 				node.setChild(i, child);
 				i++;
 			}
@@ -399,7 +419,7 @@ public class Miner {
 		if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
 			return sublog;
 		}
-		
+
 		return null;
 	}
 
@@ -462,12 +482,12 @@ public class Miner {
 			if (!node.metadata.containsKey("filteredEvents")) {
 				node.metadata.put("filteredEvents", new MultiSet<XEventClass>());
 			}
-			
+
 			//global
 			synchronized (noiseEvents) {
 				noiseEvents.addAll(result.filteredEvents);
 			}
-			
+
 			//local
 			MultiSet<XEventClass> s = ((MultiSet<XEventClass>) node.metadata.get("filteredEvents"));
 			synchronized (s) {
@@ -481,10 +501,10 @@ public class Miner {
 			if (!node.metadata.containsKey("filteredEmptyTraces")) {
 				node.metadata.put("filteredEmptyTraces", new AtomicInteger(0));
 			}
-			
+
 			//global
 			noiseEmptyTraces.addAndGet(result.filteredEmptyTraces);
-			
+
 			//local
 			((AtomicInteger) node.metadata.get("filteredEmptyTraces")).addAndGet(result.filteredEmptyTraces);
 		}
