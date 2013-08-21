@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.specs.IProblem;
@@ -56,16 +56,49 @@ public abstract class SAT {
 		}
 	}
 
+	public class Edge extends Var {
+		private final XEventClass from;
+		private final XEventClass to;
+
+		public Edge(int varInt, XEventClass from, XEventClass to) {
+			super(varInt);
+			this.from = from;
+			this.to = to;
+		}
+
+		public String toString() {
+			return from.toString() + "->" + to.toString();
+		}
+
+	}
+
 	protected Map<Integer, Var> varInt2var;
 	protected int varCounter;
 	protected IPBSolver solver;
 	protected Map<XEventClass, Node> node2var;
-	protected Collection<XEventClass> activities;
+	protected final DirectlyFollowsRelation directlyFollowsRelation;
+	protected final Double threshold;
+	protected int countNodes;
+	XEventClass[] nodes;
 
-	protected SAT(Collection<XEventClass> activities) {
-		this.activities = activities;
+	protected SAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold) {
+		this.threshold = threshold;
+		this.directlyFollowsRelation = directlyFollowsRelation;
+		countNodes = directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size();
+
+		//make a list of nodes instead of the set
+		nodes = new XEventClass[countNodes];
+		{
+			int i = 0;
+			for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
+				nodes[i] = a;
+				i++;
+			}
+		}
 	}
-	
+
+	public abstract Object[] solve();
+
 	protected void newSolver() {
 		varInt2var = new HashMap<Integer, ParallelCutSAT.Var>();
 		varCounter = 1;
@@ -73,7 +106,7 @@ public abstract class SAT {
 
 		//initialise nodes
 		node2var = new HashMap<XEventClass, Node>();
-		for (XEventClass a : activities) {
+		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
 			Node var = new Node(varCounter, a);
 			node2var.put(a, var);
 			varInt2var.put(varCounter, var);
@@ -97,7 +130,7 @@ public abstract class SAT {
 			Set<XEventClass> sigma1 = new HashSet<XEventClass>();
 			Set<XEventClass> sigma2 = new HashSet<XEventClass>();
 			for (XEventClass a : node2var.keySet()) {
-				if (!node2var.get(a).isResult()) {
+				if (node2var.get(a).isResult()) {
 					sigma1.add(a);
 				} else {
 					sigma2.add(a);
