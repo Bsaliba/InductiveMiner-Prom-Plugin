@@ -29,7 +29,7 @@ public class SequenceCutSAT extends SAT {
 		debug("sequence cut SAT");
 
 		Object[] minCostResult = new Object[] { threshold };
-		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() - 1; i++) {
+		for (int i = 1; i < directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(); i++) {
 			Object[] result = solveSingle(i, (Double) minCostResult[0]);
 			if (result != null && (Double) result[0] < (Double) minCostResult[0]) {
 				minCostResult = result;
@@ -56,7 +56,7 @@ public class SequenceCutSAT extends SAT {
 
 		//edges
 		Map<Pair<XEventClass, XEventClass>, Edge> edgeCrossesCut2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		Map<Pair<XEventClass, XEventClass>, Edge> edgeReachabilityViolation2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		//		Map<Pair<XEventClass, XEventClass>, Edge> edgeReachabilityViolation2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
 		for (XEventClass a : nodes) {
 			for (XEventClass b : nodes) {
 				if (a != b) {
@@ -65,13 +65,28 @@ public class SequenceCutSAT extends SAT {
 					varInt2var.put(varCounter, edgeCrossesCut);
 					varCounter++;
 
-					Edge edgeReachabilityViolation = new Edge(varCounter, a, b);
-					edgeReachabilityViolation2var.put(new Pair<XEventClass, XEventClass>(a, b),
-							edgeReachabilityViolation);
-					varInt2var.put(varCounter, edgeReachabilityViolation);
-					varCounter++;
+					//					Edge edgeReachabilityViolation = new Edge(varCounter, a, b);
+					//					edgeReachabilityViolation2var.put(new Pair<XEventClass, XEventClass>(a, b),
+					//							edgeReachabilityViolation);
+					//					varInt2var.put(varCounter, edgeReachabilityViolation);
+					//					varCounter++;
 				}
 			}
+		}
+
+		//local start and end activities
+		Map<XEventClass, Node> nodeIsLeftEnd = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> nodeIsRightStart = new HashMap<XEventClass, Node>();
+		for (XEventClass a : nodes) {
+			Node n1 = new Node(varCounter, a);
+			nodeIsLeftEnd.put(a, n1);
+			varInt2var.put(varCounter, n1);
+			varCounter++;
+
+			Node n2 = new Node(varCounter, a);
+			nodeIsRightStart.put(a, n2);
+			varInt2var.put(varCounter, n2);
+			varCounter++;
 		}
 
 		//initialise reachability
@@ -121,37 +136,72 @@ public class SequenceCutSAT extends SAT {
 				}
 			}
 
-			//constraint: reachability violation is recorded
+			//constraint: start nodes in sigma1
 			{
-				for (XEventClass aI : nodes) {
-					for (XEventClass aJ : nodes) {
-						if (aI != aJ) {
-							int A = node2var.get(aI).getVarInt();
-							int B = node2var.get(aJ).getVarInt();
-
-							int C = edgeReachabilityViolation2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
-									.getVarInt();
-							if (!reachability.getReachableFromTo(aI).contains(aJ)) {
-								int clause1[] = { A, -B, C };
-								int clause2[] = { -A, B, C };
-								solver.addClause(new VecInt(clause1));
-								solver.addClause(new VecInt(clause2));
-							}
-						}
-					}
+				for (XEventClass a : directlyFollowsRelation.getStartActivities()) {
+					int A = node2var.get(a).getVarInt();
+					int clause1[] = { A };
+					solver.addClause(new VecInt(clause1));
 				}
 			}
+
+			//constraint: end nodes in sigma2
+			{
+				for (XEventClass a : directlyFollowsRelation.getEndActivities()) {
+					int A = node2var.get(a).getVarInt();
+					int clause1[] = { -A };
+					solver.addClause(new VecInt(clause1));
+				}
+			}
+
+			//constraint: left end activities
+			{
+				for (DefaultWeightedEdge edge : graph.edgeSet()) {
+					XEventClass aI = graph.getEdgeSource(edge);
+					XEventClass aJ = graph.getEdgeTarget(edge);
+					int A = nodeIsLeftEnd.get(aI).getVarInt();
+					int B = nodeIsRightStart.get(aJ).getVarInt();
+					int C = edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
+
+					int clause1[] = { A, -C };
+					int clause2[] = { B, -C };
+					solver.addClause(new VecInt(clause1));
+					solver.addClause(new VecInt(clause2));
+				}
+			}
+
+			//			//constraint: reachability violation is recorded 
+			//			{
+			//				for (XEventClass aI : nodes) {
+			//					for (XEventClass aJ : nodes) {
+			//						if (aI != aJ) {
+			//							int A = node2var.get(aI).getVarInt();
+			//							int B = node2var.get(aJ).getVarInt();
+			//
+			//							int C = edgeReachabilityViolation2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
+			//									.getVarInt();
+			//							if (!reachability.getReachableFromTo(aI).contains(aJ)) {
+			//								int clause1[] = { A, -B, C };
+			//								int clause2[] = { -A, B, C };
+			//								solver.addClause(new VecInt(clause1));
+			//								solver.addClause(new VecInt(clause2));
+			//							}
+			//						}
+			//					}
+			//				}
+			//			}
 
 			//objective function: least cost for edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
 			for (int i = 0; i < countNodes; i++) {
 				for (int j = i + 1; j < countNodes; j++) {
-					XEventClass aI = nodes[i];
-					XEventClass aJ = nodes[j];
-					clause.push(edgeReachabilityViolation2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
-							.getVarInt());
-					coefficients.push(BigInteger.valueOf(1));
+					if (i != j) {
+						XEventClass aI = nodes[i];
+						XEventClass aJ = nodes[j];
+						clause.push(edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+						coefficients.push(getCost(graph, aI, aJ));
+					}
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -164,19 +214,20 @@ public class SequenceCutSAT extends SAT {
 				//compute cost of cut
 				String x = "";
 				String y = "";
-				//int cost = 0;
+				int cost = 0;
 				for (XEventClass a : nodes) {
+
+					Node e2 = nodeIsLeftEnd.get(a);
+					if (e2.isResult()) {
+						y += e2.toString() + ", ";
+					}
+
 					for (XEventClass b : nodes) {
 						if (a != b) {
 							Edge e = edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(a, b));
 							if (e.isResult()) {
 								x += e.toString() + ", ";
-								//cost += getCost(graph, aI, aJ).intValue();
-							}
-							Edge e2 = edgeReachabilityViolation2var.get(new Pair<XEventClass, XEventClass>(a, b));
-							if (e2.isResult()) {
-								y += e2.toString() + ", ";
-								//cost += getCost(graph, aI, aJ).intValue();
+								cost += getCost(graph, a, b).intValue();
 							}
 						}
 					}
@@ -185,8 +236,9 @@ public class SequenceCutSAT extends SAT {
 				//double averageCost = cost / ((double) numberOfEdgesInCut * (double) 1000);
 
 				debug("   edges crossing cut " + x);
-				debug("   non-reachable pairs " + y);
-				//debug("   cost " + cost);
+				debug("   left-end activities " + y);
+				//				debug("   non-reachable pairs " + y);
+				debug("   cost " + cost);
 				//debug("   edges " + numberOfEdgesInCut);
 				//debug("   average cost per edge " + averageCost);
 
@@ -199,6 +251,26 @@ public class SequenceCutSAT extends SAT {
 			debug("  inconsistent problem");
 		}
 		return null;
+	}
 
+	private BigInteger getCost(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph, XEventClass a,
+			XEventClass b) {
+		double costAB;
+		if (graph.containsEdge(a, b)) {
+			costAB = graph.getEdgeWeight(graph.getEdge(a, b));
+		} else {
+			costAB = 0;
+		}
+
+		double costBA;
+		if (graph.containsEdge(b, a)) {
+			costBA = graph.getEdgeWeight(graph.getEdge(b, a));
+		} else {
+			costBA = 0;
+		}
+
+		double cost = -(costAB - costBA) / (costAB + costBA + 1);
+
+		return BigInteger.valueOf(Math.round(cost * 1000));
 	}
 }
