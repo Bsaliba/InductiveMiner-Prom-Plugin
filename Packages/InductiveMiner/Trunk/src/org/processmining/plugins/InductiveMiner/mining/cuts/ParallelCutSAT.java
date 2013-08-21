@@ -20,33 +20,11 @@ import org.sat4j.specs.TimeoutException;
 
 public class ParallelCutSAT extends SAT {
 
-	public class Edge extends Var {
-		private final XEventClass from;
-		private final XEventClass to;
-
-		public Edge(int varInt, XEventClass from, XEventClass to) {
-			super(varInt);
-			this.from = from;
-			this.to = to;
-		}
-
-		public String toString() {
-			return from.toString() + "->" + to.toString();
-		}
-
-	}
-	
-	private final Double threshold;
-	private final DirectlyFollowsRelation directlyFollowsRelation;
-	
 	public ParallelCutSAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold) {
-		super(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
-		this.threshold = threshold;
-		this.directlyFollowsRelation = directlyFollowsRelation;
+		super(directlyFollowsRelation, threshold);
 	}
 
-
-	public Object[] solve( ) {
+	public Object[] solve() {
 		Object[] minCostResult = new Object[] { threshold };
 		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
 			Object[] result = solveSingle(i, (Double) minCostResult[0]);
@@ -67,25 +45,14 @@ public class ParallelCutSAT extends SAT {
 	public Object[] solveSingle(int cutSize, double bestAverageTillNow) {
 
 		debug(" solve optimisation problem with cut size " + cutSize);
-		
+
 		newSolver();
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
-		int countNodes = graph.vertexSet().size();
 
 		//compute number of edges in the cut
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
-
-		//make a list of nodes instead of the set
-		XEventClass[] nodes = new XEventClass[countNodes];
-		{
-			int i = 0;
-			for (XEventClass a : graph.vertexSet()) {
-				nodes[i] = a;
-				i++;
-			}
-		}
 
 		//edges
 		Map<Pair<XEventClass, XEventClass>, Edge> edge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
@@ -116,23 +83,24 @@ public class ParallelCutSAT extends SAT {
 			//constraint: edge is cut iff between two nodes on different sides of the cut
 			for (int i = 0; i < countNodes; i++) {
 				for (int j = i + 1; j < countNodes; j++) {
-					XEventClass aI = nodes[i];
-					XEventClass aJ = nodes[j];
+					if (i != j) {
+						XEventClass aI = nodes[i];
+						XEventClass aJ = nodes[j];
 
-					int A = node2var.get(aI).getVarInt();
-					int B = node2var.get(aJ).getVarInt();
-					int C = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int A = node2var.get(aI).getVarInt();
+						int B = node2var.get(aJ).getVarInt();
+						int C = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
 
-					int clause1[] = { A, B, -C };
-					int clause2[] = { A, -B, C };
-					int clause3[] = { -A, B, C };
-					int clause4[] = { -A, -B, -C };
+						int clause1[] = { A, B, -C };
+						int clause2[] = { A, -B, C };
+						int clause3[] = { -A, B, C };
+						int clause4[] = { -A, -B, -C };
 
-					solver.addClause(new VecInt(clause1));
-					solver.addClause(new VecInt(clause2));
-					solver.addClause(new VecInt(clause3));
-					solver.addClause(new VecInt(clause4));
-
+						solver.addClause(new VecInt(clause1));
+						solver.addClause(new VecInt(clause2));
+						solver.addClause(new VecInt(clause3));
+						solver.addClause(new VecInt(clause4));
+					}
 				}
 			}
 

@@ -62,8 +62,8 @@
 	<classpathentry kind="lib" path="stdlib/freehep-xml-2.1.1.jar"/>
 	<classpathentry kind="lib" path="packagelib/Log.jar"/>
 	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
-	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
 	<classpathentry kind="lib" path="lib/sat4j-pb.jar"/>
 	<classpathentry kind="lib" path="lib/org.sat4j.pb.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProcessTree"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

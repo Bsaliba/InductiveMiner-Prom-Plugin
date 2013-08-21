@@ -27,6 +27,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 import org.processmining.plugins.InductiveMiner.model.Binoperator;
@@ -338,6 +339,12 @@ public class Miner {
 				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
 				return;
 			}
+		}
+		
+		//exhaustive sequence cut
+		{
+			SequenceCutSAT sce = new SequenceCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
+			Object[] arr = sce.solve();
 		}
 
 		//tau loop
