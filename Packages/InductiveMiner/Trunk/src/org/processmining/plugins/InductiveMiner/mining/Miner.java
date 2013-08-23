@@ -345,6 +345,13 @@ public class Miner {
 		{
 			SequenceCutSAT sce = new SequenceCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
 			Object[] arr = sce.solve();
+			if (arr != null) {
+				List<Set<XEventClass>> sequenceCutIncomplete = (List<Set<XEventClass>>) arr[1];
+				final Binoperator node = new Sequence(sequenceCutIncomplete.size());
+				FilterResults filterResults = log.applyFilterSequence(sequenceCutIncomplete);
+				outputAndRecurse(parameters, target, index, pool, sequenceCutIncomplete, node, filterResults, log);
+				return;
+			}
 		}
 
 		//tau loop
