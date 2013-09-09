@@ -23,6 +23,29 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
+	public boolean equals(Object a) {
+		if (!(a instanceof MultiSet<?>)) {
+			return false;
+		}
+		
+		MultiSet<?> aM = (MultiSet<?>) a;
+		Iterator<?> it = aM.iterator();
+		
+		for (Object e : this) {
+			if (aM.getCardinalityOf(e) != this.getCardinalityOf(e)) {
+				return false;
+			}
+		}
+		
+		for (Object e : aM) {
+			if (aM.getCardinalityOf(e) != this.getCardinalityOf(e)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public boolean add(X element, Integer cardinality) {
 		if (!cardinalities.containsKey(element)) {
 			cardinalities.put(element, cardinality);
@@ -61,13 +84,13 @@ public class MultiSet<X> implements Iterable<X> {
 		return cardinalities.keySet();
 	}
 	
-	public boolean contains(X element) {
-		return cardinalities.containsKey(element);
+	public boolean contains(Object a) {
+		return cardinalities.containsKey(a);
 	}
 	
-	public Integer getCardinalityOf(X element) {
-		if (contains(element)) {
-			return cardinalities.get(element);
+	public Integer getCardinalityOf(Object e) {
+		if (contains(e)) {
+			return cardinalities.get(e);
 		} else {
 			return 0;
 		}
