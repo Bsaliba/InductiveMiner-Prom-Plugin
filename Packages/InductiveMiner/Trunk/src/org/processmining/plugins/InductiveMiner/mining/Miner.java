@@ -329,7 +329,7 @@ public class Miner {
 		}
 
 		//exhaustive parallel cut
-		if (false) {
+		{
 			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
 			Object[] arr = pce.solve();
 			if (arr != null) {
