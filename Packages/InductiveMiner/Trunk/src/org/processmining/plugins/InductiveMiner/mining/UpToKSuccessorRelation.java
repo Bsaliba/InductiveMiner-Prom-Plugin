@@ -45,7 +45,7 @@ public class UpToKSuccessorRelation {
 			for (XEventClass from : activity2index.keySet()) {
 				s.append(String.format("%3s", from));
 			}
-			//s.append("-E-");
+			s.append("-E-");
 			s.append("\n");
 
 			{
@@ -58,14 +58,14 @@ public class UpToKSuccessorRelation {
 						s.append(" . ");
 					}
 				}
-				/*
+				
 				Integer x = getKSuccessor(null, null);
 				if (x != null) {
 					s.append(String.format("%2d ", x));
 				} else {
 					s.append(" . ");
 				}
-				*/
+				
 				s.append("\n");
 			}
 			for (XEventClass from : activity2index.keySet()) {
@@ -78,14 +78,14 @@ public class UpToKSuccessorRelation {
 						s.append(" . ");
 					}
 				}
-				/*
+				
 				Integer x = getKSuccessor(from, null);
 				if (x != null) {
 					s.append(String.format("%2d ", x));
 				} else {
 					s.append(" . ");
 				}
-				*/
+				
 				s.append("\n");
 			}
 			return s.toString();
@@ -134,6 +134,8 @@ public class UpToKSuccessorRelation {
 
 				pos += 1;
 			}
+			
+			kSuccessors.feedKSuccessor(null, null, pos);
 		}
 	}
 
