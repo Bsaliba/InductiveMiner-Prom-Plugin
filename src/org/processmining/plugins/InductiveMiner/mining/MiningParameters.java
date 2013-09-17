@@ -13,6 +13,9 @@ public class MiningParameters {
 	private float incompleteThreshold;
 	private String outputDFGfileName;
 	private File outputFlowerLogFileName;
+	
+	private boolean useSAT;
+	private boolean debug;
 
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
@@ -20,6 +23,8 @@ public class MiningParameters {
 		incompleteThreshold = (float) 0.5;
 		outputDFGfileName = null;
 		outputFlowerLogFileName = null;
+		useSAT = true;
+		debug = true;
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -80,5 +85,21 @@ public class MiningParameters {
 
 	public void setIncompleteThreshold(float incompleteThreshold) {
 		this.incompleteThreshold = incompleteThreshold;
+	}
+
+	public boolean useSAT() {
+		return useSAT;
+	}
+
+	public void setUseSAT(boolean useSAT) {
+		this.useSAT = useSAT;
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 }

@@ -309,7 +309,7 @@ public class DirectlyFollowsRelation {
 			filteredEndActivities.add(activity, endActivities.getCardinalityOf(activity));
 		}
 
-		debug("add incomplete edges");
+		//debug("add incomplete edges");
 
 		//filter directly-follows graph
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
@@ -334,7 +334,7 @@ public class DirectlyFollowsRelation {
 				if (threshold != 0 && (threshold == 1 || weight < Math.exp(1 / (1-threshold)))) {
 					//if the reversed edge is not present, add it
 					if (!directlyFollowsGraph.containsEdge(to, from)) {
-						debug("  add edge " + to + " -> " + from);
+						//debug("  add edge " + to + " -> " + from);
 						DefaultWeightedEdge reversedEdge = filteredDirectlyFollowsGraph.addEdge(to, from);
 						filteredDirectlyFollowsGraph.setEdgeWeight(reversedEdge, 1);
 					} else {
@@ -510,8 +510,6 @@ public class DirectlyFollowsRelation {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 
-	private void debug(String x) {
-		System.out.println(x);
-	}
+	//private void debug(String x) {System.out.println(x);}
 
 }
