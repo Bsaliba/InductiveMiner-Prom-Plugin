@@ -144,7 +144,5 @@ public abstract class SAT {
 		return null;
 	}
 
-	protected static void debug(String x) {
-		System.out.println(x);
-	}
+	protected static void debug(String x) {System.out.println(x);}
 }

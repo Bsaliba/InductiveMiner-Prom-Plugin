@@ -27,10 +27,10 @@ public class ProcessTreeModel2ProcessTree {
 		ProcessTree tree = new ProcessTreeImpl();
 		
 		fitness.computeFitness(root);
-		debug("empty traces " + root.metadata.get("subtreeFilteredEmptyTraces").toString());
-		debug("filtered events " + root.metadata.get("subtreeFilteredEvents").toString());
-		debug("fitness " + root.metadata.get("subtreeFitness").toString());
-		debug(root.toString());
+		//debug("empty traces " + root.metadata.get("subtreeFilteredEmptyTraces").toString());
+		//debug("filtered events " + root.metadata.get("subtreeFilteredEvents").toString());
+		//debug("fitness " + root.metadata.get("subtreeFitness").toString());
+		//debug(root.toString());
 		
 		tree.setRoot(convertNode(tree, root));
 
@@ -143,8 +143,6 @@ public class ProcessTreeModel2ProcessTree {
 		}
 	}
 	
-	private static void debug(String x) {
-		System.out.println(x);
-	}
+	//private static void debug(String x) {System.out.println(x);}
 	
 }

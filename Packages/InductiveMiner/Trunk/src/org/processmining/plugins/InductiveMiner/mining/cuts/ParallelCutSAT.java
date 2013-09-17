@@ -44,7 +44,7 @@ public class ParallelCutSAT extends SAT {
 
 	public Object[] solveSingle(int cutSize, double bestAverageTillNow) {
 
-		debug(" solve optimisation problem with cut size " + cutSize);
+		//debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 

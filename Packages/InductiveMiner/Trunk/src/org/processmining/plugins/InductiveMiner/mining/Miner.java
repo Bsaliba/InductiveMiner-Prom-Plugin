@@ -81,7 +81,7 @@ public class Miner {
 
 		//debug initial log
 		//debug(filteredLog.toString());
-		debug("\n\nStart mining");
+		debug("\n\nStart mining", parameters);
 		recursionStepsCounter = -1;
 
 		//create the model
@@ -109,8 +109,8 @@ public class Miner {
 		double fitness = 1 - (noiseEvents.size() + noiseEmptyTraces.get())
 				/ (filteredLog.getNumberOfEvents() + filteredLog.getNumberOfTraces() * 1.0);
 		debug("Filtered empty traces: " + noiseEmptyTraces + ", noise events: " + noiseEvents.size() + " "
-				+ ((float) noiseEvents.size() / filteredLog.getNumberOfEvents() * 100) + "% " + noiseEvents);
-		debug("\"Fitness\": " + fitness);
+				+ ((float) noiseEvents.size() / filteredLog.getNumberOfEvents() * 100) + "% " + noiseEvents, parameters);
+		debug("\"Fitness\": " + fitness, parameters);
 		model.fitness = fitness;
 
 		//debug(dummyRootNode.toString());
@@ -124,18 +124,21 @@ public class Miner {
 			final int index, //in which subtree we must store our result
 			final ThreadPool pool) {
 
-		debug("");
-		debug("==================");
-		debug("Log size: " + String.valueOf(log.getNumberOfTraces()));
+		debug("", parameters);
+		debug("==================", parameters);
+		debug("Log size: " + String.valueOf(log.getNumberOfTraces()), parameters);
 		//debug(log.toString());
 
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
+		UpToKSuccessorRelation kSuccessor = new UpToKSuccessorRelation(log, parameters);
+		
+		debug(kSuccessor.toString(), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
 			//empty log, return tau
-			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
+			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet(), parameters);
 			Node node = new Tau();
 			target.setChild(index, node);
 
@@ -160,7 +163,7 @@ public class Miner {
 
 			if (0.5 - parameters.getNoiseThreshold() <= p && p <= 0.5 + parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
-				debug(" discover activity");
+				debug(" discover activity", parameters);
 
 				Node node = new EventClass(log.getEventClasses().iterator().next());
 				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
@@ -192,7 +195,7 @@ public class Miner {
 				//save the filtered empty traces as metadata
 				registerFilteredNoise(target, result);
 
-				debug(" filter empty traces");
+				debug(" filter empty traces", parameters);
 
 				recurse(parameters, pool, sublog, target, index);
 				return;
@@ -212,7 +215,7 @@ public class Miner {
 				tau.metadata.put("numberOfEvents", new Integer(0));
 				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));
 
-				debug(" mine x(tau, ..)");
+				debug(" mine x(tau, ..)", parameters);
 
 				final Filteredlog sublog = result.sublogs.iterator().next();
 				recurse(parameters, pool, sublog, node, 1);
@@ -268,12 +271,12 @@ public class Miner {
 			return;
 		}
 
-		debug("fall through");
+		debug("fall through", parameters);
 
 		//apply noise filtering
 		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = null;
 		if (parameters.getNoiseThreshold() != 0) {
-			debug("filter noise");
+			debug("filter noise", parameters);
 
 			//filter noise
 			directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
@@ -329,7 +332,7 @@ public class Miner {
 		}
 
 		//exhaustive parallel cut
-		{
+		if (parameters.useSAT()) {
 			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
 			Object[] arr = pce.solve();
 			if (arr != null) {
@@ -340,9 +343,9 @@ public class Miner {
 				return;
 			}
 		}
-		
+
 		//exhaustive sequence cut
-		if (false) {
+		if (parameters.useSAT() && false) {
 			SequenceCutSAT sce = new SequenceCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
 			Object[] arr = sce.solve();
 			if (arr != null) {
@@ -366,7 +369,7 @@ public class Miner {
 			Tau tau = new Tau();
 			node.setChild(1, tau);
 
-			debug("Chosen tau loop");
+			debug("Chosen tau loop", parameters);
 
 			recurse(parameters, pool, tauloopSublog, node, 0);
 			return;
@@ -374,7 +377,7 @@ public class Miner {
 
 		//flower loop fall-through
 		{
-			debug("Chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
+			debug("Chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}", parameters);
 
 			Binoperator node = new Loop(log.getEventClasses().size() + 1);
 			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
@@ -465,7 +468,7 @@ public class Miner {
 		registerFilteredNoise(newTargetNode, filterResults);
 
 		//output the cut
-		debugCut(newTargetNode, cut);
+		debugCut(newTargetNode, cut, filterResults.sublogs, parameters);
 
 		//set the result
 		target.setChild(index, newTargetNode);
@@ -524,16 +527,26 @@ public class Miner {
 		}
 	}
 
-	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
-		String r = "step " + recursionStepsCounter + " chosen " + node.getOperatorString();
+	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs, MiningParameters parameters) {
+		StringBuilder r = new StringBuilder("step " + recursionStepsCounter + " chosen " + node.getOperatorString());
 		Iterator<Set<XEventClass>> it = cut.iterator();
 		while (it.hasNext()) {
-			r += " {" + Sets.implode(it.next(), ", ") + "}";
+			r.append(" {" + Sets.implode(it.next(), ", ") + "}");
 		}
-		debug(r);
+		r.append("\n");
+		
+		//debug matrices of sublogs
+		for (Filteredlog sublog : sublogs) {
+			r.append((new UpToKSuccessorRelation(sublog, parameters)).toString());
+			r.append("\n");
+		}
+		
+		debug(r.toString(), parameters);
 	}
 
-	private void debug(String x) {
-		System.out.println(x);
+	private void debug(String x, MiningParameters parameters) {
+		if (parameters.isDebug()) {
+			System.out.println(x);
+		}
 	}
 }
