@@ -20,8 +20,8 @@ public class UpToKSuccessorRelation {
 				activity2index.put(a, i);
 				i++;
 			}
-			for (int a = 0; a <= activities.size() ; a++) {
-				for (int b = 0; b <= activities.size() ; b++) {
+			for (int a = 0; a <= activities.size(); a++) {
+				for (int b = 0; b <= activities.size(); b++) {
 					kSuccessorMatrix[a][b] = null;
 				}
 			}
@@ -45,7 +45,29 @@ public class UpToKSuccessorRelation {
 			for (XEventClass from : activity2index.keySet()) {
 				s.append(String.format("%3s", from));
 			}
+			//s.append("-E-");
 			s.append("\n");
+
+			{
+				s.append("-S- ");
+				for (XEventClass to : activity2index.keySet()) {
+					Integer x = getKSuccessor(null, to);
+					if (x != null) {
+						s.append(String.format("%2d ", x));
+					} else {
+						s.append(" . ");
+					}
+				}
+				/*
+				Integer x = getKSuccessor(null, null);
+				if (x != null) {
+					s.append(String.format("%2d ", x));
+				} else {
+					s.append(" . ");
+				}
+				*/
+				s.append("\n");
+			}
 			for (XEventClass from : activity2index.keySet()) {
 				s.append(String.format("%3s ", from));
 				for (XEventClass to : activity2index.keySet()) {
@@ -56,6 +78,14 @@ public class UpToKSuccessorRelation {
 						s.append(" . ");
 					}
 				}
+				/*
+				Integer x = getKSuccessor(from, null);
+				if (x != null) {
+					s.append(String.format("%2d ", x));
+				} else {
+					s.append(" . ");
+				}
+				*/
 				s.append("\n");
 			}
 			return s.toString();
@@ -98,18 +128,21 @@ public class UpToKSuccessorRelation {
 				for (XEventClass seen : eventSeenAt.keySet()) {
 					kSuccessors.feedKSuccessor(seen, currentEvent, pos - eventSeenAt.get(seen));
 				}
-				
+
 				eventSeenAt.put(currentEvent, pos);
+				kSuccessors.feedKSuccessor(null, currentEvent, pos+1);
 
 				pos += 1;
 			}
 		}
 	}
-	
+
 	public String toString() {
 		return kSuccessors.toString();
 	}
 
-	private void debug(String x) {System.out.println(x);}
+	private void debug(String x) {
+		System.out.println(x);
+	}
 
 }
