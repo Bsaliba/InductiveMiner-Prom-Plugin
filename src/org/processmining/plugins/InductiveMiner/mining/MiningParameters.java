@@ -15,6 +15,7 @@ public class MiningParameters {
 	private File outputFlowerLogFileName;
 	
 	private boolean useSAT;
+	private boolean useExhaustiveKSuccessor;
 	private boolean debug;
 
 	public MiningParameters() {
@@ -23,8 +24,9 @@ public class MiningParameters {
 		incompleteThreshold = (float) 0.5;
 		outputDFGfileName = null;
 		outputFlowerLogFileName = null;
-		useSAT = true;
-		debug = true;
+		useSAT = false;
+		debug = false;
+		useExhaustiveKSuccessor = false;
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -101,5 +103,13 @@ public class MiningParameters {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public boolean isUseExhaustiveKSuccessor() {
+		return useExhaustiveKSuccessor;
+	}
+
+	public void setUseExhaustiveKSuccessor(boolean useExhaustiveKSuccessor) {
+		this.useExhaustiveKSuccessor = useExhaustiveKSuccessor;
 	}
 }

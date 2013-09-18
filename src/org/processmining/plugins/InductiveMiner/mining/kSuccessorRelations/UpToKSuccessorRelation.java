@@ -1,14 +1,18 @@
-package org.processmining.plugins.InductiveMiner.mining;
+package org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 
 public class UpToKSuccessorRelation {
 
-	private class KSuccessorMatrix {
+	public class KSuccessorMatrix {
 		private Integer[][] kSuccessorMatrix;
 		private HashMap<XEventClass, Integer> activity2index;
 
@@ -16,7 +20,9 @@ public class UpToKSuccessorRelation {
 			kSuccessorMatrix = new Integer[activities.size() + 1][activities.size() + 1];
 			activity2index = new HashMap<XEventClass, Integer>();
 			int i = 0;
-			for (XEventClass a : activities) {
+			List<XEventClass> list = new ArrayList<XEventClass>(activities);
+			Collections.sort(list);
+			for (XEventClass a : list) {
 				activity2index.put(a, i);
 				i++;
 			}
@@ -38,10 +44,16 @@ public class UpToKSuccessorRelation {
 				kSuccessorMatrix[iFrom][getIndex(to)] = newValue;
 			}
 		}
+		
+		public Set<XEventClass> getActivities() {
+			return activity2index.keySet();
+		}
 
 		public String toString() {
 			StringBuilder s = new StringBuilder();
-			s.append("    ");
+			
+			//titles
+			s.append("     S ");
 			for (XEventClass from : activity2index.keySet()) {
 				s.append(String.format("%3s", from));
 			}
@@ -49,7 +61,7 @@ public class UpToKSuccessorRelation {
 			s.append("\n");
 
 			{
-				s.append("-S- ");
+				s.append("-S-  . ");
 				for (XEventClass to : activity2index.keySet()) {
 					Integer x = getKSuccessor(null, to);
 					if (x != null) {
@@ -58,18 +70,19 @@ public class UpToKSuccessorRelation {
 						s.append(" . ");
 					}
 				}
-				
+
 				Integer x = getKSuccessor(null, null);
 				if (x != null) {
 					s.append(String.format("%2d ", x));
 				} else {
 					s.append(" . ");
 				}
-				
+
 				s.append("\n");
 			}
+
 			for (XEventClass from : activity2index.keySet()) {
-				s.append(String.format("%3s ", from));
+				s.append(String.format("%3s  . ", from));
 				for (XEventClass to : activity2index.keySet()) {
 					Integer x = getKSuccessor(from, to);
 					if (x != null) {
@@ -78,16 +91,24 @@ public class UpToKSuccessorRelation {
 						s.append(" . ");
 					}
 				}
-				
+
 				Integer x = getKSuccessor(from, null);
 				if (x != null) {
 					s.append(String.format("%2d ", x));
 				} else {
 					s.append(" . ");
 				}
-				
+
 				s.append("\n");
 			}
+			
+			//end row
+			s.append("-E- ");
+			for (XEventClass from : activity2index.keySet()) {
+				s.append(" . ");
+			}
+			s.append(" .  . \n");
+			
 			return s.toString();
 		}
 
@@ -100,7 +121,11 @@ public class UpToKSuccessorRelation {
 		}
 	}
 
-	KSuccessorMatrix kSuccessors;
+	private KSuccessorMatrix kSuccessors;
+	
+	public UpToKSuccessorRelation(Set<XEventClass> activities) {
+		kSuccessors = new KSuccessorMatrix(activities);
+	}
 
 	public UpToKSuccessorRelation(Filteredlog log, MiningParameters parameters) {
 
@@ -130,21 +155,28 @@ public class UpToKSuccessorRelation {
 				}
 
 				eventSeenAt.put(currentEvent, pos);
-				kSuccessors.feedKSuccessor(null, currentEvent, pos+1);
+				kSuccessors.feedKSuccessor(null, currentEvent, pos + 1);
 
 				pos += 1;
 			}
-			
-			kSuccessors.feedKSuccessor(null, null, pos);
+
+			for (XEventClass seen : eventSeenAt.keySet()) {
+				kSuccessors.feedKSuccessor(seen, null, pos - eventSeenAt.get(seen));
+			}
+
+			kSuccessors.feedKSuccessor(null, null, 1 + pos);
 		}
+	}
+
+	public KSuccessorMatrix getkSuccessors() {
+		return kSuccessors;
+	}
+
+	public void setkSuccessors(KSuccessorMatrix kSuccessors) {
+		this.kSuccessors = kSuccessors;
 	}
 
 	public String toString() {
 		return kSuccessors.toString();
 	}
-
-	private void debug(String x) {
-		System.out.println(x);
-	}
-
 }
