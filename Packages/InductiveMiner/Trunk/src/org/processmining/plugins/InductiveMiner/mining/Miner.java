@@ -30,6 +30,8 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.Exhaustive;
+import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessorRelation;
 import org.processmining.plugins.InductiveMiner.model.Binoperator;
 import org.processmining.plugins.InductiveMiner.model.EventClass;
 import org.processmining.plugins.InductiveMiner.model.ExclusiveChoice;
@@ -132,13 +134,14 @@ public class Miner {
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
 		UpToKSuccessorRelation kSuccessor = new UpToKSuccessorRelation(log, parameters);
-		
+
 		debug(kSuccessor.toString(), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
 			//empty log, return tau
-			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet(), parameters);
+			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet(),
+					parameters);
 			Node node = new Tau();
 			target.setChild(index, node);
 
@@ -231,7 +234,7 @@ public class Miner {
 		if (exclusiveChoiceCut.size() > 1) {
 			final Binoperator node = new ExclusiveChoice(exclusiveChoiceCut.size());
 			FilterResults filterResults = log.applyFilterExclusiveChoice(exclusiveChoiceCut);
-			outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCut, node, filterResults, log);
+			outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCut, node, filterResults, log, kSuccessor);
 			return;
 		}
 
@@ -241,8 +244,23 @@ public class Miner {
 		if (sequenceCut.size() > 1) {
 			final Binoperator node = new Sequence(sequenceCut.size());
 			FilterResults filterResults = log.applyFilterSequence(sequenceCut);
-			outputAndRecurse(parameters, target, index, pool, sequenceCut, node, filterResults, log);
+			outputAndRecurse(parameters, target, index, pool, sequenceCut, node, filterResults, log, kSuccessor);
 			return;
+		}
+
+		//try exhaustive cut search
+		if (parameters.isUseExhaustiveKSuccessor()) {
+			Exhaustive exhaustive = new Exhaustive(log, kSuccessor, parameters);
+			Exhaustive.Result er = exhaustive.tryAll();
+			if (er.cutType == "parallel") {
+				final Binoperator node = new Parallel(2);
+				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log, kSuccessor);
+				return;
+			} else if (er.cutType == "loop"){
+				final Binoperator node = new Loop(2);
+				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log, kSuccessor);
+				return;
+			}
 		}
 
 		//parallel and loop operator
@@ -259,7 +277,7 @@ public class Miner {
 		if (parallelCut.size() > 1) {
 			final Binoperator node = new Parallel(parallelCut.size());
 			FilterResults filterResults = log.applyFilterParallel(parallelCut);
-			outputAndRecurse(parameters, target, index, pool, parallelCut, node, filterResults, log);
+			outputAndRecurse(parameters, target, index, pool, parallelCut, node, filterResults, log, kSuccessor);
 			return;
 		}
 
@@ -267,7 +285,7 @@ public class Miner {
 		if (loopCut.size() > 1) {
 			final Binoperator node = new Loop(loopCut.size());
 			FilterResults filterResults = log.applyFilterLoop(loopCut);
-			outputAndRecurse(parameters, target, index, pool, loopCut, node, filterResults, log);
+			outputAndRecurse(parameters, target, index, pool, loopCut, node, filterResults, log, kSuccessor);
 			return;
 		}
 
@@ -289,7 +307,8 @@ public class Miner {
 			if (exclusiveChoiceCutNoise.size() > 1) {
 				final Binoperator node = new ExclusiveChoice(exclusiveChoiceCutNoise.size());
 				FilterResults filterResults = log.applyFilterExclusiveChoice(exclusiveChoiceCutNoise);
-				outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCutNoise, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, exclusiveChoiceCutNoise, node, filterResults, log,
+						kSuccessor);
 				return;
 			}
 
@@ -299,7 +318,8 @@ public class Miner {
 			if (sequenceCutNoise.size() > 1) {
 				final Binoperator node = new Sequence(sequenceCutNoise.size());
 				FilterResults filterResults = log.applyFilterSequence(sequenceCutNoise);
-				outputAndRecurse(parameters, target, index, pool, sequenceCutNoise, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, sequenceCutNoise, node, filterResults, log,
+						kSuccessor);
 				return;
 			}
 
@@ -318,7 +338,8 @@ public class Miner {
 			if (parallelCutNoise.size() > 1) {
 				final Binoperator node = new Parallel(parallelCutNoise.size());
 				FilterResults filterResults = log.applyFilterParallel(parallelCutNoise);
-				outputAndRecurse(parameters, target, index, pool, parallelCutNoise, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, parallelCutNoise, node, filterResults, log,
+						kSuccessor);
 				return;
 			}
 
@@ -326,7 +347,7 @@ public class Miner {
 			if (loopCutNoise.size() > 1) {
 				final Binoperator node = new Loop(loopCutNoise.size());
 				FilterResults filterResults = log.applyFilterLoop(loopCutNoise);
-				outputAndRecurse(parameters, target, index, pool, loopCutNoise, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, loopCutNoise, node, filterResults, log, kSuccessor);
 				return;
 			}
 		}
@@ -339,7 +360,8 @@ public class Miner {
 				Set<Set<XEventClass>> parallelCutIncomplete = (Set<Set<XEventClass>>) arr[1];
 				final Binoperator node = new Parallel(parallelCutIncomplete.size());
 				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log,
+						kSuccessor);
 				return;
 			}
 		}
@@ -352,7 +374,8 @@ public class Miner {
 				List<Set<XEventClass>> sequenceCutIncomplete = (List<Set<XEventClass>>) arr[1];
 				final Binoperator node = new Sequence(sequenceCutIncomplete.size());
 				FilterResults filterResults = log.applyFilterSequence(sequenceCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, sequenceCutIncomplete, node, filterResults, log);
+				outputAndRecurse(parameters, target, index, pool, sequenceCutIncomplete, node, filterResults, log,
+						kSuccessor);
 				return;
 			}
 		}
@@ -459,21 +482,28 @@ public class Miner {
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
 			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
-			FilterResults filterResults, Filteredlog log) {
+			FilterResults filterResults, Filteredlog log, UpToKSuccessorRelation kSuccessor) {
+
+		registerFilteredNoise(newTargetNode, filterResults);
+
+		outputAndRecurse(parameters, target, index, pool, cut, newTargetNode, filterResults.sublogs, log, kSuccessor);
+	}
+
+	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
+			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
+			Collection<Filteredlog> sublogs, Filteredlog log, UpToKSuccessorRelation kSuccessor) {
 
 		//store metadata
 		newTargetNode.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 		newTargetNode.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 
-		registerFilteredNoise(newTargetNode, filterResults);
-
 		//output the cut
-		debugCut(newTargetNode, cut, filterResults.sublogs, parameters);
+		debugCut(newTargetNode, cut, sublogs, kSuccessor, parameters);
 
 		//set the result
 		target.setChild(index, newTargetNode);
 		int i = 0;
-		for (Filteredlog sublog : filterResults.sublogs) {
+		for (Filteredlog sublog : sublogs) {
 			final Filteredlog sublog2 = sublog;
 			final int j = i;
 			recurse(parameters, pool, sublog2, newTargetNode, j);
@@ -527,20 +557,44 @@ public class Miner {
 		}
 	}
 
-	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs, MiningParameters parameters) {
+	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs,
+			UpToKSuccessorRelation kSuccessor, MiningParameters parameters) {
 		StringBuilder r = new StringBuilder("step " + recursionStepsCounter + " chosen " + node.getOperatorString());
-		Iterator<Set<XEventClass>> it = cut.iterator();
-		while (it.hasNext()) {
-			r.append(" {" + Sets.implode(it.next(), ", ") + "}");
-		}
-		r.append("\n");
-		
+			Iterator<Set<XEventClass>> it = cut.iterator();
+			while (it.hasNext()) {
+				r.append(" {" + Sets.implode(it.next(), ", ") + "}");
+			}
+			r.append("\n");
+
+		/*
 		//debug matrices of sublogs
+		List<UpToKSuccessorRelation> successors = new ArrayList<UpToKSuccessorRelation>();
 		for (Filteredlog sublog : sublogs) {
-			r.append((new UpToKSuccessorRelation(sublog, parameters)).toString());
+			UpToKSuccessorRelation successor = new UpToKSuccessorRelation(sublog, parameters);
+			successors.add(successor);
+			r.append(successor.toString());
 			r.append("\n");
 		}
-		
+		//combine them
+		if (sublogs.size() == 2) {
+			r.append("These two combined with parallel operator \n");
+			UpToKSuccessorRelation combinedParallel = (new CombineParallel()).combine(successors.get(0)
+					.getkSuccessors(), successors.get(1).getkSuccessors());
+			r.append(combinedParallel.toString());
+			r.append("Euclidian distance "
+					+ (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
+							combinedParallel.getkSuccessors()) + "\n");
+
+			r.append("\n");
+			r.append("These two combined with loop operator \n");
+			UpToKSuccessorRelation combinedLoop = (new CombineLoop()).combine(successors.get(0).getkSuccessors(),
+					successors.get(1).getkSuccessors());
+			r.append(combinedLoop.toString());
+			r.append("Euclidian distance "
+					+ (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
+							combinedLoop.getkSuccessors()) + "\n");
+		}
+		*/
 		debug(r.toString(), parameters);
 	}
 
