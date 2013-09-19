@@ -50,19 +50,19 @@ public class Exhaustive {
 		List<Set<XEventClass>> cut;
 		for (int cutNr = 1; cutNr < Math.pow(2, nrOfBits) - 1 && result.distance > 0; cutNr++) {
 			cut = generateCut(cutNr, nrOfBits, activities);
-			
+
 			//parallel
 			result2 = processCutParallel(cut);
 			if (result.distance > result2.distance) {
 				result = result2;
-				debug(cut.toString() + " " + result2.cutType + ": " + result2.distance);
+				debug(cut.toString() + " " + result2.cutType + ": " + result2.distance, parameters);
 			}
-			
+
 			//loop
 			result2 = processCutLoop(cut);
 			if (result.distance > result2.distance) {
 				result = result2;
-				debug(cut.toString() + " " + result2.cutType + ": " + result2.distance);
+				debug(cut.toString() + " " + result2.cutType + ": " + result2.distance, parameters);
 			}
 		}
 
@@ -94,7 +94,7 @@ public class Exhaustive {
 
 		return result;
 	}
-	
+
 	public Result processCutLoop(Collection<Set<XEventClass>> cut) {
 
 		Result result = new Result();
@@ -141,7 +141,9 @@ public class Exhaustive {
 		return result;
 	}
 
-	private void debug(String x) {
-		System.out.println(x);
+	private void debug(String x, MiningParameters parameters) {
+		if (parameters.isDebug()) {
+			System.out.println(x);
+		}
 	}
 }
