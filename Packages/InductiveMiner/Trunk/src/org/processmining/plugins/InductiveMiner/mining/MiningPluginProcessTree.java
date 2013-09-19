@@ -15,7 +15,6 @@ import org.processmining.plugins.InductiveMiner.model.ProcessTreeModel;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2ProcessTree;
 import org.processmining.processtree.ProcessTree;
 
-
 @Plugin(name = "Mine a Process Tree using Inductive Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPluginProcessTree {
@@ -24,28 +23,33 @@ public class MiningPluginProcessTree {
 	public ProcessTree mineDefault(PluginContext context, XLog log) {
 		return this.mineParameters(context, log, new MiningParameters());
 	}
-	
+
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
 	public ProcessTree mineParameters(PluginContext context, XLog log, MiningParameters parameters) {
-		Collection<ProcessTreeModelConnection> connections;
-		try {
-			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
-			for (ProcessTreeModelConnection connection : connections) {
-				if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
-						&& connection.getParameters().equals(parameters)) {
-					return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
+		if (context != null) {
+			Collection<ProcessTreeModelConnection> connections;
+			try {
+				connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context,
+						log);
+				for (ProcessTreeModelConnection connection : connections) {
+					if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
+							&& connection.getParameters().equals(parameters)) {
+						return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
+					}
 				}
+			} catch (ConnectionCannotBeObtained e) {
 			}
-		} catch (ConnectionCannotBeObtained e) {
 		}
 		Miner miner = new Miner();
 		ProcessTreeModel model = miner.mine(context, log, parameters);
 		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
-		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
+		if (context != null) {
+			context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
+		}
 		return tree;
 	}
-	
+
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public ProcessTree mineGui(UIPluginContext context, XLog log) {
