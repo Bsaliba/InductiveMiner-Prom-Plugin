@@ -27,7 +27,7 @@ public class SequenceCutSAT extends SAT {
 
 	@SuppressWarnings("unchecked")
 	public Object[] solve() {
-		debug("sequence cut SAT");
+		//debug("sequence cut SAT");
 
 		//		Object[] minCostResult = new Object[] { Double.MAX_VALUE };
 		//		for (int i = 1; i < directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(); i++) {
@@ -40,7 +40,7 @@ public class SequenceCutSAT extends SAT {
 		if (minCostResult.length == 1) {
 			return null;
 		}
-		debug("final optimal solution " + minCostResult[1] + " " + minCostResult[2]);
+		//debug("final optimal solution " + minCostResult[1] + " " + minCostResult[2]);
 
 		List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
 		cut.add((Set<XEventClass>) minCostResult[1]);
@@ -50,7 +50,7 @@ public class SequenceCutSAT extends SAT {
 
 	public Object[] solveSingle(int cutSize, double bestAverageTillNow) {
 
-		debug(" solve optimisation problem with cut size " + cutSize);
+		//debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
@@ -221,17 +221,17 @@ public class SequenceCutSAT extends SAT {
 					}
 				}
 
-				debug("   edges crossing cut " + x);
-				debug("   left-end activities " + y);
-				debug("   right-start activities " + z);
-				debug("   cost " + cost);
+				//debug("   edges crossing cut " + x);
+				//debug("   left-end activities " + y);
+				//debug("   right-start activities " + z);
+				//debug("   cost " + cost);
 
 				return new Object[] { Double.valueOf(cost), result.getLeft(), result.getRight() };
 			}
 		} catch (TimeoutException e) {
-			debug("  timeout");
+			//debug("  timeout");
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		}
 		return null;
 	}

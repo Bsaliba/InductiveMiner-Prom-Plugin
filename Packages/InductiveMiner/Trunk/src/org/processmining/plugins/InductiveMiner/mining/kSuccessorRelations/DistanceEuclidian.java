@@ -30,6 +30,9 @@ public class DistanceEuclidian implements Distance {
 			sum += Math.pow(A.getKSuccessor(a, null) - B.getKSuccessor(a, null), 2);
 		}
 		
+		//begin end
+		sum += Math.pow(A.getKSuccessor(null, null) - B.getKSuccessor(null, null), 2);
+		
 		return sum;
 
 	}

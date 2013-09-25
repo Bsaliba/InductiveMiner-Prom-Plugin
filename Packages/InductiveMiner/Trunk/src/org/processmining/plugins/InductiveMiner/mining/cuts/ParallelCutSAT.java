@@ -11,6 +11,7 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.ObjectiveFunction;
@@ -20,12 +21,15 @@ import org.sat4j.specs.TimeoutException;
 
 public class ParallelCutSAT extends SAT {
 
-	public ParallelCutSAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold) {
+	private MiningParameters parameters;
+
+	public ParallelCutSAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold, MiningParameters parameters) {
 		super(directlyFollowsRelation, threshold);
+		this.parameters = parameters;
 	}
 
 	public Object[] solve() {
-		Object[] minCostResult = new Object[] { threshold };
+		Object[] minCostResult = new Object[] { Double.MAX_VALUE };
 		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
 			Object[] result = solveSingle(i, (Double) minCostResult[0]);
 			if (result != null && (Double) result[0] < (Double) minCostResult[0]) {
@@ -35,7 +39,7 @@ public class ParallelCutSAT extends SAT {
 		if (minCostResult.length == 1) {
 			return null;
 		}
-		debug("final optimal solution " + minCostResult[1] + " " + minCostResult[2]);
+		//debug("final optimal solution " + minCostResult[1] + " " + minCostResult[2]);
 		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
 		cut.add((Set<XEventClass>) minCostResult[1]);
 		cut.add((Set<XEventClass>) minCostResult[2]);
@@ -83,24 +87,22 @@ public class ParallelCutSAT extends SAT {
 			//constraint: edge is cut iff between two nodes on different sides of the cut
 			for (int i = 0; i < countNodes; i++) {
 				for (int j = i + 1; j < countNodes; j++) {
-					if (i != j) {
-						XEventClass aI = nodes[i];
-						XEventClass aJ = nodes[j];
+					XEventClass aI = nodes[i];
+					XEventClass aJ = nodes[j];
 
-						int A = node2var.get(aI).getVarInt();
-						int B = node2var.get(aJ).getVarInt();
-						int C = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+					int A = node2var.get(aI).getVarInt();
+					int B = node2var.get(aJ).getVarInt();
+					int C = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
 
-						int clause1[] = { A, B, -C };
-						int clause2[] = { A, -B, C };
-						int clause3[] = { -A, B, C };
-						int clause4[] = { -A, -B, -C };
+					int clause1[] = { A, B, -C };
+					int clause2[] = { A, -B, C };
+					int clause3[] = { -A, B, C };
+					int clause4[] = { -A, -B, -C };
 
-						solver.addClause(new VecInt(clause1));
-						solver.addClause(new VecInt(clause2));
-						solver.addClause(new VecInt(clause3));
-						solver.addClause(new VecInt(clause4));
-					}
+					solver.addClause(new VecInt(clause1));
+					solver.addClause(new VecInt(clause2));
+					solver.addClause(new VecInt(clause3));
+					solver.addClause(new VecInt(clause4));
 				}
 			}
 
@@ -121,7 +123,7 @@ public class ParallelCutSAT extends SAT {
 			//constraint: better than best previous run
 			BigInteger maxObjectiveFunction = BigInteger
 					.valueOf((long) (1000 * bestAverageTillNow * numberOfEdgesInCut));
-			debug("  maximal cost " + maxObjectiveFunction.toString());
+			//debug("  maximal cost " + maxObjectiveFunction.toString());
 			solver.addAtMost(clause, coefficients, maxObjectiveFunction);
 
 			//compute result
@@ -145,17 +147,19 @@ public class ParallelCutSAT extends SAT {
 
 				double averageCost = cost / ((double) numberOfEdgesInCut * (double) 1000);
 
-				debug("   edges " + x);
-				debug("   cost " + cost);
-				debug("   edges " + numberOfEdgesInCut);
-				debug("   average cost per edge " + averageCost);
+				//debug("   edges " + x);
+				//debug("   cost " + cost);
+				//debug("   edges " + numberOfEdgesInCut);
+				//debug("   average cost per edge " + averageCost);
 
 				return new Object[] { Double.valueOf(averageCost), result.getLeft(), result.getRight() };
+			} else {
+				//debug("  no solution");
 			}
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		} catch (TimeoutException e) {
-			debug("  timeout");
+			//debug("  timeout");
 		}
 
 		return null;
@@ -163,29 +167,58 @@ public class ParallelCutSAT extends SAT {
 
 	private BigInteger getCost(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph, XEventClass a,
 			XEventClass b) {
-		//compute cost matrix and introduce weighted variables to SAT 
+		double cost = 0;
+		if (parameters.getSatType() == 1) {
 
-		double costAB;
-		if (graph.containsEdge(a, b)) {
-			costAB = graph.getEdgeWeight(graph.getEdge(a, b));
-		} else {
-			costAB = 0;
+			/*
+			 * sat type 1:
+			 */
+
+			double costAB;
+			if (graph.containsEdge(a, b)) {
+				costAB = graph.getEdgeWeight(graph.getEdge(a, b));
+			} else {
+				costAB = 0;
+			}
+
+			double costBA;
+			if (graph.containsEdge(b, a)) {
+				costBA = graph.getEdgeWeight(graph.getEdge(b, a));
+			} else {
+				costBA = 0;
+			}
+
+			if (costAB != 0 || costBA != 0) {
+				cost = Math.abs(costAB - costBA) / Math.max(costAB, costBA);
+			} else {
+				cost = 2;
+			}
+
+		} else if (parameters.getSatType() == 2) {
+			/*
+			 * sat type 2: estimate probability that two nodes are not parallel
+			 */
+			double wAB;
+			if (graph.containsEdge(a, b)) {
+				wAB = graph.getEdgeWeight(graph.getEdge(a, b));
+			} else {
+				wAB = 0;
+			}
+
+			double wBA;
+			if (graph.containsEdge(b, a)) {
+				wBA = graph.getEdgeWeight(graph.getEdge(b, a));
+			} else {
+				wBA = 0;
+			}
+			double minW = Math.min(wAB, wBA);
+			double maxW = Math.max(wAB, wBA);
+			double cMinW = Math.exp(-parameters.getSatParameter() * minW);
+			double cMaxW = Math.exp(-parameters.getSatParameter() * maxW);
+
+			cost = (1 / 3.0) * cMaxW + (2 / 3.0) * cMinW;
+
 		}
-
-		double costBA;
-		if (graph.containsEdge(b, a)) {
-			costBA = graph.getEdgeWeight(graph.getEdge(b, a));
-		} else {
-			costBA = 0;
-		}
-
-		double cost;
-		if (costAB != 0 || costBA != 0) {
-			cost = Math.abs(costAB - costBA) / Math.max(costAB, costBA);
-		} else {
-			cost = 2;
-		}
-
 		return BigInteger.valueOf(Math.round(cost * 1000));
 	}
 }

@@ -90,7 +90,7 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(0);
+		ThreadPool pool = new ThreadPool();
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -256,7 +256,7 @@ public class Miner {
 				final Binoperator node = new Parallel(2);
 				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log, kSuccessor);
 				return;
-			} else if (er.cutType == "loop"){
+			} else if (er.cutType == "loop") {
 				final Binoperator node = new Loop(2);
 				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log, kSuccessor);
 				return;
@@ -264,13 +264,18 @@ public class Miner {
 		}
 
 		//parallel and loop operator
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 
-		//sometimes, a parallel and loop cut are both possible
+		//sometimes, a parallel and loop cut are both possible 
 		//in that case, recompute a stricter parallel cut using minimum-self-distance
-		if (parallelCut.size() > 1 && loopCut.size() > 1) {
-			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+		//if (parallelCut.size() > 1 && loopCut.size() > 1) {
+		//	parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+		//}
+		//update: this is also useful for parallel-cut separations
+		//only if the strict one doesn't work, return the more relaxed one
+		if (parallelCut.size() == 0 && loopCut.size() == 0) {
+			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
 		}
 
 		//parallel operator
@@ -354,7 +359,8 @@ public class Miner {
 
 		//exhaustive parallel cut
 		if (parameters.useSAT()) {
-			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
+			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold(),
+					parameters);
 			Object[] arr = pce.solve();
 			if (arr != null) {
 				Set<Set<XEventClass>> parallelCutIncomplete = (Set<Set<XEventClass>>) arr[1];
@@ -560,41 +566,12 @@ public class Miner {
 	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs,
 			UpToKSuccessorRelation kSuccessor, MiningParameters parameters) {
 		StringBuilder r = new StringBuilder("step " + recursionStepsCounter + " chosen " + node.getOperatorString());
-			Iterator<Set<XEventClass>> it = cut.iterator();
-			while (it.hasNext()) {
-				r.append(" {" + Sets.implode(it.next(), ", ") + "}");
-			}
-			r.append("\n");
-
-		/*
-		//debug matrices of sublogs
-		List<UpToKSuccessorRelation> successors = new ArrayList<UpToKSuccessorRelation>();
-		for (Filteredlog sublog : sublogs) {
-			UpToKSuccessorRelation successor = new UpToKSuccessorRelation(sublog, parameters);
-			successors.add(successor);
-			r.append(successor.toString());
-			r.append("\n");
+		Iterator<Set<XEventClass>> it = cut.iterator();
+		while (it.hasNext()) {
+			r.append(" {" + Sets.implode(it.next(), ", ") + "}");
 		}
-		//combine them
-		if (sublogs.size() == 2) {
-			r.append("These two combined with parallel operator \n");
-			UpToKSuccessorRelation combinedParallel = (new CombineParallel()).combine(successors.get(0)
-					.getkSuccessors(), successors.get(1).getkSuccessors());
-			r.append(combinedParallel.toString());
-			r.append("Euclidian distance "
-					+ (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
-							combinedParallel.getkSuccessors()) + "\n");
+		r.append("\n");
 
-			r.append("\n");
-			r.append("These two combined with loop operator \n");
-			UpToKSuccessorRelation combinedLoop = (new CombineLoop()).combine(successors.get(0).getkSuccessors(),
-					successors.get(1).getkSuccessors());
-			r.append(combinedLoop.toString());
-			r.append("Euclidian distance "
-					+ (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
-							combinedLoop.getkSuccessors()) + "\n");
-		}
-		*/
 		debug(r.toString(), parameters);
 	}
 
