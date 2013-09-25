@@ -53,61 +53,62 @@ public class UpToKSuccessorRelation {
 			StringBuilder s = new StringBuilder();
 			
 			//titles
-			s.append("     S ");
+			s.append("     -S-");
 			for (XEventClass from : activity2index.keySet()) {
-				s.append(String.format("%3s", from));
+				s.append(activity2string(from));
 			}
-			s.append("-E-");
+			s.append(" -E-");
 			s.append("\n");
 
 			{
-				s.append("-S-  . ");
+				s.append(" -S-  . ");
 				for (XEventClass to : activity2index.keySet()) {
 					Integer x = getKSuccessor(null, to);
 					if (x != null) {
-						s.append(String.format("%2d ", x));
+						s.append(String.format("%3d ", x));
 					} else {
-						s.append(" . ");
+						s.append(" .  ");
 					}
 				}
 
 				Integer x = getKSuccessor(null, null);
 				if (x != null) {
-					s.append(String.format("%2d ", x));
+					s.append(String.format("%3d ", x));
 				} else {
-					s.append(" . ");
+					s.append("  . ");
 				}
 
 				s.append("\n");
 			}
 
 			for (XEventClass from : activity2index.keySet()) {
-				s.append(String.format("%3s  . ", from));
+				s.append(activity2string(from));
+				s.append("  . ");
 				for (XEventClass to : activity2index.keySet()) {
 					Integer x = getKSuccessor(from, to);
 					if (x != null) {
-						s.append(String.format("%2d ", x));
+						s.append(String.format("%3d ", x));
 					} else {
-						s.append(" . ");
+						s.append("  . ");
 					}
 				}
 
 				Integer x = getKSuccessor(from, null);
 				if (x != null) {
-					s.append(String.format("%2d ", x));
+					s.append(String.format("%3d ", x));
 				} else {
-					s.append(" . ");
+					s.append(" .  ");
 				}
 
 				s.append("\n");
 			}
 			
 			//end row
-			s.append("-E- ");
+			s.append(" -E-");
 			for (XEventClass from : activity2index.keySet()) {
-				s.append(" . ");
+				s.append("  . ");
 			}
-			s.append(" .  . \n");
+			s.append("  .   . \n");
 			
 			return s.toString();
 		}
@@ -119,6 +120,11 @@ public class UpToKSuccessorRelation {
 				return activity2index.get(a);
 			}
 		}
+	}
+	
+	private String activity2string(XEventClass a) {
+		String s = a.toString().substring(0, Math.min(a.toString().length(), 3));
+		return String.format("%1$" + 4 + "s", s);
 	}
 
 	private KSuccessorMatrix kSuccessors;

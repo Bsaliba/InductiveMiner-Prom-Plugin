@@ -17,16 +17,20 @@ public class MiningParameters {
 	private boolean useSAT;
 	private boolean useExhaustiveKSuccessor;
 	private boolean debug;
+	private int satType;
+	private double satParameter;
 
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
-		noiseThreshold = (float) 0.2;
+		noiseThreshold = (float) 0.0;
 		incompleteThreshold = (float) 0.5;
-		outputDFGfileName = null;
+		outputDFGfileName = "D:\\output";
 		outputFlowerLogFileName = null;
 		useSAT = false;
-		debug = false;
-		useExhaustiveKSuccessor = false;
+		debug = true;
+		useExhaustiveKSuccessor = true;
+		satType = 2;
+		setSatParameter(0.1);
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -111,5 +115,21 @@ public class MiningParameters {
 
 	public void setUseExhaustiveKSuccessor(boolean useExhaustiveKSuccessor) {
 		this.useExhaustiveKSuccessor = useExhaustiveKSuccessor;
+	}
+
+	public int getSatType() {
+		return satType;
+	}
+
+	public void setSatType(int satType) {
+		this.satType = satType;
+	}
+
+	public double getSatParameter() {
+		return satParameter;
+	}
+
+	public void setSatParameter(double satParameter) {
+		this.satParameter = satParameter;
 	}
 }

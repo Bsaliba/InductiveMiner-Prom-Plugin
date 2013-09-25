@@ -136,10 +136,10 @@ public abstract class SAT {
 					sigma2.add(a);
 				}
 			}
-			debug("  solution: " + sigma1 + ", " + sigma2);
+			//debug("  solution: " + sigma1 + ", " + sigma2);
 			return new Pair<Set<XEventClass>, Set<XEventClass>>(sigma1, sigma2);
 		} else {
-			debug("  no solution");
+			//debug("  no solution");
 		}
 		return null;
 	}

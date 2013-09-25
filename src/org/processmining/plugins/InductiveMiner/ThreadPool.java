@@ -17,15 +17,19 @@ public class ThreadPool {
 		init();
 	}
 	
-	//constructor, takes a number of threads. Provide 0 to execute synchronously.
+	//constructor, takes a number of threads. Provide 1 to execute synchronously.
 	public ThreadPool(int numberOfThreads) {
 		this.numberOfThreads = numberOfThreads;
 		init();
 	}
 	
+	public static ThreadPool useFactor(double factor) {
+		return new ThreadPool((int) (Runtime.getRuntime().availableProcessors() * factor));
+	}
+	
 	//add a job to be executed. Will block if executed synchronously
 	public synchronized void addJob(Runnable job) {
-		if (numberOfThreads > 0) {
+		if (numberOfThreads > 1) {
 			Future<?> x = pool.submit(job);
 			jobs.add(x);
 		} else {
@@ -36,7 +40,7 @@ public class ThreadPool {
 	//wait till all jobs have finished execution. While waiting, new jobs can still be added and will be executed.
 	//Hence, will block until the thread pool is idle
 	public void join() throws ExecutionException {
-		if (numberOfThreads > 0) {
+		if (numberOfThreads > 1) {
 			ExecutionException error = null;
 			
 			//wait for all jobs to finish
@@ -63,9 +67,13 @@ public class ThreadPool {
 	}
 	
 	private void init() {
-		if (numberOfThreads > 0) {
+		if (numberOfThreads > 1) {
 			pool = Executors.newFixedThreadPool(numberOfThreads);
 			jobs = new ConcurrentLinkedQueue<Future<?>>();
 		}
+	}
+	
+	public int getNumerOfThreads() {
+		return numberOfThreads;
 	}
 }
