@@ -25,13 +25,13 @@ public class Exhaustive {
 		public Collection<Filteredlog> sublogs;
 	}
 
-	private UpToKSuccessorRelation kSuccessor;
+	private UpToKSuccessorMatrix kSuccessor;
 	private Filteredlog log;
 	private MiningParameters parameters;
 	private ThreadPool pool;
 	private final AtomicInteger bestTillNow;
 
-	public Exhaustive(Filteredlog log, UpToKSuccessorRelation kSuccessor, MiningParameters parameters) {
+	public Exhaustive(Filteredlog log, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.parameters = parameters;
@@ -59,14 +59,14 @@ public class Exhaustive {
 		long lastEnd = globalStartCutNr - 1;
 		long step = (globalEndCutNr - globalStartCutNr) / threads;
 
-		//debug("Start threads " + globalStartCutNr + " " + globalEndCutNr);
+		debug("Start threads " + globalStartCutNr + " " + globalEndCutNr);
 
 		for (int t = 0; t < threads; t++) {
 			final long startCutNr = lastEnd + 1;
 			final long endCutNr = startCutNr + step;
 			lastEnd = endCutNr;
 			final int threadNr = t;
-			//debug("Start thread  " + startCutNr + " " + endCutNr);
+			debug("Start thread  " + startCutNr + " " + endCutNr);
 			pool.addJob(new Runnable() {
 				public void run() {
 					results[threadNr] = tryRange(nrOfBits, activities, startCutNr, endCutNr);
@@ -96,7 +96,7 @@ public class Exhaustive {
 		result.distance = Integer.MAX_VALUE;
 		Result result2;
 		List<Set<XEventClass>> cut;
-		for (long cutNr = startCutNr; cutNr < Math.pow(2, nrOfBits) - 1 && result.distance > 0 && cutNr < endCutNr; cutNr++) {
+		for (long cutNr = startCutNr; cutNr < Math.pow(2, nrOfBits) - 1 && result.distance > 0 && cutNr <= endCutNr; cutNr++) {
 			cut = generateCut(cutNr, nrOfBits, activities);
 
 			//parallel
@@ -131,15 +131,13 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<Filteredlog> it = result.sublogs.iterator();
-		UpToKSuccessorRelation successor0 = new UpToKSuccessorRelation(it.next(), parameters);
-		UpToKSuccessorRelation successor1 = new UpToKSuccessorRelation(it.next(), parameters);
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 
 		//combine the logs
-		UpToKSuccessorRelation combined = (new CombineParallel()).combine(successor0.getkSuccessors(),
-				successor1.getkSuccessors());
+		UpToKSuccessorMatrix combined = CombineParallel.combine(successor0, successor1);
 
-		result.distance = (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
-				combined.getkSuccessors());
+		result.distance = DistanceEuclidian.computeDistance(kSuccessor, combined);
 
 		result.cut = cut;
 		result.cutType = "parallel";
@@ -157,15 +155,13 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<Filteredlog> it = result.sublogs.iterator();
-		UpToKSuccessorRelation successor0 = new UpToKSuccessorRelation(it.next(), parameters);
-		UpToKSuccessorRelation successor1 = new UpToKSuccessorRelation(it.next(), parameters);
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 
 		//combine the logs
-		UpToKSuccessorRelation combined = (new CombineLoop()).combine(successor0.getkSuccessors(),
-				successor1.getkSuccessors());
+		UpToKSuccessorMatrix combined = CombineLoop.combine(successor0, successor1);
 
-		result.distance = (new DistanceEuclidian()).computeDistance(kSuccessor.getkSuccessors(),
-				combined.getkSuccessors());
+		result.distance = DistanceEuclidian.computeDistance(kSuccessor, combined);
 
 		result.cut = cut;
 		result.cutType = "loop";
