@@ -82,7 +82,7 @@ public class UpToKSuccessor {
 			result.feedKSuccessor(null, a, 1);
 			result.feedKSuccessor(a, null, 1);
 			return result;
-			
+
 		} else if (node instanceof Xor) {
 			Xor xor = (Xor) node;
 
@@ -92,7 +92,7 @@ public class UpToKSuccessor {
 				result = CombineXor.combine(result, fromNode(it.next()));
 			}
 			return result;
-			
+
 		} else if (node instanceof Seq) {
 			Seq seq = (Seq) node;
 			Iterator<Node> it = seq.getChildren().iterator();
@@ -104,7 +104,7 @@ public class UpToKSuccessor {
 		} else if (node instanceof XorLoop) {
 			XorLoop loop = (XorLoop) node;
 			return CombineLoop.combine(fromNode(loop.getChildren().get(0)), fromNode(loop.getChildren().get(1)));
-			
+
 		} else if (node instanceof And) {
 			And parallel = (And) node;
 			Iterator<Node> it = parallel.getChildren().iterator();
@@ -113,7 +113,7 @@ public class UpToKSuccessor {
 				result = CombineParallel.combine(result, fromNode(it.next()));
 			}
 			return result;
-			
+
 		} else {
 			throw new NotImplementedException();
 		}
@@ -124,6 +124,6 @@ public class UpToKSuccessor {
 	}
 
 	private static String toString(Task.Manual node) {
-		return node.toString();
+		return node.getName();
 	}
 }
