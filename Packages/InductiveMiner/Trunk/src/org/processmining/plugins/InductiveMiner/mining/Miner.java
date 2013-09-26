@@ -91,7 +91,7 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool();
+		ThreadPool pool = new ThreadPool(1);
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 

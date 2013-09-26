@@ -59,14 +59,14 @@ public class Exhaustive {
 		long lastEnd = globalStartCutNr - 1;
 		long step = (globalEndCutNr - globalStartCutNr) / threads;
 
-		debug("Start threads " + globalStartCutNr + " " + globalEndCutNr);
+		//debug("Start threads " + globalStartCutNr + " " + globalEndCutNr);
 
 		for (int t = 0; t < threads; t++) {
 			final long startCutNr = lastEnd + 1;
 			final long endCutNr = startCutNr + step;
 			lastEnd = endCutNr;
 			final int threadNr = t;
-			debug("Start thread  " + startCutNr + " " + endCutNr);
+			//debug("Start thread  " + startCutNr + " " + endCutNr);
 			pool.addJob(new Runnable() {
 				public void run() {
 					results[threadNr] = tryRange(nrOfBits, activities, startCutNr, endCutNr);
