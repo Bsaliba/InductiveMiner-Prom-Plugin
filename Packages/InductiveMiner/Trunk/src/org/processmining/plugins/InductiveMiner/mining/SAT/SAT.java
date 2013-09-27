@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts;
+package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.util.HashMap;
 import java.util.HashSet;

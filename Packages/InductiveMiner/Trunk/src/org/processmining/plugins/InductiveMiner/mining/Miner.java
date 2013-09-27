@@ -22,12 +22,12 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.mining.SAT.ParallelCutSAT;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SequenceCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
-import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
-import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.Exhaustive;
