@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts;
+package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
+import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutReachability;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.ObjectiveFunction;
