@@ -18,9 +18,9 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
-public class ParallelCutSAT extends SAT {
+public class XorCutSAT extends SAT {
 
-	public ParallelCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+	public XorCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
 	}
 
@@ -85,7 +85,7 @@ public class ParallelCutSAT extends SAT {
 				}
 			}
 
-			//objective function: least cost for edges
+			//objective function: highest probabilities for edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
 			for (int i = 0; i < countNodes; i++) {
@@ -93,7 +93,7 @@ public class ParallelCutSAT extends SAT {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityParallelB(directlyFollowsRelation, aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityXorB(directlyFollowsRelation, aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -118,15 +118,15 @@ public class ParallelCutSAT extends SAT {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							x += e.toString() + " (" + probabilities.getProbabilityParallel(directlyFollowsRelation, aI, aJ) + "), ";
-							sumProbability += probabilities.getProbabilityParallel(directlyFollowsRelation, aI, aJ);
+							x += e.toString() + " (" + probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ) + "), ";
+							sumProbability += probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ);
 						}
 					}
 				}
-
+				
 				double averageProbability = sumProbability / numberOfEdgesInCut;
-				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "parallel");
-
+				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "xor");
+				
 				//debug("   cut " + result2.cut);
 				debug("   edges " + x);
 				debug("   sum probability " + sumProbability);
@@ -136,14 +136,15 @@ public class ParallelCutSAT extends SAT {
 
 				return result2;
 			} else {
-				//debug("  no solution");
+				debug("  no solution");
 			}
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			debug("  inconsistent problem " + e);
 		} catch (TimeoutException e) {
 			debug("  timeout");
 		}
 
 		return new Result(null, null, 0, null);
 	}
+
 }
