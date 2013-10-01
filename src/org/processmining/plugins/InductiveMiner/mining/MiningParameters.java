@@ -6,6 +6,8 @@ import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
+import org.processmining.plugins.InductiveMiner.mining.SAT.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.SAT.ProbabilitiesSimple;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -17,8 +19,7 @@ public class MiningParameters {
 	private boolean useSAT;
 	private boolean useExhaustiveKSuccessor;
 	private boolean debug;
-	private int satType;
-	private double satParameter;
+	private Probabilities satProbabilities;
 
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
@@ -29,8 +30,7 @@ public class MiningParameters {
 		useSAT = false;
 		debug = true;
 		useExhaustiveKSuccessor = true;
-		satType = 2;
-		setSatParameter(0.1);
+		satProbabilities = new ProbabilitiesSimple();
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -117,19 +117,13 @@ public class MiningParameters {
 		this.useExhaustiveKSuccessor = useExhaustiveKSuccessor;
 	}
 
-	public int getSatType() {
-		return satType;
+	public Probabilities getSatProbabilities() {
+		return satProbabilities;
 	}
 
-	public void setSatType(int satType) {
-		this.satType = satType;
+	public void setSatProbabilities(Probabilities satProbabilities) {
+		this.satProbabilities = satProbabilities;
 	}
 
-	public double getSatParameter() {
-		return satParameter;
-	}
 
-	public void setSatParameter(double satParameter) {
-		this.satParameter = satParameter;
-	}
 }
