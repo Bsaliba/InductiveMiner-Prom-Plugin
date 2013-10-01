@@ -232,6 +232,13 @@ public class Miner {
 		}
 		recursionStepsCounter++;
 
+		//SAT cut search
+		if (parameters.useSAT()) {
+			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
+				return;
+			}
+		}
+
 		//exclusive choice operator
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation
 				.getDirectlyFollowsGraph());
@@ -358,13 +365,6 @@ public class Miner {
 			}
 		}
 
-		//SAT cut search
-		if (parameters.useSAT()) {
-			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
-				return;
-			}
-		}
-
 		//tau loop
 		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation,
 				directlyFollowsRelationNoiseFiltered);
@@ -423,13 +423,13 @@ public class Miner {
 		}
 	}
 
-	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target, final int index,
-			final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
+	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
+			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		SAT.Result satResult = (new XorCutSAT(directlyFollowsRelation, parameters)).solve();
 		satResult = (new SequenceCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
 		satResult = (new ParallelCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
 		satResult = (new LoopCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
-		
+
 		if (satResult.cut != null) {
 			if (satResult.type == "xor") {
 				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.cut);
