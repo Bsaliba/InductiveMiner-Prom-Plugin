@@ -129,10 +129,11 @@ public abstract class SAT {
 		}
 	}
 
+	public Result solve() {
+		return solve(new SAT.Result(null, null, 0, null));
+	}
+
 	public Result solve(Result mostProbableResult) {
-		if (mostProbableResult == null) {
-			mostProbableResult = new SAT.Result(null, null, 0, null);
-		}
 		debug("start SAT cut search");
 		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
 			Result result = solveSingle(i, mostProbableResult.probability);

@@ -22,8 +22,11 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.mining.SAT.LoopCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.SAT.ParallelCutSAT;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SAT;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SequenceCutSAT;
+import org.processmining.plugins.InductiveMiner.mining.SAT.XorCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
@@ -355,29 +358,9 @@ public class Miner {
 			}
 		}
 
-		//exhaustive parallel cut
+		//SAT cut search
 		if (parameters.useSAT()) {
-			ParallelCutSAT pce = new ParallelCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold(),
-					parameters);
-			Object[] arr = pce.solve();
-			if (arr != null) {
-				Set<Set<XEventClass>> parallelCutIncomplete = (Set<Set<XEventClass>>) arr[1];
-				final Binoperator node = new Parallel(parallelCutIncomplete.size());
-				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
-				return;
-			}
-		}
-
-		//exhaustive sequence cut
-		if (parameters.useSAT() && false) {
-			SequenceCutSAT sce = new SequenceCutSAT(directlyFollowsRelation, parameters.getIncompleteThreshold());
-			Object[] arr = sce.solve();
-			if (arr != null) {
-				List<Set<XEventClass>> sequenceCutIncomplete = (List<Set<XEventClass>>) arr[1];
-				final Binoperator node = new Sequence(sequenceCutIncomplete.size());
-				FilterResults filterResults = log.applyFilterSequence(sequenceCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, sequenceCutIncomplete, node, filterResults, log);
+			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
 				return;
 			}
 		}
@@ -438,6 +421,41 @@ public class Miner {
 
 			return;
 		}
+	}
+
+	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target, final int index,
+			final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
+		SAT.Result satResult = (new XorCutSAT(directlyFollowsRelation, parameters)).solve();
+		satResult = (new SequenceCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
+		satResult = (new ParallelCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
+		satResult = (new LoopCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
+		
+		if (satResult.cut != null) {
+			if (satResult.type == "xor") {
+				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.cut);
+				final Binoperator node = new ExclusiveChoice(xorCutIncomplete.size());
+				FilterResults filterResults = log.applyFilterExclusiveChoice(xorCutIncomplete);
+				outputAndRecurse(parameters, target, index, pool, xorCutIncomplete, node, filterResults, log);
+				return true;
+			} else if (satResult.type == "loop") {
+				final Binoperator node = new Sequence(satResult.cut.size());
+				FilterResults filterResults = log.applyFilterSequence(satResult.cut);
+				outputAndRecurse(parameters, target, index, pool, satResult.cut, node, filterResults, log);
+				return true;
+			} else if (satResult.type == "parallel") {
+				Set<Set<XEventClass>> parallelCutIncomplete = new HashSet<Set<XEventClass>>(satResult.cut);
+				final Binoperator node = new Parallel(parallelCutIncomplete.size());
+				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
+				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
+				return true;
+			} else if (satResult.type == "loop") {
+				final Binoperator node = new Loop(satResult.cut.size());
+				FilterResults filterResults = log.applyFilterLoop(satResult.cut);
+				outputAndRecurse(parameters, target, index, pool, satResult.cut, node, filterResults, log);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
