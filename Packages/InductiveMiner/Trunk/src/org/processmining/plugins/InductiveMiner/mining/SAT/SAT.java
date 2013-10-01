@@ -2,12 +2,15 @@ package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.specs.IProblem;
@@ -15,7 +18,36 @@ import org.sat4j.specs.TimeoutException;
 
 public abstract class SAT {
 
-	public abstract class Var {
+	public class Result {
+		public List<Set<XEventClass>> cut;
+		public double probability;
+		public String type;
+
+		public Result(Set<XEventClass> cutA, Set<XEventClass> cutB, double probability, String type) {
+			if (cutA == null || cutB == null) {
+				cut = null;
+			} else {
+				cut = new LinkedList<Set<XEventClass>>();
+				cut.add(cutA);
+				cut.add(cutB);
+			}
+			this.probability = probability;
+			this.type = type;
+		}
+
+		public String toString() {
+			StringBuilder s = new StringBuilder();
+			s.append("probability " + probability);
+			if (cut != null) {
+				s.append(", " + type + " cut ");
+				s.append(cut.toString());
+			}
+			return s.toString();
+		}
+
+	}
+
+	protected abstract class Var {
 		private final int varInt;
 		private boolean result;
 
@@ -39,7 +71,7 @@ public abstract class SAT {
 		}
 	}
 
-	public class Node extends Var {
+	protected class Node extends Var {
 		private final XEventClass activity;
 
 		public Node(int varInt, XEventClass activity) {
@@ -56,7 +88,7 @@ public abstract class SAT {
 		}
 	}
 
-	public class Edge extends Var {
+	protected class Edge extends Var {
 		private final XEventClass from;
 		private final XEventClass to;
 
@@ -77,12 +109,12 @@ public abstract class SAT {
 	protected IPBSolver solver;
 	protected Map<XEventClass, Node> node2var;
 	protected final DirectlyFollowsRelation directlyFollowsRelation;
-	protected final Double threshold;
 	protected int countNodes;
 	XEventClass[] nodes;
+	protected final MiningParameters parameters;
 
-	protected SAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold) {
-		this.threshold = threshold;
+	public SAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+		this.parameters = parameters;
 		this.directlyFollowsRelation = directlyFollowsRelation;
 		countNodes = directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size();
 
@@ -97,7 +129,22 @@ public abstract class SAT {
 		}
 	}
 
-	public abstract Object[] solve();
+	public Result solve(Result mostProbableResult) {
+		if (mostProbableResult == null) {
+			mostProbableResult = new SAT.Result(null, null, 0, null);
+		}
+		debug("start SAT cut search");
+		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
+			Result result = solveSingle(i, mostProbableResult.probability);
+			if (result != null && result.probability >= mostProbableResult.probability) {
+				mostProbableResult = result;
+			}
+		}
+		debug("end SAT cut search. Best till now: " + mostProbableResult);
+		return mostProbableResult;
+	}
+
+	protected abstract Result solveSingle(int cutSize, double bestAverageTillNow);
 
 	protected void newSolver() {
 		varInt2var = new HashMap<Integer, ParallelCutSAT.Var>();
@@ -144,5 +191,9 @@ public abstract class SAT {
 		return null;
 	}
 
-	protected static void debug(String x) {System.out.println(x);}
+	protected void debug(String x) {
+		if (parameters.isDebug()) {
+			System.out.println(x);
+		}
+	}
 }

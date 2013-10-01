@@ -2,8 +2,6 @@ package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +10,7 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
-import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutReachability;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.ObjectiveFunction;
@@ -22,173 +20,172 @@ import org.sat4j.specs.TimeoutException;
 
 public class SequenceCutSAT extends SAT {
 
-	public SequenceCutSAT(DirectlyFollowsRelation directlyFollowsRelation, double threshold) {
-		super(directlyFollowsRelation, threshold);
+	public SequenceCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+		super(directlyFollowsRelation, parameters);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Object[] solve() {
-		//debug("sequence cut SAT");
-
-		//		Object[] minCostResult = new Object[] { Double.MAX_VALUE };
-		//		for (int i = 1; i < directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(); i++) {
-		//			Object[] result = solveSingle(i, (Double) minCostResult[0]);
-		//			if (result != null && (Double) result[0] < (Double) minCostResult[0]) {
-		//				minCostResult = result;
-		//			}
-		//		}
-		Object[] minCostResult = solveSingle(0, Double.MAX_VALUE);
-		if (minCostResult.length == 1) {
-			return null;
+	public Result solve(Result mostProbableResult) {
+		if (mostProbableResult == null) {
+			mostProbableResult = new SAT.Result(null, null, 0, null);
 		}
-		//debug("final optimal solution " + minCostResult[1] + " " + minCostResult[2]);
-
-		List<Set<XEventClass>> cut = new LinkedList<Set<XEventClass>>();
-		cut.add((Set<XEventClass>) minCostResult[1]);
-		cut.add((Set<XEventClass>) minCostResult[2]);
-		return new Object[] { minCostResult[0], cut };
+		debug("start SAT cut search sequence");
+		debug(Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2) + " rounds");
+		for (int c = 1; c <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2); c++) {
+			Result result = solveSingle(c, mostProbableResult.probability);
+			if (result != null && result.probability >= mostProbableResult.probability) {
+				mostProbableResult = result;
+			}
+		}
+		debug("final optimal solution " + mostProbableResult);
+		return mostProbableResult;
 	}
 
-	public Object[] solveSingle(int cutSize, double bestAverageTillNow) {
+	public Result solveSingle(int cutSize, double bestAverageTillNow) {
 
-		//debug(" solve optimisation problem with cut size " + cutSize);
+		debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
-
-		//edges
-		Map<Pair<XEventClass, XEventClass>, Edge> edgeCrossesCut2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		//		Map<Pair<XEventClass, XEventClass>, Edge> edgeReachabilityViolation2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		for (XEventClass a : nodes) {
-			for (XEventClass b : nodes) {
-				if (a != b) {
-					Edge edgeCrossesCut = new Edge(varCounter, a, b);
-					edgeCrossesCut2var.put(new Pair<XEventClass, XEventClass>(a, b), edgeCrossesCut);
-					varInt2var.put(varCounter, edgeCrossesCut);
-					varCounter++;
-
-					//					Edge edgeReachabilityViolation = new Edge(varCounter, a, b);
-					//					edgeReachabilityViolation2var.put(new Pair<XEventClass, XEventClass>(a, b),
-					//							edgeReachabilityViolation);
-					//					varInt2var.put(varCounter, edgeReachabilityViolation);
-					//					varCounter++;
-				}
-			}
-		}
+		Probabilities probabilities = parameters.getSatProbabilities();
 
 		//local start and end activities
-		Map<XEventClass, Node> nodeIsLeftEnd = new HashMap<XEventClass, Node>();
-		Map<XEventClass, Node> nodeIsRightStart = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> nodeIsBoundaryLeft = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> nodeIsBoundaryRight = new HashMap<XEventClass, Node>();
 		for (XEventClass a : nodes) {
 			Node n1 = new Node(varCounter, a);
-			nodeIsLeftEnd.put(a, n1);
+			nodeIsBoundaryLeft.put(a, n1);
 			varInt2var.put(varCounter, n1);
 			varCounter++;
 
 			Node n2 = new Node(varCounter, a);
-			nodeIsRightStart.put(a, n2);
+			nodeIsBoundaryRight.put(a, n2);
 			varInt2var.put(varCounter, n2);
 			varCounter++;
 		}
 
-		//initialise reachability
-		SequenceCutReachability<XEventClass, DefaultWeightedEdge> reachability = new SequenceCutReachability<XEventClass, DefaultWeightedEdge>(
-				graph);
+		//boundary edges
+		Map<Pair<XEventClass, XEventClass>, Edge> boundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		for (int i = 0; i < countNodes; i++) {
+			for (int j = 0; j < countNodes; j++) {
+				if (i != j) {
+					XEventClass aI = nodes[i];
+					XEventClass aJ = nodes[j];
+					Edge var = new Edge(varCounter, aI, aJ);
+					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
+					varInt2var.put(varCounter, var);
+					varCounter++;
+				}
+			}
+		}
 
 		try {
-
-			//constraint: exactly cutSize nodes on the left side
-			//			{
-			//				int[] clause = new int[countNodes];
-			//				int i = 0;
-			//				for (XEventClass a : graph.vertexSet()) {
-			//					clause[i] = node2var.get(a).getVarInt();
-			//					i++;
-			//				}
-			//				solver.addExactly(new VecInt(clause), cutSize);
-			//			}
-
-			//constraint: no edge crosses cut backwards
-			for (DefaultWeightedEdge edge : graph.edgeSet()) {
-				XEventClass aI = graph.getEdgeSource(edge);
-				XEventClass aJ = graph.getEdgeTarget(edge);
-				int C = edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
-				int[] clause = { -C };
-				solver.addClause(new VecInt(clause));
-			}
-
-			//constraint: start nodes in sigma1
+			//constraint: exactly cutSize ----boundary edges---- are cut
 			{
-				for (XEventClass a : directlyFollowsRelation.getStartActivities()) {
-					int A = node2var.get(a).getVarInt();
-					int clause1[] = { A };
-					solver.addClause(new VecInt(clause1));
-				}
-			}
-
-			//constraint: end nodes in sigma2
-			{
-				for (XEventClass a : directlyFollowsRelation.getEndActivities()) {
-					int A = node2var.get(a).getVarInt();
-					int clause1[] = { -A };
-					solver.addClause(new VecInt(clause1));
-				}
-			}
-
-			//constraint: left end and right start activities
-			{
-				for (DefaultWeightedEdge edge : graph.edgeSet()) {
-					XEventClass a = graph.getEdgeSource(edge);
-					XEventClass b = graph.getEdgeTarget(edge);
-					int CA = node2var.get(a).getVarInt();
-					int CB = node2var.get(b).getVarInt();
-					int LA = nodeIsLeftEnd.get(a).getVarInt();
-					int LB = nodeIsRightStart.get(b).getVarInt();
-
-					int clause1[] = { -LA, -LB, CA };
-					int clause2[] = { -LA, -LB, -CB };
-					int clause3[] = { -CA, CB, LA };
-					int clause4[] = { -CA, CB, LB };
-					solver.addClause(new VecInt(clause1));
-					solver.addClause(new VecInt(clause2));
-					solver.addClause(new VecInt(clause3));
-					solver.addClause(new VecInt(clause4));
-				}
-			}
-
-			//constraint: left end and right start activities recorded
-			{
-				for (XEventClass aI : nodes) {
-					for (XEventClass aJ : nodes) {
-						if (aI != aJ) {
-							int A = nodeIsLeftEnd.get(aI).getVarInt();
-							int B = nodeIsRightStart.get(aJ).getVarInt();
-							int C = edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-
-							int clause1[] = { -A, -B, C };
-							solver.addClause(new VecInt(clause1));
+				int[] clause = new int[countNodes * (countNodes - 1)];
+				int k = 0;
+				for (int i = 0; i < countNodes; i++) {
+					for (int j = 0; j < countNodes; j++) {
+						if (i != j) {
+							XEventClass aI = nodes[i];
+							XEventClass aJ = nodes[j];
+							clause[k] = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+							k++;
 						}
+					}
+				}
+				solver.addExactly(new VecInt(clause), cutSize);
+			}
+
+			//constraint: bl(a) and br(b) <=> bedge(a,b)
+			for (int i = 0; i < countNodes; i++) {
+				for (int j = 0; j < countNodes; j++) {
+					if (i != j) {
+						XEventClass aI = nodes[i];
+						XEventClass aJ = nodes[j];
+						int A = nodeIsBoundaryLeft.get(aI).getVarInt();
+						int B = nodeIsBoundaryRight.get(aJ).getVarInt();
+						int C = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+
+						int clause1[] = { -A, -B, C };
+						int clause2[] = { A, -C };
+						int clause3[] = { B, -C };
+						solver.addClause(new VecInt(clause1));
+						solver.addClause(new VecInt(clause2));
+						solver.addClause(new VecInt(clause3));
 					}
 				}
 			}
 
-			//objective function: least cost for edges
+			//constraint: (a, b) \in dfg and -cut(a) and cut(b) => bl(a) and br(b)
+			for (DefaultWeightedEdge e : graph.edgeSet()) {
+				XEventClass aI = graph.getEdgeSource(e);
+				XEventClass aJ = graph.getEdgeTarget(e);
+				int A = node2var.get(aI).getVarInt();
+				int B = node2var.get(aJ).getVarInt();
+				int C = nodeIsBoundaryLeft.get(aI).getVarInt();
+				int D = nodeIsBoundaryRight.get(aJ).getVarInt();
+
+				int clause1[] = { -A, B, C };
+				int clause2[] = { -A, B, D };
+				solver.addClause(new VecInt(clause1));
+				solver.addClause(new VecInt(clause2));
+			}
+
+			//constraint: bl(a) => cut(a)
+			for (XEventClass a : graph.vertexSet()) {
+				int A = node2var.get(a).getVarInt();
+				int B = nodeIsBoundaryLeft.get(a).getVarInt();
+				int clause1[] = { A, -B };
+				solver.addClause(new VecInt(clause1));
+			}
+
+			//constraint: br(a) => -cut(a)
+			for (XEventClass a : graph.vertexSet()) {
+				int A = node2var.get(a).getVarInt();
+				int B = nodeIsBoundaryRight.get(a).getVarInt();
+				int clause1[] = { -A, -B };
+				solver.addClause(new VecInt(clause1));
+			}
+
+			//constraint: start(a) and -cut(a) => br(a)
+			for (XEventClass a : directlyFollowsRelation.getStartActivities()) {
+				int A = node2var.get(a).getVarInt();
+				int B = nodeIsBoundaryRight.get(a).getVarInt();
+				int clause1[] = { A, B };
+				solver.addClause(new VecInt(clause1));
+			}
+
+			//constraint: end(a) and cut(a) => bl(a)
+			for (XEventClass a : directlyFollowsRelation.getEndActivities()) {
+				int A = node2var.get(a).getVarInt();
+				int B = nodeIsBoundaryLeft.get(a).getVarInt();
+				int clause1[] = { -A, B };
+				solver.addClause(new VecInt(clause1));
+			}
+
+			//objective function: highest probabilities for edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
 			for (int i = 0; i < countNodes; i++) {
-				for (int j = i + 1; j < countNodes; j++) {
+				for (int j = 0; j < countNodes; j++) {
 					if (i != j) {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
-						clause.push(edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						coefficients.push(getCost(graph, aI, aJ));
+						clause.push(boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+						coefficients.push(probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ).negate());
 					}
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
 			solver.setObjectiveFunction(obj);
+
+			//constraint: better than best previous run
+			BigInteger minObjectiveFunction = BigInteger
+					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow * cutSize));
+			debug("  minimal sum probability " + minObjectiveFunction.toString());
+			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
 			Pair<Set<XEventClass>, Set<XEventClass>> result = compute();
@@ -196,72 +193,57 @@ public class SequenceCutSAT extends SAT {
 
 				//compute cost of cut
 				String x = "";
-				String y = "";
-				String z = "";
-				int cost = 0;
-				for (XEventClass a : nodes) {
-
-					Node e2 = nodeIsLeftEnd.get(a);
-					if (e2.isResult()) {
-						y += e2.toString() + ", ";
-					}
-
-					Node e3 = nodeIsRightStart.get(a);
-					if (e3.isResult()) {
-						z += e3.toString() + ", ";
-					}
-
-					for (XEventClass b : nodes) {
-						if (a != b) {
-							Edge e = edgeCrossesCut2var.get(new Pair<XEventClass, XEventClass>(a, b));
+				double sumProbability = 0;
+				for (int i = 0; i < countNodes; i++) {
+					for (int j = 0; j < countNodes; j++) {
+						if (i != j) {
+							XEventClass aI = nodes[i];
+							XEventClass aJ = nodes[j];
+							Edge e = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
-								x += e.toString() + ", ";
-								cost += getCost(graph, a, b).intValue();
+								x += e.toString() + " (" + probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ) + "), ";
+								sumProbability += probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
 							}
 						}
 					}
 				}
 
-				//debug("   edges crossing cut " + x);
-				//debug("   left-end activities " + y);
-				//debug("   right-start activities " + z);
-				//debug("   cost " + cost);
+				//debug
+				String bl = "";
+				String br = "";
+				for (XEventClass e : graph.vertexSet()) {
+					Node n = nodeIsBoundaryLeft.get(e);
+					if (n.isResult()) {
+						bl += e.toString() + ", ";
+					}
 
-				return new Object[] { Double.valueOf(cost), result.getLeft(), result.getRight() };
+					Node m = nodeIsBoundaryRight.get(e);
+					if (m.isResult()) {
+						br += e.toString() + ", ";
+					}
+				}
+
+				double averageProbability = sumProbability / cutSize;
+				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "sequence");
+
+				//debug("   cut " + result2.cut);
+				debug("   boundary edges " + x);
+				debug("   boundary left " + bl);
+				debug("   boundary right " + br);
+				debug("   sum probability " + sumProbability);
+				//debug("   edges " + numberOfEdgesInCut);
+				//debug("   average probability per edge " + result2.probability);
+				debug("   " + result2.toString());
+
+				return result2;
+			} else {
+				debug("  no solution");
 			}
 		} catch (TimeoutException e) {
-			//debug("  timeout");
+			debug("  timeout");
 		} catch (ContradictionException e) {
-			//debug("  inconsistent problem");
+			debug("  inconsistent problem");
 		}
 		return null;
-	}
-
-	private BigInteger getCost(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph, XEventClass a,
-			XEventClass b) {
-
-		if (graph.containsEdge(a, b)) {
-			return BigInteger.valueOf(0);
-		} else {
-			return BigInteger.valueOf(1);
-		}
-
-		//		double costAB;
-		//		if (graph.containsEdge(a, b)) {
-		//			costAB = graph.getEdgeWeight(graph.getEdge(a, b));
-		//		} else {
-		//			costAB = 0;
-		//		}
-		//
-		//		double costBA;
-		//		if (graph.containsEdge(b, a)) {
-		//			costBA = graph.getEdgeWeight(graph.getEdge(b, a));
-		//		} else {
-		//			costBA = 0;
-		//		}
-
-		//double cost = -(costAB - costBA) / (costAB + costBA + 1);
-
-		//return BigInteger.valueOf(Math.round(cost * 1000));
 	}
 }
