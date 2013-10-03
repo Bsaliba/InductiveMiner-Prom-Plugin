@@ -24,7 +24,7 @@ public class ProcessTree2KSuccessorRelation {
 		UpToKSuccessorMatrix r = UpToKSuccessor.fromNode(tree.getRoot());
 		
 		result.append(r.toString(true));
-		debug(r.toString(false));
+		//debug(r.toString(false));
 		
 		return result;
 		
@@ -39,14 +39,12 @@ public class ProcessTree2KSuccessorRelation {
 		
 		Dot result = new Dot();
 		result.append(r.toString(true));
-		debug(r.toString(false));
+		//debug(r.toString(false));
 		
 		return result;
 	}
 	
-	private void debug(String x) {
-		System.out.println(x);
-	}
+	//private void debug(String x) {System.out.println(x);}
 	
 
 }

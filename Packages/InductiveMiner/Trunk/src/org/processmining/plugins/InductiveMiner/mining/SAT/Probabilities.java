@@ -14,6 +14,10 @@ public abstract class Probabilities {
 	public abstract double getProbabilitySequence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
 
 	public abstract double getProbabilityParallel(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
+	
+	public abstract double getProbabilityLoopSingle(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
+	
+	public abstract double getProbabilityLoopDouble(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
 
 	public final int doubleToIntFactor = 1000;
 
@@ -31,6 +35,14 @@ public abstract class Probabilities {
 
 	public BigInteger getProbabilityParallelB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityParallel(relation, a, b));
+	}
+	
+	public BigInteger getProbabilityLoopSingleB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoopSingle(relation, a, b));
+	}
+	
+	public BigInteger getProbabilityLoopDoubleB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoopDouble(relation, a, b));
 	}
 
 	protected long getActivityCount(DirectlyFollowsRelation relation, XEventClass a) {

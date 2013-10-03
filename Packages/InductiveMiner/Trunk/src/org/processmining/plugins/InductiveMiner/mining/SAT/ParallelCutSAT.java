@@ -23,10 +23,21 @@ public class ParallelCutSAT extends SAT {
 	public ParallelCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
 	}
+	
+	public Result solve(Result mostProbableResult) {
+		debug("start SAT search for parallel cut likelier than " + mostProbableResult.probability);
+		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2 && mostProbableResult.probability < 1; i++) {
+			Result result = solveSingle(i, mostProbableResult.probability);
+			if (result != null && result.probability >= mostProbableResult.probability) {
+				mostProbableResult = result;
+			}
+		}
+		return mostProbableResult;
+	}
 
 	public Result solveSingle(int cutSize, double bestAverageTillNow) {
 
-		debug(" solve optimisation problem with cut size " + cutSize);
+		//debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
@@ -43,10 +54,7 @@ public class ParallelCutSAT extends SAT {
 			for (int j = i + 1; j < countNodes; j++) {
 				XEventClass aI = nodes[i];
 				XEventClass aJ = nodes[j];
-				Edge var = new Edge(varCounter, aI, aJ);
-				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
-				varInt2var.put(varCounter, var);
-				varCounter++;
+				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdge(aI, aJ));
 			}
 		}
 
@@ -84,6 +92,50 @@ public class ParallelCutSAT extends SAT {
 					solver.addClause(new VecInt(clause4));
 				}
 			}
+			
+			//constraint: cut side has a start activity
+			{
+				int[] clause = new int[directlyFollowsRelation.getStartActivities().toSet().size()];
+				int i = 0;
+				for (XEventClass e : directlyFollowsRelation.getStartActivities().toSet()) {
+					clause[i] = node2var.get(e).getVarInt();
+					i++;
+				}
+				solver.addAtLeast(new VecInt(clause), 1);
+			}
+			
+			//constraint: cut side has an end activity
+			{
+				int[] clause = new int[directlyFollowsRelation.getEndActivities().toSet().size()];
+				int i = 0;
+				for (XEventClass e : directlyFollowsRelation.getEndActivities().toSet()) {
+					clause[i] = node2var.get(e).getVarInt();
+					i++;
+				}
+				solver.addAtLeast(new VecInt(clause), 1);
+			}
+			
+			//constraint: -cut side has a start activity
+			{
+				int[] clause = new int[directlyFollowsRelation.getStartActivities().toSet().size()];
+				int i = 0;
+				for (XEventClass e : directlyFollowsRelation.getStartActivities().toSet()) {
+					clause[i] = -node2var.get(e).getVarInt();
+					i++;
+				}
+				solver.addAtLeast(new VecInt(clause), 1);
+			}
+			
+			//constraint: cut side has an end activity
+			{
+				int[] clause = new int[directlyFollowsRelation.getEndActivities().toSet().size()];
+				int i = 0;
+				for (XEventClass e : directlyFollowsRelation.getEndActivities().toSet()) {
+					clause[i] = -node2var.get(e).getVarInt();
+					i++;
+				}
+				solver.addAtLeast(new VecInt(clause), 1);
+			}
 
 			//objective function: least cost for edges
 			VecInt clause = new VecInt();
@@ -102,7 +154,6 @@ public class ParallelCutSAT extends SAT {
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger
 					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow * numberOfEdgesInCut));
-			debug("  minimal probability " + minObjectiveFunction.toString());
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -127,21 +178,18 @@ public class ParallelCutSAT extends SAT {
 				double averageProbability = sumProbability / numberOfEdgesInCut;
 				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "parallel");
 
-				//debug("   cut " + result2.cut);
+				debug("  " + result2.toString());
 				debug("   edges " + x);
 				debug("   sum probability " + sumProbability);
-				//debug("   edges " + numberOfEdgesInCut);
-				//debug("   average probability per edge " + result2.probability);
-				debug("   " + result2.toString());
 
 				return result2;
 			} else {
 				//debug("  no solution");
 			}
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		} catch (TimeoutException e) {
-			debug("  timeout");
+			//debug("  timeout");
 		}
 
 		return new Result(null, null, 0, null);

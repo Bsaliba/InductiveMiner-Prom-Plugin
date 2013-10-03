@@ -1,12 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import java.util.Collection;
-
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
-import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
@@ -27,7 +24,7 @@ public class MiningPluginProcessTree {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
 	public ProcessTree mineParameters(PluginContext context, XLog log, MiningParameters parameters) {
-		if (context != null) {
+		/*if (context != null) {
 			Collection<ProcessTreeModelConnection> connections;
 			try {
 				connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context,
@@ -40,7 +37,7 @@ public class MiningPluginProcessTree {
 				}
 			} catch (ConnectionCannotBeObtained e) {
 			}
-		}
+		}*/
 		Miner miner = new Miner();
 		ProcessTreeModel model = miner.mine(context, log, parameters);
 		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);

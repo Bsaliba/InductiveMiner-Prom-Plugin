@@ -133,17 +133,7 @@ public abstract class SAT {
 		return solve(new SAT.Result(null, null, 0, null));
 	}
 
-	public Result solve(Result mostProbableResult) {
-		debug("start SAT cut search");
-		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
-			Result result = solveSingle(i, mostProbableResult.probability);
-			if (result != null && result.probability >= mostProbableResult.probability) {
-				mostProbableResult = result;
-			}
-		}
-		debug("end SAT cut search. Best till now: " + mostProbableResult);
-		return mostProbableResult;
-	}
+	public abstract Result solve(Result mostProbableResult);
 
 	protected abstract Result solveSingle(int cutSize, double bestAverageTillNow);
 
@@ -161,6 +151,13 @@ public abstract class SAT {
 
 			varCounter++;
 		}
+	}
+	
+	protected Edge newEdge(XEventClass a, XEventClass b) {
+		Edge var = new Edge(varCounter, a, b);
+		varInt2var.put(varCounter, var);
+		varCounter++;
+		return var;
 	}
 
 	protected Pair<Set<XEventClass>, Set<XEventClass>> compute() throws TimeoutException {

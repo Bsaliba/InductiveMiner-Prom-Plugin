@@ -7,7 +7,7 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.mining.SAT.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.ProbabilitiesSimple;
+import org.processmining.plugins.InductiveMiner.mining.SAT.ProbabilitiesUnitMinimumSelfDistance;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -29,8 +29,8 @@ public class MiningParameters {
 		outputFlowerLogFileName = null;
 		useSAT = true;
 		debug = true;
-		useExhaustiveKSuccessor = true;
-		satProbabilities = new ProbabilitiesSimple();
+		useExhaustiveKSuccessor = false;
+		satProbabilities = new ProbabilitiesUnitMinimumSelfDistance();
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
