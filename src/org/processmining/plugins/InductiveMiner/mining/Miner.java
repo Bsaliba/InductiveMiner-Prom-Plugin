@@ -94,7 +94,7 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(1);
+		ThreadPool pool = new ThreadPool();
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -425,8 +425,9 @@ public class Miner {
 
 	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
 			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
-		SAT.Result satResult = (new XorCutSAT(directlyFollowsRelation, parameters)).solve();
-		satResult = (new SequenceCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
+		 
+		SAT.Result satResult = (new SequenceCutSAT(directlyFollowsRelation, parameters)).solve();
+		satResult = (new XorCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
 		satResult = (new ParallelCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
 		satResult = (new LoopCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
 
@@ -437,7 +438,7 @@ public class Miner {
 				FilterResults filterResults = log.applyFilterExclusiveChoice(xorCutIncomplete);
 				outputAndRecurse(parameters, target, index, pool, xorCutIncomplete, node, filterResults, log);
 				return true;
-			} else if (satResult.type == "loop") {
+			} else if (satResult.type == "sequence") {
 				final Binoperator node = new Sequence(satResult.cut.size());
 				FilterResults filterResults = log.applyFilterSequence(satResult.cut);
 				outputAndRecurse(parameters, target, index, pool, satResult.cut, node, filterResults, log);

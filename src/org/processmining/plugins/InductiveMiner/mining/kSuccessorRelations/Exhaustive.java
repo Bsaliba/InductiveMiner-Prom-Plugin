@@ -208,10 +208,4 @@ public class Exhaustive {
 			System.out.println(x);
 		}
 	}
-
-	private void debug(String x) {
-
-		System.out.println(x);
-
-	}
 }

@@ -25,24 +25,22 @@ public class SequenceCutSAT extends SAT {
 	}
 
 	public Result solve(Result mostProbableResult) {
-		if (mostProbableResult == null) {
-			mostProbableResult = new SAT.Result(null, null, 0, null);
-		}
-		debug("start SAT cut search sequence");
+		debug("start SAT search for sequence cut likelier than " + mostProbableResult.probability);
 		debug(Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2) + " rounds");
-		for (int c = 1; c <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2); c++) {
+		for (int c = 1; c <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
+				&& mostProbableResult.probability < 1; c++) {
 			Result result = solveSingle(c, mostProbableResult.probability);
 			if (result != null && result.probability >= mostProbableResult.probability) {
 				mostProbableResult = result;
 			}
 		}
-		debug("final optimal solution " + mostProbableResult);
+		//debug("final optimal solution " + mostProbableResult);
 		return mostProbableResult;
 	}
 
 	public Result solveSingle(int cutSize, double bestAverageTillNow) {
 
-		debug(" solve optimisation problem with cut size " + cutSize);
+		//debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
@@ -65,8 +63,9 @@ public class SequenceCutSAT extends SAT {
 			varCounter++;
 		}
 
-		//boundary edges
+		//boundary and violating edges
 		Map<Pair<XEventClass, XEventClass>, Edge> boundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> violatingEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = 0; j < countNodes; j++) {
 				if (i != j) {
@@ -76,6 +75,8 @@ public class SequenceCutSAT extends SAT {
 					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
 					varInt2var.put(varCounter, var);
 					varCounter++;
+
+					violatingEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdge(aI, aJ));
 				}
 			}
 		}
@@ -133,6 +134,26 @@ public class SequenceCutSAT extends SAT {
 				solver.addClause(new VecInt(clause2));
 			}
 
+			//constraint: cut(a) and -cut(b) <=> violating(b, a)
+			for (int i = 0; i < countNodes; i++) {
+				for (int j = 0; j < countNodes; j++) {
+					if (i != j) {
+						XEventClass aI = nodes[i];
+						XEventClass aJ = nodes[j];
+						int A = node2var.get(aI).getVarInt();
+						int B = node2var.get(aJ).getVarInt();
+						int C = violatingEdge2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
+
+						int clause1[] = { -A, B, C };
+						int clause2[] = { A, -C };
+						int clause3[] = { -B, -C };
+						solver.addClause(new VecInt(clause1));
+						solver.addClause(new VecInt(clause2));
+						solver.addClause(new VecInt(clause3));
+					}
+				}
+			}
+
 			//constraint: bl(a) => cut(a)
 			for (XEventClass a : graph.vertexSet()) {
 				int A = node2var.get(a).getVarInt();
@@ -165,7 +186,7 @@ public class SequenceCutSAT extends SAT {
 				solver.addClause(new VecInt(clause1));
 			}
 
-			//objective function: highest probabilities for edges
+			//objective function: highest probabilities for edges, lowest for violating edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
 			for (int i = 0; i < countNodes; i++) {
@@ -173,8 +194,13 @@ public class SequenceCutSAT extends SAT {
 					if (i != j) {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
+						BigInteger probability = probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ);
+
 						clause.push(boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						coefficients.push(probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ).negate());
+						coefficients.push(probability.negate());
+
+						clause.push(violatingEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+						coefficients.push(probability);
 					}
 				}
 			}
@@ -182,9 +208,8 @@ public class SequenceCutSAT extends SAT {
 			solver.setObjectiveFunction(obj);
 
 			//constraint: better than best previous run
-			BigInteger minObjectiveFunction = BigInteger
-					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow * cutSize));
-			debug("  minimal sum probability " + minObjectiveFunction.toString());
+			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
+					* bestAverageTillNow * cutSize));
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -193,16 +218,24 @@ public class SequenceCutSAT extends SAT {
 
 				//compute cost of cut
 				String x = "";
+				String ves = "";
 				double sumProbability = 0;
 				for (int i = 0; i < countNodes; i++) {
 					for (int j = 0; j < countNodes; j++) {
 						if (i != j) {
 							XEventClass aI = nodes[i];
 							XEventClass aJ = nodes[j];
+							double probability = probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
 							Edge e = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
-								x += e.toString() + " (" + probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ) + "), ";
-								sumProbability += probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
+								x += e.toString() + " (" + probability + "), ";
+								sumProbability += probability;
+							}
+
+							Edge ve = violatingEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+							if (ve.isResult()) {
+								ves += e.toString() + " (" + probability + "), ";
+								sumProbability -= probability;
 							}
 						}
 					}
@@ -226,23 +259,22 @@ public class SequenceCutSAT extends SAT {
 				double averageProbability = sumProbability / cutSize;
 				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "sequence");
 
-				//debug("   cut " + result2.cut);
+				debug("  " + result2.toString());
+				debug("   minimal sum probability " + minObjectiveFunction.toString());
 				debug("   boundary edges " + x);
 				debug("   boundary left " + bl);
 				debug("   boundary right " + br);
+				debug("   violating edges " + ves);
 				debug("   sum probability " + sumProbability);
-				//debug("   edges " + numberOfEdgesInCut);
-				//debug("   average probability per edge " + result2.probability);
-				debug("   " + result2.toString());
 
 				return result2;
 			} else {
-				debug("  no solution");
+				//debug("  no solution");
 			}
 		} catch (TimeoutException e) {
 			debug("  timeout");
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		}
 		return null;
 	}

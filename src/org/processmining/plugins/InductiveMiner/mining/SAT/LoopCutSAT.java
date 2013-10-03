@@ -25,23 +25,21 @@ public class LoopCutSAT extends SAT {
 	}
 
 	public Result solve(Result mostProbableResult) {
-		if (mostProbableResult == null) {
-			mostProbableResult = new SAT.Result(null, null, 0, null);
-		}
-		debug("start SAT cut search loop");
+		debug("start SAT search for loop cut likelier than " + mostProbableResult.probability);
 		debug(Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2) + " rounds");
-		for (int c = 1; c <= Math.pow(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2); c++) {
+		for (int c = 1; c <= Math.pow(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
+				&& mostProbableResult.probability < 1; c++) {
 			Result result = solveSingle(c, mostProbableResult.probability);
 			if (result != null && result.probability >= mostProbableResult.probability) {
 				mostProbableResult = result;
 			}
 		}
-		debug("final optimal solution " + mostProbableResult);
+		//debug("final optimal solution " + mostProbableResult);
 		return mostProbableResult;
 	}
 
 	protected Result solveSingle(int cutSize, double bestAverageTillNow) {
-		debug(" solve optimisation problem with cut size " + cutSize);
+		//debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
@@ -281,14 +279,15 @@ public class LoopCutSAT extends SAT {
 						XEventClass aJ = nodes[j];
 						//single, treat as sequence
 						clause.push(singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						coefficients.push(probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ)
-								.negate());
+						BigInteger pab = probabilities.getProbabilityLoopSingleB(directlyFollowsRelation, aI, aJ);
+						BigInteger pba = probabilities.getProbabilityLoopSingleB(directlyFollowsRelation, aJ, aI);
+						coefficients.push(pab.subtract(pba).negate());
 
 						//double, treat as parallel
 						if (i < j) {
 							clause.push(doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
 									.getVarInt());
-							coefficients.push(probabilities.getProbabilityParallelB(directlyFollowsRelation, aI, aJ)
+							coefficients.push(probabilities.getProbabilityLoopDoubleB(directlyFollowsRelation, aI, aJ).multiply(BigInteger.valueOf(2))
 									.negate());
 						}
 					}
@@ -300,7 +299,7 @@ public class LoopCutSAT extends SAT {
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
 					* bestAverageTillNow * cutSize));
-			debug("  minimal sum probability " + minObjectiveFunction.toString());
+			debug("  minimal sum probability " + minObjectiveFunction.toString() + " cut size " + cutSize);
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -322,19 +321,23 @@ public class LoopCutSAT extends SAT {
 								x += e.toString() + ", ";
 							}
 
+							//single edge
 							Edge se = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (se.isResult()) {
 								ses += se.toString() + ", ";
-								sumProbability += probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
+								double pab = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aI, aJ);
+								double pba = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aJ, aI);
+								sumProbability += pab - pba;
 							}
 
+							//double edge
 							if (i < j) {
 								Edge de = doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 								if (de.isResult()) {
 									des += de.toString() + " ("
-											+ probabilities.getProbabilityParallel(directlyFollowsRelation, aI, aJ)
+											+ probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI, aJ)
 											+ "), ";
-									sumProbability += probabilities.getProbabilityParallel(directlyFollowsRelation, aI,
+									sumProbability += probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI,
 											aJ) * 2;
 								}
 							}
@@ -365,6 +368,7 @@ public class LoopCutSAT extends SAT {
 					}
 				}
 
+				debug("  " + result2.toString());
 				debug("   boundary edges " + x);
 				debug("   single boundary edges " + ses);
 				debug("   double boundary edges " + des);
@@ -373,16 +377,15 @@ public class LoopCutSAT extends SAT {
 				debug("   start B " + sb);
 				debug("   end B " + eb);
 				debug("   sum probability " + sumProbability);
-				debug("   " + result2.toString());
 
 				return result2;
 			} else {
-				debug("  no solution");
+				//debug("  no solution");
 			}
 		} catch (TimeoutException e) {
-			debug("  timeout");
+			//debug("  timeout");
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		}
 		return null;
 	}
