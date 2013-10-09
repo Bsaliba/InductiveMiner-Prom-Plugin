@@ -20,7 +20,7 @@ public class DirectlyFollowsRelation {
 	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
 	private MultiSet<XEventClass> startActivities;
 	private MultiSet<XEventClass> endActivities;
-	private HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween;
+	private HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
 	private HashMap<XEventClass, Integer> minimumSelfDistances;
 	private int numberOfEpsilonTraces;
 	private int longestTrace;
@@ -40,7 +40,7 @@ public class DirectlyFollowsRelation {
 		startActivities = new MultiSet<XEventClass>();
 		endActivities = new MultiSet<XEventClass>();
 		minimumSelfDistances = new HashMap<XEventClass, Integer>();
-		minimumSelfDistancesBetween = new HashMap<XEventClass, Set<XEventClass>>();
+		minimumSelfDistancesBetween = new HashMap<XEventClass, MultiSet<XEventClass>>();
 		numberOfEpsilonTraces = 0;
 		longestTrace = 0;
 		lengthStrongestTrace = 0;
@@ -93,16 +93,25 @@ public class DirectlyFollowsRelation {
 				if (eventSeenAt.containsKey(toEventClass)) {
 					//we have detected an activity for the second time
 					//check whether this is shorter than what we had already seen
-					if (!minimumSelfDistances.containsKey(toEventClass)
-							|| traceSize - eventSeenAt.get(toEventClass) < minimumSelfDistances.get(toEventClass)) {
-						//keep the new minimum self distance
-						minimumSelfDistances.put(toEventClass, traceSize - eventSeenAt.get(toEventClass));
+					int oldDistance = Integer.MAX_VALUE;
+					if (minimumSelfDistances.containsKey(toEventClass)) {
+						oldDistance = minimumSelfDistances.get(toEventClass);
+					}
 
-						//store the new activities in between
-						minimumSelfDistancesBetween.put(
-								toEventClass,
-								new HashSet<XEventClass>(
-										readTrace.subList(eventSeenAt.get(toEventClass) + 1, traceSize)));
+					if (!minimumSelfDistances.containsKey(toEventClass)
+							|| traceSize - eventSeenAt.get(toEventClass) <= oldDistance) {
+						//keep the new minimum self distance
+						int newDistance = traceSize - eventSeenAt.get(toEventClass);
+						if (oldDistance > newDistance) {
+							//we found a shorter minimum self distance, record and restart with a new multiset
+							minimumSelfDistances.put(toEventClass, newDistance);
+
+							minimumSelfDistancesBetween.put(toEventClass, new MultiSet<XEventClass>());
+						}
+
+						//store the minimum self-distance activities
+						MultiSet<XEventClass> mb = minimumSelfDistancesBetween.get(toEventClass);
+						mb.addAll(readTrace.subList(eventSeenAt.get(toEventClass) + 1, traceSize), cardinality);
 					}
 				}
 				eventSeenAt.put(toEventClass, traceSize);
@@ -171,7 +180,7 @@ public class DirectlyFollowsRelation {
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
 			MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			HashMap<XEventClass, Set<XEventClass>> minimumSelfDistancesBetween,
+			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
 			HashMap<XEventClass, Integer> minimumSelfDistances, int numberOfEpsilonTraces, int longestTrace,
 			int lengthStrongestTrace, int strongestDirectEdge, int strongestEventualEdge, int strongestStartActivity,
 			int strongestEndActivity) {
@@ -331,7 +340,7 @@ public class DirectlyFollowsRelation {
 
 				//see if this edge is weak enough to justify adding the reversed edge
 				//debug(" check edge " + from + " -> " + to + " weight " + weight + " expected reverse weight " + Math.exp(1 / (1-threshold)));
-				if (threshold != 0 && (threshold == 1 || weight < Math.exp(1 / (1-threshold)))) {
+				if (threshold != 0 && (threshold == 1 || weight < Math.exp(1 / (1 - threshold)))) {
 					//if the reversed edge is not present, add it
 					if (!directlyFollowsGraph.containsEdge(to, from)) {
 						//debug("  add edge " + to + " -> " + from);
@@ -465,11 +474,18 @@ public class DirectlyFollowsRelation {
 		return longestTrace;
 	}
 
-	public Set<XEventClass> getMinimumSelfDistanceBetween(XEventClass activity) {
+	public MultiSet<XEventClass> getMinimumSelfDistanceBetween(XEventClass activity) {
 		if (!minimumSelfDistances.containsKey(activity)) {
-			return new HashSet<XEventClass>();
+			return new MultiSet<XEventClass>();
 		}
 		return minimumSelfDistancesBetween.get(activity);
+	}
+
+	public int getMinimumSelfDistance(XEventClass a) {
+		if (minimumSelfDistances.containsKey(a)) {
+			return minimumSelfDistances.get(a);
+		}
+		return 0;
 	}
 
 	private String colourMapBlackBody(int weight, int maxWeight) {

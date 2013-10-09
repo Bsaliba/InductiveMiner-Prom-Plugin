@@ -25,24 +25,31 @@ public class ProbabilitiesSimple extends Probabilities {
 			double x = graph.getEdgeWeight(graph.getEdge(a, b));
 			return 1 - 1 / (x + 1);
 		} else {
-			double average = (getActivityCount(relation, a) + getActivityCount(relation, b)) / 2.0;
-			return (1 / 3.0) * (1 / (average + 1));
+			double average = getAverageOccurrence(relation, a, b);
+			return (1 / 4.0) * (1 / (average + 1));
 		}
 	}
 
 	public double getProbabilityParallel(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		if (graph.containsEdge(a, b) && graph.containsEdge(b, a)) {
-			return 1;
+			if (relation.getMinimumSelfDistanceBetween(a).contains(b)
+					|| relation.getMinimumSelfDistanceBetween(b).contains(a)) {
+				double w = getMsdOccurrences(relation, a, b);
+				return 1 / (w + 1);
+			} else {
+				double z = getAverageOccurrence(relation, a, b);
+				return 1 - 1 / (z + 1);
+			}
 		} else if (graph.containsEdge(a, b)) {
 			double x = graph.getEdgeWeight(graph.getEdge(a, b));
-			return 1 / (x + 1);
+			return (1 / 2.0) * 1 / (x + 1);
 		} else if (graph.containsEdge(b, a)) {
-			double x = graph.getEdgeWeight(graph.getEdge(b, a));
-			return 1 / (x + 1);
+			double y = graph.getEdgeWeight(graph.getEdge(b, a));
+			return (1 / 2.0) * 1 / (y + 1);
 		} else {
-			double average = (getActivityCount(relation, a) + getActivityCount(relation, b)) / 2.0;
-			return (1 / 3.0) * (1 / (average + 1));
+			double average = getAverageOccurrence(relation, a, b);
+			return (1 / 4.0) * (1 / (average + 1));
 		}
 	}
 
@@ -51,6 +58,35 @@ public class ProbabilitiesSimple extends Probabilities {
 	}
 
 	public double getProbabilityLoopDouble(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
+		if (graph.containsEdge(a, b) && graph.containsEdge(b, a)) {
+			if (relation.getMinimumSelfDistanceBetween(a).contains(b)
+					|| relation.getMinimumSelfDistanceBetween(b).contains(a)) {
+				double w = getMsdOccurrences(relation, a, b);
+				return 1 - 1 / (w + 1);
+			} else {
+				double z = getAverageOccurrence(relation, a, b);
+				return 1 / (z + 1);
+			}
+		}
 		return getProbabilityParallel(relation, a, b);
+	}
+
+	private double getAverageOccurrence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+		return (getActivityCount(relation, a) + getActivityCount(relation, b)) / 2.0;
+	}
+
+	private double getMsdOccurrences(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+		double r = 0;
+
+		if (relation.getMinimumSelfDistance(a) > 0) {
+			r += relation.getMinimumSelfDistanceBetween(a).getCardinalityOf(b) / relation.getMinimumSelfDistance(a);
+		}
+
+		if (relation.getMinimumSelfDistance(b) > 0) {
+			r += relation.getMinimumSelfDistanceBetween(b).getCardinalityOf(a) / relation.getMinimumSelfDistance(b);
+		}
+
+		return r;
 	}
 }
