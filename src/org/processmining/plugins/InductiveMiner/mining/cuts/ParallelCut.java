@@ -54,7 +54,7 @@ public class ParallelCut {
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
 		if (useMinimumSelfDistance) {
 			for (XEventClass activity : graph.vertexSet()) {
-				for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity)) {
+				for (XEventClass activity2 : dfr.getMinimumSelfDistanceBetween(activity).toSet()) {
 					negatedGraph.addEdge(activity, activity2);
 				}
 			}

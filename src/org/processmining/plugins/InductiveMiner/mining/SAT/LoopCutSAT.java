@@ -299,7 +299,7 @@ public class LoopCutSAT extends SAT {
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
 					* bestAverageTillNow * cutSize));
-			debug("  minimal sum probability " + minObjectiveFunction.toString() + " cut size " + cutSize);
+			//debug("  minimal sum probability " + minObjectiveFunction.toString() + " cut size " + cutSize);
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result

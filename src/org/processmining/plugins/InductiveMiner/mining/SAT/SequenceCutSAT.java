@@ -26,7 +26,6 @@ public class SequenceCutSAT extends SAT {
 
 	public Result solve(Result mostProbableResult) {
 		debug("start SAT search for sequence cut likelier than " + mostProbableResult.probability);
-		debug(Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2) + " rounds");
 		for (int c = 1; c <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
 				&& mostProbableResult.probability < 1; c++) {
 			Result result = solveSingle(c, mostProbableResult.probability);

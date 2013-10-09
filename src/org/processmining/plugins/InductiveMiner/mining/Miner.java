@@ -138,7 +138,10 @@ public class Miner {
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
 		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log, parameters);
-
+		
+		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
+			debug("msd " + a.toString() + " (" + directlyFollowsRelation.getMinimumSelfDistance(a) + "): " + directlyFollowsRelation.getMinimumSelfDistanceBetween(a).toString(), parameters);
+		}
 		debug(kSuccessor.toString(), parameters);
 
 		//base case: empty log
