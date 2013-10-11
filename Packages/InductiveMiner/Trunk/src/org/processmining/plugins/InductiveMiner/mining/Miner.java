@@ -22,6 +22,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.LoopCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.SAT.ParallelCutSAT;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SAT;
@@ -94,7 +95,7 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool();
+		ThreadPool pool = new ThreadPool(1);
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -143,6 +144,8 @@ public class Miner {
 			debug("msd " + a.toString() + " (" + directlyFollowsRelation.getMinimumSelfDistance(a) + "): " + directlyFollowsRelation.getMinimumSelfDistanceBetween(a).toString(), parameters);
 		}
 		debug(kSuccessor.toString(), parameters);
+		
+		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {

@@ -77,16 +77,6 @@ public class ProbabilitiesSimple extends Probabilities {
 	}
 
 	private double getMsdOccurrences(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		double r = 0;
-
-		if (relation.getMinimumSelfDistance(a) > 0) {
-			r += relation.getMinimumSelfDistanceBetween(a).getCardinalityOf(b) / relation.getMinimumSelfDistance(a);
-		}
-
-		if (relation.getMinimumSelfDistance(b) > 0) {
-			r += relation.getMinimumSelfDistanceBetween(b).getCardinalityOf(a) / relation.getMinimumSelfDistance(b);
-		}
-
-		return r;
+		return relation.getMinimumSelfDistanceBetween(a).getCardinalityOf(b) + relation.getMinimumSelfDistanceBetween(b).getCardinalityOf(a);
 	}
 }

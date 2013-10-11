@@ -39,7 +39,7 @@ public class SequenceCutSAT extends SAT {
 
 	public Result solveSingle(int cutSize, double bestAverageTillNow) {
 
-		//debug(" solve optimisation problem with cut size " + cutSize);
+		debug(" solve optimisation problem with cut size " + cutSize);
 
 		newSolver();
 
@@ -118,20 +118,21 @@ public class SequenceCutSAT extends SAT {
 				}
 			}
 
-			//constraint: (a, b) \in dfg and -cut(a) and cut(b) => bl(a) and br(b)
-			for (DefaultWeightedEdge e : graph.edgeSet()) {
-				XEventClass aI = graph.getEdgeSource(e);
-				XEventClass aJ = graph.getEdgeTarget(e);
-				int A = node2var.get(aI).getVarInt();
-				int B = node2var.get(aJ).getVarInt();
-				int C = nodeIsBoundaryLeft.get(aI).getVarInt();
-				int D = nodeIsBoundaryRight.get(aJ).getVarInt();
-
-				int clause1[] = { -A, B, C };
-				int clause2[] = { -A, B, D };
-				solver.addClause(new VecInt(clause1));
-				solver.addClause(new VecInt(clause2));
-			}
+//			this constraint assumes no-noise
+//			//constraint: (a, b) \in dfg and -cut(a) and cut(b) => bl(a) and br(b)
+//			for (DefaultWeightedEdge e : graph.edgeSet()) {
+//				XEventClass aI = graph.getEdgeSource(e);
+//				XEventClass aJ = graph.getEdgeTarget(e);
+//				int A = node2var.get(aI).getVarInt();
+//				int B = node2var.get(aJ).getVarInt();
+//				int C = nodeIsBoundaryLeft.get(aI).getVarInt();
+//				int D = nodeIsBoundaryRight.get(aJ).getVarInt();
+//
+//				int clause1[] = { -A, B, C };
+//				int clause2[] = { -A, B, D };
+//				solver.addClause(new VecInt(clause1));
+//				solver.addClause(new VecInt(clause2));
+//			}
 
 			//constraint: cut(a) and -cut(b) <=> violating(b, a)
 			for (int i = 0; i < countNodes; i++) {
