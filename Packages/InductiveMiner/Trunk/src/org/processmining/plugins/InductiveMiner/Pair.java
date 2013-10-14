@@ -23,14 +23,13 @@ public class Pair<L, R> {
 		return left.hashCode() ^ right.hashCode();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
 		if (!(o instanceof Pair))
 			return false;
-		Pair pairo = (Pair) o;
+		Pair<?, ?> pairo = (Pair<?, ?>) o;
 		return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
 	}
 
