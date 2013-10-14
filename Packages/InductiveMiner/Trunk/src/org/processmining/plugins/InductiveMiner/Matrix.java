@@ -12,43 +12,6 @@ public class Matrix<X extends Comparable<X>, Y extends Number> {
 	private List<X> activities;
 	private boolean includeStartEnd;
 
-	private class Maybe<X> {
-		private X x;
-
-		public Maybe(X x) {
-			this.x = x;
-		}
-
-		public X get() {
-			return x;
-		}
-
-		@Override
-		public int hashCode() {
-			if (x != null) {
-				return x.hashCode();
-			} else {
-				return 0;
-			}
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o == null) {
-				return false;
-			} else if (o instanceof Matrix<?, ?>.Maybe<?>) {
-				Matrix<?, ?>.Maybe<?> o2 = (Matrix<?, ?>.Maybe<?>) o;
-				if (get() == null && o2.get() == null) {
-					return true;
-				} else if (get() == null || o2.get() == null) {
-					return false;
-				}
-				return this.get().equals(o2.get());
-			}
-			return false;
-		}
-	}
-
 	public Matrix(Set<X> activities, boolean includeStartEnd) {
 		matrix = new HashMap<Pair<Maybe<X>, Maybe<X>>, Y>();
 		this.activities = new ArrayList<X>(activities);
