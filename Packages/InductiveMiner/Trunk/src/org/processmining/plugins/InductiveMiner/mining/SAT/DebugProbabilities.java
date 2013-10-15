@@ -10,7 +10,8 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 public class DebugProbabilities {
 	public static String debug(DirectlyFollowsRelation relation, MiningParameters parameters) {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		
+		parameters.getSatProbabilities().setDirectlyFollowsRelation(relation);
+
 		if (graph.vertexSet().size() == 1) {
 			return "";
 		}
@@ -22,7 +23,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(relation, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(a, b));
 					}
 				}
 			}
@@ -36,7 +37,21 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(relation, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(a, b));
+					}
+				}
+			}
+			r.append(m.toString());
+			r.append("\n");
+		}
+		
+		{
+			r.append("loop single\n");
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
+			for (XEventClass a : graph.vertexSet()) {
+				for (XEventClass b : graph.vertexSet()) {
+					if (a != b) {
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(a, b));
 					}
 				}
 			}
@@ -50,7 +65,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(relation, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(a, b));
 					}
 				}
 			}
@@ -64,7 +79,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(relation, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(a, b));
 					}
 				}
 			}

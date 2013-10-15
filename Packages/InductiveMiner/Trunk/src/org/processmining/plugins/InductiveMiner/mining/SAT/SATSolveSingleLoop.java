@@ -52,13 +52,13 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				if (i != j) {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
-					
+
 					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					singleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					if (i < j) {
 						doubleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					}
-					
+
 				}
 			}
 		}
@@ -239,15 +239,15 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						//single, treat as sequence
 						clause.push(singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						BigInteger pab = probabilities.getProbabilityLoopSingleB(directlyFollowsRelation, aI, aJ);
-						BigInteger pba = probabilities.getProbabilityLoopSingleB(directlyFollowsRelation, aJ, aI);
+						BigInteger pab = probabilities.getProbabilityLoopSingleB(aI, aJ);
+						BigInteger pba = probabilities.getProbabilityLoopSingleB(aJ, aI);
 						coefficients.push(pab.subtract(pba).negate());
 
 						//double, treat as parallel
 						if (i < j) {
 							clause.push(doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
 									.getVarInt());
-							coefficients.push(probabilities.getProbabilityLoopDoubleB(directlyFollowsRelation, aI, aJ)
+							coefficients.push(probabilities.getProbabilityLoopDoubleB(aI, aJ)
 									.multiply(BigInteger.valueOf(2)).negate());
 						}
 					}
@@ -285,8 +285,8 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							Edge se = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (se.isResult()) {
 								ses += se.toString() + ", ";
-								double pab = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aI, aJ);
-								double pba = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aJ, aI);
+								double pab = probabilities.getProbabilityLoopSingle(aI, aJ);
+								double pba = probabilities.getProbabilityLoopSingle(aJ, aI);
 								sumProbability += pab - pba;
 							}
 
@@ -294,11 +294,9 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							if (i < j) {
 								Edge de = doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 								if (de.isResult()) {
-									des += de.toString() + " ("
-											+ probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI, aJ)
+									des += de.toString() + " (" + probabilities.getProbabilityLoopDouble(aI, aJ)
 											+ "), ";
-									sumProbability += probabilities.getProbabilityLoopDouble(directlyFollowsRelation,
-											aI, aJ) * 2;
+									sumProbability += probabilities.getProbabilityLoopDouble(aI, aJ) * 2;
 								}
 							}
 						}

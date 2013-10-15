@@ -47,7 +47,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 				if (i != j) {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
-					
+
 					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					violatingEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 				}
@@ -168,7 +168,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 					if (i != j) {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
-						BigInteger probability = probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ);
+						BigInteger probability = probabilities.getProbabilitySequenceB(aI, aJ);
 
 						clause.push(boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
 						coefficients.push(probability.negate());
@@ -199,7 +199,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 						if (i != j) {
 							XEventClass aI = nodes[i];
 							XEventClass aJ = nodes[j];
-							double probability = probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
+							double probability = probabilities.getProbabilitySequence(aI, aJ);
 							Edge e = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
 								x += e.toString() + " (" + probability + "), ";

@@ -23,7 +23,7 @@ import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleXor extends SATSolveSingle {
-	
+
 	private class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
 		public int compare(Triple<Integer, Integer, BigInteger> arg0, Triple<Integer, Integer, BigInteger> arg1) {
 			return arg1.getC().compareTo(arg0.getC());
@@ -51,9 +51,9 @@ public class SATSolveSingleXor extends SATSolveSingle {
 			for (int j = i + 1; j < countNodes; j++) {
 				XEventClass aI = nodes[i];
 				XEventClass aJ = nodes[j];
-				
+
 				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
-				
+
 				//maximal boundary edge
 				maximumBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 			}
@@ -116,9 +116,9 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
 						int e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-						int mbe = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();						
-						list.add(new Triple<Integer, Integer, BigInteger>(e, mbe, probabilities.getProbabilityXorB(
-								directlyFollowsRelation, aI, aJ)));
+						int mbe = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						list.add(new Triple<Integer, Integer, BigInteger>(e, mbe, probabilities.getProbabilityXorB(aI,
+								aJ)));
 					}
 				}
 				Collections.sort(list, new Compare());
@@ -143,15 +143,15 @@ public class SATSolveSingleXor extends SATSolveSingle {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityXorB(directlyFollowsRelation, aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityXorB(aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
 			solver.setObjectiveFunction(obj);
 
 			//constraint: better than best previous run
-			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
-					* bestAverageTillNow));
+			BigInteger minObjectiveFunction = BigInteger
+					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow));
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -168,15 +168,13 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							x += e.toString() + " (" + probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ)
-									+ "), ";
+							x += e.toString() + " (" + probabilities.getProbabilityXor(aI, aJ) + "), ";
 						}
 
 						Edge mbe = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (mbe.isResult()) {
-							mbes += e.toString() + " ("
-									+ probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ) + "), ";
-							sumProbability += probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ);
+							mbes += e.toString() + " (" + probabilities.getProbabilityXor(aI, aJ) + "), ";
+							sumProbability += probabilities.getProbabilityXor(aI, aJ);
 						}
 					}
 				}

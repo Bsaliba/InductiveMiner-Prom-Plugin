@@ -433,8 +433,9 @@ public class Miner {
 	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
 			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		 
-		ThreadPool SATPool = new ThreadPool(2);
+		ThreadPool SATPool = new ThreadPool();
 		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
+		parameters.getSatProbabilities().setDirectlyFollowsRelation(directlyFollowsRelation);
 		
 		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
 		(new SATSolveSequence(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
