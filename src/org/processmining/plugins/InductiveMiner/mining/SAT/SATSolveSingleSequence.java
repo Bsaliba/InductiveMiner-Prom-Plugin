@@ -18,30 +18,14 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
-public class SequenceCutSAT extends SAT {
+public class SATSolveSingleSequence extends SATSolveSingle {
 
-	public SequenceCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+	public SATSolveSingleSequence(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
 	}
 
-	public Result solve(Result mostProbableResult) {
-		debug("start SAT search for sequence cut likelier than " + mostProbableResult.probability);
-		for (int c = 1; c <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
-				&& mostProbableResult.probability < 1; c++) {
-			Result result = solveSingle(c, mostProbableResult.probability);
-			if (result != null && result.probability >= mostProbableResult.probability) {
-				mostProbableResult = result;
-			}
-		}
-		//debug("final optimal solution " + mostProbableResult);
-		return mostProbableResult;
-	}
-
-	public Result solveSingle(int cutSize, double bestAverageTillNow) {
-
-		debug(" solve optimisation problem with cut size " + cutSize);
-
-		newSolver();
+	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
+		//debug(" solve sequence with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
@@ -51,15 +35,8 @@ public class SequenceCutSAT extends SAT {
 		Map<XEventClass, Node> nodeIsBoundaryLeft = new HashMap<XEventClass, Node>();
 		Map<XEventClass, Node> nodeIsBoundaryRight = new HashMap<XEventClass, Node>();
 		for (XEventClass a : nodes) {
-			Node n1 = new Node(varCounter, a);
-			nodeIsBoundaryLeft.put(a, n1);
-			varInt2var.put(varCounter, n1);
-			varCounter++;
-
-			Node n2 = new Node(varCounter, a);
-			nodeIsBoundaryRight.put(a, n2);
-			varInt2var.put(varCounter, n2);
-			varCounter++;
+			nodeIsBoundaryLeft.put(a, newNodeVar(a));
+			nodeIsBoundaryRight.put(a, newNodeVar(a));
 		}
 
 		//boundary and violating edges
@@ -70,12 +47,9 @@ public class SequenceCutSAT extends SAT {
 				if (i != j) {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
-					Edge var = new Edge(varCounter, aI, aJ);
-					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
-					varInt2var.put(varCounter, var);
-					varCounter++;
-
-					violatingEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdge(aI, aJ));
+					
+					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					violatingEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 				}
 			}
 		}
@@ -118,21 +92,21 @@ public class SequenceCutSAT extends SAT {
 				}
 			}
 
-//			this constraint assumes no-noise
-//			//constraint: (a, b) \in dfg and -cut(a) and cut(b) => bl(a) and br(b)
-//			for (DefaultWeightedEdge e : graph.edgeSet()) {
-//				XEventClass aI = graph.getEdgeSource(e);
-//				XEventClass aJ = graph.getEdgeTarget(e);
-//				int A = node2var.get(aI).getVarInt();
-//				int B = node2var.get(aJ).getVarInt();
-//				int C = nodeIsBoundaryLeft.get(aI).getVarInt();
-//				int D = nodeIsBoundaryRight.get(aJ).getVarInt();
-//
-//				int clause1[] = { -A, B, C };
-//				int clause2[] = { -A, B, D };
-//				solver.addClause(new VecInt(clause1));
-//				solver.addClause(new VecInt(clause2));
-//			}
+			//					this constraint assumes no-noise
+			//					//constraint: (a, b) \in dfg and -cut(a) and cut(b) => bl(a) and br(b)
+			//					for (DefaultWeightedEdge e : graph.edgeSet()) {
+			//						XEventClass aI = graph.getEdgeSource(e);
+			//						XEventClass aJ = graph.getEdgeTarget(e);
+			//						int A = node2var.get(aI).getVarInt();
+			//						int B = node2var.get(aJ).getVarInt();
+			//						int C = nodeIsBoundaryLeft.get(aI).getVarInt();
+			//						int D = nodeIsBoundaryRight.get(aJ).getVarInt();
+			//
+			//						int clause1[] = { -A, B, C };
+			//						int clause2[] = { -A, B, D };
+			//						solver.addClause(new VecInt(clause1));
+			//						solver.addClause(new VecInt(clause2));
+			//					}
 
 			//constraint: cut(a) and -cut(b) <=> violating(b, a)
 			for (int i = 0; i < countNodes; i++) {
@@ -257,15 +231,15 @@ public class SequenceCutSAT extends SAT {
 				}
 
 				double averageProbability = sumProbability / cutSize;
-				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "sequence");
+				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "sequence");
 
-				debug("  " + result2.toString());
-				debug("   minimal sum probability " + minObjectiveFunction.toString());
-				debug("   boundary edges " + x);
-				debug("   boundary left " + bl);
-				debug("   boundary right " + br);
-				debug("   violating edges " + ves);
-				debug("   sum probability " + sumProbability);
+				//debug("  " + result2.toString());
+				//debug("   minimal sum probability " + minObjectiveFunction.toString());
+				//debug("   boundary edges " + x);
+				//debug("   boundary left " + bl);
+				//debug("   boundary right " + br);
+				//debug("   violating edges " + ves);
+				//debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
@@ -278,4 +252,5 @@ public class SequenceCutSAT extends SAT {
 		}
 		return null;
 	}
+
 }

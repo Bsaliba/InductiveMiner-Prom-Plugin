@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -23,34 +22,20 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
-public class XorCutSAT extends SAT {
-
-	public class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
+public class SATSolveSingleXor extends SATSolveSingle {
+	
+	private class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
 		public int compare(Triple<Integer, Integer, BigInteger> arg0, Triple<Integer, Integer, BigInteger> arg1) {
 			return arg1.getC().compareTo(arg0.getC());
 		}
 	}
 
-	public XorCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+	public SATSolveSingleXor(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
 	}
-	
-	public Result solve(Result mostProbableResult) {
-		debug("start SAT search for exclusive choice cut likelier than " + mostProbableResult.probability);
-		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2 && mostProbableResult.probability < 1; i++) {
-			Result result = solveSingle(i, mostProbableResult.probability);
-			if (result != null && result.probability >= mostProbableResult.probability) {
-				mostProbableResult = result;
-			}
-		}
-		return mostProbableResult;
-	}
 
-	public Result solveSingle(int cutSize, double bestAverageTillNow) {
-
-		debug(" solve optimisation problem with cut size " + cutSize + " likelier than " + bestAverageTillNow);
-
-		newSolver();
+	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
+		//debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
@@ -60,22 +45,17 @@ public class XorCutSAT extends SAT {
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
 
 		//edges
-		Map<Pair<XEventClass, XEventClass>, Edge> edge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		Map<Pair<XEventClass, XEventClass>, Edge> maximumBoundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		HashMap<Pair<XEventClass, XEventClass>, Edge> edge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		HashMap<Pair<XEventClass, XEventClass>, Edge> maximumBoundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = i + 1; j < countNodes; j++) {
 				XEventClass aI = nodes[i];
 				XEventClass aJ = nodes[j];
-				Edge var = new Edge(varCounter, aI, aJ);
-				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
-				varInt2var.put(varCounter, var);
-				varCounter++;
-
+				
+				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+				
 				//maximal boundary edge
-				Edge var2 = new Edge(varCounter, aI, aJ);
-				maximumBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var2);
-				varInt2var.put(varCounter, var2);
-				varCounter++;
+				maximumBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 			}
 		}
 
@@ -202,12 +182,12 @@ public class XorCutSAT extends SAT {
 				}
 
 				double averageProbability = sumProbability;
-				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "xor");
+				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "xor");
 
-				debug("  " + result2.toString());
-				debug("   edges " + x);
-				debug("   maximum boundary edges " + mbes);
-				debug("   sum probability " + sumProbability);
+				//debug("  " + result2.toString());
+				//debug("   edges " + x);
+				//debug("   maximum boundary edges " + mbes);
+				//debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
@@ -215,11 +195,10 @@ public class XorCutSAT extends SAT {
 			}
 		} catch (ContradictionException e) {
 			//debug("  inconsistent problem " + e);
-		} catch (TimeoutException e) {
-			//debug("  timeout");
+		} catch (TimeoutException e1) {
+			//debug("  time out " + e);
 		}
-
-		return new Result(null, null, 0, null);
+		return null;
 	}
 
 }
