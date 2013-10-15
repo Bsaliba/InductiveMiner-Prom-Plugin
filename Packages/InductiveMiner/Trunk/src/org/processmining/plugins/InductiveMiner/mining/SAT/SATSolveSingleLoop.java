@@ -18,60 +18,29 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
-public class LoopCutSAT extends SAT {
+public class SATSolveSingleLoop extends SATSolveSingle {
 
-	public LoopCutSAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+	public SATSolveSingleLoop(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
 	}
 
-	public Result solve(Result mostProbableResult) {
-		debug("start SAT search for loop cut likelier than " + mostProbableResult.probability);
-		debug(Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2) + " rounds");
-		for (int c = 1; c <= Math.pow(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
-				&& mostProbableResult.probability < 1; c++) {
-			Result result = solveSingle(c, mostProbableResult.probability);
-			if (result != null && result.probability >= mostProbableResult.probability) {
-				mostProbableResult = result;
-			}
-		}
-		//debug("final optimal solution " + mostProbableResult);
-		return mostProbableResult;
-	}
-
-	protected Result solveSingle(int cutSize, double bestAverageTillNow) {
-		//debug(" solve optimisation problem with cut size " + cutSize);
-
-		newSolver();
+	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
+		//debug(" solve loop with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
 		Probabilities probabilities = parameters.getSatProbabilities();
 
-		//startA, endA, startB, endB
+		//build startA, endA, startB, endB
 		Map<XEventClass, Node> startA = new HashMap<XEventClass, Node>();
 		Map<XEventClass, Node> endA = new HashMap<XEventClass, Node>();
 		Map<XEventClass, Node> startB = new HashMap<XEventClass, Node>();
 		Map<XEventClass, Node> endB = new HashMap<XEventClass, Node>();
 		for (XEventClass a : nodes) {
-			Node n1 = new Node(varCounter, a);
-			startA.put(a, n1);
-			varInt2var.put(varCounter, n1);
-			varCounter++;
-
-			Node n2 = new Node(varCounter, a);
-			endA.put(a, n2);
-			varInt2var.put(varCounter, n2);
-			varCounter++;
-
-			Node n3 = new Node(varCounter, a);
-			startB.put(a, n3);
-			varInt2var.put(varCounter, n3);
-			varCounter++;
-
-			Node n4 = new Node(varCounter, a);
-			endB.put(a, n4);
-			varInt2var.put(varCounter, n4);
-			varCounter++;
+			startA.put(a, newNodeVar(a));
+			endA.put(a, newNodeVar(a));
+			startB.put(a, newNodeVar(a));
+			endB.put(a, newNodeVar(a));
 		}
 
 		//single and double boundary edges
@@ -83,22 +52,13 @@ public class LoopCutSAT extends SAT {
 				if (i != j) {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
-					Edge var = new Edge(varCounter, aI, aJ);
-					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var);
-					varInt2var.put(varCounter, var);
-					varCounter++;
-
-					Edge var2 = new Edge(varCounter, aI, aJ);
-					singleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var2);
-					varInt2var.put(varCounter, var2);
-					varCounter++;
-
+					
+					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					singleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					if (i < j) {
-						Edge var3 = new Edge(varCounter, aI, aJ);
-						doubleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), var3);
-						varInt2var.put(varCounter, var3);
-						varCounter++;
+						doubleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 					}
+					
 				}
 			}
 		}
@@ -287,8 +247,8 @@ public class LoopCutSAT extends SAT {
 						if (i < j) {
 							clause.push(doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
 									.getVarInt());
-							coefficients.push(probabilities.getProbabilityLoopDoubleB(directlyFollowsRelation, aI, aJ).multiply(BigInteger.valueOf(2))
-									.negate());
+							coefficients.push(probabilities.getProbabilityLoopDoubleB(directlyFollowsRelation, aI, aJ)
+									.multiply(BigInteger.valueOf(2)).negate());
 						}
 					}
 				}
@@ -337,8 +297,8 @@ public class LoopCutSAT extends SAT {
 									des += de.toString() + " ("
 											+ probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI, aJ)
 											+ "), ";
-									sumProbability += probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI,
-											aJ) * 2;
+									sumProbability += probabilities.getProbabilityLoopDouble(directlyFollowsRelation,
+											aI, aJ) * 2;
 								}
 							}
 						}
@@ -346,7 +306,7 @@ public class LoopCutSAT extends SAT {
 				}
 
 				double averageProbability = sumProbability / cutSize;
-				Result result2 = new Result(result.getLeft(), result.getRight(), averageProbability, "loop");
+				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "loop");
 
 				//debug
 				String sa = "";
@@ -368,15 +328,15 @@ public class LoopCutSAT extends SAT {
 					}
 				}
 
-				debug("  " + result2.toString());
-				debug("   boundary edges " + x);
-				debug("   single boundary edges " + ses);
-				debug("   double boundary edges " + des);
-				debug("   start A " + sa);
-				debug("   end A " + ea);
-				debug("   start B " + sb);
-				debug("   end B " + eb);
-				debug("   sum probability " + sumProbability);
+				//debug("  " + result2.toString());
+				//debug("   boundary edges " + x);
+				//debug("   single boundary edges " + ses);
+				//debug("   double boundary edges " + des);
+				//debug("   start A " + sa);
+				//debug("   end A " + ea);
+				//debug("   start B " + sb);
+				//debug("   end B " + eb);
+				//debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {

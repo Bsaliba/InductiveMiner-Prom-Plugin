@@ -2,8 +2,6 @@ package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,36 +14,7 @@ import org.sat4j.pb.SolverFactory;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.TimeoutException;
 
-public abstract class SAT {
-
-	public class Result {
-		public List<Set<XEventClass>> cut;
-		public double probability;
-		public String type;
-
-		public Result(Set<XEventClass> cutA, Set<XEventClass> cutB, double probability, String type) {
-			if (cutA == null || cutB == null) {
-				cut = null;
-			} else {
-				cut = new LinkedList<Set<XEventClass>>();
-				cut.add(cutA);
-				cut.add(cutB);
-			}
-			this.probability = probability;
-			this.type = type;
-		}
-
-		public String toString() {
-			StringBuilder s = new StringBuilder();
-			s.append("probability " + probability);
-			if (cut != null) {
-				s.append(", " + type + " cut ");
-				s.append(cut.toString());
-			}
-			return s.toString();
-		}
-
-	}
+public abstract class SATSolveSingle {
 
 	protected abstract class Var {
 		private final int varInt;
@@ -105,18 +74,30 @@ public abstract class SAT {
 	}
 
 	protected Map<Integer, Var> varInt2var;
-	protected int varCounter;
 	protected IPBSolver solver;
 	protected Map<XEventClass, Node> node2var;
-	protected final DirectlyFollowsRelation directlyFollowsRelation;
+	protected XEventClass[] nodes;
 	protected int countNodes;
-	XEventClass[] nodes;
+	
+	private int varCounter;
+
+	protected final DirectlyFollowsRelation directlyFollowsRelation;
 	protected final MiningParameters parameters;
 
-	public SAT(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
-		this.parameters = parameters;
+	public SATSolveSingle(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
+		varInt2var = new HashMap<Integer, Var>();
+		varCounter = 1;
+		solver = SolverFactory.newDefaultOptimizer();
 		this.directlyFollowsRelation = directlyFollowsRelation;
+		this.parameters = parameters;
+
 		countNodes = directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size();
+
+		//initialise nodes
+		node2var = new HashMap<XEventClass, Node>();
+		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
+			node2var.put(a, newNodeVar(a));
+		}
 
 		//make a list of nodes instead of the set
 		nodes = new XEventClass[countNodes];
@@ -129,37 +110,8 @@ public abstract class SAT {
 		}
 	}
 
-	public Result solve() {
-		return solve(new SAT.Result(null, null, 0, null));
-	}
-
-	public abstract Result solve(Result mostProbableResult);
-
-	protected abstract Result solveSingle(int cutSize, double bestAverageTillNow);
-
-	protected void newSolver() {
-		varInt2var = new HashMap<Integer, ParallelCutSAT.Var>();
-		varCounter = 1;
-		solver = SolverFactory.newDefaultOptimizer();
-
-		//initialise nodes
-		node2var = new HashMap<XEventClass, Node>();
-		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
-			Node var = new Node(varCounter, a);
-			node2var.put(a, var);
-			varInt2var.put(varCounter, var);
-
-			varCounter++;
-		}
-	}
+	public abstract SATResult solveSingle(int cutSize, double bestAverageTillNow);
 	
-	protected Edge newEdge(XEventClass a, XEventClass b) {
-		Edge var = new Edge(varCounter, a, b);
-		varInt2var.put(varCounter, var);
-		varCounter++;
-		return var;
-	}
-
 	protected Pair<Set<XEventClass>, Set<XEventClass>> compute() throws TimeoutException {
 		IProblem problem = solver;
 		if (problem.isSatisfiable()) {
@@ -188,7 +140,21 @@ public abstract class SAT {
 		}
 		return null;
 	}
-
+	
+	protected Edge newEdgeVar(XEventClass a, XEventClass b) {
+		Edge var = new Edge(varCounter, a, b);
+		varInt2var.put(varCounter, var);
+		varCounter++;
+		return var;
+	}
+	
+	protected Node newNodeVar(XEventClass a) {
+		Node var = new Node(varCounter, a);
+		varInt2var.put(varCounter, var);
+		varCounter++;
+		return var;
+	}
+	
 	protected void debug(String x) {
 		if (parameters.isDebug()) {
 			System.out.println(x);
