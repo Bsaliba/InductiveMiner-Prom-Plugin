@@ -11,7 +11,7 @@ public class ProbabilitiesEventuallyFollows extends Probabilities {
 
 	public double getProbabilityXor(XEventClass a, XEventClass b) {
 		if (!D(a, b) && !D(b, a) && !E(a, b) && !E(b, a)) {
-			return 1 - (1 / (z(a,b) + 1));
+			return 1 - (1 / (z(a, b) + 1));
 		}
 		return 0;
 	}
@@ -50,10 +50,10 @@ public class ProbabilitiesEventuallyFollows extends Probabilities {
 			}
 		}
 		//D(a,b) xor D(b,a)
-		if (!E(a, b)) {
-			return (1 / 3.0) * 1 / (x(a, b) + 1);
-		} else {
+		if (E(a, b) && E(b, a)) {
 			return (1 / 2.0) * 1 / (x(a, b) + 1);
+		} else {
+			return (1 / 3.0) * 1 / (x(a, b) + 1);
 		}
 	}
 

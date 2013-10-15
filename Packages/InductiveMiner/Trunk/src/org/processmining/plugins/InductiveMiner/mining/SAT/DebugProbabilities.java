@@ -51,7 +51,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(a, b));
 					}
 				}
 			}
