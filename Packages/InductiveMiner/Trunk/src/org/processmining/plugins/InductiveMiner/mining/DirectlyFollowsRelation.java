@@ -175,7 +175,7 @@ public class DirectlyFollowsRelation {
 			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
 	}
-
+	
 	private DirectlyFollowsRelation(
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,

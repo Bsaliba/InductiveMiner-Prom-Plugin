@@ -24,7 +24,7 @@ public class MiningParameters {
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		noiseThreshold = (float) 0.0;
-		incompleteThreshold = (float) 0.5;
+		incompleteThreshold = (float) 0.0;
 		outputDFGfileName = "D:\\output";
 		outputFlowerLogFileName = null;
 		useSAT = true;
