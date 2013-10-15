@@ -22,12 +22,13 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.LoopCutSAT;
-import org.processmining.plugins.InductiveMiner.mining.SAT.ParallelCutSAT;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SAT;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SequenceCutSAT;
-import org.processmining.plugins.InductiveMiner.mining.SAT.XorCutSAT;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveLoop;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveParallel;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveSequence;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveXor;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
@@ -432,33 +433,44 @@ public class Miner {
 	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
 			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		 
-		SAT.Result satResult = (new SequenceCutSAT(directlyFollowsRelation, parameters)).solve();
-		satResult = (new XorCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
-		satResult = (new ParallelCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
-		satResult = (new LoopCutSAT(directlyFollowsRelation, parameters)).solve(satResult);
+		ThreadPool SATPool = new ThreadPool(2);
+		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
+		
+		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveSequence(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveParallel(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveLoop(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
+		
+		try {
+			SATPool.join();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+			return false;
+		}
+		SATResult satResult = bestSATResult.get();
 
-		if (satResult.cut != null) {
-			if (satResult.type == "xor") {
-				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.cut);
+		if (satResult.getCut() != null) {
+			if (satResult.getType() == "xor") {
+				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.getCut());
 				final Binoperator node = new ExclusiveChoice(xorCutIncomplete.size());
 				FilterResults filterResults = log.applyFilterExclusiveChoice(xorCutIncomplete);
 				outputAndRecurse(parameters, target, index, pool, xorCutIncomplete, node, filterResults, log);
 				return true;
-			} else if (satResult.type == "sequence") {
-				final Binoperator node = new Sequence(satResult.cut.size());
-				FilterResults filterResults = log.applyFilterSequence(satResult.cut);
-				outputAndRecurse(parameters, target, index, pool, satResult.cut, node, filterResults, log);
+			} else if (satResult.getType() == "sequence") {
+				final Binoperator node = new Sequence(satResult.getCut().size());
+				FilterResults filterResults = log.applyFilterSequence(satResult.getCut());
+				outputAndRecurse(parameters, target, index, pool, satResult.getCut(), node, filterResults, log);
 				return true;
-			} else if (satResult.type == "parallel") {
-				Set<Set<XEventClass>> parallelCutIncomplete = new HashSet<Set<XEventClass>>(satResult.cut);
+			} else if (satResult.getType() == "parallel") {
+				Set<Set<XEventClass>> parallelCutIncomplete = new HashSet<Set<XEventClass>>(satResult.getCut());
 				final Binoperator node = new Parallel(parallelCutIncomplete.size());
 				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
 				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
 				return true;
-			} else if (satResult.type == "loop") {
-				final Binoperator node = new Loop(satResult.cut.size());
-				FilterResults filterResults = log.applyFilterLoop(satResult.cut);
-				outputAndRecurse(parameters, target, index, pool, satResult.cut, node, filterResults, log);
+			} else if (satResult.getType() == "loop") {
+				final Binoperator node = new Loop(satResult.getCut().size());
+				FilterResults filterResults = log.applyFilterLoop(satResult.getCut());
+				outputAndRecurse(parameters, target, index, pool, satResult.getCut(), node, filterResults, log);
 				return true;
 			}
 		}

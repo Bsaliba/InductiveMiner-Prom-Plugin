@@ -28,7 +28,7 @@ public class Matrix<X extends Comparable<X>, Y extends Number> {
 	}
 
 	public List<X> getActivities() {
-		return getActivities();
+		return activities;
 	}
 
 	public String toString() {
