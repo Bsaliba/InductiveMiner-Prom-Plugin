@@ -1,4 +1,3 @@
-
 package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -8,7 +7,11 @@ import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
 public class ProbabilitiesUnit extends Probabilities {
 
-	public double getProbabilityXor(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+	public ProbabilitiesUnit(DirectlyFollowsRelation relation) {
+		super(relation);
+	}
+
+	public double getProbabilityXor(XEventClass a, XEventClass b) {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		if (graph.containsEdge(a, b) || graph.containsEdge(b, a)) {
 			return 0;
@@ -17,7 +20,7 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilitySequence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+	public double getProbabilitySequence(XEventClass a, XEventClass b) {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		if (graph.containsEdge(a, b) && !graph.containsEdge(b, a)) {
 			return 1;
@@ -26,7 +29,7 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilityParallel(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
+	public double getProbabilityParallel(XEventClass a, XEventClass b) {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		if (graph.containsEdge(a, b) && graph.containsEdge(b, a)) {
 			return 1;
@@ -35,12 +38,12 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilityLoopSingle(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return getProbabilitySequence(relation, a, b);
+	public double getProbabilityLoopSingle(XEventClass a, XEventClass b) {
+		return getProbabilitySequence(a, b);
 	}
 
-	public double getProbabilityLoopDouble(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return getProbabilityParallel(relation, a, b);
+	public double getProbabilityLoopDouble(XEventClass a, XEventClass b) {
+		return getProbabilityParallel(a, b);
 	}
 
 }

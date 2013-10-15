@@ -1,82 +1,89 @@
 package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
 public class ProbabilitiesEventuallyFollows extends Probabilities {
 
-	public double getProbabilityXor(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		if (graph.containsEdge(a, b) || graph.containsEdge(b, a)) {
-			return 0;
-		} else {
-			double average = (getActivityCount(relation, a) + getActivityCount(relation, b)) / 2.0;
-			return 1 - (1 / (average + 1));
-		}
+	public ProbabilitiesEventuallyFollows(DirectlyFollowsRelation relation) {
+		super(relation);
 	}
 
-	public double getProbabilitySequence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		if (graph.containsEdge(b, a)) {
-			return 0;
-		} else if (graph.containsEdge(a, b)) {
-			double x = graph.getEdgeWeight(graph.getEdge(a, b));
-			return 1 - 1 / (x + 1);
-		} else {
-			double average = getAverageOccurrence(relation, a, b);
-			return (1 / 4.0) * (1 / (average + 1));
+	public double getProbabilityXor(XEventClass a, XEventClass b) {
+		if (!D(a, b) && !D(b, a) && !E(a, b) && !E(b, a)) {
+			return 1 - (1 / (z(a,b) + 1));
 		}
+		return 0;
 	}
 
-	public double getProbabilityParallel(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		if (graph.containsEdge(a, b) && graph.containsEdge(b, a)) {
-			if (relation.getMinimumSelfDistanceBetween(a).contains(b)
-					|| relation.getMinimumSelfDistanceBetween(b).contains(a)) {
-				double w = getMsdOccurrences(relation, a, b);
-				return 1 / (w + 1);
+	public double getProbabilitySequence(XEventClass a, XEventClass b) {
+		if (!D(a, b) && !D(b, a)) {
+			if (!E(b, a)) {
+				if (!E(a, b)) {
+					return (1 / 6.0) * 1 / (z(a, b) + 1);
+				} else {
+					return 1 - 1 / (z(a, b) + 1);
+				}
 			} else {
-				double z = getAverageOccurrence(relation, a, b);
-				return 1 - 1 / (z + 1);
+				return 0;
 			}
-		} else if (graph.containsEdge(a, b)) {
-			double x = graph.getEdgeWeight(graph.getEdge(a, b));
-			return (1 / 2.0) * 1 / (x + 1);
-		} else if (graph.containsEdge(b, a)) {
-			double y = graph.getEdgeWeight(graph.getEdge(b, a));
-			return (1 / 2.0) * 1 / (y + 1);
-		} else {
-			double average = getAverageOccurrence(relation, a, b);
-			return (1 / 4.0) * (1 / (average + 1));
+		} else if (D(a, b) && !D(b, a) && !E(b, a)) {
+			return 1 - 1 / (x(a, b) + 1);
 		}
+		return 0;
 	}
 
-	public double getProbabilityLoopSingle(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return getProbabilitySequence(relation, a, b);
-	}
-
-	public double getProbabilityLoopDouble(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		if (graph.containsEdge(a, b) && graph.containsEdge(b, a)) {
-			if (relation.getMinimumSelfDistanceBetween(a).contains(b)
-					|| relation.getMinimumSelfDistanceBetween(b).contains(a)) {
-				double w = getMsdOccurrences(relation, a, b);
-				return 1 - 1 / (w + 1);
+	public double getProbabilityParallel(XEventClass a, XEventClass b) {
+		if (!D(a, b) && !D(b, a)) {
+			if (!E(a, b) && !E(b, a)) {
+				return (1 / 6.0) * 1 / (z(a, b) + 1);
+			} else if (E(a, b) && E(b, a)) {
+				return 1 / 4.0;
 			} else {
-				double z = getAverageOccurrence(relation, a, b);
-				return 1 / (z + 1);
+				return (1 / 4.0) * 1 / (z(a, b) + 1);
+			}
+		} else if (D(a, b) && D(b, a)) {
+			if (w(a, b) == 0) {
+				return 1 - 1 / (z(a, b) + 1);
+			} else {
+				return 1 / (w(a, b) + 1);
 			}
 		}
-		return getProbabilityParallel(relation, a, b);
+		//D(a,b) xor D(b,a)
+		if (!E(a, b)) {
+			return (1 / 3.0) * 1 / (x(a, b) + 1);
+		} else {
+			return (1 / 2.0) * 1 / (x(a, b) + 1);
+		}
 	}
 
-	private double getAverageOccurrence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return (getActivityCount(relation, a) + getActivityCount(relation, b)) / 2.0;
+	public double getProbabilityLoopSingle(XEventClass a, XEventClass b) {
+		if (!D(a, b) && !D(b, a)) {
+			if (!E(a, b) && !E(b, a)) {
+				return (1 / 6.0 * 1 / (z(a, b) + 1));
+			} else if (E(a, b) && E(b, a)) {
+				return 1 / 4.0;
+			} else if (E(a, b) || E(b, a)) {
+				return (1 / 4.0) * 1 / (z(a, b) + 1);
+			}
+		} else if (D(a, b) && !D(b, a)) {
+			if (!E(b, a)) {
+				return (1 / 3.0) * 1 / (x(a, b) + 1);
+			} else {
+				return 1 - 1 / (x(a, b) + 1);
+			}
+		}
+		return 0;
 	}
 
-	private double getMsdOccurrences(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return relation.getMinimumSelfDistanceBetween(a).getCardinalityOf(b) + relation.getMinimumSelfDistanceBetween(b).getCardinalityOf(a);
+	public double getProbabilityLoopDouble(XEventClass a, XEventClass b) {
+		if (D(a, b) && D(b, a)) {
+			if (w(a, b) == 0) {
+				return 1 / (z(a, b) + 1);
+			} else {
+				return 1 - 1 / (w(a, b) + 1);
+			}
+		}
+		return getProbabilityParallel(a, b);
 	}
 }

@@ -131,7 +131,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityParallelB(directlyFollowsRelation, aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityParallelB(aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -155,9 +155,8 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							x += e.toString() + " ("
-									+ probabilities.getProbabilityParallel(directlyFollowsRelation, aI, aJ) + "), ";
-							sumProbability += probabilities.getProbabilityParallel(directlyFollowsRelation, aI, aJ);
+							x += e.toString() + " (" + probabilities.getProbabilityParallel(aI, aJ) + "), ";
+							sumProbability += probabilities.getProbabilityParallel(aI, aJ);
 						}
 					}
 				}

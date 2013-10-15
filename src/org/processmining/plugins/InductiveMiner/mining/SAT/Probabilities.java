@@ -9,43 +9,53 @@ import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
 public abstract class Probabilities {
 
-	public abstract double getProbabilityXor(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
+	protected DirectlyFollowsRelation relation;
 
-	public abstract double getProbabilitySequence(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
+	public Probabilities(DirectlyFollowsRelation relation) {
+		this.relation = relation;
+	}
 
-	public abstract double getProbabilityParallel(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
-	
-	public abstract double getProbabilityLoopSingle(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
-	
-	public abstract double getProbabilityLoopDouble(DirectlyFollowsRelation relation, XEventClass a, XEventClass b);
+	public abstract double getProbabilityXor(XEventClass a, XEventClass b);
+
+	public abstract double getProbabilitySequence(XEventClass a, XEventClass b);
+
+	public abstract double getProbabilityParallel(XEventClass a, XEventClass b);
+
+	public abstract double getProbabilityLoopSingle(XEventClass a, XEventClass b);
+
+	public abstract double getProbabilityLoopDouble(XEventClass a, XEventClass b);
 
 	public final int doubleToIntFactor = 1000;
+	
+	public void setDirectlyFollowsRelation(DirectlyFollowsRelation relation) {
+		this.relation = relation;
+	}
 
 	public BigInteger toBigInt(double probability) {
 		return BigInteger.valueOf(Math.round(doubleToIntFactor * probability));
 	}
 
-	public BigInteger getProbabilityXorB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilityXor(relation, a, b));
+	public BigInteger getProbabilityXorB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityXor(a, b));
 	}
 
-	public BigInteger getProbabilitySequenceB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilitySequence(relation, a, b));
+	public BigInteger getProbabilitySequenceB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilitySequence(a, b));
 	}
 
-	public BigInteger getProbabilityParallelB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilityParallel(relation, a, b));
-	}
-	
-	public BigInteger getProbabilityLoopSingleB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilityLoopSingle(relation, a, b));
-	}
-	
-	public BigInteger getProbabilityLoopDoubleB(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilityLoopDouble(relation, a, b));
+	public BigInteger getProbabilityParallelB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityParallel(a, b));
 	}
 
-	protected long getActivityCount(DirectlyFollowsRelation relation, XEventClass a) {
+	public BigInteger getProbabilityLoopSingleB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoopSingle(a, b));
+	}
+
+	public BigInteger getProbabilityLoopDoubleB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoopDouble(a, b));
+	}
+
+	protected long getActivityCount(XEventClass a) {
 		//count how often each activity occurs
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		double sum = 0;
@@ -55,5 +65,32 @@ public abstract class Probabilities {
 		sum += relation.getEndActivities().getCardinalityOf(a);
 
 		return Math.round(sum);
+	}
+
+	//Directly follows
+	protected boolean D(XEventClass a, XEventClass b) {
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
+		return graph.containsEdge(a, b);
+	}
+
+	//Eventually follows
+	protected boolean E(XEventClass a, XEventClass b) {
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getEventuallyFollowsGraph();
+		return graph.containsEdge(a, b);
+	}
+
+	protected double z(XEventClass a, XEventClass b) {
+		return (getActivityCount(a) + getActivityCount(b)) / 2.0;
+	}
+
+	protected double w(XEventClass a, XEventClass b) {
+		return relation.getMinimumSelfDistanceBetween(a).getCardinalityOf(b)
+				+ relation.getMinimumSelfDistanceBetween(b).getCardinalityOf(a);
+	}
+
+	protected double x(XEventClass a, XEventClass b) {
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
+		DefaultWeightedEdge edge = graph.getEdge(a, b);
+		return graph.getEdgeWeight(edge);
 	}
 }
