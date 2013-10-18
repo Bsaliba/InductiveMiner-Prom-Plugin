@@ -13,7 +13,7 @@ public class SATSolveSequence extends SATSolve {
 
 	public void solve() {
 		//debug("start SAT search for sequence cut likelier than " + bestTillNow.get().getProbability());
-		for (int i = 1; i <= Math.ceil(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2.0); i++) {
+		for (int i = 1; i < directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(); i++) {
 			final int j = i;
 			pool.addJob(new Runnable() {
 				public void run() {
