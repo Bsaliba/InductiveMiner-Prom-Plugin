@@ -120,7 +120,11 @@ public class UpToKSuccessor {
 	}
 
 	private static String toString(XEventClass e) {
-		return e.toString();
+		String n = e.toString();
+		if (n.contains("+complete")) {
+			n = n.substring(0, n.indexOf("+complete"));
+		}
+		return n;
 	}
 
 	private static String toString(Task.Manual node) {

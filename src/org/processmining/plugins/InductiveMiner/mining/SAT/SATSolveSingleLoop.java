@@ -240,8 +240,9 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 						//single, treat as sequence
 						clause.push(singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
 						BigInteger pab = probabilities.getProbabilityLoopSingleB(aI, aJ);
-						BigInteger pba = probabilities.getProbabilityLoopSingleB(aJ, aI);
-						coefficients.push(pab.subtract(pba).negate());
+						//BigInteger pba = probabilities.getProbabilityLoopSingleB(aJ, aI);
+						//coefficients.push(pab.subtract(pba).negate());
+						coefficients.push(pab.negate());
 
 						//double, treat as parallel
 						if (i < j) {
@@ -259,7 +260,6 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
 					* bestAverageTillNow * cutSize));
-			//debug("  minimal sum probability " + minObjectiveFunction.toString() + " cut size " + cutSize);
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -284,10 +284,12 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							//single edge
 							Edge se = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (se.isResult()) {
-								ses += se.toString() + ", ";
+								ses += se.toString() + " (" + probabilities.getProbabilityLoop(aI, aJ) + "), ";
 								double pab = probabilities.getProbabilityLoopSingle(aI, aJ);
-								double pba = probabilities.getProbabilityLoopSingle(aJ, aI);
-								sumProbability += pab - pba;
+								//double pba = probabilities.getProbabilityLoopSingle(aJ, aI);
+								//sumProbability += pab - pba;
+								
+								sumProbability += pab;
 							}
 
 							//double edge

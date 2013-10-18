@@ -54,7 +54,7 @@ public class AtomicResult {
 	public boolean maximumAndGet(SATResult tryVal) {
 		while (true) {
 			SATResult origVal = get();
-			if (origVal.getProbability() >= tryVal.getProbability()) {
+			if (origVal.getProbability() > tryVal.getProbability()) {
 				return false;
 			}
 			if (compareAndSet(origVal, tryVal)) {

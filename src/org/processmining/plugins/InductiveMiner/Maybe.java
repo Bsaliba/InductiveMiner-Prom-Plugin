@@ -10,6 +10,15 @@ public class Maybe<X> {
 	public X get() {
 		return x;
 	}
+	
+	@Override
+	public String toString() {
+		if (x == null) {
+			return "null";
+		} else {
+			return x.toString();
+		}
+	}
 
 	@Override
 	public int hashCode() {

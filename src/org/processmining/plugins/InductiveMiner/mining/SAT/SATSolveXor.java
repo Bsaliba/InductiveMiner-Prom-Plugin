@@ -13,7 +13,7 @@ public class SATSolveXor extends SATSolve {
 	public void solve() {
 		//debug("start SAT search for exclusive choice cut likelier than " + bestTillNow.get().getProbability());
 		
-		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2 && bestTillNow.get().getProbability() < 1; i++) {
+		for (int i = 1; i < 0.5 + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2; i++) {
 			final int j = i;
 			pool.addJob(new Runnable() {
 				public void run() {

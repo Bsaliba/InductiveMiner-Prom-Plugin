@@ -51,7 +51,7 @@ public class ThreadPool {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (ExecutionException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					error = e;
 				}
 			}
