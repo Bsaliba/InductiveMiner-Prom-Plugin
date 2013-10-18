@@ -19,6 +19,11 @@ public class Pair<L, R> {
 	}
 
 	@Override
+	public String toString() {
+		return "[" + left.toString() + ", " + right.toString() + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		return left.hashCode() ^ right.hashCode();
 	}

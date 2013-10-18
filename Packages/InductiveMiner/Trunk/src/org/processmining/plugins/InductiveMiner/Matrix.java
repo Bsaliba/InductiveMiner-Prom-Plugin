@@ -133,5 +133,9 @@ public class Matrix<X extends Comparable<X>, Y extends Number> {
 			return String.format("%3d  ", n);
 		}
 	}
+	
+	protected void debug(String x) {
+		System.out.println(x);
+	}
 
 }

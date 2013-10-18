@@ -21,8 +21,10 @@ public abstract class Probabilities {
 
 	public abstract double getProbabilityParallel(XEventClass a, XEventClass b);
 
+	public abstract double getProbabilityLoop(XEventClass a, XEventClass b);
+	
 	public abstract double getProbabilityLoopSingle(XEventClass a, XEventClass b);
-
+	
 	public abstract double getProbabilityLoopDouble(XEventClass a, XEventClass b);
 
 	public final int doubleToIntFactor = 1000;
@@ -47,10 +49,14 @@ public abstract class Probabilities {
 		return toBigInt(getProbabilityParallel(a, b));
 	}
 
+	public BigInteger getProbabilityLoopB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoop(a, b));
+	}
+	
 	public BigInteger getProbabilityLoopSingleB(XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopSingle(a, b));
 	}
-
+	
 	public BigInteger getProbabilityLoopDoubleB(XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopDouble(a, b));
 	}

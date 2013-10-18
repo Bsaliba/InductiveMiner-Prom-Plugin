@@ -86,4 +86,9 @@ public class ProbabilitiesEventuallyFollows extends Probabilities {
 		}
 		return getProbabilityParallel(a, b);
 	}
+
+	public double getProbabilityLoop(XEventClass a, XEventClass b) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

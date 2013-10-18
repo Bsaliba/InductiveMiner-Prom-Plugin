@@ -6,14 +6,14 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class SATSolveSequence extends SATSolve {
 
-	public SATSolveSequence(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters, ThreadPool pool, AtomicResult result) {
+	public SATSolveSequence(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters,
+			ThreadPool pool, AtomicResult result) {
 		super(directlyFollowsRelation, parameters, pool, result);
 	}
 
 	public void solve() {
 		//debug("start SAT search for sequence cut likelier than " + bestTillNow.get().getProbability());
-		for (int i = 1; i <= Math.pow(0.5 * directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2)
-				&& bestTillNow.get().getProbability() < 1; i++) {
+		for (int i = 1; i <= Math.ceil(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size() / 2.0); i++) {
 			final int j = i;
 			pool.addJob(new Runnable() {
 				public void run() {
