@@ -43,7 +43,7 @@ public class fitness {
 			} else {
 				fitness = 1;
 			}
-			node.metadata.put("subtreeFitness", new Integer((int) Math.round(fitness * 100) ));
+			node.metadata.put("subtreeFitness", fitness);
 			//debug("subtree fitness " + fitness + " " + node.toString());
 		}
 	}

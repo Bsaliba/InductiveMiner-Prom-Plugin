@@ -65,5 +65,6 @@
 	<classpathentry kind="lib" path="lib/org.sat4j.pb.jar"/>
 	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
+	<classpathentry kind="lib" path="packagelib/Properties.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

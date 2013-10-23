@@ -11,6 +11,7 @@ import org.processmining.plugins.InductiveMiner.model.Node;
 import org.processmining.plugins.InductiveMiner.model.Parallel;
 import org.processmining.plugins.InductiveMiner.model.Sequence;
 import org.processmining.plugins.InductiveMiner.model.Tau;
+import org.processmining.plugins.properties.processmodel.impl.Fitness;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Edge;
 import org.processmining.processtree.ProcessTree;
@@ -18,7 +19,6 @@ import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
-import org.processmining.processtree.property.impl.NrOfResources;
 
 
 public class ProcessTreeModel2ProcessTree {
@@ -135,9 +135,9 @@ public class ProcessTreeModel2ProcessTree {
 	}
 	
 	private static void attachFitness(Node node, org.processmining.processtree.Node newNode) {
-		Integer f = (Integer) node.metadata.get("subtreeFitness");
+		Double f = (Double) node.metadata.get("subtreeFitness");
 		try {
-			newNode.setIndependentProperty(NrOfResources.class, f);
+			newNode.setIndependentProperty(new Fitness(), f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
