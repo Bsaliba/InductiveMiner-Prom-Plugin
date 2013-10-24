@@ -27,7 +27,7 @@ public class MiningParameters {
 		incompleteThreshold = (float) 0.0;
 		outputDFGfileName = "D:\\output";
 		outputFlowerLogFileName = null;
-		useSAT = false;
+		useSAT = true;
 		debug = true;
 		useExhaustiveKSuccessor = false;
 		satProbabilities = new ProbabilitiesUnit(null);

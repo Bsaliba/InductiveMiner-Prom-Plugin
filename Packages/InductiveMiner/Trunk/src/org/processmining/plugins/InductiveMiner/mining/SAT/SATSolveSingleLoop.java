@@ -284,7 +284,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							//single edge
 							Edge se = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (se.isResult()) {
-								ses += se.toString() + " (" + probabilities.getProbabilityLoop(aI, aJ) + "), ";
+								ses += se.toString() + " (" + probabilities.getProbabilityLoopSingle(aI, aJ) + "), ";
 								double pab = probabilities.getProbabilityLoopSingle(aI, aJ);
 								//double pba = probabilities.getProbabilityLoopSingle(aJ, aI);
 								//sumProbability += pab - pba;
