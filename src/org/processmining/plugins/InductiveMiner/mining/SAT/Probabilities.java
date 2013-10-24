@@ -1,10 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining.SAT;
 
 import java.math.BigInteger;
+import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
 public abstract class Probabilities {
@@ -21,8 +23,6 @@ public abstract class Probabilities {
 
 	public abstract double getProbabilityParallel(XEventClass a, XEventClass b);
 
-	public abstract double getProbabilityLoop(XEventClass a, XEventClass b);
-	
 	public abstract double getProbabilityLoopSingle(XEventClass a, XEventClass b);
 	
 	public abstract double getProbabilityLoopDouble(XEventClass a, XEventClass b);
@@ -49,10 +49,6 @@ public abstract class Probabilities {
 		return toBigInt(getProbabilityParallel(a, b));
 	}
 
-	public BigInteger getProbabilityLoopB(XEventClass a, XEventClass b) {
-		return toBigInt(getProbabilityLoop(a, b));
-	}
-	
 	public BigInteger getProbabilityLoopSingleB(XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopSingle(a, b));
 	}
@@ -98,5 +94,16 @@ public abstract class Probabilities {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		DefaultWeightedEdge edge = graph.getEdge(a, b);
 		return graph.getEdgeWeight(edge);
+	}
+	
+	protected boolean noSEinvolvedInMsd(XEventClass a, XEventClass b) {
+		Set<XEventClass> SE = Sets.union(relation.getStartActivities().toSet(), relation.getEndActivities().toSet());
+		if (w(a,b) > 0 && !SE.contains(a) && !SE.contains(b)) {
+			Set<XEventClass> SEmMSD = Sets.intersection(SE, relation.getMinimumSelfDistanceBetween(a).toSet());
+			if (SEmMSD.size() == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
