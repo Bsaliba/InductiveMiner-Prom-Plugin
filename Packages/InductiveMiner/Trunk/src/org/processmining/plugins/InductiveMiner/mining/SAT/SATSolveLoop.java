@@ -13,8 +13,8 @@ public class SATSolveLoop extends SATSolve {
 
 	public void solve() {
 		//debug("start SAT search for loop cut likelier than " + bestTillNow.get().getProbability());
-
-		for (int i = 1; i <= Math.pow(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2); i++) {
+		
+		for (int i = 1; i < directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(); i++) {
 			final int j = i;
 			pool.addJob(new Runnable() {
 				public void run() {
@@ -28,6 +28,21 @@ public class SATSolveLoop extends SATSolve {
 				}
 			});
 		}
+/*
+		for (int i = 1; i <= Math.pow(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet().size(), 2); i++) {
+			final int j = i;
+			pool.addJob(new Runnable() {
+				public void run() {
+					SATSolveSingle solver = new SATSolveSingleLoop(directlyFollowsRelation, parameters);
+					SATResult result = solver.solveSingle(j, bestTillNow.get().getProbability());
+					if (result != null && result.getProbability() >= bestTillNow.get().getProbability()) {
+						if (bestTillNow.maximumAndGet(result)) {
+							debug("new maximum " + result);
+						}
+					}
+				}
+			});
+		}*/
 	}
 
 }

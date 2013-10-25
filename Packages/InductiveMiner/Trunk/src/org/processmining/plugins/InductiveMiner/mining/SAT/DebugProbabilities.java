@@ -17,7 +17,7 @@ public class DebugProbabilities {
 		}
 
 		StringBuilder r = new StringBuilder();
-		{
+		/*{
 			r.append("xor\n");
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
@@ -57,7 +57,7 @@ public class DebugProbabilities {
 			}
 			r.append(m.toString());
 			r.append("\n");
-		}
+		}*/
 
 		{
 			r.append("loop single\n");
@@ -66,6 +66,20 @@ public class DebugProbabilities {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(a, b));
+					}
+				}
+			}
+			r.append(m.toString());
+			r.append("\n");
+		}
+		
+		{
+			r.append("loop indirect\n");
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
+			for (XEventClass a : graph.vertexSet()) {
+				for (XEventClass b : graph.vertexSet()) {
+					if (a != b) {
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(a, b));
 					}
 				}
 			}
