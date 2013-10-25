@@ -25,232 +25,214 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		//debug(" solve loop with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		debug(" solve loop with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
 		Probabilities probabilities = parameters.getSatProbabilities();
 
-		//build startA, endA, startB, endB
-		Map<XEventClass, Node> startA = new HashMap<XEventClass, Node>();
-		Map<XEventClass, Node> endA = new HashMap<XEventClass, Node>();
-		Map<XEventClass, Node> startB = new HashMap<XEventClass, Node>();
-		Map<XEventClass, Node> endB = new HashMap<XEventClass, Node>();
+		//compute number of edges in the cut
+		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize * 2;
+
+		//initialise startA, endA, startB, endB
+		Map<XEventClass, Node> startBody = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> endBody = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> startRedo = new HashMap<XEventClass, Node>();
+		Map<XEventClass, Node> endRedo = new HashMap<XEventClass, Node>();
 		for (XEventClass a : nodes) {
-			startA.put(a, newNodeVar(a));
-			endA.put(a, newNodeVar(a));
-			startB.put(a, newNodeVar(a));
-			endB.put(a, newNodeVar(a));
+			startBody.put(a, newNodeVar(a));
+			endBody.put(a, newNodeVar(a));
+			startRedo.put(a, newNodeVar(a));
+			endRedo.put(a, newNodeVar(a));
 		}
 
-		//single and double boundary edges
-		Map<Pair<XEventClass, XEventClass>, Edge> boundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		Map<Pair<XEventClass, XEventClass>, Edge> singleBoundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		Map<Pair<XEventClass, XEventClass>, Edge> doubleBoundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		for (int i = 0; i < countNodes; i++) {
-			for (int j = 0; j < countNodes; j++) {
-				if (i != j) {
-					XEventClass aI = nodes[i];
-					XEventClass aJ = nodes[j];
-
-					boundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
-					singleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
-					if (i < j) {
-						doubleBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
-					}
+		//edges
+		Map<Pair<XEventClass, XEventClass>, Edge> singleLoopEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> reverseSingleLoopEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> doubleLoopEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> indirectLoopEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> internalEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		for (XEventClass aI : nodes) {
+			for (XEventClass aJ : nodes) {
+				if (aI != aJ) {
+					singleLoopEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					reverseSingleLoopEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					doubleLoopEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					indirectLoopEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
+					internalEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 
 				}
 			}
 		}
 
 		try {
-			//constraint: exactly cutSize ----boundary edges---- are cut
+			//constraint: exactly cutSize nodes are cut
 			{
-				int[] clause = new int[countNodes * (countNodes - 1)];
+				int[] clause = new int[countNodes];
 				int k = 0;
 				for (int i = 0; i < countNodes; i++) {
-					for (int j = 0; j < countNodes; j++) {
-						if (i != j) {
-							XEventClass aI = nodes[i];
-							XEventClass aJ = nodes[j];
-							clause[k] = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-							k++;
-						}
-					}
+					XEventClass aI = nodes[i];
+					clause[k] = node2var.get(aI).getVarInt();
+					k++;
 				}
 				solver.addExactly(new VecInt(clause), cutSize);
 			}
 
-			/*
-			 * //constraint: |startA| > 1 { int clause[] = new
-			 * int[graph.vertexSet().size()]; for (int i = 0; i < countNodes;
-			 * i++) { XEventClass aI = nodes[i]; clause[i] =
-			 * node2var.get(aI).getVarInt(); } solver.addClause(new
-			 * VecInt(clause)); }
-			 */
-
-			//constraint: (endA(a) and startB(b)) or (endB(a) and startA(b)) <=> bedge(a,b)
+			//constraint: each edge is in exactly one category
 			for (int i = 0; i < countNodes; i++) {
 				for (int j = 0; j < countNodes; j++) {
 					if (i != j) {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
-						int K = endA.get(aI).getVarInt();
-						int L = startB.get(aJ).getVarInt();
-						int X = endB.get(aI).getVarInt();
-						int Y = startA.get(aJ).getVarInt();
-						int Z = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-
-						int clause1[] = { -K, -L, Z };
-						int clause2[] = { -X, -Y, Z };
-						int clause3[] = { -Z, K, X };
-						int clause4[] = { -Z, K, Y };
-						int clause5[] = { -Z, L, X };
-						int clause6[] = { -Z, L, Y };
-						solver.addClause(new VecInt(clause1));
-						solver.addClause(new VecInt(clause2));
-						solver.addClause(new VecInt(clause3));
-						solver.addClause(new VecInt(clause4));
-						solver.addClause(new VecInt(clause5));
-						solver.addClause(new VecInt(clause6));
+						int S = singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int R = reverseSingleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int D = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int T = internalEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int N = indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int[] clause = { S, D, T, N, R };
+						solver.addExactly(new VecInt(clause), 1);
 					}
 				}
 			}
 
-			//constraint: (a, b) \in dfg: cut(a) and -cut(b) => endA(a) and startB(b)
-			for (DefaultWeightedEdge e : graph.edgeSet()) {
-				XEventClass aI = graph.getEdgeSource(e);
-				XEventClass aJ = graph.getEdgeTarget(e);
-				int A = node2var.get(aI).getVarInt();
-				int B = node2var.get(aJ).getVarInt();
-				int C = endA.get(aI).getVarInt();
-				int D = startB.get(aJ).getVarInt();
+			//constraint: internal(a, b) <=> (cut(a) <=> cut(b)) 
+			for (XEventClass aI : nodes) {
+				for (XEventClass aJ : nodes) {
+					if (aI != aJ) {
+						int A = internalEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
 
-				int clause1[] = { -A, B, C };
-				int clause2[] = { -A, B, D };
-				solver.addClause(new VecInt(clause1));
-				solver.addClause(new VecInt(clause2));
+						int B = node2var.get(aI).getVarInt();
+						int C = node2var.get(aJ).getVarInt();
+
+						addClause(-A, -B, C);
+						addClause(-A, B, -C);
+
+						addClause(A, B, C);
+						addClause(A, -B, -C);
+					}
+				}
 			}
 
-			//constraint: (b, a) \in dfg: cut(a) and -cut(b) => startA(a) and endB(b)
-			for (DefaultWeightedEdge e : graph.edgeSet()) {
-				XEventClass nB = graph.getEdgeSource(e);
-				XEventClass nA = graph.getEdgeTarget(e);
-				int A = node2var.get(nA).getVarInt();
-				int B = node2var.get(nB).getVarInt();
-				int C = startA.get(nA).getVarInt();
-				int D = endB.get(nB).getVarInt();
+			//constraint: reverse(b,a) <=> single(a,b)
+			for (XEventClass aI : nodes) {
+				for (XEventClass aJ : nodes) {
+					if (aI != aJ) {
+						int S = singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
+						int R = reverseSingleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
 
-				int clause1[] = { -A, B, C };
-				int clause2[] = { -A, B, D };
-				solver.addClause(new VecInt(clause1));
-				solver.addClause(new VecInt(clause2));
+						addClause(-S, R);
+						addClause(-R, S);
+					}
+				}
 			}
 
-			//constraint: startA(a) or endA(a) => cut(a)
+			//constraint: single(a, b) <=> (endBody(a) and startRedo(b)) xor (endRedo(a) and startBody(b)) 
+			for (XEventClass a : nodes) {
+				for (XEventClass b : nodes) {
+					if (a != b) {
+						int A = singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(a, b)).getVarInt();
+						
+						int B = endBody.get(a).getVarInt();
+						int C = startRedo.get(b).getVarInt();
+						int D = endRedo.get(a).getVarInt();
+						int E = startBody.get(b).getVarInt();
+						
+						addClause(-A, -B, -C, -D, -E);
+						addClause(-A, D, B);
+						addClause(-A, D, C);
+						addClause(-A, E, B);
+						addClause(-A, E, C);
+						
+						addClause(B, -D, -E, A);
+						addClause(C, -D, -E, A);
+						addClause(D, -B, -C, A);
+						addClause(E, -B, -C, A);
+					}
+				}
+			}
+
+			//constraint: double(a, b) <=> (endBody(a) and startBody(a) and endRedo(b) and startRedo(b)) or (endBody(b) and startBody(b) and endRedo(a) and startRedo(a))
+			for (XEventClass aI : nodes) {
+				for (XEventClass aJ : nodes) {
+					if (aI != aJ) {
+						
+					}
+				}
+			}
+
+			//constraint: |startBody|, |endBody|, |startRedo|, |endRedo| > 0
+			{
+				int[] clauseStartBody = new int[nodes.length];
+				int[] clauseEndBody = new int[nodes.length];
+				int[] clauseStartRedo = new int[nodes.length];
+				int[] clauseEndRedo = new int[nodes.length];
+				for (int i = 0; i < nodes.length; i++) {
+					clauseStartBody[i] = startBody.get(nodes[i]).getVarInt();
+					clauseEndBody[i] = endBody.get(nodes[i]).getVarInt();
+					clauseStartRedo[i] = startRedo.get(nodes[i]).getVarInt();
+					clauseEndRedo[i] = endRedo.get(nodes[i]).getVarInt();
+				}
+				solver.addAtLeast(new VecInt(clauseStartBody), 1);
+				solver.addAtLeast(new VecInt(clauseEndBody), 1);
+				solver.addAtLeast(new VecInt(clauseStartRedo), 1);
+				solver.addAtLeast(new VecInt(clauseEndRedo), 1);
+			}
+
+			//constraint: startBody(a) or endBody(a) => cut(a)
 			for (XEventClass a : graph.vertexSet()) {
 				int A = node2var.get(a).getVarInt();
-				int B = startA.get(a).getVarInt();
-				int C = endA.get(a).getVarInt();
-				int clause1[] = { A, -B };
-				int clause2[] = { A, -C };
-				solver.addClause(new VecInt(clause1));
-				solver.addClause(new VecInt(clause2));
+				int B = startBody.get(a).getVarInt();
+				int C = endBody.get(a).getVarInt();
+
+				addClause(A, -B);
+				addClause(A, -C);
 			}
 
 			//constraint: startB(a) or endB(a) => -cut(a)
 			for (XEventClass a : graph.vertexSet()) {
 				int A = node2var.get(a).getVarInt();
-				int B = startB.get(a).getVarInt();
-				int C = endB.get(a).getVarInt();
-				int clause1[] = { -A, -B };
-				int clause2[] = { -A, -C };
-				solver.addClause(new VecInt(clause1));
-				solver.addClause(new VecInt(clause2));
-			}
+				int B = startRedo.get(a).getVarInt();
+				int C = endRedo.get(a).getVarInt();
 
-			//constraint: start(a): startA(a) or startB(a)
-			for (XEventClass a : directlyFollowsRelation.getStartActivities()) {
-				int A = startA.get(a).getVarInt();
-				/*
-				 * int B = startB.get(a).getVarInt(); int clause1[] = { A, B };
-				 * solver.addClause(new VecInt(clause1));
-				 */
-				//for now: start(a) => startA(a)
-				int clause1[] = { A };
-				solver.addClause(new VecInt(clause1));
+				addClause(-A, -B);
+				addClause(-A, -C);
 			}
-
-			//constraint: end(a): endA(a) or endB(a)
-			for (XEventClass a : directlyFollowsRelation.getEndActivities()) {
-				int A = endA.get(a).getVarInt();
-				/*
-				 * int B = endB.get(a).getVarInt(); int clause1[] = { A, B };
-				 * solver.addClause(new VecInt(clause1));
-				 */
-				//for now: end(a) => endA(a)
-				int clause1[] = { A };
-				solver.addClause(new VecInt(clause1));
-			}
-
-			//constraint: single edges are recorded
-			for (int i = 0; i < countNodes; i++) {
-				for (int j = 0; j < countNodes; j++) {
-					if (i != j) {
-						XEventClass aI = nodes[i];
-						XEventClass aJ = nodes[j];
-						int A = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-						int B = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
-						int C = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-						int clause1[] = { -A, B, C };
-						int clause2[] = { A, -C };
-						int clause3[] = { -B, -C };
-						solver.addClause(new VecInt(clause1));
-						solver.addClause(new VecInt(clause2));
-						solver.addClause(new VecInt(clause3));
-					}
+			
+			//constraint: Start(a) <=> startBody(a)
+			for (XEventClass a : nodes) {
+				int A = startBody.get(a).getVarInt();
+				if (directlyFollowsRelation.getStartActivities().contains(a)) {
+					addClause(A);
+				} else {
+					addClause(-A);
 				}
 			}
-
-			//constraint: double edges are recorded
-			for (int i = 0; i < countNodes; i++) {
-				for (int j = i + 1; j < countNodes; j++) {
-					XEventClass aI = nodes[i];
-					XEventClass aJ = nodes[j];
-					int A = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-					int B = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aJ, aI)).getVarInt();
-					int C = doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-					int clause1[] = { -A, -B, C };
-					int clause2[] = { A, -C };
-					int clause3[] = { B, -C };
-					solver.addClause(new VecInt(clause1));
-					solver.addClause(new VecInt(clause2));
-					solver.addClause(new VecInt(clause3));
+			
+			//constraint: if End(a) then endBody(a)
+			for (XEventClass a : nodes) {
+				int A = endBody.get(a).getVarInt();
+				if (directlyFollowsRelation.getEndActivities().contains(a)) {
+					addClause(A);
+				} else {
+					addClause(-A);
 				}
 			}
 
 			//objective function: highest probabilities for edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
-			for (int i = 0; i < countNodes; i++) {
-				for (int j = 0; j < countNodes; j++) {
-					if (i != j) {
-						XEventClass aI = nodes[i];
-						XEventClass aJ = nodes[j];
-						//single, treat as sequence
-						clause.push(singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+			for (XEventClass aI : nodes) {
+				for (XEventClass aJ : nodes) {
+					if (aI != aJ) {
+						//direct
+						clause.push(singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
 						BigInteger pab = probabilities.getProbabilityLoopSingleB(aI, aJ);
-						//BigInteger pba = probabilities.getProbabilityLoopSingleB(aJ, aI);
-						//coefficients.push(pab.subtract(pba).negate());
-						coefficients.push(pab.negate());
+						coefficients.push(pab.multiply(BigInteger.valueOf(2)).negate());
 
-						//double, treat as parallel
-						if (i < j) {
-							clause.push(doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ))
-									.getVarInt());
-							coefficients.push(probabilities.getProbabilityLoopDoubleB(aI, aJ)
-									.multiply(BigInteger.valueOf(2)).negate());
-						}
+						//indirect
+						clause.push(indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+						BigInteger ind = probabilities.getProbabilityLoopIndirectB(aI, aJ);
+						coefficients.push(ind.negate());
 					}
 				}
 			}
@@ -259,7 +241,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger.valueOf((long) (probabilities.doubleToIntFactor
-					* bestAverageTillNow * cutSize));
+					* bestAverageTillNow * numberOfEdgesInCut));
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -267,45 +249,65 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 			if (result != null) {
 
 				//compute cost of cut
-				String x = "";
-				String ses = "";
-				String des = "";
+				String single = "";
+				String reverse = "";
+				String doublee = "";
+				String indirect = "";
+				String internal = "";
 				double sumProbability = 0;
 				for (int i = 0; i < countNodes; i++) {
 					for (int j = 0; j < countNodes; j++) {
 						if (i != j) {
 							XEventClass aI = nodes[i];
 							XEventClass aJ = nodes[j];
-							Edge e = boundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
-							if (e.isResult()) {
-								x += e.toString() + ", ";
-							}
 
 							//single edge
-							Edge se = singleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
-							if (se.isResult()) {
-								ses += se.toString() + " (" + probabilities.getProbabilityLoopSingle(aI, aJ) + "), ";
-								double pab = probabilities.getProbabilityLoopSingle(aI, aJ);
-								//double pba = probabilities.getProbabilityLoopSingle(aJ, aI);
-								//sumProbability += pab - pba;
-								
-								sumProbability += pab;
+							{
+								Edge e = singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+								if (e.isResult()) {
+									double p = probabilities.getProbabilityLoopSingle(aI, aJ);
+									single += e.toString() + " (" + p + "), ";
+									sumProbability += p * 2;
+								}
+							}
+
+							//reverse single edge
+							{
+								Edge e = reverseSingleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+								if (e.isResult()) {
+									reverse += e.toString() + ", ";
+								}
 							}
 
 							//double edge
-							if (i < j) {
-								Edge de = doubleBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
-								if (de.isResult()) {
-									des += de.toString() + " (" + probabilities.getProbabilityLoopDouble(aI, aJ)
-											+ "), ";
-									sumProbability += probabilities.getProbabilityLoopDouble(aI, aJ) * 2;
+							{
+								Edge e = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+								if (e.isResult()) {
+									doublee += e.toString() + ", ";
 								}
 							}
+
+							//internal edge
+							{
+								Edge e = internalEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+								if (e.isResult()) {
+									internal += e.toString() + ", ";
+								}
+							}
+
+							//indirect edge
+							Edge se = indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+							if (se.isResult()) {
+								double p = probabilities.getProbabilityLoopIndirect(aI, aJ);
+								indirect += se.toString() + " (" + p + "), ";
+								sumProbability += p;
+							}
+
 						}
 					}
 				}
 
-				double averageProbability = sumProbability / cutSize;
+				double averageProbability = sumProbability / numberOfEdgesInCut;
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "loop");
 
 				//debug
@@ -314,38 +316,40 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				String sb = "";
 				String eb = "";
 				for (XEventClass e : graph.vertexSet()) {
-					if (startA.get(e).isResult()) {
+					if (startBody.get(e).isResult()) {
 						sa += e.toString() + ", ";
 					}
-					if (endA.get(e).isResult()) {
+					if (endBody.get(e).isResult()) {
 						ea += e.toString() + ", ";
 					}
-					if (startB.get(e).isResult()) {
+					if (startRedo.get(e).isResult()) {
 						sb += e.toString() + ", ";
 					}
-					if (endB.get(e).isResult()) {
+					if (endRedo.get(e).isResult()) {
 						eb += e.toString() + ", ";
 					}
 				}
 
-				//debug("  " + result2.toString());
-				//debug("   boundary edges " + x);
-				//debug("   single boundary edges " + ses);
-				//debug("   double boundary edges " + des);
-				//debug("   start A " + sa);
-				//debug("   end A " + ea);
-				//debug("   start B " + sb);
-				//debug("   end B " + eb);
-				//debug("   sum probability " + sumProbability);
+				debug("  " + result2.toString());
+				debug("   single edges " + single);
+				debug("   double edges " + doublee);
+				debug("   indirect edges " + indirect);
+				debug("   internal edges " + internal);
+				debug("   reverse edges " + reverse);
+				debug("   start body " + sa);
+				debug("   end body " + ea);
+				debug("   start redo " + sb);
+				debug("   end redo " + eb);
+				debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
-				//debug("  no solution");
+				debug("  no solution");
 			}
 		} catch (TimeoutException e) {
 			//debug("  timeout");
 		} catch (ContradictionException e) {
-			//debug("  inconsistent problem");
+			debug("  inconsistent problem");
 		}
 		return null;
 	}

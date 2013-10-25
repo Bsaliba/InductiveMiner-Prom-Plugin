@@ -26,6 +26,8 @@ public abstract class Probabilities {
 	public abstract double getProbabilityLoopSingle(XEventClass a, XEventClass b);
 	
 	public abstract double getProbabilityLoopDouble(XEventClass a, XEventClass b);
+	
+	public abstract double getProbabilityLoopIndirect(XEventClass a, XEventClass b);
 
 	public final int doubleToIntFactor = 1000;
 	
@@ -55,6 +57,10 @@ public abstract class Probabilities {
 	
 	public BigInteger getProbabilityLoopDoubleB(XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopDouble(a, b));
+	}
+	
+	public BigInteger getProbabilityLoopIndirectB(XEventClass a, XEventClass b) {
+		return toBigInt(getProbabilityLoopIndirect(a, b));
 	}
 
 	protected long getActivityCount(XEventClass a) {

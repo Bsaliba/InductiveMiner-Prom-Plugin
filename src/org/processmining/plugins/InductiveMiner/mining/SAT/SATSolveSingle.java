@@ -9,8 +9,10 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
+import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.TimeoutException;
 
@@ -159,5 +161,9 @@ public abstract class SATSolveSingle {
 		if (parameters.isDebug()) {
 			System.out.println(x);
 		}
+	}
+	
+	protected void addClause(int... ints) throws ContradictionException {
+		solver.addClause(new VecInt(ints));
 	}
 }

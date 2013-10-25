@@ -25,7 +25,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		debug(" solve sequence with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		//debug(" solve sequence with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
@@ -126,9 +126,9 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 				double averageProbability = sumProbability / numberOfEdgesInCut;
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "sequence");
 
-				debug("  " + result2.toString());
-				debug("   edges " + x);
-				debug("   sum probability " + sumProbability);
+				//debug("  " + result2.toString());
+				//debug("   edges " + x);
+				//debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
