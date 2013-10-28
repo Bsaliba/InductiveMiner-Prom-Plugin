@@ -228,6 +228,11 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 						clause.push(singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
 						BigInteger pab = probabilities.getProbabilityLoopSingleB(aI, aJ);
 						coefficients.push(pab.multiply(BigInteger.valueOf(2)).negate());
+						
+						//double
+						clause.push(doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+						BigInteger dbl = probabilities.getProbabilityLoopDoubleB(aI, aJ);
+						coefficients.push(dbl.negate());
 
 						//indirect
 						clause.push(indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
@@ -282,8 +287,9 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							//double edge
 							{
 								Edge e = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
+								double p = probabilities.getProbabilityLoopDouble(aI, aJ);
 								if (e.isResult()) {
-									doublee += e.toString() + ", ";
+									doublee += e.toString() + " (" + p + "), ";
 								}
 							}
 
