@@ -3,9 +3,9 @@ package org.processmining.plugins.InductiveMiner.mining.SAT;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
-public class ProbabilitiesEstimated extends Probabilities {
+public class ProbabilitiesEstimatedWithShortLoops extends Probabilities {
 
-	public ProbabilitiesEstimated(DirectlyFollowsRelation relation) {
+	public ProbabilitiesEstimatedWithShortLoops(DirectlyFollowsRelation relation) {
 		super(relation);
 	}
 
@@ -71,7 +71,14 @@ public class ProbabilitiesEstimated extends Probabilities {
 	}
 
 	public double getProbabilityLoopDouble(XEventClass a, XEventClass b) {
-		return 0;
+		if (D(a, b) && D(b, a)) {
+			if (w(a, b) == 0) {
+				return 1 / (z(a, b) + 1);
+			} else {
+				return 1 - 1 / (w(a, b) + 1);
+			}
+		}
+		return getProbabilityParallel(a, b);
 	}
 
 	public double getProbabilityLoopIndirect(XEventClass a, XEventClass b) {
