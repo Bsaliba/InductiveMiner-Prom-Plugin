@@ -126,7 +126,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				}
 			}
 
-			//constraint: single(a, b) <=> (endBody(a) and startRedo(b)) xor (endRedo(a) and startBody(b)) 
+			//constraint: single(a, b) or double(a, b) <=> (endBody(a) and startRedo(b)) xor (endRedo(a) and startBody(b))
 			for (XEventClass a : nodes) {
 				for (XEventClass b : nodes) {
 					if (a != b) {
@@ -137,24 +137,31 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 						int D = endRedo.get(a).getVarInt();
 						int E = startBody.get(b).getVarInt();
 						
+						int F = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(a, b)).getVarInt();
+						
 						addClause(-A, -B, -C, -D, -E);
 						addClause(-A, D, B);
 						addClause(-A, D, C);
 						addClause(-A, E, B);
 						addClause(-A, E, C);
+						addClause(-F, -B, -C, -D, -E);
+						addClause(-F, D, B);
+						addClause(-F, D, C);
+						addClause(-F, E, B);
+						addClause(-F, E, C);
 						
-						addClause(B, -D, -E, A);
-						addClause(C, -D, -E, A);
-						addClause(D, -B, -C, A);
-						addClause(E, -B, -C, A);
+						addClause(B, -D, -E, A, F);
+						addClause(C, -D, -E, A, F);
+						addClause(D, -B, -C, A, F);
+						addClause(E, -B, -C, A, F);
 					}
 				}
 			}
 
 			//constraint: double(a, b) <=> (endBody(a) and startBody(a) and endRedo(b) and startRedo(b)) or (endBody(b) and startBody(b) and endRedo(a) and startRedo(a))
-			for (XEventClass aI : nodes) {
-				for (XEventClass aJ : nodes) {
-					if (aI != aJ) {
+			for (XEventClass a : nodes) {
+				for (XEventClass b : nodes) {
+					if (a != b) {
 						
 					}
 				}
@@ -208,7 +215,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				}
 			}
 			
-			//constraint: if End(a) then endBody(a)
+			//constraint: End(a) <=> endBody(a)
 			for (XEventClass a : nodes) {
 				int A = endBody.get(a).getVarInt();
 				if (directlyFollowsRelation.getEndActivities().contains(a)) {
@@ -287,9 +294,10 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							//double edge
 							{
 								Edge e = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
-								double p = probabilities.getProbabilityLoopDouble(aI, aJ);
 								if (e.isResult()) {
+									double p = probabilities.getProbabilityLoopDouble(aI, aJ);
 									doublee += e.toString() + " (" + p + "), ";
+									sumProbability += p;
 								}
 							}
 
