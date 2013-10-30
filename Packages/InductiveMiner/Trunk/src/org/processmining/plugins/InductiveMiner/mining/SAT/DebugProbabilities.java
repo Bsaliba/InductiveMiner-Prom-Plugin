@@ -44,7 +44,7 @@ public class DebugProbabilities {
 			r.append(m.toString());
 			r.append("\n");
 		}
-
+*/
 		{
 			r.append("parallel\n");
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
@@ -57,7 +57,7 @@ public class DebugProbabilities {
 			}
 			r.append(m.toString());
 			r.append("\n");
-		}*/
+		}
 
 		{
 			r.append("loop single\n");
