@@ -25,10 +25,10 @@ import org.processmining.plugins.InductiveMiner.ThreadPool;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveLoop;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveParallel;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveSequence;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATSolveXor;
+import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveLoop;
+import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveParallel;
+import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveSequence;
+import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveXor;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
@@ -141,12 +141,12 @@ public class Miner {
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
 		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log, parameters);
 		
+		//debug stuff
 		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
 			debug("msd " + a.toString() + " (" + directlyFollowsRelation.getMinimumSelfDistance(a) + "): " + directlyFollowsRelation.getMinimumSelfDistanceBetween(a).toString(), parameters);
 		}
 		debug(kSuccessor.toString(), parameters);
-		
-		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters), parameters);
+		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {

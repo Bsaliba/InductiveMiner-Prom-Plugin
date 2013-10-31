@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.SAT;
+package org.processmining.plugins.InductiveMiner.mining.SAT.probabilities;
 
 import java.math.BigInteger;
 import java.util.Set;
@@ -28,8 +28,10 @@ public abstract class Probabilities {
 	public abstract double getProbabilityLoopDouble(XEventClass a, XEventClass b);
 	
 	public abstract double getProbabilityLoopIndirect(XEventClass a, XEventClass b);
+	
+	public abstract String toString();
 
-	public final int doubleToIntFactor = 1000;
+	public final int doubleToIntFactor = 100000;
 	
 	public void setDirectlyFollowsRelation(DirectlyFollowsRelation relation) {
 		this.relation = relation;

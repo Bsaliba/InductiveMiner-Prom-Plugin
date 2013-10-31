@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.SAT;
+package org.processmining.plugins.InductiveMiner.mining.SAT.solve.single;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.Triple;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.ObjectiveFunction;
@@ -182,7 +184,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 				double averageProbability = sumProbability;
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "xor");
 
-				//debug("  " + result2.toString());
+				debug("  " + result2.toString());
 				//debug("   edges " + x);
 				//debug("   maximum boundary edges " + mbes);
 				//debug("   sum probability " + sumProbability);

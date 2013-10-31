@@ -6,8 +6,8 @@ import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
-import org.processmining.plugins.InductiveMiner.mining.SAT.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.ProbabilitiesEstimated;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimated;
 
 public class MiningParameters {
 	private XEventClassifier classifier;

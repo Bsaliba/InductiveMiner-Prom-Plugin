@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.SAT;
+package org.processmining.plugins.InductiveMiner.mining.SAT.probabilities;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
@@ -35,10 +35,10 @@ public class ProbabilitiesEstimated extends Probabilities {
 		if (!D(a, b) && !D(b, a)) {
 			if (!E(a, b) && !E(b, a)) {
 				return (1 / 6.0) * 1 / (z(a, b) + 1);
-			} else if (E(a, b) || E(b, a)) {
-				return (1 / 4.0) * 1 / (z(a, b) + 1);
-			} else {
+			} else if (E(a, b) && E(b, a)) {
 				return 1 - 1 / (z(a, b) + 1);
+			} else {
+				return (1 / 4.0) * 1 / (z(a, b) + 1);
 			}
 		}
 		return 0;
@@ -72,6 +72,10 @@ public class ProbabilitiesEstimated extends Probabilities {
 
 	public double getProbabilityLoopDouble(XEventClass a, XEventClass b) {
 		return 0;
+	}
+
+	public String toString() {
+		return "SAT estimated (without short loops)";
 	}
 
 }

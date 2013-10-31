@@ -113,7 +113,9 @@ public class Matrix<X extends Comparable<X>, Y extends Number> {
 
 			s.append(newLine);
 		}
-
+		if (useHTML) {
+			s.append("</table>");
+		}
 		return s.toString();
 	}
 

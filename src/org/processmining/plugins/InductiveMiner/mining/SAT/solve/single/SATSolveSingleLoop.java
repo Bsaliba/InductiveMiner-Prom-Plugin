@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.SAT;
+package org.processmining.plugins.InductiveMiner.mining.SAT.solve.single;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -11,6 +11,8 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.ObjectiveFunction;
@@ -345,25 +347,25 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				}
 
 				debug("  " + result2.toString());
-				debug("   single edges " + single);
-				debug("   double edges " + doublee);
-				debug("   indirect edges " + indirect);
-				debug("   internal edges " + internal);
-				debug("   reverse edges " + reverse);
-				debug("   start body " + sa);
-				debug("   end body " + ea);
-				debug("   start redo " + sb);
-				debug("   end redo " + eb);
-				debug("   sum probability " + sumProbability);
+//				debug("   single edges " + single);
+//				debug("   double edges " + doublee);
+//				debug("   indirect edges " + indirect);
+//				debug("   internal edges " + internal);
+//				debug("   reverse edges " + reverse);
+//				debug("   start body " + sa);
+//				debug("   end body " + ea);
+//				debug("   start redo " + sb);
+//				debug("   end redo " + eb);
+//				debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
-				debug("  no solution");
+				//debug("  no solution");
 			}
 		} catch (TimeoutException e) {
 			//debug("  timeout");
 		} catch (ContradictionException e) {
-			debug("  inconsistent problem");
+			//debug("  inconsistent problem");
 		}
 		return null;
 	}
