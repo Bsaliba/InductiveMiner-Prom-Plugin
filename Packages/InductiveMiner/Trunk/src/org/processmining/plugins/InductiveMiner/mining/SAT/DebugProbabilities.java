@@ -8,7 +8,17 @@ import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class DebugProbabilities {
-	public static String debug(DirectlyFollowsRelation relation, MiningParameters parameters) {
+	
+	public static String debug(DirectlyFollowsRelation relation, MiningParameters parameters, boolean useHTML) {
+		
+		String newLine;
+		if (useHTML) {
+			newLine = "<br>\n";
+		} else {
+			newLine = "\n";
+		}
+		
+		
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
 		parameters.getSatProbabilities().setDirectlyFollowsRelation(relation);
 
@@ -17,8 +27,9 @@ public class DebugProbabilities {
 		}
 
 		StringBuilder r = new StringBuilder();
-		/*{
-			r.append("xor\n");
+		{
+			r.append("xor");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -27,12 +38,12 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
 
 		{
-			r.append("sequence\n");
+			r.append("sequence");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -41,12 +52,12 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
-*/
+
 		{
-			r.append("parallel\n");
+			r.append("parallel");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -55,12 +66,12 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
 
 		{
-			r.append("loop single\n");
+			r.append("loop single");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -69,12 +80,12 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
 		
 		{
-			r.append("loop indirect\n");
+			r.append("loop indirect");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -83,12 +94,12 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
 		
 		{
-			r.append("loop double\n");
+			r.append("loop double");
+			r.append(newLine);
 			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
@@ -97,8 +108,7 @@ public class DebugProbabilities {
 					}
 				}
 			}
-			r.append(m.toString());
-			r.append("\n");
+			r.append(m.toString(useHTML));
 		}
 
 		return r.toString();

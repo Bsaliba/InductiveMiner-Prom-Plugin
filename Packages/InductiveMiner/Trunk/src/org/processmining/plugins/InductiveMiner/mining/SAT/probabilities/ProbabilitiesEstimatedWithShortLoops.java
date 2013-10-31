@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.SAT;
+package org.processmining.plugins.InductiveMiner.mining.SAT.probabilities;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
@@ -83,6 +83,10 @@ public class ProbabilitiesEstimatedWithShortLoops extends Probabilities {
 
 	public double getProbabilityLoopIndirect(XEventClass a, XEventClass b) {
 		return 0;
+	}
+	
+	public String toString() {
+		return "SAT estimated with short loops";
 	}
 
 }
