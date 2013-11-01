@@ -1,11 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.SAT.solve.single;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -37,7 +34,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		//debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
@@ -48,16 +45,12 @@ public class SATSolveSingleXor extends SATSolveSingle {
 
 		//edges
 		HashMap<Pair<XEventClass, XEventClass>, Edge> edge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
-		HashMap<Pair<XEventClass, XEventClass>, Edge> maximumBoundaryEdge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = i + 1; j < countNodes; j++) {
 				XEventClass aI = nodes[i];
 				XEventClass aJ = nodes[j];
 
 				edge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
-
-				//maximal boundary edge
-				maximumBoundaryEdge2var.put(new Pair<XEventClass, XEventClass>(aI, aJ), newEdgeVar(aI, aJ));
 			}
 		}
 
@@ -96,55 +89,14 @@ public class SATSolveSingleXor extends SATSolveSingle {
 				}
 			}
 
-			//constraint: maximumBoundaryEdge(a) => boundary(a,b)
-			for (int i = 0; i < countNodes; i++) {
-				for (int j = i + 1; j < countNodes; j++) {
-					XEventClass aI = nodes[i];
-					XEventClass aJ = nodes[j];
-
-					int A = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-					int B = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-
-					int clause1[] = { A, -B };
-					solver.addClause(new VecInt(clause1));
-				}
-			}
-
-			//constraint: only one maximumBoundaryEdge
-			{
-				List<Triple<Integer, Integer, BigInteger>> list = new ArrayList<Triple<Integer, Integer, BigInteger>>();
-				for (int i = 0; i < countNodes; i++) {
-					for (int j = i + 1; j < countNodes; j++) {
-						XEventClass aI = nodes[i];
-						XEventClass aJ = nodes[j];
-						int e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-						int mbe = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
-						list.add(new Triple<Integer, Integer, BigInteger>(e, mbe, probabilities.getProbabilityXorB(aI,
-								aJ)));
-					}
-				}
-				Collections.sort(list, new Compare());
-				int clause[] = new int[list.size()];
-				for (int i = 0; i < list.size(); i++) {
-					Triple<Integer, Integer, BigInteger> p1 = list.get(i);
-					for (int j = 0; j < i; j++) {
-						Triple<Integer, Integer, BigInteger> p2 = list.get(j);
-						int clause1[] = { -p1.getA(), -p2.getB() };
-						solver.addClause(new VecInt(clause1));
-					}
-					clause[i] = p1.getB();
-				}
-				solver.addExactly(new VecInt(clause), 1);
-			}
-
-			//objective function: maximum boundary edge
+			//objective function: least cost for edges
 			VecInt clause = new VecInt();
 			IVec<BigInteger> coefficients = new Vec<BigInteger>();
 			for (int i = 0; i < countNodes; i++) {
 				for (int j = i + 1; j < countNodes; j++) {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
-					clause.push(maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
+					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
 					coefficients.push(probabilities.getProbabilityXorB(aI, aJ).negate());
 				}
 			}
@@ -153,7 +105,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 
 			//constraint: better than best previous run
 			BigInteger minObjectiveFunction = BigInteger
-					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow));
+					.valueOf((long) (probabilities.doubleToIntFactor * bestAverageTillNow * numberOfEdgesInCut));
 			solver.addAtMost(clause, coefficients, minObjectiveFunction.negate());
 
 			//compute result
@@ -162,7 +114,6 @@ public class SATSolveSingleXor extends SATSolveSingle {
 
 				//compute cost of cut
 				String x = "";
-				String mbes = "";
 				double sumProbability = 0;
 				for (int i = 0; i < countNodes; i++) {
 					for (int j = i + 1; j < countNodes; j++) {
@@ -170,23 +121,18 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							x += e.toString() + " (" + probabilities.getProbabilityXor(aI, aJ) + "), ";
-						}
-
-						Edge mbe = maximumBoundaryEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
-						if (mbe.isResult()) {
-							mbes += e.toString() + " (" + probabilities.getProbabilityXor(aI, aJ) + "), ";
-							sumProbability += probabilities.getProbabilityXor(aI, aJ);
+							double p = probabilities.getProbabilityXor(aI, aJ);
+							x += e.toString() + " (" + p + "), ";
+							sumProbability += p;
 						}
 					}
 				}
 
-				double averageProbability = sumProbability;
+				double averageProbability = sumProbability / numberOfEdgesInCut;
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "xor");
 
 				debug("  " + result2.toString());
 				//debug("   edges " + x);
-				//debug("   maximum boundary edges " + mbes);
 				//debug("   sum probability " + sumProbability);
 
 				return result2;
