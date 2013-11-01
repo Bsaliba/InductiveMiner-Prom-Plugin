@@ -27,7 +27,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		//debug(" solve parallel with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		debug(" solve parallel with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();
@@ -55,8 +55,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 					clause[i] = node2var.get(a).getVarInt();
 					i++;
 				}
-				solver.addAtLeast(new VecInt(clause), cutSize);
-				solver.addAtMost(new VecInt(clause), cutSize);
+				solver.addExactly(new VecInt(clause), cutSize);
 			}
 
 			//constraint: edge is cut iff between two nodes on different sides of the cut
@@ -69,15 +68,10 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 					int B = node2var.get(aJ).getVarInt();
 					int C = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt();
 
-					int clause1[] = { A, B, -C };
-					int clause2[] = { A, -B, C };
-					int clause3[] = { -A, B, C };
-					int clause4[] = { -A, -B, -C };
-
-					solver.addClause(new VecInt(clause1));
-					solver.addClause(new VecInt(clause2));
-					solver.addClause(new VecInt(clause3));
-					solver.addClause(new VecInt(clause4));
+					addClause( A, B, -C);
+					addClause(A, -B, C);
+					addClause(-A, B, C);
+					addClause(-A, -B, -C);
 				}
 			}
 
