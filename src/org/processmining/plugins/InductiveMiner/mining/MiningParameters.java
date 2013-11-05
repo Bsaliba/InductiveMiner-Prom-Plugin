@@ -7,7 +7,7 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimated;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimatedZ;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -27,10 +27,11 @@ public class MiningParameters {
 		incompleteThreshold = (float) 0.0;
 		outputDFGfileName = "D:\\output";
 		outputFlowerLogFileName = null;
-		useSAT = true;
 		debug = true;
+		
+		useSAT = true;
 		useExhaustiveKSuccessor = false;
-		satProbabilities = new ProbabilitiesEstimated(null);
+		satProbabilities = new ProbabilitiesEstimatedZ(null);
 	}
 
 	public void setClassifier(XEventClassifier classifier) {

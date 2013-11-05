@@ -34,7 +34,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		//debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();

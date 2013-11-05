@@ -27,7 +27,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
-		debug(" solve parallel with cut size " + cutSize + " and probability " + bestAverageTillNow);
+		//debug(" solve parallel with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = directlyFollowsRelation
 				.getDirectlyFollowsGraph();

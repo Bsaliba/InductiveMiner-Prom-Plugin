@@ -115,6 +115,7 @@ public class UpToKSuccessor {
 			return result;
 
 		} else {
+			System.out.println(node.getClass().toString());
 			throw new NotImplementedException();
 		}
 	}
