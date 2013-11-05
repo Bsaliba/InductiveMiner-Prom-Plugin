@@ -3,9 +3,9 @@ package org.processmining.plugins.InductiveMiner.mining.SAT.probabilities;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 
-public class ProbabilitiesEstimated extends Probabilities {
+public class ProbabilitiesEstimatedZ extends Probabilities {
 
-	public ProbabilitiesEstimated(DirectlyFollowsRelation relation) {
+	public ProbabilitiesEstimatedZ(DirectlyFollowsRelation relation) {
 		super(relation);
 	}
 
@@ -26,7 +26,7 @@ public class ProbabilitiesEstimated extends Probabilities {
 				}
 			}
 		} else if (D(a, b) && !D(b, a) && !E(b, a)) {
-			return 1 - 1 / (x(a, b) + 1);
+			return 1 - 1 / (z(a, b) + 1);
 		}
 		return 0;
 	}
@@ -55,9 +55,9 @@ public class ProbabilitiesEstimated extends Probabilities {
 			}
 		} else if (D(a, b) && !D(b, a)) {
 			if (!E(b, a)) {
-				return (1 / 2.0) * 1 / (x(a, b) + 1);
+				return (1 / 2.0) * 1 / (z(a, b) + 1);
 			} else {
-				return 1 - 1 / (x(a, b) + 1);
+				return 1 - 1 / (z(a, b) + 1);
 			}
 		}
 		return 0;
@@ -76,15 +76,15 @@ public class ProbabilitiesEstimated extends Probabilities {
 			return 1;
 		} else if (D(a,b) ) {
 			if (E(b,a)) {
-				return 1 / (x(a, b) + 1);
+				return 1 / (z(a, b) + 1);
 			}else {
-				return (1 / 2.0) / (x(a, b) + 1);
+				return (1 / 2.0) / (z(a, b) + 1);
 			}
 		} else {
 			if (E(a, b)) {
-				return 1 / (x(b, a) + 1);
+				return 1 / (z(b, a) + 1);
 			}else {
-				return (1 / 2.0) / (x(b, a) + 1);
+				return (1 / 2.0) / (z(b, a) + 1);
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class ProbabilitiesEstimated extends Probabilities {
 	}
 
 	public String toString() {
-		return "SAT estimated (without short loops)";
+		return "SAT estimated Z-only (without short loops)";
 	}
 
 }

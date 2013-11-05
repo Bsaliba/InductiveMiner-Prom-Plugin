@@ -23,7 +23,8 @@ public class SATSolveLoop extends SATSolve {
 			pool.addJob(new Runnable() {
 				public void run() {
 					SATSolveSingle solver = new SATSolveSingleLoop(directlyFollowsRelation, parameters);
-					SATResult result = solver.solveSingle(j, bestTillNow.get().getProbability());
+					//SATResult result = solver.solveSingle(j, bestTillNow.get().getProbability());
+					SATResult result = solver.solveSingle(j, 0.5);
 					if (result != null && result.getProbability() >= bestTillNow.get().getProbability()) {
 						if (bestTillNow.maximumAndGet(result)) {
 							debug("new maximum " + result);

@@ -54,7 +54,8 @@ public abstract class SATSolve {
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					}
-					SATResult result = solver.solveSingle(j, bestTillNow.get().getProbability());
+					//SATResult result = solver.solveSingle(j, bestTillNow.get().getProbability());
+					SATResult result = solver.solveSingle(j, 0.5);
 					if (result != null && result.getProbability() >= bestTillNow.get().getProbability()) {
 						if (bestTillNow.maximumAndGet(result)) {
 							debug("new maximum " + result);
