@@ -29,7 +29,7 @@ public class MiningParameters {
 		outputFlowerLogFileName = null;
 		debug = true;
 		
-		useSAT = false;
+		useSAT = true;
 		useExhaustiveKSuccessor = false;
 		satProbabilities = new ProbabilitiesEstimatedZ(null);
 	}
