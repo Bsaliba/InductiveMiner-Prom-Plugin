@@ -21,22 +21,13 @@ import org.processmining.framework.util.Pair;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
-import org.processmining.plugins.InductiveMiner.ThreadPoolMiner;
-import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveLoop;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveParallel;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveSequence;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveXor;
+import org.processmining.plugins.InductiveMiner.ThreadPool;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
-import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.Exhaustive;
-import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessor;
-import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessorMatrix;
 import org.processmining.plugins.InductiveMiner.model.Binoperator;
 import org.processmining.plugins.InductiveMiner.model.EventClass;
 import org.processmining.plugins.InductiveMiner.model.ExclusiveChoice;
@@ -88,16 +79,14 @@ public class Miner {
 
 		//debug initial log
 		//debug(filteredLog.toString());
-		debug("\n\nStart mining", parameters);
+		debug("\n\nStart mining");
 		recursionStepsCounter = -1;
 
 		//create the model
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		//ThreadPoolConcurrentJobs pool = ThreadPoolConcurrentJobs.useAsMuchThreadsAsCores();
-		ThreadPoolMiner pool = new ThreadPoolMiner(1);
-		//ThreadPoolConcurrentJobs pool = ThreadPoolConcurrentJobs.useBlocking();
+		ThreadPool pool = new ThreadPool();
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -118,8 +107,8 @@ public class Miner {
 		double fitness = 1 - (noiseEvents.size() + noiseEmptyTraces.get())
 				/ (filteredLog.getNumberOfEvents() + filteredLog.getNumberOfTraces() * 1.0);
 		debug("Filtered empty traces: " + noiseEmptyTraces + ", noise events: " + noiseEvents.size() + " "
-				+ ((float) noiseEvents.size() / filteredLog.getNumberOfEvents() * 100) + "% " + noiseEvents, parameters);
-		debug("\"Fitness\": " + fitness, parameters);
+				+ ((float) noiseEvents.size() / filteredLog.getNumberOfEvents() * 100) + "% " + noiseEvents);
+		debug("\"Fitness\": " + fitness);
 		model.fitness = fitness;
 
 		//debug(dummyRootNode.toString());
@@ -131,37 +120,26 @@ public class Miner {
 
 	private void mineProcessTree(Filteredlog log, final MiningParameters parameters, final Binoperator target, //the target where we must store our result 
 			final int index, //in which subtree we must store our result
-			final ThreadPoolMiner pool) {
+			final ThreadPool pool) {
 
-		debug("", parameters);
-		debug("==================", parameters);
-		debug("Log size: " + String.valueOf(log.getNumberOfTraces()), parameters);
+		debug("");
+		debug("==================");
+		debug("Log size: " + String.valueOf(log.getNumberOfTraces()));
 		//debug(log.toString());
 
 		//read the log
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
-		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log, parameters);
-		
-		/*
-		//debug stuff
-		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
-			debug("msd " + a.toString() + " (" + directlyFollowsRelation.getMinimumSelfDistance(a) + "): " + directlyFollowsRelation.getMinimumSelfDistanceBetween(a).toString(), parameters);
-		}
-		debug(kSuccessor.toString(), parameters);
-		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
-		*/
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
 			//empty log, return tau
-			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet(),
-					parameters);
+			debug("Empty log, discover tau " + directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
 			Node node = new Tau();
 			target.setChild(index, node);
-
+			
 			node.metadata.put("numberOfEvents", new Integer(0));
 			node.metadata.put("numberOfTraces", new Integer(0));
-
+			
 			return;
 		}
 
@@ -172,7 +150,7 @@ public class Miner {
 
 			//calculate the event-per-trace size of the log
 			double p = log.getNumberOfTraces() / ((log.getNumberOfEvents() + log.getNumberOfTraces()) * 1.0);
-
+			
 			//debug("Single activity " + log.getEventClasses().iterator().next());
 			//debug(" traces: " + log.getNumberOfTraces());
 			//debug(" events: " + log.getNumberOfEvents());
@@ -180,7 +158,7 @@ public class Miner {
 
 			if (0.5 - parameters.getNoiseThreshold() <= p && p <= 0.5 + parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
-				debug(" discover activity", parameters);
+				debug(" discover activity");
 
 				Node node = new EventClass(log.getEventClasses().iterator().next());
 				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
@@ -211,8 +189,8 @@ public class Miner {
 
 				//save the filtered empty traces as metadata
 				registerFilteredNoise(target, result);
-
-				debug(" filter empty traces", parameters);
+				
+				debug(" filter empty traces");
 
 				recurse(parameters, pool, sublog, target, index);
 				return;
@@ -224,16 +202,16 @@ public class Miner {
 				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 				node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 				target.setChild(index, node);
-
+				
 				FilterResults result = log.applyEpsilonFilter();
-
+				
 				Tau tau = new Tau();
 				node.setChild(0, tau);
 				tau.metadata.put("numberOfEvents", new Integer(0));
-				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));
-
-				debug(" mine x(tau, ..)", parameters);
-
+				tau.metadata.put("numberOfTraces", new Integer(result.filteredEmptyTraces));	
+				
+				debug(" mine x(tau, ..)");
+				
 				final Filteredlog sublog = result.sublogs.iterator().next();
 				recurse(parameters, pool, sublog, node, 1);
 
@@ -241,13 +219,6 @@ public class Miner {
 			}
 		}
 		recursionStepsCounter++;
-
-		//SAT cut search
-		if (parameters.useSAT()) {
-			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
-				return;
-			}
-		}
 
 		//exclusive choice operator
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation
@@ -269,34 +240,14 @@ public class Miner {
 			return;
 		}
 
-		//try exhaustive cut search
-		if (parameters.isUseExhaustiveKSuccessor()) {
-			Exhaustive exhaustive = new Exhaustive(log, kSuccessor, parameters);
-			Exhaustive.Result er = exhaustive.tryAll();
-			if (er.cutType == "parallel") {
-				final Binoperator node = new Parallel(2);
-				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log);
-				return;
-			} else if (er.cutType == "loop") {
-				final Binoperator node = new Loop(2);
-				outputAndRecurse(parameters, target, index, pool, er.cut, node, er.sublogs, log);
-				return;
-			}
-		}
-
 		//parallel and loop operator
-		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
+		Set<Set<XEventClass>> parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
 		List<Set<XEventClass>> loopCut = LoopCut.findLoopCut(directlyFollowsRelation);
 
-		//sometimes, a parallel and loop cut are both possible 
+		//sometimes, a parallel and loop cut are both possible
 		//in that case, recompute a stricter parallel cut using minimum-self-distance
-		//if (parallelCut.size() > 1 && loopCut.size() > 1) {
-		//	parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
-		//}
-		//update: this is also useful for parallel-cut separations
-		//only if the strict one doesn't work, return the more relaxed one
-		if (parallelCut.size() == 0 && loopCut.size() == 0) {
-			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, false);
+		if (parallelCut.size() > 1 && loopCut.size() > 1) {
+			parallelCut = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 		}
 
 		//parallel operator
@@ -315,17 +266,13 @@ public class Miner {
 			return;
 		}
 
-		debug("fall through", parameters);
-
 		//apply noise filtering
 		DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered = null;
 		if (parameters.getNoiseThreshold() != 0) {
-			debug("filter noise", parameters);
+			debug("filter noise");
 
 			//filter noise
 			directlyFollowsRelationNoiseFiltered = directlyFollowsRelation.filterNoise(parameters.getNoiseThreshold());
-			DirectlyFollowsRelation directlyFollowsRelationIncompleteCorrected = directlyFollowsRelationNoiseFiltered
-					.addIncompleteEdges(parameters.getIncompleteThreshold());
 
 			//exclusive choice operator
 			Set<Set<XEventClass>> exclusiveChoiceCutNoise = ExclusiveChoiceCut
@@ -348,14 +295,13 @@ public class Miner {
 			}
 
 			//parallel and loop operator
-			Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(
-					directlyFollowsRelationIncompleteCorrected, false);
+			Set<Set<XEventClass>> parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, false);
 			List<Set<XEventClass>> loopCutNoise = LoopCut.findLoopCut(directlyFollowsRelationNoiseFiltered);
 
 			//sometimes, a parallel and loop cut are both possible
 			//in that case, recompute a stricter parallel cut using minimum-self-distance
 			if (parallelCutNoise.size() > 1 && loopCutNoise.size() > 1) {
-				parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelationIncompleteCorrected, true);
+				parallelCutNoise = ParallelCut.findParallelCut(directlyFollowsRelation, true);
 			}
 
 			//parallel operator
@@ -376,18 +322,17 @@ public class Miner {
 		}
 
 		//tau loop
-		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation,
-				directlyFollowsRelationNoiseFiltered);
+		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, pool, directlyFollowsRelation, directlyFollowsRelationNoiseFiltered);
 		if (tauloopSublog != null) {
 			final Binoperator node = new Loop(2);
 			target.setChild(index, node);
 			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
-
+			
 			Tau tau = new Tau();
 			node.setChild(1, tau);
 
-			debug("Chosen tau loop", parameters);
+			debug("Chosen tau loop");
 
 			recurse(parameters, pool, tauloopSublog, node, 0);
 			return;
@@ -395,13 +340,13 @@ public class Miner {
 
 		//flower loop fall-through
 		{
-			debug("Chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}", parameters);
+			debug("Chosen flower loop {" + Sets.implode(log.getEventClasses(), ", ") + "}");
 
 			Binoperator node = new Loop(log.getEventClasses().size() + 1);
 			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 			node.setChild(0, new Tau());
-
+			
 			//filter the log
 			List<Set<XEventClass>> sigmas = new LinkedList<Set<XEventClass>>();
 			sigmas.add(new HashSet<XEventClass>());
@@ -411,16 +356,16 @@ public class Miner {
 				sigmas.add(sigma);
 			}
 			FilterResults result = log.applyFilterLoop(sigmas);
-
+			
 			int i = 1;
 			Iterator<Filteredlog> it = result.sublogs.iterator();
 			for (XEventClass a : log.getEventClasses()) {
 				Node child = new EventClass(a);
-
+				
 				Filteredlog sublog = it.next();
 				child.metadata.put("numberOfEvents", new Integer(sublog.getNumberOfEvents()));
 				child.metadata.put("numberOfTraces", new Integer(sublog.getNumberOfTraces()));
-
+				
 				node.setChild(i, child);
 				i++;
 			}
@@ -433,55 +378,8 @@ public class Miner {
 		}
 	}
 
-	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
-			final int index, final ThreadPoolMiner pool, DirectlyFollowsRelation directlyFollowsRelation) {
-		 
-		ThreadPoolMiner SATPool = new ThreadPoolMiner(0);
-		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
-		
-		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveSequence(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveParallel(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveLoop(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
-		
-		try {
-			SATPool.join();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-			return false;
-		}
-		SATResult satResult = bestSATResult.get();
-
-		if (satResult.getCut() != null) {
-			if (satResult.getType() == "xor") {
-				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.getCut());
-				final Binoperator node = new ExclusiveChoice(xorCutIncomplete.size());
-				FilterResults filterResults = log.applyFilterExclusiveChoice(xorCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, xorCutIncomplete, node, filterResults, log);
-				return true;
-			} else if (satResult.getType() == "sequence") {
-				final Binoperator node = new Sequence(satResult.getCut().size());
-				FilterResults filterResults = log.applyFilterSequence(satResult.getCut());
-				outputAndRecurse(parameters, target, index, pool, satResult.getCut(), node, filterResults, log);
-				return true;
-			} else if (satResult.getType() == "parallel") {
-				Set<Set<XEventClass>> parallelCutIncomplete = new HashSet<Set<XEventClass>>(satResult.getCut());
-				final Binoperator node = new Parallel(parallelCutIncomplete.size());
-				FilterResults filterResults = log.applyFilterParallel(parallelCutIncomplete);
-				outputAndRecurse(parameters, target, index, pool, parallelCutIncomplete, node, filterResults, log);
-				return true;
-			} else if (satResult.getType() == "loop") {
-				final Binoperator node = new Loop(satResult.getCut().size());
-				FilterResults filterResults = log.applyFilterLoop(satResult.getCut());
-				outputAndRecurse(parameters, target, index, pool, satResult.getCut(), node, filterResults, log);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
-			final int index, final ThreadPoolMiner pool, DirectlyFollowsRelation directlyFollowsRelation,
+			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation,
 			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered) {
 
 		DirectlyFollowsRelation dfr;
@@ -501,7 +399,7 @@ public class Miner {
 		if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
 			return sublog;
 		}
-
+		
 		return null;
 	}
 
@@ -523,29 +421,22 @@ public class Miner {
 	}
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
-			final ThreadPoolMiner pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
+			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
 			FilterResults filterResults, Filteredlog log) {
-
-		registerFilteredNoise(newTargetNode, filterResults);
-
-		outputAndRecurse(parameters, target, index, pool, cut, newTargetNode, filterResults.sublogs, log);
-	}
-
-	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
-			final ThreadPoolMiner pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
-			Collection<Filteredlog> sublogs, Filteredlog log) {
 
 		//store metadata
 		newTargetNode.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
 		newTargetNode.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
 
+		registerFilteredNoise(newTargetNode, filterResults);
+
 		//output the cut
-		debugCut(newTargetNode, cut, sublogs, parameters);
+		debugCut(newTargetNode, cut);
 
 		//set the result
 		target.setChild(index, newTargetNode);
 		int i = 0;
-		for (Filteredlog sublog : sublogs) {
+		for (Filteredlog sublog : filterResults.sublogs) {
 			final Filteredlog sublog2 = sublog;
 			final int j = i;
 			recurse(parameters, pool, sublog2, newTargetNode, j);
@@ -553,7 +444,7 @@ public class Miner {
 		}
 	}
 
-	private void recurse(final MiningParameters parameters, final ThreadPoolMiner pool, final Filteredlog sublog,
+	private void recurse(final MiningParameters parameters, final ThreadPool pool, final Filteredlog sublog,
 			final Binoperator newTargetNode, final int newTargetChildIndex) {
 		pool.addJob(new Runnable() {
 			public void run() {
@@ -571,12 +462,12 @@ public class Miner {
 			if (!node.metadata.containsKey("filteredEvents")) {
 				node.metadata.put("filteredEvents", new MultiSet<XEventClass>());
 			}
-
+			
 			//global
 			synchronized (noiseEvents) {
 				noiseEvents.addAll(result.filteredEvents);
 			}
-
+			
 			//local
 			MultiSet<XEventClass> s = ((MultiSet<XEventClass>) node.metadata.get("filteredEvents"));
 			synchronized (s) {
@@ -590,30 +481,25 @@ public class Miner {
 			if (!node.metadata.containsKey("filteredEmptyTraces")) {
 				node.metadata.put("filteredEmptyTraces", new AtomicInteger(0));
 			}
-
+			
 			//global
 			noiseEmptyTraces.addAndGet(result.filteredEmptyTraces);
-
+			
 			//local
 			((AtomicInteger) node.metadata.get("filteredEmptyTraces")).addAndGet(result.filteredEmptyTraces);
 		}
 	}
 
-	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs,
-			MiningParameters parameters) {
-		StringBuilder r = new StringBuilder("step " + recursionStepsCounter + " chosen " + node.getOperatorString());
+	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut) {
+		String r = "step " + recursionStepsCounter + " chosen " + node.getOperatorString();
 		Iterator<Set<XEventClass>> it = cut.iterator();
 		while (it.hasNext()) {
-			r.append(" {" + Sets.implode(it.next(), ", ") + "}");
+			r += " {" + Sets.implode(it.next(), ", ") + "}";
 		}
-		r.append("\n");
-
-		debug(r.toString(), parameters);
+		debug(r);
 	}
 
-	private void debug(String x, MiningParameters parameters) {
-		if (parameters.isDebug()) {
-			System.out.println(x);
-		}
+	private void debug(String x) {
+		System.out.println(x);
 	}
 }
