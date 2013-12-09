@@ -92,7 +92,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
 						clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						coefficients.push(probabilities.getProbabilitySequenceB(aI, aJ).negate());
+						coefficients.push(probabilities.getProbabilitySequenceB(directlyFollowsRelation, aI, aJ).negate());
 					}
 				}
 			}
@@ -118,8 +118,8 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 							XEventClass aJ = nodes[j];
 							Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
-								x += e.toString() + " (" + probabilities.getProbabilitySequence(aI, aJ) + "), ";
-								sumProbability += probabilities.getProbabilitySequence(aI, aJ);
+								x += e.toString() + " (" + probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ) + "), ";
+								sumProbability += probabilities.getProbabilitySequence(directlyFollowsRelation, aI, aJ);
 							}
 						}
 					}

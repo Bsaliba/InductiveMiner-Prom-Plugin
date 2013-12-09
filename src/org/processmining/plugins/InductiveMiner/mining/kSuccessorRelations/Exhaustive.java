@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
@@ -28,7 +28,7 @@ public class Exhaustive {
 	private UpToKSuccessorMatrix kSuccessor;
 	private Filteredlog log;
 	private MiningParameters parameters;
-	private ThreadPool pool;
+	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
 
 	public Exhaustive(Filteredlog log, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
@@ -48,7 +48,7 @@ public class Exhaustive {
 			i++;
 		}
 
-		pool = ThreadPool.useFactor(2);
+		pool = ThreadPoolMiner.useFactor(2);
 		int threads = pool.getNumerOfThreads();
 		final Result[] results = new Result[threads];
 		bestTillNow.set(Integer.MAX_VALUE);

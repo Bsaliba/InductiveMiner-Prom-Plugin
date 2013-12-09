@@ -20,7 +20,6 @@ public class DebugProbabilities {
 		
 		
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getDirectlyFollowsGraph();
-		parameters.getSatProbabilities().setDirectlyFollowsRelation(relation);
 
 		if (graph.vertexSet().size() == 1) {
 			return "";
@@ -34,7 +33,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(relation, a, b));
 					}
 				}
 			}
@@ -48,7 +47,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(relation, a, b));
 					}
 				}
 			}
@@ -62,7 +61,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(relation, a, b));
 					}
 				}
 			}
@@ -76,7 +75,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(relation, a, b));
 					}
 				}
 			}
@@ -90,7 +89,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(relation, a, b));
 					}
 				}
 			}
@@ -104,7 +103,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(relation, a, b));
 					}
 				}
 			}

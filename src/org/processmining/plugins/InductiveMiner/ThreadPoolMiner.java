@@ -6,25 +6,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class ThreadPool {
+public class ThreadPoolMiner {
 	private ExecutorService pool;
 	private int numberOfThreads;
 	private ConcurrentLinkedQueue<Future<?>> jobs;
 	
 	//constructor, makes an estimate of the number of threads.
-	public ThreadPool() {
+	public ThreadPoolMiner() {
 		numberOfThreads = Runtime.getRuntime().availableProcessors();
 		init();
 	}
 	
 	//constructor, takes a number of threads. Provide 1 to execute synchronously.
-	public ThreadPool(int numberOfThreads) {
+	public ThreadPoolMiner(int numberOfThreads) {
 		this.numberOfThreads = numberOfThreads;
 		init();
 	}
 	
-	public static ThreadPool useFactor(double factor) {
-		return new ThreadPool((int) (Runtime.getRuntime().availableProcessors() * factor));
+	public static ThreadPoolMiner useFactor(double factor) {
+		return new ThreadPoolMiner((int) (Runtime.getRuntime().availableProcessors() * factor));
 	}
 	
 	//add a job to be executed. Will block if executed synchronously

@@ -21,9 +21,8 @@ import org.processmining.framework.util.Pair;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
-import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveLoop;
 import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveParallel;
@@ -96,7 +95,9 @@ public class Miner {
 		ProcessTreeModel model = new ProcessTreeModel();
 
 		//initialise the thread pool
-		ThreadPool pool = new ThreadPool(1);
+		//ThreadPoolConcurrentJobs pool = ThreadPoolConcurrentJobs.useAsMuchThreadsAsCores();
+		ThreadPoolMiner pool = new ThreadPoolMiner(1);
+		//ThreadPoolConcurrentJobs pool = ThreadPoolConcurrentJobs.useBlocking();
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
 
@@ -130,7 +131,7 @@ public class Miner {
 
 	private void mineProcessTree(Filteredlog log, final MiningParameters parameters, final Binoperator target, //the target where we must store our result 
 			final int index, //in which subtree we must store our result
-			final ThreadPool pool) {
+			final ThreadPoolMiner pool) {
 
 		debug("", parameters);
 		debug("==================", parameters);
@@ -141,12 +142,14 @@ public class Miner {
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(log, parameters);
 		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log, parameters);
 		
+		/*
 		//debug stuff
 		for (XEventClass a : directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet()) {
 			debug("msd " + a.toString() + " (" + directlyFollowsRelation.getMinimumSelfDistance(a) + "): " + directlyFollowsRelation.getMinimumSelfDistanceBetween(a).toString(), parameters);
 		}
 		debug(kSuccessor.toString(), parameters);
 		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
+		*/
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
@@ -431,11 +434,10 @@ public class Miner {
 	}
 
 	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
-			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation) {
+			final int index, final ThreadPoolMiner pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		 
-		ThreadPool SATPool = new ThreadPool();
+		ThreadPoolMiner SATPool = new ThreadPoolMiner(0);
 		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
-		parameters.getSatProbabilities().setDirectlyFollowsRelation(directlyFollowsRelation);
 		
 		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
 		(new SATSolveSequence(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
@@ -479,7 +481,7 @@ public class Miner {
 	}
 
 	private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
-			final int index, final ThreadPool pool, DirectlyFollowsRelation directlyFollowsRelation,
+			final int index, final ThreadPoolMiner pool, DirectlyFollowsRelation directlyFollowsRelation,
 			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered) {
 
 		DirectlyFollowsRelation dfr;
@@ -521,7 +523,7 @@ public class Miner {
 	}
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
-			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
+			final ThreadPoolMiner pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
 			FilterResults filterResults, Filteredlog log) {
 
 		registerFilteredNoise(newTargetNode, filterResults);
@@ -530,7 +532,7 @@ public class Miner {
 	}
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
-			final ThreadPool pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
+			final ThreadPoolMiner pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
 			Collection<Filteredlog> sublogs, Filteredlog log) {
 
 		//store metadata
@@ -551,7 +553,7 @@ public class Miner {
 		}
 	}
 
-	private void recurse(final MiningParameters parameters, final ThreadPool pool, final Filteredlog sublog,
+	private void recurse(final MiningParameters parameters, final ThreadPoolMiner pool, final Filteredlog sublog,
 			final Binoperator newTargetNode, final int newTargetChildIndex) {
 		pool.addJob(new Runnable() {
 			public void run() {

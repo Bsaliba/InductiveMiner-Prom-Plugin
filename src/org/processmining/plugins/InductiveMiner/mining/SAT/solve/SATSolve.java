@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.SAT.solve;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.processmining.plugins.InductiveMiner.ThreadPool;
+import org.processmining.plugins.InductiveMiner.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
@@ -11,12 +11,12 @@ import org.processmining.plugins.InductiveMiner.mining.SAT.solve.single.SATSolve
 
 public abstract class SATSolve {
 
-	protected final ThreadPool pool;
+	protected final ThreadPoolMiner pool;
 	protected final AtomicResult bestTillNow;
 	protected final DirectlyFollowsRelation directlyFollowsRelation;
 	protected final MiningParameters parameters;
 
-	public SATSolve(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters, ThreadPool pool,
+	public SATSolve(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters, ThreadPoolMiner pool,
 			AtomicResult bestTillNow) {
 		this.directlyFollowsRelation = directlyFollowsRelation;
 		this.parameters = parameters;
