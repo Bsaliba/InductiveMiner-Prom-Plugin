@@ -19,7 +19,7 @@ import org.sat4j.specs.TimeoutException;
 
 public abstract class SATSolveSingle {
 
-	protected abstract class Var {
+	protected static abstract class Var {
 		private final int varInt;
 		private boolean result;
 
@@ -43,7 +43,7 @@ public abstract class SATSolveSingle {
 		}
 	}
 
-	protected class Node extends Var {
+	protected static class Node extends Var {
 		private final XEventClass activity;
 
 		public Node(int varInt, XEventClass activity) {
@@ -60,7 +60,7 @@ public abstract class SATSolveSingle {
 		}
 	}
 
-	protected class Edge extends Var {
+	protected static class Edge extends Var {
 		private final XEventClass from;
 		private final XEventClass to;
 
@@ -90,7 +90,7 @@ public abstract class SATSolveSingle {
 	public SATSolveSingle(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		varInt2var = new HashMap<Integer, Var>();
 		varCounter = 1;
-		solver = SolverFactory.newDefaultOptimizer();
+		solver = SolverFactory.newDefault();
 		this.directlyFollowsRelation = directlyFollowsRelation;
 		this.parameters = parameters;
 
@@ -136,6 +136,8 @@ public abstract class SATSolveSingle {
 					sigma2.add(a);
 				}
 			}
+			solver.clearLearntClauses();
+			solver.reset();
 			//debug("  solution: " + sigma1 + ", " + sigma2);
 			return new Pair<Set<XEventClass>, Set<XEventClass>>(sigma1, sigma2);
 		} else {

@@ -235,17 +235,17 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 					if (aI != aJ) {
 						//direct
 						clause.push(singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						BigInteger pab = probabilities.getProbabilityLoopSingleB(aI, aJ);
+						BigInteger pab = probabilities.getProbabilityLoopSingleB(directlyFollowsRelation, aI, aJ);
 						coefficients.push(pab.multiply(BigInteger.valueOf(2)).negate());
 						
 						//double
 						clause.push(doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						BigInteger dbl = probabilities.getProbabilityLoopDoubleB(aI, aJ);
+						BigInteger dbl = probabilities.getProbabilityLoopDoubleB(directlyFollowsRelation, aI, aJ);
 						coefficients.push(dbl.negate());
 
 						//indirect
 						clause.push(indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						BigInteger ind = probabilities.getProbabilityLoopIndirectB(aI, aJ);
+						BigInteger ind = probabilities.getProbabilityLoopIndirectB(directlyFollowsRelation, aI, aJ);
 						coefficients.push(ind.negate());
 					}
 				}
@@ -279,7 +279,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							{
 								Edge e = singleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 								if (e.isResult()) {
-									double p = probabilities.getProbabilityLoopSingle(aI, aJ);
+									double p = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aI, aJ);
 									single += e.toString() + " (" + p + "), ";
 									sumProbability += p * 2;
 								}
@@ -297,7 +297,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							{
 								Edge e = doubleLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 								if (e.isResult()) {
-									double p = probabilities.getProbabilityLoopDouble(aI, aJ);
+									double p = probabilities.getProbabilityLoopDouble(directlyFollowsRelation, aI, aJ);
 									doublee += e.toString() + " (" + p + "), ";
 									sumProbability += p;
 								}
@@ -314,7 +314,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							//indirect edge
 							Edge se = indirectLoopEdge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (se.isResult()) {
-								double p = probabilities.getProbabilityLoopIndirect(aI, aJ);
+								double p = probabilities.getProbabilityLoopIndirect(directlyFollowsRelation, aI, aJ);
 								indirect += se.toString() + " (" + p + "), ";
 								sumProbability += p;
 							}

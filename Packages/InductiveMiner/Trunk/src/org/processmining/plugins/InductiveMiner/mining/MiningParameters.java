@@ -7,7 +7,7 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimatedZ;
+import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesUnit;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -31,7 +31,7 @@ public class MiningParameters {
 		
 		useSAT = true;
 		useExhaustiveKSuccessor = false;
-		satProbabilities = new ProbabilitiesEstimatedZ(null);
+		satProbabilities = new ProbabilitiesUnit();
 	}
 
 	public void setClassifier(XEventClassifier classifier) {

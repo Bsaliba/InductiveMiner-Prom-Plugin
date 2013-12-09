@@ -23,7 +23,7 @@ import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleXor extends SATSolveSingle {
 
-	private class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
+	private static class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
 		public int compare(Triple<Integer, Integer, BigInteger> arg0, Triple<Integer, Integer, BigInteger> arg1) {
 			return arg1.getC().compareTo(arg0.getC());
 		}
@@ -97,7 +97,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityXorB(aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityXorB(directlyFollowsRelation, aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -121,7 +121,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							double p = probabilities.getProbabilityXor(aI, aJ);
+							double p = probabilities.getProbabilityXor(directlyFollowsRelation, aI, aJ);
 							x += e.toString() + " (" + p + "), ";
 							sumProbability += p;
 						}

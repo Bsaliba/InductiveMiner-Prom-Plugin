@@ -6,7 +6,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.model.Node;
 
-public class fitness {
+public class Fitness {
 	
 	@SuppressWarnings("unchecked")
 	public static void computeFitness(Node node) {
