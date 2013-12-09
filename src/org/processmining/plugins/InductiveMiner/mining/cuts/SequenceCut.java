@@ -53,7 +53,7 @@ public class SequenceCut {
 			xorGraph.addVertex(node);
 		}
 		
-		SequenceCutReachability<Set<XEventClass>, DefaultEdge> scr1 = new SequenceCutReachability<Set<XEventClass>, DefaultEdge>(condensedGraph1);
+		SequenceCutReachability scr1 = new SequenceCutReachability(condensedGraph1);
 		for (Set<XEventClass> node : condensedGraph1.vertexSet()) {
 			Set<Set<XEventClass>> reachableFromTo = scr1.getReachableFromTo(node);
 			

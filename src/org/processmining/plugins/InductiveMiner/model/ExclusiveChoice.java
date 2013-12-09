@@ -1,11 +1,17 @@
 package org.processmining.plugins.InductiveMiner.model;
 
+import java.util.List;
+
 
 
 public class ExclusiveChoice extends Binoperator{
 
 	public ExclusiveChoice(int countChildren) {
 		super(countChildren);
+	}
+
+	public ExclusiveChoice(List<Node> children) {
+		super(children);
 	}
 
 	public String getOperatorString() {

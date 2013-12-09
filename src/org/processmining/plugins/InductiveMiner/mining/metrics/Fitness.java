@@ -6,7 +6,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.model.Node;
 
-public class Fitness {
+public class fitness {
 	
 	@SuppressWarnings("unchecked")
 	public static void computeFitness(Node node) {
@@ -43,10 +43,12 @@ public class Fitness {
 			} else {
 				fitness = 1;
 			}
-			node.metadata.put("subtreeFitness", fitness);
-			//debug("subtree fitness " + fitness + " " + node.toString());
+			node.metadata.put("subtreeFitness", new Integer((int) Math.round(fitness * 100) ));
+			debug("subtree fitness " + fitness + " " + node.toString());
 		}
 	}
 	
-	//private static void debug(String x) {System.out.println(x);}
+	private static void debug(String x) {
+		System.out.println(x);
+	}
 }

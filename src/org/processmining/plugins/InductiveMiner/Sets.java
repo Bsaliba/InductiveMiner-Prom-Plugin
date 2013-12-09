@@ -11,12 +11,6 @@ public class Sets {
 		return result;
 	}
 	
-	public static <X> Set<X> union(Set<X> a, Set<X> b) {
-		Set<X> result = new HashSet<X>(a);
-		result.addAll(b);
-		return result;
-	}
-	
 	public static <X> Set<X> difference(Set<X> a, Set<X> b) {
 		Set<X> result = new HashSet<X>(a);
 		result.removeAll(b);
