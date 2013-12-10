@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.model.Binoperator;
 import org.processmining.plugins.InductiveMiner.model.EventClass;
 import org.processmining.plugins.InductiveMiner.model.ExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.model.Loop;
@@ -28,18 +29,34 @@ public class ReduceTree {
 		return newTree;
 	}
 
-	private static Node reduceNode(Node node) {
+	public static Node reduceNode(Node node) {
 
 		Node newNode = null;
-		List<Node> children = null;
 		if (node instanceof Tau) {
 			newNode = new Tau();
 		} else if (node instanceof EventClass) {
 			newNode = new EventClass(((EventClass) node).eventClass);
-		} else if (node instanceof Sequence) {
-			newNode = new Sequence(flattenSequence((Sequence) node));
+		} else if (node instanceof Binoperator) {
+			newNode = reduceBinoperator((Binoperator) node);
+		}
+
+		return newNode;
+	}
+
+	private static Node reduceBinoperator(Binoperator node) {
+		List<Node> children = null;
+		if (node instanceof Sequence) {
+			children = flattenSequence((Sequence) node);
+
+			if (children.size() >= 2) {
+				return new Sequence(children);
+			}
 		} else if (node instanceof ExclusiveChoice) {
-			newNode = new ExclusiveChoice(flattenXor((ExclusiveChoice) node));
+			children = flattenXor((ExclusiveChoice) node);
+
+			if (children.size() >= 2) {
+				return new ExclusiveChoice(children);
+			}
 		} else if (node instanceof Loop) {
 			Pair<Node, Set<Node>> p = flattenLoop((Loop) node);
 
@@ -50,12 +67,26 @@ public class ReduceTree {
 				children.add(child);
 			}
 
-			newNode = new Loop(children);
+			if (children.size() >= 2) {
+				return new Loop(children);
+			}
 		} else if (node instanceof Parallel) {
-			newNode = new Parallel(flattenParallel((Parallel) node));
+			children = flattenParallel((Parallel) node);
+
+			if (children.size() >= 2) {
+				return new Parallel(children);
+			}
 		}
 
-		return newNode;
+		//there are less than two children available
+		if (children.size() == 0) {
+			//no child, return tau
+			return new Tau();
+		} else {
+			//one child, return that child
+			return children.get(0);
+		}
+
 	}
 
 	private static List<Node> flattenSequence(Sequence node) {
@@ -68,7 +99,18 @@ public class ReduceTree {
 				result.add(reduceNode(child));
 			}
 		}
-		return result;
+
+		//remove  taus
+		List<Node> result2 = new LinkedList<Node>();
+		for (Node child : result) {
+			if (child instanceof Tau) {
+
+			} else {
+				result2.add(child);
+			}
+		}
+
+		return result2;
 	}
 
 	private static List<Node> flattenXor(ExclusiveChoice node) {
@@ -81,7 +123,22 @@ public class ReduceTree {
 				result.add(reduceNode(child));
 			}
 		}
-		return result;
+
+		//remove double taus
+		boolean seenTau = false;
+		List<Node> result2 = new LinkedList<Node>();
+		for (Node child : result) {
+			if (child instanceof Tau) {
+				if (!seenTau) {
+					result2.add(child);
+				}
+				seenTau = true;
+			} else {
+				result2.add(child);
+			}
+		}
+
+		return result2;
 	}
 
 	private static Pair<Node, Set<Node>> flattenLoop(Loop node) {
@@ -122,7 +179,18 @@ public class ReduceTree {
 				result.add(child);
 			}
 		}
-		return result;
+
+		//remove  taus
+		List<Node> result2 = new LinkedList<Node>();
+		for (Node child : result) {
+			if (child instanceof Tau) {
+
+			} else {
+				result2.add(child);
+			}
+		}
+
+		return result2;
 	}
 
 }

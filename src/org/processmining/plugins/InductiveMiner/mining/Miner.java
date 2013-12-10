@@ -39,6 +39,7 @@ import org.processmining.plugins.InductiveMiner.model.Sequence;
 import org.processmining.plugins.InductiveMiner.model.Tau;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
+import org.processmining.plugins.InductiveMiner.model.conversion.ReduceTree;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 public class Miner {
@@ -114,6 +115,8 @@ public class Miner {
 		//debug(dummyRootNode.toString());
 		model.root = dummyRootNode.getChild(0);
 		//debug("mined model " + model.root.toString());
+		
+		model.root = ReduceTree.reduceNode(model.root);
 
 		return model;
 	}
