@@ -24,11 +24,11 @@ public class ProcessTreeModel2ProcessTree {
 	public static ProcessTree convert(Node root) {
 		ProcessTree tree = new ProcessTreeImpl();
 		
-		/*fitness.computeFitness(root);
-		debug("empty traces " + root.metadata.get("subtreeFilteredEmptyTraces").toString());
-		debug("filtered events " + root.metadata.get("subtreeFilteredEvents").toString());
-		debug("fitness " + root.metadata.get("subtreeFitness").toString());
-		debug(root.toString());*/
+		//Fitness.computeFitness(root);
+		//debug("empty traces " + root.metadata.get("subtreeFilteredEmptyTraces").toString());
+		//debug("filtered events " + root.metadata.get("subtreeFilteredEvents").toString());
+		//debug("fitness " + root.metadata.get("subtreeFitness").toString());
+		//debug(root.toString());
 		
 		tree.setRoot(convertNode(tree, root));
 
@@ -63,7 +63,7 @@ public class ProcessTreeModel2ProcessTree {
 		
 		newNode.setProcessTree(tree);
 		tree.addNode(newNode);
-		//attachFitness(node, newNode);
+		attachFitness(node, newNode);
 		
 		//Non block are leafs which end here
 		if (!(newNode instanceof Block)) {
@@ -132,18 +132,15 @@ public class ProcessTreeModel2ProcessTree {
 		return newNode;
 	}
 	
-	/*
 	private static void attachFitness(Node node, org.processmining.processtree.Node newNode) {
-		Integer f = (Integer) node.metadata.get("subtreeFitness");
+		Double f = (Double) node.metadata.get("subtreeFitness");
 		try {
-			newNode.setIndependentProperty(NrOfResources.class, f);
+			newNode.setIndependentProperty(new org.processmining.plugins.properties.processmodel.impl.Fitness(), f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}*/
-	
-	private static void debug(String x) {
-		System.out.println(x);
 	}
+	
+	private static void debug(String x) {System.out.println(x);}
 	
 }
