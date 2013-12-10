@@ -19,9 +19,11 @@ public abstract class Binoperator extends Node {
 	
 	public Binoperator(List<Node> children) {
 		super();
-		this.children = children; 
+		for (Node child : children) {
+			children.add(child);
+		}
 	}
-	
+
 	public String toString() {
 		List<String> childStrings = new LinkedList<String>();
 		for (Node child : children) {

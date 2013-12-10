@@ -235,7 +235,7 @@ public class Filteredlog {
 			}
 		}
 
-		debug(emptytraces + " empty traces not converted to XLog");
+		//debug(emptytraces + " empty traces not converted to XLog");
 
 		return result;
 	}
@@ -244,7 +244,7 @@ public class Filteredlog {
 		attMap.put(key, new XAttributeLiteralImpl(key, value));
 	}
 
-	private void debug(String x) {
-		System.out.println(x);
-	}
+	//private void debug(String x) {
+	//	System.out.println(x);
+	//}
 }

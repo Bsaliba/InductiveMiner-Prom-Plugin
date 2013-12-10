@@ -9,7 +9,7 @@ public class ExclusiveChoice extends Binoperator{
 	public ExclusiveChoice(int countChildren) {
 		super(countChildren);
 	}
-
+	
 	public ExclusiveChoice(List<Node> children) {
 		super(children);
 	}
