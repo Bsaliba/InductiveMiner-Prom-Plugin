@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.SAT.solve.single;
 
 import java.math.BigInteger;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -9,7 +8,6 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.Triple;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
@@ -22,12 +20,6 @@ import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleXor extends SATSolveSingle {
-
-	private static class Compare implements Comparator<Triple<Integer, Integer, BigInteger>> {
-		public int compare(Triple<Integer, Integer, BigInteger> arg0, Triple<Integer, Integer, BigInteger> arg1) {
-			return arg1.getC().compareTo(arg0.getC());
-		}
-	}
 
 	public SATSolveSingleXor(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		super(directlyFollowsRelation, parameters);
@@ -131,18 +123,18 @@ public class SATSolveSingleXor extends SATSolveSingle {
 				double averageProbability = sumProbability / numberOfEdgesInCut;
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "xor");
 
-				debug("  " + result2.toString());
-				//debug("   edges " + x);
-				//debug("   sum probability " + sumProbability);
+				debug("  xor size " + cutSize + ": " + result2.toString());
+				debug("   edges " + x);
+				debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {
-				//debug("  no solution");
+				debug("  no solution xor size " + cutSize);
 			}
 		} catch (ContradictionException e) {
-			//debug("  inconsistent problem " + e);
+			debug("  inconsistent problem xor size " + cutSize);
 		} catch (TimeoutException e1) {
-			//debug("  time out " + e);
+			debug("  time out xor size " + cutSize);
 		}
 		return null;
 	}

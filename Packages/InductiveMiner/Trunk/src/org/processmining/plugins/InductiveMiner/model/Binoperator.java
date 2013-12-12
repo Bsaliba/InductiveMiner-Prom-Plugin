@@ -20,7 +20,7 @@ public abstract class Binoperator extends Node {
 	public Binoperator(List<Node> children) {
 		super();
 		for (Node child : children) {
-			children.add(child);
+			this.children.add(child);
 		}
 	}
 

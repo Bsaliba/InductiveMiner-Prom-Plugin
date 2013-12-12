@@ -143,7 +143,7 @@ public class ReduceTree {
 
 	private static Pair<Node, Set<Node>> flattenLoop(Loop node) {
 		Node leftChild = node.getChildren().get(0);
-		List<Node> rightChildren = node.getChildren().subList(1, node.getChildren().size() - 1);
+		List<Node> rightChildren = node.getChildren().subList(1, node.getChildren().size());
 
 		Set<Node> newRightChildren = new HashSet<Node>();
 		Node newLeftChild = null;
