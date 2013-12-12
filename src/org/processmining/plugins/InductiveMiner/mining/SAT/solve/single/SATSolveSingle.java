@@ -90,7 +90,7 @@ public abstract class SATSolveSingle {
 	public SATSolveSingle(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters) {
 		varInt2var = new HashMap<Integer, Var>();
 		varCounter = 1;
-		solver = SolverFactory.newDefault();
+		solver = SolverFactory.newDefaultOptimizer();
 		this.directlyFollowsRelation = directlyFollowsRelation;
 		this.parameters = parameters;
 

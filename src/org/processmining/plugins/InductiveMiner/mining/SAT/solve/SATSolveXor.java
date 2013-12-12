@@ -1,6 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.SAT.solve;
 
-import org.processmining.plugins.InductiveMiner.ThreadPoolMiner;
+import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
@@ -8,7 +8,7 @@ import org.processmining.plugins.InductiveMiner.mining.SAT.solve.single.SATSolve
 
 public class SATSolveXor extends SATSolve {
 
-	public SATSolveXor(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters, ThreadPoolMiner pool, AtomicResult result) {
+	public SATSolveXor(DirectlyFollowsRelation directlyFollowsRelation, MiningParameters parameters, JobList pool, AtomicResult result) {
 		super(directlyFollowsRelation, parameters, pool, result);
 	}
 	
