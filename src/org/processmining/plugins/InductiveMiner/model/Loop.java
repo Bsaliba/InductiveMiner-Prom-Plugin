@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.model;
 
 import java.util.List;
 
+
 public class Loop extends Binoperator {
 
 	public Loop(int countChildren) {
@@ -17,8 +18,9 @@ public class Loop extends Binoperator {
 	}
 
 	/*
-	 * public boolean canProduceEpsilon() { return
-	 * children.get(0).canProduceEpsilon(); }
-	 */
+	public boolean canProduceEpsilon() {
+		return children.get(0).canProduceEpsilon();
+	}
+	*/
 
 }
