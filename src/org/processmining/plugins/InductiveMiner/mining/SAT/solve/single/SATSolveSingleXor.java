@@ -124,8 +124,8 @@ public class SATSolveSingleXor extends SATSolveSingle {
 				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, "xor");
 
 				debug("  xor size " + cutSize + ": " + result2.toString());
-				debug("   edges " + x);
-				debug("   sum probability " + sumProbability);
+				//debug("   edges " + x);
+				//debug("   sum probability " + sumProbability);
 
 				return result2;
 			} else {

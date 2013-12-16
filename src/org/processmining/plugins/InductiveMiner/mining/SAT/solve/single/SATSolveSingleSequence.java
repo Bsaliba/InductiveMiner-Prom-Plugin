@@ -134,12 +134,12 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 
 				return result2;
 			} else {
-				//debug("  no solution");
+				debug("  no solution");
 			}
 		} catch (TimeoutException e) {
 			debug("  timeout");
 		} catch (ContradictionException e) {
-			//debug("  inconsistent problem");
+			debug("  inconsistent problem");
 		}
 		return null;
 	}

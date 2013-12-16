@@ -166,12 +166,12 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 				return result2;
 			} else {
-				//debug("  no solution");
+				debug("  no solution");
 			}
 		} catch (ContradictionException e) {
-			//debug("  inconsistent problem");
+			debug("  inconsistent problem");
 		} catch (TimeoutException e) {
-			//debug("  timeout");
+			debug("  timeout");
 		}
 
 		return null;
