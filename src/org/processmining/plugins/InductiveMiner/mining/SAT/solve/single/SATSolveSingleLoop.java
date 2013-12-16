@@ -34,7 +34,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 		Probabilities probabilities = parameters.getSatProbabilities();
 
 		//compute number of edges in the cut
-		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize * 2;
+		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
 
 		//initialise startA, endA, startB, endB
 		Map<XEventClass, Node> startBody = new HashMap<XEventClass, Node>();
@@ -236,7 +236,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							if (e.isResult()) {
 								double p = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aI, aJ);
 								single += e.toString() + " (" + p + "), ";
-								sumProbability += p * 2;
+								sumProbability += p;
 							}
 						}
 
@@ -246,7 +246,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 							if (e.isResult()) {
 								double p = probabilities.getProbabilityLoopSingle(directlyFollowsRelation, aJ, aI);
 								single += e.toString() + " (" + p + "), ";
-								sumProbability += p * 2;
+								sumProbability += p;
 							}
 						}
 
