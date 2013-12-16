@@ -91,7 +91,6 @@
 					<exclude name="src/test/**" />
 					<exclude name="**/*.jj" />
 					<exclude name="**/*.jjt" />
-					<exclude name="**/*.properties" />
 				</fileset>
 			</javadoc>
 		</target>
