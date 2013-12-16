@@ -4,38 +4,36 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 
-public class SequenceCutReachability {
+public class SequenceCutReachability<V,E> {
 	
-	private HashMap<Set<XEventClass>, Set<Set<XEventClass>>> reachableTo;
-	private HashMap<Set<XEventClass>, Set<Set<XEventClass>>> reachableFrom;
-	private DirectedGraph<Set<XEventClass>, DefaultEdge> condensedGraph;
+	private HashMap<V, Set<V>> reachableTo;
+	private HashMap<V, Set<V>> reachableFrom;
+	private DirectedGraph<V, E> condensedGraph;
 
-	public SequenceCutReachability(DirectedGraph<Set<XEventClass>, DefaultEdge> condensedGraph1) {
-		reachableTo = new HashMap<Set<XEventClass>, Set<Set<XEventClass>>>();
-		reachableFrom = new HashMap<Set<XEventClass>, Set<Set<XEventClass>>>();
-		condensedGraph = condensedGraph1;
+	public SequenceCutReachability(DirectedGraph<V,E> graph) {
+		reachableTo = new HashMap<V, Set<V>>();
+		reachableFrom = new HashMap<V, Set<V>>();
+		this.condensedGraph = graph;
 	}
 	
-	public Set<Set<XEventClass>> getReachableFromTo(Set<XEventClass> node) {
-		Set<Set<XEventClass>> r = new HashSet<Set<XEventClass>>(findReachableTo(node));
+	public Set<V> getReachableFromTo(V node) {
+		Set<V> r = new HashSet<V>(findReachableTo(node));
 		r.addAll(findReachableFrom(node));
 		return r;
 	}
 	
-	public Set<Set<XEventClass>> getReachableFrom(Set<XEventClass> node) {
+	public Set<V> getReachableFrom(V node) {
 		return findReachableFrom(node);
 	}
 	
-	private Set<Set<XEventClass>> findReachableTo(Set<XEventClass> from) {
+	private Set<V> findReachableTo(V from) {
 		if (!reachableTo.containsKey(from)) {
-			Set<Set<XEventClass>> reached = new HashSet<Set<XEventClass>>();
+			Set<V> reached = new HashSet<V>();
 			
-			for (DefaultEdge edge : condensedGraph.outgoingEdgesOf(from)) {
-				Set<XEventClass> target = condensedGraph.getEdgeTarget(edge);
+			for (E edge : condensedGraph.outgoingEdgesOf(from)) {
+				V target = condensedGraph.getEdgeTarget(edge);
 				reached.add(target);
 				
 				//recurse
@@ -47,12 +45,12 @@ public class SequenceCutReachability {
 		return reachableTo.get(from);
 	}
 	
-	private Set<Set<XEventClass>> findReachableFrom(Set<XEventClass> to) {
+	private Set<V> findReachableFrom(V to) {
 		if (!reachableFrom.containsKey(to)) {
-			Set<Set<XEventClass>> reached = new HashSet<Set<XEventClass>>();
+			Set<V> reached = new HashSet<V>();
 			
-			for (DefaultEdge edge : condensedGraph.incomingEdgesOf(to)) {
-				Set<XEventClass> target = condensedGraph.getEdgeSource(edge);
+			for (E edge : condensedGraph.incomingEdgesOf(to)) {
+				V target = condensedGraph.getEdgeSource(edge);
 				reached.add(target);
 				
 				//recurse

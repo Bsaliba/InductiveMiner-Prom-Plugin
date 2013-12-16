@@ -12,7 +12,6 @@ import org.processmining.plugins.InductiveMiner.model.Sequence;
 import org.processmining.plugins.InductiveMiner.model.Tau;
 
 
-
 public class ProcessTreeModel2Dot {
 	
 	public abstract class dotNode {
