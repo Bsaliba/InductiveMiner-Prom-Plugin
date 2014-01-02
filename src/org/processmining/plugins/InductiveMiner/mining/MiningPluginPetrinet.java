@@ -22,28 +22,24 @@ import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMap
 		"Log", "Parameters" }, userAccessible = true)
 
 public class MiningPluginPetrinet {
+	
+	public Object[] mineDefaultPetrinet(XLog log) {
+		return this.mineParametersPetrinet(log, new MiningParameters());
+	}
+	
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
 		return this.mineParametersPetrinet(context, log, new MiningParameters());
 	}
 	
+	public Object[] mineParametersPetrinet(XLog log, MiningParameters parameters) {
+		return mineParametersPetrinet(null, log, parameters);
+	}
+	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, parameterized", requiredParameterLabels = { 0, 1 })
 	public Object[] mineParametersPetrinet(PluginContext context, XLog log, MiningParameters parameters) {
-		/* there is no connection yet linking log, petri net, initial marking and final marking (or todo?)
-		Collection<ProcessTreeModelConnection> connections;
-		try {
-			connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context, log);
-			for (ProcessTreeModelConnection connection : connections) {
-				if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
-						&& connection.getParameters().equals(parameters)) {
-					return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
-				}
-			}
-		} catch (ConnectionCannotBeObtained e) {
-		}
-		*/
 		
 		//call the connectionless function
 		Miner miner = new Miner();
