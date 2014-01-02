@@ -12,10 +12,12 @@ public class EventClass extends Node {
 	public String toString() {
 		String s = eventClass.toString();
 		
+		/*
 		//chop off the +complete part
 		if (s.contains("+complete")) {
 			s = s.substring(0, s.indexOf("+complete"));
 		}
+		*/
 		
 		return s;
 	}
