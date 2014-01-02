@@ -15,29 +15,27 @@ import org.processmining.processtree.ProcessTree;
 @Plugin(name = "Mine a Process Tree using Inductive Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPluginProcessTree {
+	
+	public ProcessTree mineDefault(XLog log) {
+		return this.mineParameters(log, new MiningParameters());
+	}
+	
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree, default", requiredParameterLabels = { 0 })
 	public ProcessTree mineDefault(PluginContext context, XLog log) {
 		return this.mineParameters(context, log, new MiningParameters());
 	}
+	
+	public ProcessTree mineParameters(XLog log, MiningParameters parameters) {
+		Miner miner = new Miner();
+		ProcessTreeModel model = miner.mine(null, log, parameters);
+		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
+		return tree;
+	}
 
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
 	public ProcessTree mineParameters(PluginContext context, XLog log, MiningParameters parameters) {
-		/*if (context != null) {
-			Collection<ProcessTreeModelConnection> connections;
-			try {
-				connections = context.getConnectionManager().getConnections(ProcessTreeModelConnection.class, context,
-						log);
-				for (ProcessTreeModelConnection connection : connections) {
-					if (connection.getObjectWithRole(ProcessTreeModelConnection.LOG).equals(log)
-							&& connection.getParameters().equals(parameters)) {
-						return connection.getObjectWithRole(ProcessTreeModelConnection.MODEL);
-					}
-				}
-			} catch (ConnectionCannotBeObtained e) {
-			}
-		}*/
 		Miner miner = new Miner();
 		ProcessTreeModel model = miner.mine(context, log, parameters);
 		ProcessTree tree = ProcessTreeModel2ProcessTree.convert(model.root);
