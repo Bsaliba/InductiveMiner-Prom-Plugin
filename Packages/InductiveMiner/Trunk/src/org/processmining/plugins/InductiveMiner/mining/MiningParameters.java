@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimatedZ;
@@ -22,7 +21,7 @@ public class MiningParameters {
 	private Probabilities satProbabilities;
 
 	public MiningParameters() {
-		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
+		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
 		noiseThreshold = (float) 0.0;
 		incompleteThreshold = (float) 0.0;
 		outputDFGfileName = "D:\\output";
