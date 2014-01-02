@@ -175,7 +175,7 @@ public class DirectlyFollowsRelation {
 			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
 	}
-	
+
 	private DirectlyFollowsRelation(
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
@@ -383,9 +383,10 @@ public class DirectlyFollowsRelation {
 		return result;
 	}
 
-	public String toDot(Collection<Set<XEventClass>> cut, boolean useEventuallyFollows) {
+	public String toDot(Collection<Set<XEventClass>> cut, boolean useEventuallyFollows, boolean useColour,
+			boolean useFrequencies) {
 		if (cut == null) {
-			return toDot(useEventuallyFollows);
+			return toDot(useEventuallyFollows, useColour, useFrequencies);
 		}
 
 		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
@@ -401,29 +402,32 @@ public class DirectlyFollowsRelation {
 		//prepare the nodes
 		HashMap<XEventClass, String> activityToNode = new HashMap<XEventClass, String>();
 		for (Set<XEventClass> branch : cut) {
-			dot += "subgraph \"cluster_" + UUID.randomUUID().toString() + "\" {\n";
+			//dot += "subgraph \"cluster_" + UUID.randomUUID().toString() + "\" {\n";
 			for (XEventClass activity : branch) {
 				String id = UUID.randomUUID().toString();
 				activityToNode.put(activity, id);
 				dot += "\"" + id + "\" [ label=\"" + activity.toString() + "\", shape=\"box\"";
 
 				//determine node colour using start and end activities
-				if (startActivities.contains(activity) && endActivities.contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\""
-							+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity) + ":"
-							+ colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity) + "\"";
-				} else if (startActivities.contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\""
-							+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
-							+ ":white\"";
-				} else if (endActivities.contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\"white:"
-							+ colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity) + "\"";
+				if (useColour) {
+					if (startActivities.contains(activity) && endActivities.contains(activity)) {
+						dot += ", style=\"filled\"" + ", fillcolor=\""
+								+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
+								+ ":" + colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity)
+								+ "\"";
+					} else if (startActivities.contains(activity)) {
+						dot += ", style=\"filled\"" + ", fillcolor=\""
+								+ colourMapGreen(startActivities.getCardinalityOf(activity), strongestStartActivity)
+								+ ":white\"";
+					} else if (endActivities.contains(activity)) {
+						dot += ", style=\"filled\"" + ", fillcolor=\"white:"
+								+ colourMapRed(endActivities.getCardinalityOf(activity), strongestEndActivity) + "\"";
+					}
 				}
 
 				dot += "];\n";
 			}
-			dot += "color=\"blue\";}\n";
+			//dot += "color=\"blue\";}\n";
 		}
 
 		//add the edges
@@ -431,19 +435,27 @@ public class DirectlyFollowsRelation {
 			XEventClass from = graph.getEdgeSource(edge);
 			XEventClass to = graph.getEdgeTarget(edge);
 			int weight = (int) graph.getEdgeWeight(edge);
-			dot += "\"" + activityToNode.get(from) + "\" -> \"" + activityToNode.get(to) + "\" [" + "label=\""
-					+ String.valueOf(weight) + "\", " + "color=\"" + colourMapBlackBody(weight, strongestDirectEdge)
-					+ "\"" + "];\n";
+			dot += "\"" + activityToNode.get(from) + "\" -> \"" + activityToNode.get(to) + "\" [";
+			if (useFrequencies) {
+				dot += "label=\"" + String.valueOf(weight) + "\"";
+				if (useColour) {
+					dot += ", ";
+				}
+			}
+			if (useColour) {
+				dot += "color=\"" + colourMapBlackBody(weight, strongestDirectEdge) + "\"";
+			}
+			dot += "];\n";
 		}
 
 		dot += "}\n";
 		return dot;
 	}
 
-	public String toDot(boolean useEventuallyFollows) {
+	public String toDot(boolean useEventuallyFollows, boolean useColour, boolean useFrequencies) {
 		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
 		cut.add(directlyFollowsGraph.vertexSet());
-		return toDot(cut, useEventuallyFollows);
+		return toDot(cut, useEventuallyFollows, useColour, useFrequencies);
 	}
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {

@@ -10,11 +10,11 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 import org.processmining.processtree.conversion.Dot;
 
-@Plugin(name = "Create directly-follows graph from log", returnLabels = { "dot" }, returnTypes = { Dot.class }, parameterLabels = { "Log" }, userAccessible = true)
-public class Log2DirectlyFollowsGraph {
+@Plugin(name = "Create eventually-follows graph from log", returnLabels = { "dot" }, returnTypes = { Dot.class }, parameterLabels = { "Log" }, userAccessible = true)
+public class Log2EventuallyFollowsGraph {
 
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Create directly-follows graph from log, default", requiredParameterLabels = { 0 })
+	@PluginVariant(variantLabel = "Create eventually-follows graph from log, default", requiredParameterLabels = { 0 })
 	public Dot log2directlyFollowsGraph(PluginContext context, XLog log) {
 		return log2directlyFollowsGraph(context, log, new MiningParameters());
 	}
@@ -27,7 +27,7 @@ public class Log2DirectlyFollowsGraph {
 	public Dot log2directlyFollowsGraph(PluginContext context, Filteredlog filteredLog, MiningParameters parameters) {
 		DirectlyFollowsRelation directlyFollowsRelation = new DirectlyFollowsRelation(filteredLog, parameters);
 		Dot dot = new Dot();
-		dot.append(directlyFollowsRelation.toDot(false, false, false));
+		dot.append(directlyFollowsRelation.toDot(true, false, false));
 		return dot;
 	}
 }
