@@ -42,7 +42,7 @@ public class ReduceTree {
 
 		return newNode;
 	}
-
+	
 	private static Node reduceBinoperator(Binoperator node) {
 		List<Node> children = null;
 		if (node instanceof Sequence) {
@@ -176,7 +176,7 @@ public class ReduceTree {
 				//this child is an and-child of an and
 				result.addAll(flattenParallel((Parallel) child));
 			} else {
-				result.add(child);
+				result.add(reduceNode(child));
 			}
 		}
 
