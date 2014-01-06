@@ -10,14 +10,18 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.TransitiveClosure;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
 
 public class DirectlyFollowsRelation {
 	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
 	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
+	private DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph;
 	private MultiSet<XEventClass> startActivities;
 	private MultiSet<XEventClass> endActivities;
 	private HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
@@ -51,6 +55,7 @@ public class DirectlyFollowsRelation {
 		//add the nodes to the graph
 		for (XEventClass a : log.getEventClasses()) {
 			directlyFollowsGraph.addVertex(a);
+			//directlyFollowsTransitiveClosureGraph.addVertex(a);
 			eventuallyFollowsGraph.addVertex(a);
 		}
 
@@ -174,6 +179,9 @@ public class DirectlyFollowsRelation {
 		for (XEventClass activity : endActivities) {
 			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
+		
+		//compute the transitive closure of the directly-follows graph
+		directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(directlyFollowsGraph);
 	}
 
 	private DirectlyFollowsRelation(
@@ -185,6 +193,7 @@ public class DirectlyFollowsRelation {
 			int lengthStrongestTrace, int strongestDirectEdge, int strongestEventualEdge, int strongestStartActivity,
 			int strongestEndActivity) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
+		this.directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(directlyFollowsGraph);
 		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.startActivities = startActivities;
 		this.endActivities = endActivities;
@@ -464,6 +473,10 @@ public class DirectlyFollowsRelation {
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getEventuallyFollowsGraph() {
 		return eventuallyFollowsGraph;
+	}
+	
+	public DefaultDirectedGraph<XEventClass, DefaultEdge> getDirectlyFollowsTransitiveClosureGraph() {
+		return directlyFollowsTransitiveClosureGraph;
 	}
 
 	public MultiSet<XEventClass> getStartActivities() {
