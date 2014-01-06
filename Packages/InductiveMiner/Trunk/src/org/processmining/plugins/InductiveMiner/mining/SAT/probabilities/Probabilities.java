@@ -4,7 +4,9 @@ import java.math.BigInteger;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.mining.DirectlyFollowsRelation;
@@ -75,7 +77,8 @@ public abstract class Probabilities {
 
 	//Eventually follows
 	protected boolean E(DirectlyFollowsRelation relation, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getEventuallyFollowsGraph();
+		//DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = relation.getEventuallyFollowsGraph();
+		DefaultDirectedGraph<XEventClass, DefaultEdge> graph = relation.getDirectlyFollowsTransitiveClosureGraph();
 		return graph.containsEdge(a, b);
 	}
 
