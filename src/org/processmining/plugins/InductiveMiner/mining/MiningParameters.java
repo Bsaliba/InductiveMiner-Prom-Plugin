@@ -31,6 +31,7 @@ public class MiningParameters {
 		useSAT = true;
 		useExhaustiveKSuccessor = false;
 		satProbabilities = new ProbabilitiesEstimatedZ();
+		//satProbabilities = new ProbabilitiesNoise();
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
