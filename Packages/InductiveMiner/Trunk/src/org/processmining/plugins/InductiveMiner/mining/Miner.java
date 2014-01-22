@@ -26,6 +26,7 @@ import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveLoop;
 import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveParallel;
@@ -152,7 +153,7 @@ public class Miner {
 		}
 		debug(kSuccessor.toString(), parameters);
 		*/
-		//debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
+		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
