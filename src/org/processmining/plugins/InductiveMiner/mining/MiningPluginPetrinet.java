@@ -47,13 +47,15 @@ public class MiningPluginPetrinet {
 		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = (WorkflowNet) arr[1];
 		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		
-		ProcessTreeModel2PetriNet.addMarkingsToProm(context, workflowNet);
+		if (context != null) {
+			ProcessTreeModel2PetriNet.addMarkingsToProm(context, workflowNet);
 		
-		//create connections
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
-		
-		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
+			//create connections
+			XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+			context.addConnection(new LogPetrinetConnectionImpl(log, info.getEventClasses(), workflowNet.petrinet, workflowNet.transition2eventClass));
+			
+			context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", workflowNet.petrinet, log, parameters.getClassifier(), mapping));
+		}
 		
 		return new Object[] { workflowNet.petrinet, workflowNet.initialMarking, workflowNet.finalMarking };
 	}
