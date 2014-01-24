@@ -22,8 +22,6 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
@@ -135,7 +133,9 @@ public class Miner {
 		return model;
 	}
 
-	private void mineProcessTree(Filteredlog log, final MiningParameters parameters, final Binoperator target, //the target where we must store our result 
+	private void mineProcessTree(Filteredlog log, 
+			final MiningParameters parameters, 
+			final Binoperator target, //the target (parent) node where we will store our result 
 			final int index, //in which subtree we must store our result
 			final JobList pool) {
 
@@ -442,7 +442,7 @@ public class Miner {
 	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
 			final int index, final JobList pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		 
-		JobList SATPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
+		JobList SATPool = parameters.getSatPool();
 		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
 		
 		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();

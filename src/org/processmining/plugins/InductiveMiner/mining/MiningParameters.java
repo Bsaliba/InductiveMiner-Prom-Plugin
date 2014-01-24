@@ -8,6 +8,7 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListBlocking;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
+import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimatedZ;
@@ -24,6 +25,7 @@ public class MiningParameters {
 	private boolean debug;
 	private Probabilities satProbabilities;
 	private JobList minerPool;
+	private JobList satPool;
 
 	public MiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
@@ -137,11 +139,17 @@ public class MiningParameters {
 		return this.minerPool;
 	}
 	
+	public JobList getSatPool() {
+		return this.satPool;
+	}
+	
 	public void setUseMultithreading(boolean useMultithreading) {
 		if (useMultithreading) {
 			minerPool = new JobListBlocking();
+			satPool = new JobListBlocking();
 		} else {
 			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
+			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
 		}
 	}
 
