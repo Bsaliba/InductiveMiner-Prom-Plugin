@@ -43,7 +43,7 @@ public class MiningPluginPetrinet {
 		
 		//call the connectionless function
 		Miner miner = new Miner();
-		Object[] arr = miner.mineParametersPetrinetWithoutConnections(context, log, parameters);
+		Object[] arr = miner.mineParametersPetrinetWithoutConnections(log, parameters);
 		ProcessTreeModel2PetriNet.WorkflowNet workflowNet = (WorkflowNet) arr[1];
 		TransEvClassMapping mapping = (TransEvClassMapping) arr[2];
 		
