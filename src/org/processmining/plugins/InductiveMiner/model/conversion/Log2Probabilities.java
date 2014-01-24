@@ -20,7 +20,7 @@ public class Log2Probabilities {
 	}
 	
 	public Dot log2probabilities(PluginContext context, XLog log, MiningParameters parameters) {
-		Filteredlog filteredLog = new Filteredlog(log, parameters);
+		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
 		return log2probabilities(context, filteredLog, parameters);
 	}
 	

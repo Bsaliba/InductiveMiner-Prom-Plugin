@@ -20,7 +20,7 @@ public class Log2EventuallyFollowsGraph {
 	}
 
 	public Dot log2directlyFollowsGraph(PluginContext context, XLog log, MiningParameters parameters) {
-		Filteredlog filteredLog = new Filteredlog(log, parameters);
+		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
 		return log2directlyFollowsGraph(context, filteredLog, parameters);
 	}
 	
