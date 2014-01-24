@@ -246,7 +246,7 @@ public class Miner {
 		recursionStepsCounter++;
 
 		//SAT cut search
-		if (parameters.useSAT()) {
+		if (parameters.isUseSat()) {
 			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
 				return;
 			}
