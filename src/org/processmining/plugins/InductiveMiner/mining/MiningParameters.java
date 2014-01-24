@@ -103,7 +103,7 @@ public class MiningParameters {
 		this.incompleteThreshold = incompleteThreshold;
 	}
 
-	public boolean useSAT() {
+	public boolean isUseSat() {
 		return useSAT;
 	}
 

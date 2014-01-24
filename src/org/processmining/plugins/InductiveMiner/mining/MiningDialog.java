@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import java.awt.Color;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -39,7 +40,7 @@ public class MiningDialog extends JPanel {
 		thresholdsPanel.add(noiseValue);
 		noiseValue.setBounds(535, 50, 100, 20);
 		
-		JLabel noiseExplanation = factory.createLabel("If set to 0.00, perfect log fitness is guaranteed.");
+		final JLabel noiseExplanation = factory.createLabel("If set to 0.00, perfect log fitness is guaranteed.");
 		thresholdsPanel.add(noiseExplanation);
 		noiseExplanation.setBounds(20, 70, 400, 20);
 		
@@ -59,11 +60,11 @@ public class MiningDialog extends JPanel {
 		//incomplete threshold
 		JLabel incompleteLabel = factory.createLabel("Incomplete threshold");
 		thresholdsPanel.add(incompleteLabel);
-		incompleteLabel.setBounds(20, 110, 150, 20);
+		incompleteLabel.setBounds(20, 140, 150, 20);
 		
 		final JLabel incompleteValue = factory.createLabel(String.format("%.2f", parameters.getIncompleteThreshold()));
 		thresholdsPanel.add(incompleteValue);
-		incompleteValue.setBounds(535, 110, 100, 20);
+		incompleteValue.setBounds(535, 140, 100, 20);
 		
 		final JSlider incompleteSlider = factory.createSlider(SwingConstants.HORIZONTAL);
 		incompleteSlider.setMinimum(0);
@@ -76,15 +77,25 @@ public class MiningDialog extends JPanel {
 			}
 		});
 		thresholdsPanel.add(incompleteSlider);
-		incompleteSlider.setBounds(165, 112, 360, 20);
+		incompleteSlider.setBounds(165, 142, 360, 20);
 		
-		//JLabel incompleteExplanation = factory.createLabel("The degree to which incompleteness is to be ignored.");
-		//thresholdsPanel.add(incompleteExplanation);
-		//incompleteExplanation.setBounds(20, 120, 400, 20);
-		
-		//JLabel bothExplanation = factory.createLabel("If both set to 0.00 and the log is complete, rediscoverability of some systems is guaranteed.");
-		//thresholdsPanel.add(bothExplanation);
-		//bothExplanation.setBounds(20, 160, 560, 20);
+		//use IMin
+		final JCheckBox iminCheckbox = factory.createCheckBox("Handle incomplete logs. (IMin)", false);
+		iminCheckbox.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				parameters.setUseSAT(iminCheckbox.isSelected());
+				if (iminCheckbox.isSelected()) {
+					incompleteSlider.setEnabled(true);
+					noiseExplanation.setVisible(false);
+				} else {
+					incompleteSlider.setEnabled(false);
+					noiseExplanation.setVisible(true);
+				}
+			}
+		});
+		iminCheckbox.setSelected(parameters.isUseSat());
+		thresholdsPanel.add(iminCheckbox);
+		iminCheckbox.setBounds(15, 110, 535, 20);
 		
 		setLayout(null);
 		add(thresholdsPanel);

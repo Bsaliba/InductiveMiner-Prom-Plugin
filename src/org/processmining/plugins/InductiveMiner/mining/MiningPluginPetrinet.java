@@ -65,7 +65,7 @@ public class MiningPluginPetrinet {
 	public Object[] mineGuiPetrinet(UIPluginContext context, XLog log) {
 		MiningParameters parameters = new MiningParameters();
 		MiningDialog dialog = new MiningDialog(log, parameters);
-		InteractionResult result = context.showWizard("Mine a Petri net using B'", true, true, dialog);
+		InteractionResult result = context.showWizard("Mine a Petri net using Inductive Miner", true, true, dialog);
 		if (result != InteractionResult.FINISHED) {
 			return null;
 		}
