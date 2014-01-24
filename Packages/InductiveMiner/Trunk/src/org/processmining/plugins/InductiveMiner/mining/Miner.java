@@ -16,7 +16,6 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.out.XSerializer;
 import org.deckfour.xes.out.XesXmlSerializer;
-import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.Pair;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.InductiveMiner.MultiSet;
@@ -57,14 +56,12 @@ public class Miner {
 	/*
 	 * basic usage:
 	 * 
-	 * Process tree - call mine, will return a ProcessTreeModel object (=
-	 * internal process tree representation) - call
-	 * ProcessTreeModel2ProcessTree.convert(model.root); to obtain a ProcessTree
+	 * don't use this class, use MiningPluginPetrinet or MiningPluginProcessTree instead
 	 */
 
-	public Object[] mineParametersPetrinetWithoutConnections(PluginContext context, XLog log,
+	public Object[] mineParametersPetrinetWithoutConnections(XLog log,
 			MiningParameters parameters) {
-		ProcessTreeModel model = mine(context, log, parameters);
+		ProcessTreeModel model = mine(log, parameters);
 		WorkflowNet workflowNet = ProcessTreeModel2PetriNet.convert(model.root);
 
 		//create mapping
@@ -83,13 +80,13 @@ public class Miner {
 	private final MultiSet<XEventClass> noiseEvents = new MultiSet<XEventClass>();
 	private final AtomicInteger noiseEmptyTraces = new AtomicInteger();
 	
-	public ProcessTreeModel mine(PluginContext context, XLog log, MiningParameters parameters) {
+	public ProcessTreeModel mine(XLog log, MiningParameters parameters) {
 		//prepare the log
 		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
-		return mine(context, filteredLog, parameters);
+		return mine(filteredLog, parameters);
 	}
 
-	public ProcessTreeModel mine(PluginContext context, Filteredlog filteredLog, MiningParameters parameters) {
+	public ProcessTreeModel mine(Filteredlog filteredLog, MiningParameters parameters) {
 		//debug initial log
 		//debug(filteredLog.toString());
 		debug("\n\nStart mining", parameters);
