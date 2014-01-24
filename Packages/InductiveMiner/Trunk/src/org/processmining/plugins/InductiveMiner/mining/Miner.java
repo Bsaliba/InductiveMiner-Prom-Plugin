@@ -24,7 +24,6 @@ import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
 import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
@@ -85,12 +84,14 @@ public class Miner {
 	private int recursionStepsCounter;
 	private final MultiSet<XEventClass> noiseEvents = new MultiSet<XEventClass>();
 	private final AtomicInteger noiseEmptyTraces = new AtomicInteger();
-
+	
 	public ProcessTreeModel mine(PluginContext context, XLog log, MiningParameters parameters) {
 		//prepare the log
-		//debug("Start conversion to internal log format");
-		Filteredlog filteredLog = new Filteredlog(log, parameters);
+		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
+		return mine(context, filteredLog, parameters);
+	}
 
+	public ProcessTreeModel mine(PluginContext context, Filteredlog filteredLog, MiningParameters parameters) {
 		//debug initial log
 		//debug(filteredLog.toString());
 		debug("\n\nStart mining", parameters);
@@ -99,11 +100,12 @@ public class Miner {
 		//create the model
 		ProcessTreeModel model = new ProcessTreeModel();
 
-		//initialise the thread pool
-		//JobList pool = new JobListBlocking();
-		JobList pool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
+		//initialise noise
 		noiseEmptyTraces.set(0);
 		noiseEvents.empty();
+		
+		//initialise thread pool
+		JobList pool = parameters.getMinerPool();
 
 		//add a dummy node and mine
 		Binoperator dummyRootNode = new Sequence(1);

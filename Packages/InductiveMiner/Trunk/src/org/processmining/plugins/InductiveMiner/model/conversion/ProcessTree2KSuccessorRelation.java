@@ -34,7 +34,7 @@ public class ProcessTree2KSuccessorRelation {
 	@PluginVariant(variantLabel = "Convert log to k-successor relation, default", requiredParameterLabels = { 1 })
 	public Dot processTree2KSuccessorRelation(PluginContext context, XLog log) throws Exception {
 		MiningParameters parameters = new MiningParameters();
-		Filteredlog flog = new Filteredlog(log, parameters);
+		Filteredlog flog = new Filteredlog(log, parameters.getClassifier());
 		UpToKSuccessorMatrix r = UpToKSuccessor.fromLog(flog, parameters);
 		
 		Dot result = new Dot();

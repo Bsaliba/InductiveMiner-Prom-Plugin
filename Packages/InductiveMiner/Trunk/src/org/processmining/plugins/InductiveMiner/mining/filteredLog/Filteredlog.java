@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XAttributeMap;
@@ -21,7 +22,6 @@ import org.deckfour.xes.model.impl.XEventImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.MultiSet;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class Filteredlog {
 
@@ -35,9 +35,9 @@ public class Filteredlog {
 	private Iterator<XEventClass> iteratorEvent;
 	private XEventClass nextEvent;
 
-	public Filteredlog(XLog log, MiningParameters parameters) {
+	public Filteredlog(XLog log, XEventClassifier classifier) {
 
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+		XLogInfo info = XLogInfoFactory.createLogInfo(log, classifier);
 		eventClasses = new LinkedHashSet<XEventClass>();
 		for (XEventClass e : info.getEventClasses().getClasses()) {
 			eventClasses.add(e);
