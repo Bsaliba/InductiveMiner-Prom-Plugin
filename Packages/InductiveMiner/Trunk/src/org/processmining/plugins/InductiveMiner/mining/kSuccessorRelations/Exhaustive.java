@@ -14,7 +14,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
 
 public class Exhaustive {
 
@@ -22,16 +22,16 @@ public class Exhaustive {
 		int distance;
 		public String cutType;
 		public Collection<Set<XEventClass>> cut;
-		public Collection<Filteredlog> sublogs;
+		public Collection<FilteredLog> sublogs;
 	}
 
 	private UpToKSuccessorMatrix kSuccessor;
-	private Filteredlog log;
+	private FilteredLog log;
 	private MiningParameters parameters;
 	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
 
-	public Exhaustive(Filteredlog log, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
+	public Exhaustive(FilteredLog log, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.parameters = parameters;
@@ -130,7 +130,7 @@ public class Exhaustive {
 		result.sublogs = filterResults.sublogs;
 
 		//make k-successor relations
-		Iterator<Filteredlog> it = result.sublogs.iterator();
+		Iterator<FilteredLog> it = result.sublogs.iterator();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 
@@ -154,7 +154,7 @@ public class Exhaustive {
 		result.sublogs = filterResults.sublogs;
 
 		//make k-successor relations
-		Iterator<Filteredlog> it = result.sublogs.iterator();
+		Iterator<FilteredLog> it = result.sublogs.iterator();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 

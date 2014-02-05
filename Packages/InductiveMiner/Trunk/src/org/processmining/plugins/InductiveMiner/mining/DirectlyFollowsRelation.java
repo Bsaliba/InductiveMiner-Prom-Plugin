@@ -16,7 +16,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
 
 public class DirectlyFollowsRelation {
 	private DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
@@ -34,7 +34,7 @@ public class DirectlyFollowsRelation {
 	private int strongestStartActivity;
 	private int strongestEndActivity;
 
-	public DirectlyFollowsRelation(Filteredlog log, MiningParameters parameters) {
+	public DirectlyFollowsRelation(FilteredLog log, MiningParameters parameters) {
 
 		//initialise, read the log
 		directlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(

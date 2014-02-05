@@ -43,11 +43,11 @@ public abstract class FilteredlogLogSplitter {
 	/*
 	 * Return the result of the filtering as a list of Filteredlogs.
 	 */
-	public List<Filteredlog> getSublogs() {
+	public List<FilteredLog> getSublogs() {
 		//make a copy of the arguments and return the new filtered sublogs
-		List<Filteredlog> result = new ArrayList<Filteredlog>();
+		List<FilteredLog> result = new ArrayList<FilteredLog>();
 		for (Set<XEventClass> sigma : sigmas) {
-			result.add(new Filteredlog(mapSigma2sublog.get(sigma), new HashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
+			result.add(new FilteredLog(mapSigma2sublog.get(sigma), new HashSet<XEventClass>(sigma), mapSigma2eventSize.get(sigma)));
 		}
 		return result;
 	}

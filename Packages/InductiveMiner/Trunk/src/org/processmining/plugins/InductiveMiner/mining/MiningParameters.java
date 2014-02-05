@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
 import java.io.File;
+import java.util.List;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
@@ -10,8 +11,12 @@ import org.processmining.plugins.InductiveMiner.jobList.JobListBlocking;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
-import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.probabilities.ProbabilitiesEstimatedZ;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
+import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -26,9 +31,14 @@ public class MiningParameters {
 	private Probabilities satProbabilities;
 	private JobList minerPool;
 	private JobList satPool;
+	
+	private List<BaseCaseFinder> baseCaseFinders;
+	private List<CutFinder> cutFinders;
+	private LogSplitter logSplitter;
+	private FallThrough fallThrough;
 
-	public MiningParameters() {
-		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
+	protected MiningParameters() {
+		classifier = getDefaultClassifier();
 		noiseThreshold = (float) 0.0;
 		incompleteThreshold = (float) 0.0;
 		outputDFGfileName = "D:\\output";
@@ -41,6 +51,10 @@ public class MiningParameters {
 		//satProbabilities = new ProbabilitiesNoise();
 		
 		setUseMultithreading(true);
+	}
+	
+	public static XEventClassifier getDefaultClassifier() {
+		return new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -151,6 +165,38 @@ public class MiningParameters {
 			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
 			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
 		}
+	}
+
+	public List<BaseCaseFinder> getBaseCaseFinders() {
+		return baseCaseFinders;
+	}
+
+	public void setBaseCaseFinders(List<BaseCaseFinder> baseCaseFinders) {
+		this.baseCaseFinders = baseCaseFinders;
+	}
+
+	public List<CutFinder> getCutFinders() {
+		return cutFinders;
+	}
+
+	public void setCutFinder(List<CutFinder> cutFinders) {
+		this.cutFinders = cutFinders;
+	}
+
+	public LogSplitter getLogSplitter() {
+		return logSplitter;
+	}
+
+	public void setLogSplitter(LogSplitter logSplitter) {
+		this.logSplitter = logSplitter;
+	}
+
+	public FallThrough getFallThrough() {
+		return fallThrough;
+	}
+
+	public void setFallThrough(FallThrough fallThrough) {
+		this.fallThrough = fallThrough;
 	}
 
 

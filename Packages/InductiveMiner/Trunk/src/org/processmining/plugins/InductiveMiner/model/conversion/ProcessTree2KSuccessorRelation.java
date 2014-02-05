@@ -6,7 +6,8 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessor;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessorMatrix;
 import org.processmining.processtree.ProcessTree;
@@ -33,8 +34,8 @@ public class ProcessTree2KSuccessorRelation {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Convert log to k-successor relation, default", requiredParameterLabels = { 1 })
 	public Dot processTree2KSuccessorRelation(PluginContext context, XLog log) throws Exception {
-		MiningParameters parameters = new MiningParameters();
-		Filteredlog flog = new Filteredlog(log, parameters.getClassifier());
+		MiningParameters parameters = new MiningParametersIM();
+		FilteredLog flog = new FilteredLog(log, MiningParameters.getDefaultClassifier());
 		UpToKSuccessorMatrix r = UpToKSuccessor.fromLog(flog, parameters);
 		
 		Dot result = new Dot();

@@ -24,13 +24,13 @@ import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMap
 public class MiningPluginPetrinet {
 	
 	public Object[] mineDefaultPetrinet(XLog log) {
-		return this.mineParametersPetrinet(log, new MiningParameters());
+		return this.mineParametersPetrinet(log, new MiningParametersIM());
 	}
 	
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
-		return this.mineParametersPetrinet(context, log, new MiningParameters());
+		return this.mineParametersPetrinet(context, log, new MiningParametersIM());
 	}
 	
 	public Object[] mineParametersPetrinet(XLog log, MiningParameters parameters) {
@@ -63,7 +63,7 @@ public class MiningPluginPetrinet {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, dialog", requiredParameterLabels = { 0 })
 	public Object[] mineGuiPetrinet(UIPluginContext context, XLog log) {
-		MiningParameters parameters = new MiningParameters();
+		MiningParameters parameters = new MiningParametersIM();
 		MiningDialog dialog = new MiningDialog(log, parameters);
 		InteractionResult result = context.showWizard("Mine a Petri net using Inductive Miner", true, true, dialog);
 		if (result != InteractionResult.FINISHED) {
