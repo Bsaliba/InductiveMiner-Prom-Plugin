@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
@@ -24,7 +24,7 @@ public class UpToKSuccessor {
 
 	}
 
-	public static UpToKSuccessorMatrix fromLog(Filteredlog log, MiningParameters parameters) {
+	public static UpToKSuccessorMatrix fromLog(FilteredLog log, MiningParameters parameters) {
 
 		//make a list of names of event classes
 		Set<String> h = new HashSet<String>();

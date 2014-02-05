@@ -21,19 +21,14 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.SAT.AtomicResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.DebugProbabilities;
-import org.processmining.plugins.InductiveMiner.mining.SAT.SATResult;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveLoop;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveParallel;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveSequence;
-import org.processmining.plugins.InductiveMiner.mining.SAT.solve.SATSolveXor;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ExclusiveChoiceCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.LoopCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.ParallelCut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.Filteredlog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.Exhaustive;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessor;
 import org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations.UpToKSuccessorMatrix;
@@ -48,7 +43,6 @@ import org.processmining.plugins.InductiveMiner.model.Sequence;
 import org.processmining.plugins.InductiveMiner.model.Tau;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
-import org.processmining.plugins.InductiveMiner.model.conversion.ReduceTree;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 public class Miner {
@@ -82,11 +76,11 @@ public class Miner {
 	
 	public ProcessTreeModel mine(XLog log, MiningParameters parameters) {
 		//prepare the log
-		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
+		FilteredLog filteredLog = new FilteredLog(log, parameters.getClassifier());
 		return mine(filteredLog, parameters);
 	}
 
-	public ProcessTreeModel mine(Filteredlog filteredLog, MiningParameters parameters) {
+	public ProcessTreeModel mine(FilteredLog filteredLog, MiningParameters parameters) {
 		//debug initial log
 		//debug(filteredLog.toString());
 		debug("\n\nStart mining", parameters);
@@ -124,13 +118,13 @@ public class Miner {
 		model.fitness = fitness;
 
 		//debug(dummyRootNode.toString());
-		model.root = ReduceTree.reduceNode(dummyRootNode.getChild(0));
+		//model.root = ReduceTreeOld.reduceNode(dummyRootNode.getChild(0));
 		//debug("mined model " + model.root.toString());
 
 		return model;
 	}
 
-	private void mineProcessTree(Filteredlog log, 
+	private void mineProcessTree(FilteredLog log, 
 			final MiningParameters parameters, 
 			final Binoperator target, //the target (parent) node where we will store our result 
 			final int index, //in which subtree we must store our result
@@ -152,7 +146,7 @@ public class Miner {
 		}
 		debug(kSuccessor.toString(), parameters);
 		*/
-		debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
+		//debug(DebugProbabilities.debug(directlyFollowsRelation, parameters, false), parameters);
 
 		//base case: empty log
 		if (log.getNumberOfEvents() + log.getNumberOfTraces() == 0) {
@@ -210,7 +204,7 @@ public class Miner {
 
 				//filter the empty traces from the log and recurse
 				FilterResults result = log.applyEpsilonFilter();
-				final Filteredlog sublog = result.sublogs.iterator().next();
+				final FilteredLog sublog = result.sublogs.iterator().next();
 
 				//save the filtered empty traces as metadata
 				registerFilteredNoise(target, result);
@@ -237,20 +231,13 @@ public class Miner {
 
 				debug(" mine x(tau, ..)", parameters);
 
-				final Filteredlog sublog = result.sublogs.iterator().next();
+				final FilteredLog sublog = result.sublogs.iterator().next();
 				recurse(parameters, pool, sublog, node, 1);
 
 				return;
 			}
 		}
 		recursionStepsCounter++;
-
-		//SAT cut search
-		if (parameters.isUseSat()) {
-			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
-				return;
-			}
-		}
 
 		//exclusive choice operator
 		Set<Set<XEventClass>> exclusiveChoiceCut = ExclusiveChoiceCut.findExclusiveChoiceCut(directlyFollowsRelation
@@ -317,6 +304,14 @@ public class Miner {
 			outputAndRecurse(parameters, target, index, pool, loopCut, node, filterResults, log);
 			return;
 		}
+		
+		debug("sat", parameters);
+		//SAT cut search
+		if (parameters.isUseSat()) {
+			if (mineSAT(log, parameters, target, index, pool, directlyFollowsRelation)) {
+				return;
+			}
+		}
 
 		debug("fall through", parameters);
 
@@ -379,21 +374,23 @@ public class Miner {
 		}
 
 		//tau loop
-		Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, directlyFollowsRelation,
-				directlyFollowsRelationNoiseFiltered);
-		if (tauloopSublog != null) {
-			final Binoperator node = new Loop(2);
-			target.setChild(index, node);
-			node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
-			node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
-
-			Tau tau = new Tau();
-			node.setChild(1, tau);
-
-			debug("Chosen tau loop", parameters);
-
-			recurse(parameters, pool, tauloopSublog, node, 0);
-			return;
+		{
+			FilteredLog tauloopSublog = tauLoop(log, parameters, target, index, directlyFollowsRelation,
+					directlyFollowsRelationNoiseFiltered);
+			if (tauloopSublog != null) {
+				final Binoperator node = new Loop(2);
+				target.setChild(index, node);
+				node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
+				node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+	
+				Tau tau = new Tau();
+				node.setChild(1, tau);
+	
+				debug("Chosen tau loop", parameters);
+	
+				recurse(parameters, pool, tauloopSublog, node, 0);
+				return;
+			}
 		}
 
 		//flower loop fall-through
@@ -416,11 +413,11 @@ public class Miner {
 			FilterResults result = log.applyFilterLoop(sigmas);
 
 			int i = 1;
-			Iterator<Filteredlog> it = result.sublogs.iterator();
+			Iterator<FilteredLog> it = result.sublogs.iterator();
 			for (XEventClass a : log.getEventClasses()) {
 				Node child = new EventClass(a);
 
-				Filteredlog sublog = it.next();
+				FilteredLog sublog = it.next();
 				child.metadata.put("numberOfEvents", new Integer(sublog.getNumberOfEvents()));
 				child.metadata.put("numberOfTraces", new Integer(sublog.getNumberOfTraces()));
 
@@ -436,17 +433,17 @@ public class Miner {
 		}
 	}
 
-	private boolean mineSAT(Filteredlog log, final MiningParameters parameters, final Binoperator target,
+	private boolean mineSAT(FilteredLog log, final MiningParameters parameters, final Binoperator target,
 			final int index, final JobList pool, DirectlyFollowsRelation directlyFollowsRelation) {
 		 
 		JobList SATPool = parameters.getSatPool();
 		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
-		
+		/*
 		(new SATSolveXor(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
 		(new SATSolveSequence(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
 		(new SATSolveParallel(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
 		(new SATSolveLoop(directlyFollowsRelation, parameters, SATPool, bestSATResult)).solve();
-		
+		*/
 		try {
 			SATPool.join();
 		} catch (ExecutionException e) {
@@ -454,7 +451,7 @@ public class Miner {
 			return false;
 		}
 		SATResult satResult = bestSATResult.get();
-
+/*
 		if (satResult.getCut() != null) {
 			if (satResult.getType() == "xor") {
 				Set<Set<XEventClass>> xorCutIncomplete = new HashSet<Set<XEventClass>>(satResult.getCut());
@@ -479,11 +476,11 @@ public class Miner {
 				outputAndRecurse(parameters, target, index, pool, satResult.getCut(), node, filterResults, log);
 				return true;
 			}
-		}
+		}*/
 		return false;
 	}
 
-	private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
+	private FilteredLog tauLoop(FilteredLog log, final MiningParameters parameters, final Binoperator target,
 			final int index, DirectlyFollowsRelation directlyFollowsRelation,
 			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered) {
 
@@ -499,7 +496,7 @@ public class Miner {
 		tauLoopCut.get(0).addAll(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
 		FilterResults filterResults = log.applyFilterTauLoop(tauLoopCut, dfr.getStartActivities().toSet(), dfr
 				.getEndActivities().toSet());
-		final Filteredlog sublog = ((List<Filteredlog>) filterResults.sublogs).get(0);
+		final FilteredLog sublog = ((List<FilteredLog>) filterResults.sublogs).get(0);
 
 		if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
 			return sublog;
@@ -508,7 +505,7 @@ public class Miner {
 		return null;
 	}
 
-	private void outputXES(Filteredlog log, final MiningParameters parameters, Node node) {
+	private void outputXES(FilteredLog log, final MiningParameters parameters, Node node) {
 		if (parameters.getOutputFlowerLogFileName() != null) {
 			XLog xLog = log.toXLog();
 			XSerializer logSerializer = new XesXmlSerializer();
@@ -527,7 +524,7 @@ public class Miner {
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
 			final JobList pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
-			FilterResults filterResults, Filteredlog log) {
+			FilterResults filterResults, FilteredLog log) {
 
 		registerFilteredNoise(newTargetNode, filterResults);
 
@@ -536,7 +533,7 @@ public class Miner {
 
 	private void outputAndRecurse(final MiningParameters parameters, final Binoperator target, final int index,
 			final JobList pool, Collection<Set<XEventClass>> cut, final Binoperator newTargetNode,
-			Collection<Filteredlog> sublogs, Filteredlog log) {
+			Collection<FilteredLog> sublogs, FilteredLog log) {
 
 		//store metadata
 		newTargetNode.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
@@ -548,15 +545,15 @@ public class Miner {
 		//set the result
 		target.setChild(index, newTargetNode);
 		int i = 0;
-		for (Filteredlog sublog : sublogs) {
-			final Filteredlog sublog2 = sublog;
+		for (FilteredLog sublog : sublogs) {
+			final FilteredLog sublog2 = sublog;
 			final int j = i;
 			recurse(parameters, pool, sublog2, newTargetNode, j);
 			i++;
 		}
 	}
 
-	private void recurse(final MiningParameters parameters, final JobList pool, final Filteredlog sublog,
+	private void recurse(final MiningParameters parameters, final JobList pool, final FilteredLog sublog,
 			final Binoperator newTargetNode, final int newTargetChildIndex) {
 		pool.addJob(new Runnable() {
 			public void run() {
@@ -602,7 +599,7 @@ public class Miner {
 		}
 	}
 
-	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<Filteredlog> sublogs,
+	private void debugCut(Binoperator node, Collection<Set<XEventClass>> cut, Collection<FilteredLog> sublogs,
 			MiningParameters parameters) {
 		StringBuilder r = new StringBuilder("step " + recursionStepsCounter + " chosen " + node.getOperatorString());
 		Iterator<Set<XEventClass>> it = cut.iterator();

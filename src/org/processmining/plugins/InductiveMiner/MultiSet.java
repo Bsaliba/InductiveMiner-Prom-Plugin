@@ -9,8 +9,8 @@ import java.util.Set;
 
 public class MultiSet<X> implements Iterable<X> {
 	
-	private HashMap<X, Integer> cardinalities;
-	private int size;
+	protected HashMap<X, Integer> cardinalities;
+	protected int size;
 	
 	public MultiSet() {
 		//use a linked hash map here, as it provides O(1) iteration complexity
@@ -55,6 +55,25 @@ public class MultiSet<X> implements Iterable<X> {
 		}
 		size += cardinality;
 		return true;
+	}
+	
+	public boolean remove(X element, Integer cardinality) {
+		assert(cardinality >= 0);
+		
+		Integer oldCardinality = getCardinalityOf(element);
+		if (oldCardinality - cardinality > 0) {
+			cardinalities.put(element, cardinalities.get(element) - cardinality);
+			size -= cardinality;
+		} else {
+			cardinalities.remove(element);
+			size -= oldCardinality;
+		}
+		
+		return true;
+	}
+	
+	public boolean remove(X element) {
+		return remove(element, getCardinalityOf(element));
 	}
 	
 	public boolean addAll(Collection<X> collection) {
