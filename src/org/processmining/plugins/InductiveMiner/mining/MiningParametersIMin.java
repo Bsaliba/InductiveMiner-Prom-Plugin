@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiSingleActivity;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
@@ -23,8 +22,7 @@ public class MiningParametersIMin extends MiningParameters {
 		//determine algorithm
 		
 		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIMiEmptyLog(),
-				new BaseCaseFinderIMiSingleActivity()
+				new BaseCaseFinderIM()
 				)));
 		
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
