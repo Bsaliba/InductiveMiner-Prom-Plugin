@@ -9,7 +9,9 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
@@ -25,12 +27,15 @@ public class MiningParametersIM extends MiningParameters {
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
-				new CutFinderIMParallel(),
-				new CutFinderIMLoop()
+				new CutFinderIMParallelWithMinimumSelfDistance(),
+				new CutFinderIMLoop(),
+				new CutFinderIMParallel()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());
 		
-		setFallThrough(new FallThroughFlower());
+		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
+				new FallThroughFlower()
+				)));
 	}
 }

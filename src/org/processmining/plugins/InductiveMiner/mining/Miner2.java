@@ -8,6 +8,7 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
@@ -153,7 +154,12 @@ public class Miner2 {
 	}
 	
 	private static Node findFallThrough(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
-		return parameters.getFallThrough().fallThrough(log, logInfo, tree);
+		Node n = null;
+		Iterator<FallThrough> it = parameters.getFallThroughs().iterator();
+		while (n == null && it.hasNext()) {
+			n = it.next().fallThrough(log, logInfo, tree, parameters);
+		}
+		return n;
 	}
 	
 	private static Collection<IMLog> splitLog(IMLog log, LogInfo logInfo, Cut cut, MiningParameters parameters) {

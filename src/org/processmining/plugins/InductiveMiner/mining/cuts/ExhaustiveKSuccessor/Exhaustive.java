@@ -1,6 +1,5 @@
-package org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations;
+package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,9 +11,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
+import org.processmining.plugins.InductiveMiner.mining.LogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilterResults;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
+import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
 public class Exhaustive {
 
@@ -22,16 +25,17 @@ public class Exhaustive {
 		int distance;
 		public String cutType;
 		public Collection<Set<XEventClass>> cut;
-		public Collection<FilteredLog> sublogs;
+		public Collection<IMLog> sublogs;
 	}
 
 	private UpToKSuccessorMatrix kSuccessor;
-	private FilteredLog log;
+	private IMLog log;
+	private LogInfo logInfo;
 	private MiningParameters parameters;
 	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
 
-	public Exhaustive(FilteredLog log, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
+	public Exhaustive(IMLog log, LogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.parameters = parameters;
@@ -39,11 +43,11 @@ public class Exhaustive {
 	}
 
 	public Result tryAll() {
-		final int nrOfBits = log.getEventClasses().size();
+		final int nrOfBits = logInfo.getActivities().size();
 
-		final XEventClass[] activities = new XEventClass[log.getEventClasses().size()];
+		final XEventClass[] activities = new XEventClass[logInfo.getActivities().size()];
 		int i = 0;
-		for (XEventClass e : log.getEventClasses()) {
+		for (XEventClass e : logInfo.getActivities()) {
 			activities[i] = e;
 			i++;
 		}
@@ -126,11 +130,11 @@ public class Exhaustive {
 		Result result = new Result();
 
 		//split log
-		FilterResults filterResults = log.applyFilterParallel(new HashSet<Set<XEventClass>>(cut));
-		result.sublogs = filterResults.sublogs;
+		LogSplitter logSplitter = new LogSplitterIMi();
+		result.sublogs = logSplitter.split(log, logInfo, new Cut(Operator.parallel, cut));
 
 		//make k-successor relations
-		Iterator<FilteredLog> it = result.sublogs.iterator();
+		Iterator<IMLog> it = result.sublogs.iterator();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 
@@ -150,11 +154,11 @@ public class Exhaustive {
 		Result result = new Result();
 
 		//split log
-		FilterResults filterResults = log.applyFilterLoop(new ArrayList<Set<XEventClass>>(cut));
-		result.sublogs = filterResults.sublogs;
+		LogSplitter logSplitter = new LogSplitterIMi();
+		result.sublogs = logSplitter.split(log, logInfo, new Cut(Operator.loop, cut));
 
 		//make k-successor relations
-		Iterator<FilteredLog> it = result.sublogs.iterator();
+		Iterator<IMLog> it = result.sublogs.iterator();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
 

@@ -1,6 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
@@ -12,11 +14,19 @@ import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
 public class MiningParameters {
 	private XEventClassifier classifier;
@@ -35,9 +45,30 @@ public class MiningParameters {
 	private List<BaseCaseFinder> baseCaseFinders;
 	private List<CutFinder> cutFinders;
 	private LogSplitter logSplitter;
-	private FallThrough fallThrough;
+	private List<FallThrough> fallThroughs;
 
-	protected MiningParameters() {
+	public MiningParameters() {
+		
+		
+		//TODO: remove
+		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
+				new BaseCaseFinderIM()
+				)));
+		
+		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
+				new CutFinderIMExclusiveChoice(),
+				new CutFinderIMSequence(),
+				new CutFinderIMParallelWithMinimumSelfDistance(),
+				new CutFinderIMLoop(),
+				new CutFinderIMParallel()
+				)));
+		
+		setLogSplitter(new LogSplitterIMi());
+		
+		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
+				new FallThroughFlower()
+				)));
+		
 		classifier = getDefaultClassifier();
 		noiseThreshold = (float) 0.0;
 		incompleteThreshold = (float) 0.0;
@@ -191,12 +222,12 @@ public class MiningParameters {
 		this.logSplitter = logSplitter;
 	}
 
-	public FallThrough getFallThrough() {
-		return fallThrough;
+	public List<FallThrough> getFallThroughs() {
+		return fallThroughs;
 	}
 
-	public void setFallThrough(FallThrough fallThrough) {
-		this.fallThrough = fallThrough;
+	public void setFallThroughs(List<FallThrough> fallThroughs) {
+		this.fallThroughs = fallThroughs;
 	}
 
 

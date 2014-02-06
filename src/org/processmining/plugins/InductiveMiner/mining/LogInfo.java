@@ -17,25 +17,25 @@ import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMTrace;
 
 public class LogInfo {
 
-	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
-	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
-	private final DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph;
+	protected final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
+	protected final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
+	protected final DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph;
 
-	private final MultiSet<XEventClass> startActivities;
-	private final MultiSet<XEventClass> endActivities;
+	protected final MultiSet<XEventClass> startActivities;
+	protected final MultiSet<XEventClass> endActivities;
 
-	private final HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
-	private final HashMap<XEventClass, Integer> minimumSelfDistances;
+	protected final HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
+	protected final HashMap<XEventClass, Integer> minimumSelfDistances;
 
-	private long numberOfTraces;
-	private long numberOfEvents;
-	private int numberOfEpsilonTraces;
-	private int longestTrace;
-	private int lengthStrongestTrace;
-	private int strongestDirectEdge;
-	private int strongestEventualEdge;
-	private int strongestStartActivity;
-	private int strongestEndActivity;
+	protected long numberOfTraces;
+	protected long numberOfEvents;
+	protected int numberOfEpsilonTraces;
+	protected int longestTrace;
+	protected int lengthStrongestTrace;
+	protected int strongestDirectEdge;
+	protected int strongestEventualEdge;
+	protected int strongestStartActivity;
+	protected int strongestEndActivity;
 
 	public LogInfo(IMLog log) {
 		//initialise, read the log
