@@ -5,15 +5,12 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.ProcessTreeModelConnection;
 import org.processmining.plugins.InductiveMiner.model.ProcessTreeModel;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2ProcessTree;
 import org.processmining.processtree.ProcessTree;
 
-@Plugin(name = "Mine a Process Tree using Inductive Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
-		"Log", "Parameters" }, userAccessible = true)
 public class MiningPluginProcessTree {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")

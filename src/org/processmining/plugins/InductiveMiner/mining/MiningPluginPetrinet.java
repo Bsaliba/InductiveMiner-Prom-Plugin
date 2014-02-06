@@ -8,18 +8,11 @@ import org.processmining.connections.logmodel.LogPetrinetConnectionImpl;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
-import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
-
-
-@Plugin(name = "Mine a Petri net using Inductive Miner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
-		"Log", "Parameters" }, userAccessible = true)
 
 public class MiningPluginPetrinet {
 	

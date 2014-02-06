@@ -21,11 +21,11 @@ public class IMProcessTree {
 		return mineProcessTree(log);
 	}
 	
-	public ProcessTree mineProcessTree(XLog log) {
+	public static ProcessTree mineProcessTree(XLog log) {
 		return mineProcessTree(log, new MiningParametersIM());
 	}
 	
-	public ProcessTree mineProcessTree(XLog log, MiningParameters parameters) {
+	public static ProcessTree mineProcessTree(XLog log, MiningParameters parameters) {
 		ProcessTree tree = Miner2.mine(log, parameters);
 		return ReduceTree.reduceTree(tree);
 	}
