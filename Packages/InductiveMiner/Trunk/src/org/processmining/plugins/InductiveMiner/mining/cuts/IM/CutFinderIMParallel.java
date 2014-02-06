@@ -21,8 +21,10 @@ import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 public class CutFinderIMParallel implements CutFinder {
 
 	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters) {
-		
-		boolean useMinimumSelfDistance = false;
+		return findCut(log, logInfo, parameters, false);
+	}
+	
+	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters, boolean useMinimumSelfDistance) {
 
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return

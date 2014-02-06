@@ -1,4 +1,5 @@
-package org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations;
+package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
+
 
 
 public class DistanceEuclidian {

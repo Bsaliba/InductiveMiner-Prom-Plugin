@@ -29,7 +29,6 @@ public class MultiSet<X> implements Iterable<X> {
 		}
 		
 		MultiSet<?> aM = (MultiSet<?>) a;
-		Iterator<?> it = aM.iterator();
 		
 		for (Object e : this) {
 			if (aM.getCardinalityOf(e) != this.getCardinalityOf(e)) {

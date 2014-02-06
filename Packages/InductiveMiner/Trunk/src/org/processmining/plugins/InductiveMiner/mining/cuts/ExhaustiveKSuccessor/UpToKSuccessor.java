@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations;
+package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.mining.LogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.FilteredLog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMTrace;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
@@ -24,32 +26,25 @@ public class UpToKSuccessor {
 
 	}
 
-	public static UpToKSuccessorMatrix fromLog(FilteredLog log, MiningParameters parameters) {
-
+	public static UpToKSuccessorMatrix fromLog(IMLog log, MiningParameters parameters) {
+		LogInfo logInfo = new LogInfo(log);
+		
 		//make a list of names of event classes
 		Set<String> h = new HashSet<String>();
-		for (XEventClass a : log.getEventClasses()) {
+		for (XEventClass a : logInfo.getActivities()) {
 			h.add(toString(a));
 		}
 		UpToKSuccessorMatrix kSuccessors = new UpToKSuccessorMatrix(h);
 
-		XEventClass currentEvent;
-
 		//walk trough the log
-		log.initIterator();
 		HashMap<XEventClass, Integer> eventSeenAt;
 
-		while (log.hasNextTrace()) {
-			log.nextTrace();
-
-			currentEvent = null;
+		for (IMTrace trace : log) {
 
 			int pos = 0;
 			eventSeenAt = new HashMap<XEventClass, Integer>();
 
-			while (log.hasNextEvent()) {
-
-				currentEvent = log.nextEvent();
+			for (XEventClass currentEvent : trace) {
 
 				for (XEventClass seen : eventSeenAt.keySet()) {
 					kSuccessors.feedKSuccessor(toString(seen), toString(currentEvent), pos - eventSeenAt.get(seen));

@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.kSuccessorRelations;
+package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
 import org.processmining.plugins.InductiveMiner.Sets;
 
