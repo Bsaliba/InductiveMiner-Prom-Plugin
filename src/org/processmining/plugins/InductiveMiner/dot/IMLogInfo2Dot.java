@@ -73,7 +73,7 @@ public class IMLogInfo2Dot {
 
 	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows) {
 		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
-		cut.add(logInfo.getActivities());
+		cut.add(logInfo.getActivities().toSet());
 		return toDot(logInfo, useEventuallyFollows, cut);
 	}
 }

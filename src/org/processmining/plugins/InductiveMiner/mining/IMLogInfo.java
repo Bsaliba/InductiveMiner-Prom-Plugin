@@ -3,7 +3,6 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -19,6 +18,7 @@ public class IMLogInfo {
 	protected final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
 	protected final DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph;
 
+	protected final MultiSet<XEventClass> activities;
 	protected final MultiSet<XEventClass> startActivities;
 	protected final MultiSet<XEventClass> endActivities;
 
@@ -41,6 +41,7 @@ public class IMLogInfo {
 				DefaultWeightedEdge.class);
 		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
 				DefaultWeightedEdge.class);
+		activities = new MultiSet<XEventClass>();
 		startActivities = new MultiSet<XEventClass>();
 		endActivities = new MultiSet<XEventClass>();
 		minimumSelfDistances = new HashMap<XEventClass, Integer>();
@@ -70,6 +71,7 @@ public class IMLogInfo {
 
 			for (XEventClass ec : trace) {
 
+				activities.add(ec, cardinality);
 				if (!directlyFollowsGraph.containsVertex(ec)) {
 					directlyFollowsGraph.addVertex(ec);
 					eventuallyFollowsGraph.addVertex(ec);
@@ -199,6 +201,7 @@ public class IMLogInfo {
 	public IMLogInfo(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
 			DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph,
+			MultiSet<XEventClass> activities,
 			MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
 			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
 			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
@@ -207,6 +210,7 @@ public class IMLogInfo {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.directlyFollowsTransitiveClosureGraph = directlyFollowsTransitiveClosureGraph;
+		this.activities = activities;
 		this.startActivities = startActivities;
 		this.endActivities = endActivities;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
@@ -224,13 +228,15 @@ public class IMLogInfo {
 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
+		result.append("number of traces: " + numberOfTraces + "\n");
+		result.append("number of events: " + numberOfEvents + "\n");
 		result.append("start activities: " + startActivities + "\n");
 		result.append("end activities: " + endActivities);
 		return result.toString();
 	}
 
-	public Set<XEventClass> getActivities() {
-		return directlyFollowsGraph.vertexSet();
+	public MultiSet<XEventClass> getActivities() {
+		return activities;
 	}
 
 	public DefaultDirectedGraph<XEventClass, DefaultEdge> getDirectlyFollowsTransitiveClosureGraph() {
