@@ -141,7 +141,7 @@ public class CutFinderIMi implements CutFinder {
 
 		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), filteredStartActivities,
-				filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
+				filteredEndActivities, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
 				logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
 				logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(), logInfo.getStrongestDirectEdge(),
 				logInfo.getStrongestEventualEdge(), logInfo.getStrongestStartActivity(),
@@ -192,7 +192,7 @@ public class CutFinderIMi implements CutFinder {
 
 		return new IMLogInfo(filteredDirectlyFollowsGraph, null,
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getStartActivities().copy(),
-				logInfo.getEndActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
+				logInfo.getEndActivities().copy(), logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(),
 				logInfo.getNumberOfEpsilonTraces(), logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(),
 				logInfo.getStrongestDirectEdge(), logInfo.getStrongestEventualEdge(),
