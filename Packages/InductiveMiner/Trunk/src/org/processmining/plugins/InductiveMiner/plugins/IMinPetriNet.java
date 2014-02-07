@@ -10,7 +10,7 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 
-@Plugin(name = "Mine Petri net with Inductive Miner - incompleteness", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = {
+@Plugin(name = "Mine Petri net with Inductive Miner-incompleteness", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = {
 		Petrinet.class, Marking.class, Marking.class }, parameterLabels = { "Log" }, userAccessible = true)
 public class IMinPetriNet {
 	
