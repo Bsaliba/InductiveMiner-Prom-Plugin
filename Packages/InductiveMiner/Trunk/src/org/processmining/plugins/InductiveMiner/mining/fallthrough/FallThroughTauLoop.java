@@ -1,47 +1,67 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
+import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.Miner2;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.processtree.Block;
+import org.processmining.processtree.Node;
+import org.processmining.processtree.ProcessTree;
+import org.processmining.processtree.impl.AbstractBlock.XorLoop;
+import org.processmining.processtree.impl.AbstractTask.Automatic;
 
+public class FallThroughTauLoop implements FallThrough {
 
-public class FallThroughTauLoop {
-	/*Filteredlog tauloopSublog = tauLoop(log, parameters, target, index, directlyFollowsRelation,
-			directlyFollowsRelationNoiseFiltered);
-	if (tauloopSublog != null) {
-		final Binoperator node = new Loop(2);
-		target.setChild(index, node);
-		node.metadata.put("numberOfEvents", new Integer(log.getNumberOfEvents()));
-		node.metadata.put("numberOfTraces", new Integer(log.getNumberOfTraces()));
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 
-		Tau tau = new Tau();
-		node.setChild(1, tau);
-
-		debug("Chosen tau loop", parameters);
-
-		recurse(parameters, pool, tauloopSublog, node, 0);
-		return;
-	}*/
-	
-	/*private Filteredlog tauLoop(Filteredlog log, final MiningParameters parameters, final Binoperator target,
-			final int index, DirectlyFollowsRelation directlyFollowsRelation,
-			DirectlyFollowsRelation directlyFollowsRelationNoiseFiltered) {
-
-		DirectlyFollowsRelation dfr;
-		if (parameters.getNoiseThreshold() != 0) {
-			dfr = directlyFollowsRelationNoiseFiltered;
-		} else {
-			dfr = directlyFollowsRelation;
+		//try to find a tau loop
+		IMLog sublog = new IMLog();
+		
+		for (IMTrace trace : log) {
+			filterTrace(sublog, trace, log.getCardinalityOf(trace), logInfo.getStartActivities());
 		}
 
-		List<Set<XEventClass>> tauLoopCut = new LinkedList<Set<XEventClass>>();
-		tauLoopCut.add(new HashSet<XEventClass>());
-		tauLoopCut.get(0).addAll(directlyFollowsRelation.getDirectlyFollowsGraph().vertexSet());
-		FilterResults filterResults = log.applyFilterTauLoop(tauLoopCut, dfr.getStartActivities().toSet(), dfr
-				.getEndActivities().toSet());
-		final Filteredlog sublog = ((List<Filteredlog>) filterResults.sublogs).get(0);
-
-		if (sublog.getNumberOfTraces() > log.getNumberOfTraces()) {
-			return sublog;
+		if (sublog.size() > log.size()) {
+			Miner2.debug(" fall through: tau loop", parameters);
+			//making a tau loop split makes sense
+			Block loop = new XorLoop("");
+			loop.setProcessTree(tree);
+			
+			Node body = Miner2.mineNode(sublog, tree, parameters);
+			loop.addChild(body);
+			
+			Node redo = new Automatic("");
+			redo.setProcessTree(tree);
+			loop.addChild(redo);
+			
+			Node exit = new Automatic("");
+			exit.setProcessTree(tree);
+			loop.addChild(exit);
+			
+			return loop;
 		}
 
 		return null;
-	}*/
+	}
+	
+	public static void filterTrace(IMLog sublog, IMTrace trace, int cardinality, MultiSet<XEventClass> startActivities) {
+		boolean first = true;
+		IMTrace partialTrace = new IMTrace();
+		for (XEventClass event: trace) {
+			
+			if (!first && startActivities.contains(event)) {
+				//we discovered a transition body -> body
+				sublog.add(partialTrace, cardinality);
+				partialTrace = new IMTrace();
+				first = true;
+			}
+			
+			partialTrace.add(event);
+			first = false;
+		}
+		sublog.add(partialTrace, cardinality);
+	}
 }

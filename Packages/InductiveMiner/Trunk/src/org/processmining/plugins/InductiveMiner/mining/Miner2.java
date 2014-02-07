@@ -158,7 +158,7 @@ public class Miner2 {
 		return parameters.getLogSplitter().split(log, logInfo, cut);
 	}
 	
-	private static void debug(Object x, MiningParameters parameters) {
+	public static void debug(Object x, MiningParameters parameters) {
 		if (parameters.isDebug()) {
 			System.out.println(x.toString());
 		}

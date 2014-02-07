@@ -15,8 +15,6 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFl
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
 public class MiningParametersIMi extends MiningParameters {
-	
-	private float noiseThreshold;
 
 	public MiningParametersIMi() {
 		//determine algorithm
@@ -40,13 +38,5 @@ public class MiningParametersIMi extends MiningParameters {
 		
 		//set parameters
 		setNoiseThreshold((float) 0.2);
-	}
-	
-	public float getNoiseThreshold() {
-		return noiseThreshold;
-	}
-
-	public void setNoiseThreshold(float noiseThreshold) {
-		this.noiseThreshold = noiseThreshold;
 	}
 }

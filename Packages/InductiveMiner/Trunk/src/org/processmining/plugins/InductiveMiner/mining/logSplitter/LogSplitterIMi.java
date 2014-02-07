@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 
@@ -54,6 +54,16 @@ public class LogSplitterIMi implements LogSplitter {
 	public static void splitXor(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
 			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
 			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma) {
+	
+		if (trace.size() == 0) {
+			//an empty trace should have been filtered as a base case, but now we have to handle it
+			//we cannot know in which branch the empty trace should go, so add it to all
+			for (IMLog sublog : result) {
+				sublog.add(trace, cardinality);
+			}
+			return;
+		}
+		
 		//walk through the events and count how many go in each sigma
 		HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
 		for (Set<XEventClass> sigma : partition) {
