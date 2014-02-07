@@ -8,7 +8,6 @@ import org.processmining.plugins.InductiveMiner.TransitiveClosure;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
@@ -20,16 +19,9 @@ public class CutFinderIMi implements CutFinder {
 	private static CutFinder cutFinderIMParallel = new CutFinderIMParallel();
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
-		float noiseThreshold;
-		if (parameters instanceof MiningParametersIMi) {
-			noiseThreshold = ((MiningParametersIMi) parameters).getNoiseThreshold();
-		} else {
-			noiseThreshold = (float) 0.2;
-			System.out.println("No noise threshold given, use default 0.2");
-		}
 
 		//filter logInfo
-		IMLogInfo logInfoFiltered = filterNoise(logInfo, noiseThreshold);
+		IMLogInfo logInfoFiltered = filterNoise(logInfo, parameters.getNoiseThreshold());
 
 		//call IM cut detection
 		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, parameters);
@@ -39,7 +31,7 @@ public class CutFinderIMi implements CutFinder {
 		}
 		
 		//try to add incomplete edges
-		IMLogInfo logInfoAddedEdges = addIncompleteEdges(logInfo, noiseThreshold);
+		IMLogInfo logInfoAddedEdges = addIncompleteEdges(logInfo, parameters.getNoiseThreshold());
 		
 		return cutFinderIMParallel.findCut(log, logInfoAddedEdges, parameters);
 	}

@@ -9,6 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
 public class MiningParametersIM extends MiningParameters {
@@ -27,6 +28,7 @@ public class MiningParametersIM extends MiningParameters {
 		setLogSplitter(new LogSplitterIMi());
 		
 		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
+				new FallThroughTauLoop(),
 				new FallThroughFlower()
 				)));
 	}

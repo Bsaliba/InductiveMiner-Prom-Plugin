@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 
+@Deprecated
 public class FilterResults {
 	public Collection<Filteredlog> sublogs;
 	public MultiSet<XEventClass> filteredEvents;

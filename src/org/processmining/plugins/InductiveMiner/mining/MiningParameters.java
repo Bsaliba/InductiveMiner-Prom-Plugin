@@ -99,12 +99,10 @@ public class MiningParameters {
 		return this.classifier;
 	}
 
-	@Deprecated
 	public float getNoiseThreshold() {
 		return noiseThreshold;
 	}
 
-	@Deprecated
 	public void setNoiseThreshold(float noiseThreshold) {
 		this.noiseThreshold = noiseThreshold;
 	}

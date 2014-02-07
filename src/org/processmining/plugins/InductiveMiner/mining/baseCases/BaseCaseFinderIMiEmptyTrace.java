@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.Miner2;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.processtree.Block;
