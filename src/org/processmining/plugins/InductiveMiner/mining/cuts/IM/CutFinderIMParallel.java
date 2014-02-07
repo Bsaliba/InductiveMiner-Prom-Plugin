@@ -11,20 +11,20 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 
 public class CutFinderIMParallel implements CutFinder {
 
-	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
 		return findCut(log, logInfo, parameters, false);
 	}
 	
-	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters, boolean useMinimumSelfDistance) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters, boolean useMinimumSelfDistance) {
 
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return

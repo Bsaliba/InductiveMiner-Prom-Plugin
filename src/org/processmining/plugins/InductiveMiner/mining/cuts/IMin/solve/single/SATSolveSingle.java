@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.sat4j.core.VecInt;
@@ -84,10 +84,10 @@ public abstract class SATSolveSingle {
 	
 	private int varCounter;
 
-	protected final LogInfo logInfo;
+	protected final IMLogInfo logInfo;
 	protected final MiningParameters parameters;
 
-	public SATSolveSingle(LogInfo logInfo, MiningParameters parameters) {
+	public SATSolveSingle(IMLogInfo logInfo, MiningParameters parameters) {
 		varInt2var = new HashMap<Integer, Var>();
 		varCounter = 1;
 		solver = SolverFactory.newDefaultOptimizer();

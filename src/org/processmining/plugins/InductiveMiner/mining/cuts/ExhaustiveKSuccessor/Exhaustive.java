@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
@@ -30,12 +30,12 @@ public class Exhaustive {
 
 	private UpToKSuccessorMatrix kSuccessor;
 	private IMLog log;
-	private LogInfo logInfo;
+	private IMLogInfo logInfo;
 	private MiningParameters parameters;
 	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
 
-	public Exhaustive(IMLog log, LogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
+	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.parameters = parameters;

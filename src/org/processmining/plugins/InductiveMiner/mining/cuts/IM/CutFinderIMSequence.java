@@ -15,17 +15,17 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutReachability;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 
 public class CutFinderIMSequence implements CutFinder {
 
-	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
 		//compute the strongly connected components of the directly-follows graph
 		StrongConnectivityInspector<XEventClass, DefaultWeightedEdge> SCCg = new StrongConnectivityInspector<XEventClass, DefaultWeightedEdge>(
 				logInfo.getDirectlyFollowsGraph());

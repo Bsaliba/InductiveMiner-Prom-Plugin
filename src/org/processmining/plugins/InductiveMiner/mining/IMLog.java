@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.filteredLog;
+package org.processmining.plugins.InductiveMiner.mining;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;

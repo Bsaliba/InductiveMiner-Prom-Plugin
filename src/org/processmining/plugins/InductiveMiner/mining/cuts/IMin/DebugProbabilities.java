@@ -4,12 +4,12 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Matrix;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class DebugProbabilities {
 	
-	public static String debug(LogInfo logInfo, MiningParameters parameters, boolean useHTML) {
+	public static String debug(IMLogInfo logInfo, MiningParameters parameters, boolean useHTML) {
 		
 		String newLine;
 		if (useHTML) {

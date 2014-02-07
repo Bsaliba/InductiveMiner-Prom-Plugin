@@ -1,10 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner2;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMTrace;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -13,7 +13,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		//this clause is not proven in the paper
 		if (logInfo.getNumberOfEpsilonTraces() != 0) {
 			//the log contains empty traces

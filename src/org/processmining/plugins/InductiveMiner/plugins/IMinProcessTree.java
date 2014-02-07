@@ -5,10 +5,9 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.plugins.InductiveMiner.mining.Miner2;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
-import org.processmining.plugins.InductiveMiner.model.conversion.ReduceTree;
 import org.processmining.processtree.ProcessTree;
 
 @Plugin(name = "Mine Process Tree with Inductive Miner-incompleteness", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
@@ -22,11 +21,15 @@ public class IMinProcessTree {
 	}
 	
 	public static ProcessTree mineProcessTree(XLog log) {
-		return mineProcessTree(log, new MiningParametersIMin());
+		return IMProcessTree.mineProcessTree(log, new MiningParametersIMin());
 	}
 	
-	public static ProcessTree mineProcessTree(XLog log, MiningParameters parameters) {
-		ProcessTree tree = Miner2.mine(log, parameters);
-		return ReduceTree.reduceTree(tree);
+	public static ProcessTree mineProcessTree(XLog xlog, MiningParameters parameters) {
+		return IMProcessTree.mineProcessTree(xlog, parameters);
 	}
+	
+	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
+		return IMProcessTree.mineProcessTree(log, parameters);
+	}
+	
 }

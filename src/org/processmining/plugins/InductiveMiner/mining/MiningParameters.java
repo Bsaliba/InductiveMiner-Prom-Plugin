@@ -47,6 +47,7 @@ public class MiningParameters {
 	private LogSplitter logSplitter;
 	private List<FallThrough> fallThroughs;
 
+	@Deprecated
 	public MiningParameters() {
 		
 		
@@ -98,10 +99,12 @@ public class MiningParameters {
 		return this.classifier;
 	}
 
+	@Deprecated
 	public float getNoiseThreshold() {
 		return noiseThreshold;
 	}
 
+	@Deprecated
 	public void setNoiseThreshold(float noiseThreshold) {
 		this.noiseThreshold = noiseThreshold;
 	}
@@ -140,18 +143,22 @@ public class MiningParameters {
 		this.outputFlowerLogFileName = outputFlowerLogFileName;
 	}
 
+	@Deprecated
 	public float getIncompleteThreshold() {
 		return incompleteThreshold;
 	}
 
+	@Deprecated
 	public void setIncompleteThreshold(float incompleteThreshold) {
 		this.incompleteThreshold = incompleteThreshold;
 	}
 
+	@Deprecated
 	public boolean isUseSat() {
 		return useSAT;
 	}
 
+	@Deprecated
 	public void setUseSAT(boolean useSAT) {
 		this.useSAT = useSAT;
 	}
@@ -164,18 +171,22 @@ public class MiningParameters {
 		this.debug = debug;
 	}
 
+	@Deprecated
 	public boolean isUseExhaustiveKSuccessor() {
 		return useExhaustiveKSuccessor;
 	}
 
+	@Deprecated
 	public void setUseExhaustiveKSuccessor(boolean useExhaustiveKSuccessor) {
 		this.useExhaustiveKSuccessor = useExhaustiveKSuccessor;
 	}
 
+	@Deprecated
 	public Probabilities getSatProbabilities() {
 		return satProbabilities;
 	}
 
+	@Deprecated
 	public void setSatProbabilities(Probabilities satProbabilities) {
 		this.satProbabilities = satProbabilities;
 	}
@@ -184,17 +195,27 @@ public class MiningParameters {
 		return this.minerPool;
 	}
 	
+	@Deprecated
 	public JobList getSatPool() {
 		return this.satPool;
 	}
 	
+	@Deprecated
 	public void setUseMultithreading(boolean useMultithreading) {
+		setUseMultithreadingGlobal(useMultithreading);
+		
 		if (useMultithreading) {
-			minerPool = new JobListBlocking();
 			satPool = new JobListBlocking();
 		} else {
-			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
 			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
+		}
+	}
+	
+	protected void setUseMultithreadingGlobal(boolean useMultithreading) {
+		if (useMultithreading) {
+			minerPool = new JobListBlocking();
+		} else {
+			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
 		}
 	}
 

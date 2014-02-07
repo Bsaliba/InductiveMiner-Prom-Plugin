@@ -9,16 +9,16 @@ import java.util.Set;
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 
 public class CutFinderIMLoop implements CutFinder {
 
-	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
 		//initialise the start and end activities as a connected component
 		HashMap<XEventClass, Integer> connectedComponents = new HashMap<XEventClass, Integer>();
 		for (XEventClass startActivity : logInfo.getStartActivities().toSet()) {

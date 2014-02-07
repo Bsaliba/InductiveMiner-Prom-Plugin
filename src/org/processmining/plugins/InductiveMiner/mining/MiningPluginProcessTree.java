@@ -11,10 +11,12 @@ import org.processmining.plugins.InductiveMiner.model.ProcessTreeModel;
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2ProcessTree;
 import org.processmining.processtree.ProcessTree;
 
+@Deprecated
 public class MiningPluginProcessTree {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
+	@Deprecated
 	public ProcessTree mineProcessTreeGui(UIPluginContext context, XLog log) {
 		MiningParameters parameters = new MiningParameters();
 		MiningDialog dialog = new MiningDialog(log, parameters);
@@ -27,16 +29,19 @@ public class MiningPluginProcessTree {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameterized", requiredParameterLabels = { 0, 1 })
+	@Deprecated
 	public ProcessTree mineProcessTree(PluginContext context, XLog log, MiningParameters parameters) {
 		ProcessTree tree = mineProcessTree(log, parameters);
 		context.addConnection(new ProcessTreeModelConnection(log, tree, parameters));
 		return tree;
 	}
 	
+	@Deprecated
 	public ProcessTree mineProcessTree(XLog log) {
 		return this.mineProcessTree(log, new MiningParameters());
 	}
 	
+	@Deprecated
 	public ProcessTree mineProcessTree(XLog log, MiningParameters parameters) {
 		Miner miner = new Miner();
 		ProcessTreeModel model = miner.mine(log, parameters);

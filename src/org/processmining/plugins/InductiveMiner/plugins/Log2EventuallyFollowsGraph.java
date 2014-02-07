@@ -7,9 +7,9 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dot.LogInfo2Dot;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 import org.processmining.processtree.conversion.Dot;
 
 @Plugin(name = "Create eventually-follows graph from log", returnLabels = { "dot" }, returnTypes = { Dot.class }, parameterLabels = { "Log" }, userAccessible = true)
@@ -23,7 +23,7 @@ public class Log2EventuallyFollowsGraph {
 
 	public Dot log2eventuallyFollowsGraph(XLog log, XEventClassifier classifier) {
 		IMLog internalLog = new IMLog(log, classifier);
-		LogInfo logInfo = new LogInfo(internalLog);
+		IMLogInfo logInfo = new IMLogInfo(internalLog);
 		return LogInfo2Dot.toDot(logInfo, true);
 	}
 }

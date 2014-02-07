@@ -4,26 +4,32 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiSingleActivity;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMin;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
-public class MiningParametersIMin extends MiningParameters {
+public class MiningParametersIMi extends MiningParameters {
 	
-	public MiningParametersIMin() {
+	private float noiseThreshold;
+
+	public MiningParametersIMi() {
 		//determine algorithm
 		
 		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIM()
+				new BaseCaseFinderIMiEmptyLog(),
+				new BaseCaseFinderIMiEmptyTrace(),
+				new BaseCaseFinderIMiSingleActivity()
 				)));
 		
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
 				new CutFinderIM(),
-				new CutFinderIMin()
+				new CutFinderIMi()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());
@@ -31,5 +37,16 @@ public class MiningParametersIMin extends MiningParameters {
 		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
 				new FallThroughFlower()
 				)));
+		
+		//set parameters
+		setNoiseThreshold((float) 0.2);
+	}
+	
+	public float getNoiseThreshold() {
+		return noiseThreshold;
+	}
+
+	public void setNoiseThreshold(float noiseThreshold) {
+		this.noiseThreshold = noiseThreshold;
 	}
 }

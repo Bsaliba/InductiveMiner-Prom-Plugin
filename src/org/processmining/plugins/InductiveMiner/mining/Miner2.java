@@ -3,13 +3,11 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -20,14 +18,8 @@ import org.processmining.processtree.impl.ProcessTreeImpl;
 
 public class Miner2 {
 	/*
-	 * if you want a Petri net, use MiningPluginPetrinet
+	 * Do not directly call this class, use one of the plugins from the InductiveMiner.plugins folder
 	 */
-	
-	public static ProcessTree mine(XLog log, MiningParameters parameters) {
-		//prepare the log
-		IMLog internalLog = new IMLog(log, parameters.getClassifier());
-		return mine(internalLog, parameters);
-	}
 	
 	public static ProcessTree mine(IMLog log, MiningParameters parameters) {
 		//create process tree
@@ -43,7 +35,7 @@ public class Miner2 {
 	public static Node mineNode(IMLog log, ProcessTree tree, MiningParameters parameters) {
 		
 		//construct basic information about log
-		LogInfo logInfo = new LogInfo(log);
+		IMLogInfo logInfo = new IMLogInfo(log);
 		
 		//output information about the log
 		debug("\nMine " + logInfo.getActivities(), parameters);
@@ -135,7 +127,7 @@ public class Miner2 {
 		return null;
 	}
 	
-	private static Node findBaseCases(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	private static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		Node n = null;
 		Iterator<BaseCaseFinder> it = parameters.getBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
@@ -144,7 +136,7 @@ public class Miner2 {
 		return n;
 	}
 	
-	private static Cut findCut(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	private static Cut findCut(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		Cut c = null;
 		Iterator<CutFinder> it = parameters.getCutFinders().iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
@@ -153,7 +145,7 @@ public class Miner2 {
 		return c;
 	}
 	
-	private static Node findFallThrough(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	private static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		Node n = null;
 		Iterator<FallThrough> it = parameters.getFallThroughs().iterator();
 		while (n == null && it.hasNext()) {
@@ -162,7 +154,7 @@ public class Miner2 {
 		return n;
 	}
 	
-	private static Collection<IMLog> splitLog(IMLog log, LogInfo logInfo, Cut cut, MiningParameters parameters) {
+	private static Collection<IMLog> splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MiningParameters parameters) {
 		return parameters.getLogSplitter().split(log, logInfo, cut);
 	}
 	

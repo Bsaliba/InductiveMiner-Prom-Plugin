@@ -3,7 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 import java.lang.reflect.InvocationTargetException;
 
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
@@ -13,10 +13,10 @@ public abstract class SATSolve {
 
 	protected final JobList pool;
 	protected final AtomicResult bestTillNow;
-	protected final LogInfo logInfo;
+	protected final IMLogInfo logInfo;
 	protected final MiningParameters parameters;
 
-	public SATSolve(LogInfo logInfo, MiningParameters parameters, JobList pool,
+	public SATSolve(IMLogInfo logInfo, MiningParameters parameters, JobList pool,
 			AtomicResult bestTillNow) {
 		this.logInfo = logInfo;
 		this.parameters = parameters;
@@ -39,7 +39,7 @@ public abstract class SATSolve {
 				public void run() {
 					SATSolveSingle solver = null;
 					try {
-						solver = c.getConstructor(LogInfo.class, MiningParameters.class).newInstance(
+						solver = c.getConstructor(IMLogInfo.class, MiningParameters.class).newInstance(
 								logInfo, parameters);
 					} catch (InstantiationException e) {
 						e.printStackTrace();

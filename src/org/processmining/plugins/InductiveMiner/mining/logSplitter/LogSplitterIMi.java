@@ -9,15 +9,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMTrace;
 
 public class LogSplitterIMi implements LogSplitter {
 
-	public List<IMLog> split(IMLog log, LogInfo logInfo, Cut cut) {
+	public List<IMLog> split(IMLog log, IMLogInfo logInfo, Cut cut) {
 		List<IMLog> result = new LinkedList<IMLog>();
 
 		//map activities to sigmas

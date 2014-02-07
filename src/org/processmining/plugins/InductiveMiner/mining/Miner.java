@@ -21,6 +21,7 @@ public class Miner {
 	 * don't use this class, use MiningPluginPetrinet or MiningPluginProcessTree instead
 	 */
 
+	@Deprecated
 	public Object[] mineParametersPetrinetWithoutConnections(XLog log,
 			MiningParameters parameters) {
 		ProcessTreeModel model = mine(log, parameters);
@@ -38,12 +39,14 @@ public class Miner {
 		return new Object[] { model, workflowNet, mapping, activities };
 	}
 	
+	@Deprecated
 	public ProcessTreeModel mine(XLog log, MiningParameters parameters) {
 		//prepare the log
 		Filteredlog filteredLog = new Filteredlog(log, parameters.getClassifier());
 		return mine(filteredLog, parameters);
 	}
 
+	@Deprecated
 	public ProcessTreeModel mine(Filteredlog filteredLog, MiningParameters parameters) {
 		return (ProcessTreeModel) Miner2.mine(filteredLog, parameters);
 	}

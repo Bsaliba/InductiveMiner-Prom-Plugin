@@ -1,10 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 
 public class CutFinderIMParallelWithMinimumSelfDistance implements CutFinder {
 	
@@ -14,7 +14,7 @@ public class CutFinderIMParallelWithMinimumSelfDistance implements CutFinder {
 		parallelCutFinder = new CutFinderIMParallel();
 	}
 
-	public Cut findCut(IMLog log, LogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
 		return parallelCutFinder.findCut(log, logInfo, parameters, true);
 	}
 
