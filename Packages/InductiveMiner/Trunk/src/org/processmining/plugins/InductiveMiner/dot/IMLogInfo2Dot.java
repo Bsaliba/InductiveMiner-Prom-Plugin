@@ -12,7 +12,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.processtree.conversion.Dot;
 
-public class LogInfo2Dot {
+public class IMLogInfo2Dot {
 	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows, Collection<Set<XEventClass>> cut) {
 
 		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;

@@ -44,10 +44,8 @@ public class IMPetriNet {
 		try {
 			pn = ProcessTree2Petrinet.convert(tree);
 		} catch (NotYetImplementedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidProcessTreeException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new Object[]{pn.petrinet, pn.initialMarking, pn.finalMarking};

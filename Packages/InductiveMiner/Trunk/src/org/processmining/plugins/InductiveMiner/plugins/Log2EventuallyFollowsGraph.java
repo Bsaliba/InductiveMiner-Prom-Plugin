@@ -6,7 +6,7 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.plugins.InductiveMiner.dot.LogInfo2Dot;
+import org.processmining.plugins.InductiveMiner.dot.IMLogInfo2Dot;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
@@ -24,6 +24,6 @@ public class Log2EventuallyFollowsGraph {
 	public Dot log2eventuallyFollowsGraph(XLog log, XEventClassifier classifier) {
 		IMLog internalLog = new IMLog(log, classifier);
 		IMLogInfo logInfo = new IMLogInfo(internalLog);
-		return LogInfo2Dot.toDot(logInfo, true);
+		return IMLogInfo2Dot.toDot(logInfo, true);
 	}
 }
