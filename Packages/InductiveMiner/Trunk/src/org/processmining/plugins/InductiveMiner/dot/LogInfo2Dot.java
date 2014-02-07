@@ -9,11 +9,11 @@ import java.util.UUID;
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.processtree.conversion.Dot;
 
 public class LogInfo2Dot {
-	public static Dot toDot(LogInfo logInfo, boolean useEventuallyFollows, Collection<Set<XEventClass>> cut) {
+	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows, Collection<Set<XEventClass>> cut) {
 
 		final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
 		if (!useEventuallyFollows) {
@@ -71,7 +71,7 @@ public class LogInfo2Dot {
 		return dot2;
 	}
 
-	public static Dot toDot(LogInfo logInfo, boolean useEventuallyFollows) {
+	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows) {
 		Set<Set<XEventClass>> cut = new HashSet<Set<XEventClass>>();
 		cut.add(logInfo.getActivities());
 		return toDot(logInfo, useEventuallyFollows, cut);

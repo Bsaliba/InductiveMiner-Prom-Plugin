@@ -2,10 +2,11 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 
-public class DirectlyFollowsRelation extends LogInfo {
+@Deprecated
+public class DirectlyFollowsRelation extends IMLogInfo {
 
+	@Deprecated
 	public DirectlyFollowsRelation(IMLog log) {
 		super(log);
 	}

@@ -151,6 +151,14 @@ public class MultiSet<X> implements Iterable<X> {
         return it;
 	}
 	
+	public MultiSet<X> copy() {
+		MultiSet<X> result = new MultiSet<X>();
+		for (X element : cardinalities.keySet()) {
+			result.add(element, cardinalities.get(element));
+		}
+		return result;
+	}
+	
 	public String toString() {
 		return cardinalities.toString();
 	}

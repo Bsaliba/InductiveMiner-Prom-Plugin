@@ -14,24 +14,29 @@ import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeMode
 import org.processmining.plugins.InductiveMiner.model.conversion.ProcessTreeModel2PetriNet.WorkflowNet;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
+@Deprecated
 public class MiningPluginPetrinet {
 	
+	@Deprecated
 	public Object[] mineDefaultPetrinet(XLog log) {
 		return this.mineParametersPetrinet(log, new MiningParametersIM());
 	}
 	
 	//@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	//@PluginVariant(variantLabel = "Mine a Process Tree Petri net, default", requiredParameterLabels = { 0 })
+	@Deprecated
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
 		return this.mineParametersPetrinet(context, log, new MiningParametersIM());
 	}
 	
+	@Deprecated
 	public Object[] mineParametersPetrinet(XLog log, MiningParameters parameters) {
 		return mineParametersPetrinet(null, log, parameters);
 	}
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, parameterized", requiredParameterLabels = { 0, 1 })
+	@Deprecated
 	public Object[] mineParametersPetrinet(PluginContext context, XLog log, MiningParameters parameters) {
 		
 		//call the connectionless function
@@ -55,6 +60,7 @@ public class MiningPluginPetrinet {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, dialog", requiredParameterLabels = { 0 })
+	@Deprecated
 	public Object[] mineGuiPetrinet(UIPluginContext context, XLog log) {
 		MiningParameters parameters = new MiningParametersIM();
 		MiningDialog dialog = new MiningDialog(log, parameters);

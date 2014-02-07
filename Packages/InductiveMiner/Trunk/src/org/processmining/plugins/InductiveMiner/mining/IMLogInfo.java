@@ -12,10 +12,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMTrace;
 
-public class LogInfo {
+public class IMLogInfo {
 
 	protected final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
 	protected final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
@@ -27,17 +25,17 @@ public class LogInfo {
 	protected final HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
 	protected final HashMap<XEventClass, Integer> minimumSelfDistances;
 
-	protected long numberOfTraces;
-	protected long numberOfEvents;
-	protected int numberOfEpsilonTraces;
-	protected int longestTrace;
-	protected int lengthStrongestTrace;
-	protected int strongestDirectEdge;
-	protected int strongestEventualEdge;
-	protected int strongestStartActivity;
-	protected int strongestEndActivity;
+	protected final long numberOfTraces;
+	protected final long numberOfEvents;
+	protected final long numberOfEpsilonTraces;
+	protected final int longestTrace;
+	protected final int lengthStrongestTrace;
+	protected final int strongestDirectEdge;
+	protected final int strongestEventualEdge;
+	protected final int strongestStartActivity;
+	protected final int strongestEndActivity;
 
-	public LogInfo(IMLog log) {
+	public IMLogInfo(IMLog log) {
 		//initialise, read the log
 		directlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
 				DefaultWeightedEdge.class);
@@ -47,11 +45,11 @@ public class LogInfo {
 		endActivities = new MultiSet<XEventClass>();
 		minimumSelfDistances = new HashMap<XEventClass, Integer>();
 		minimumSelfDistancesBetween = new HashMap<XEventClass, MultiSet<XEventClass>>();
-		numberOfTraces = 0;
-		numberOfEvents = 0;
-		numberOfEpsilonTraces = 0;
-		longestTrace = 0;
-		lengthStrongestTrace = 0;
+		int numberOfTraces = 0;
+		int numberOfEvents = 0;
+		int numberOfEpsilonTraces = 0;
+		int longestTrace = 0;
+		int lengthStrongestTrace = 0;
 
 		XEventClass fromEventClass;
 		XEventClass toEventClass;
@@ -60,7 +58,7 @@ public class LogInfo {
 		HashMap<XEventClass, Integer> eventSeenAt;
 		List<XEventClass> readTrace;
 
-		for (IMTrace trace: log) {
+		for (IMTrace trace : log) {
 			Integer cardinality = log.getCardinalityOf(trace);
 
 			toEventClass = null;
@@ -71,7 +69,7 @@ public class LogInfo {
 			readTrace = new LinkedList<XEventClass>();
 
 			for (XEventClass ec : trace) {
-				
+
 				if (!directlyFollowsGraph.containsVertex(ec)) {
 					directlyFollowsGraph.addVertex(ec);
 					eventuallyFollowsGraph.addVertex(ec);
@@ -143,7 +141,7 @@ public class LogInfo {
 			if (traceSize > longestTrace) {
 				longestTrace = traceSize;
 			}
-			
+
 			numberOfTraces += cardinality;
 			numberOfEvents += traceSize * cardinality;
 
@@ -159,34 +157,71 @@ public class LogInfo {
 		}
 		//debug(minimumSelfDistancesBetween.toString());
 
+		//copy local fields to class fields
+		this.numberOfTraces = numberOfTraces;
+		this.numberOfEvents = numberOfEvents;
+		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
+		this.longestTrace = longestTrace;
+		this.lengthStrongestTrace = lengthStrongestTrace;
+
 		//find the edge with the greatest weight
-		strongestDirectEdge = 0;
+		int strongestDirectEdge = 0;
 		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
 			strongestDirectEdge = Math.max(strongestDirectEdge, (int) directlyFollowsGraph.getEdgeWeight(edge));
 		}
+		this.strongestDirectEdge = strongestDirectEdge;
 
 		//find the edge with the greatest weight
-		strongestEventualEdge = 0;
+		int strongestEventualEdge = 0;
 		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
 			strongestEventualEdge = Math.max(strongestEventualEdge, (int) eventuallyFollowsGraph.getEdgeWeight(edge));
 		}
+		this.strongestEventualEdge = strongestEventualEdge;
 
 		//find the strongest start activity
-		strongestStartActivity = 0;
+		int strongestStartActivity = 0;
 		for (XEventClass activity : startActivities) {
 			strongestStartActivity = Math.max(strongestStartActivity, startActivities.getCardinalityOf(activity));
 		}
+		this.strongestStartActivity = strongestStartActivity;
 
 		//find the strongest end activity
-		strongestEndActivity = 0;
+		int strongestEndActivity = 0;
 		for (XEventClass activity : endActivities) {
 			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
+		this.strongestEndActivity = strongestEndActivity;
 
 		//compute the transitive closure of the directly-follows graph
 		directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(directlyFollowsGraph);
 	}
 	
+	public IMLogInfo(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
+			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
+			DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph,
+			MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
+			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
+			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
+			long numberOfEpsilonTraces, int longestTrace, int lengthStrongestTrace, int strongestDirectEdge,
+			int strongestEventualEdge, int strongestStartActivity, int strongestEndActivity) {
+		this.directlyFollowsGraph = directlyFollowsGraph;
+		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
+		this.directlyFollowsTransitiveClosureGraph = directlyFollowsTransitiveClosureGraph;
+		this.startActivities = startActivities;
+		this.endActivities = endActivities;
+		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
+		this.minimumSelfDistances = minimumSelfDistances;
+		this.numberOfTraces = numberOfTraces;
+		this.numberOfEvents = numberOfEvents;
+		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
+		this.longestTrace = longestTrace;
+		this.lengthStrongestTrace = lengthStrongestTrace;
+		this.strongestDirectEdge = strongestDirectEdge;
+		this.strongestEventualEdge = strongestEventualEdge;
+		this.strongestStartActivity = strongestStartActivity;
+		this.strongestEndActivity = strongestEndActivity;
+	}
+
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		result.append("start activities: " + startActivities + "\n");
@@ -217,12 +252,20 @@ public class LogInfo {
 	public MultiSet<XEventClass> getEndActivities() {
 		return endActivities;
 	}
-	
+
+	public HashMap<XEventClass, MultiSet<XEventClass>> getMinimumSelfDistancesBetween() {
+		return minimumSelfDistancesBetween;
+	}
+
 	public MultiSet<XEventClass> getMinimumSelfDistanceBetween(XEventClass activity) {
 		if (!minimumSelfDistances.containsKey(activity)) {
 			return new MultiSet<XEventClass>();
 		}
 		return minimumSelfDistancesBetween.get(activity);
+	}
+
+	public HashMap<XEventClass, Integer> getMinimumSelfDistances() {
+		return minimumSelfDistances;
 	}
 
 	public int getMinimumSelfDistance(XEventClass a) {
@@ -231,16 +274,16 @@ public class LogInfo {
 		}
 		return 0;
 	}
-	
+
 	public long getNumberOfTraces() {
 		return numberOfTraces;
 	}
-	
+
 	public long getNumberOfEvents() {
 		return numberOfEvents;
 	}
 
-	public int getNumberOfEpsilonTraces() {
+	public long getNumberOfEpsilonTraces() {
 		return numberOfEpsilonTraces;
 	}
 
@@ -267,5 +310,4 @@ public class LogInfo {
 	public int getStrongestEndActivity() {
 		return strongestEndActivity;
 	}
-
 }

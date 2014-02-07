@@ -1,9 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.filteredLog.IMLog;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -12,7 +12,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class FallThroughFlower implements FallThrough {
 
-	public Node fallThrough(IMLog log, LogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		Block loopNode = new AbstractBlock.XorLoop("");
 		loopNode.setProcessTree(tree);
 		

@@ -9,7 +9,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.LogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
@@ -23,7 +23,7 @@ import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleLoop extends SATSolveSingle {
 
-	public SATSolveSingleLoop(LogInfo logInfo, MiningParameters parameters) {
+	public SATSolveSingleLoop(IMLogInfo logInfo, MiningParameters parameters) {
 		super(logInfo, parameters);
 	}
 

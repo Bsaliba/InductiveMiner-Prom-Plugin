@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.filteredLog;
+package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.LinkedList;
 
