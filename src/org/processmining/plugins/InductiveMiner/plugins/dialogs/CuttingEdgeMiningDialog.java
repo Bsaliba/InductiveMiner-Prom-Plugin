@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining;
+package org.processmining.plugins.InductiveMiner.plugins.dialogs;
 
 import java.awt.Color;
 
@@ -11,15 +11,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.deckfour.xes.model.XLog;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
-@Deprecated
-public class MiningDialog extends JPanel {
-	
-	private static final long serialVersionUID = 7693870370139578439L;
+public class CuttingEdgeMiningDialog extends JPanel {
 
-	public MiningDialog(XLog log, final MiningParameters parameters) {
+	private static final long serialVersionUID = 4153725258019848545L;
+
+	public CuttingEdgeMiningDialog(XLog log, final MiningParameters parameters) {
+		
+
 		
 		SlickerFactory factory = SlickerFactory.instance();
 		
