@@ -29,9 +29,9 @@ public abstract class SATSolve {
 	public void solveDefault(final Class<? extends SATSolveSingle> c, boolean commutative) {
 		double maxCut;
 		if (commutative) {
-			maxCut = 0.5 + logInfo.getActivities().size() / 2;
+			maxCut = 0.5 + logInfo.getActivities().setSize() / 2;
 		} else {
-			maxCut = logInfo.getActivities().size();
+			maxCut = logInfo.getActivities().setSize();
 		}
 		for (int i = 1; i < maxCut; i++) {
 			final int j = i;

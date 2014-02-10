@@ -94,7 +94,7 @@ public abstract class SATSolveSingle {
 		this.logInfo = logInfo;
 		this.parameters = parameters;
 
-		countNodes = logInfo.getActivities().size();
+		countNodes = logInfo.getActivities().setSize();
 
 		//initialise nodes
 		node2var = new HashMap<XEventClass, Node>();

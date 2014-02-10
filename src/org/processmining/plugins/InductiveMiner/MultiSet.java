@@ -105,6 +105,10 @@ public class MultiSet<X> implements Iterable<X> {
 		return size;
 	}
 	
+	public int setSize() {
+		return cardinalities.keySet().size();
+	}
+	
 	public Set<X> toSet() {
 		return cardinalities.keySet();
 	}

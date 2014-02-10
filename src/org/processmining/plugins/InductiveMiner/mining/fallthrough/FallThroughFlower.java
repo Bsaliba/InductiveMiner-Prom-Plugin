@@ -21,7 +21,7 @@ public class FallThroughFlower implements FallThrough {
 		loopNode.setProcessTree(tree);
 		
 		Block xorNode;
-		if (logInfo.getActivities().size() == 1) {
+		if (logInfo.getActivities().setSize() == 1) {
 			xorNode = loopNode;
 		} else {
 			xorNode = new AbstractBlock.Xor("");

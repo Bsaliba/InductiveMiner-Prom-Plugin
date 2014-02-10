@@ -10,6 +10,7 @@ import java.io.Writer;
 
 import org.processmining.framework.util.HTMLToString;
 
+@Deprecated
 public class ProcessTreeModel implements HTMLToString{
 	
 	//private Map<XEventClass, Map<XEventClass, Integer>> successionMap;
