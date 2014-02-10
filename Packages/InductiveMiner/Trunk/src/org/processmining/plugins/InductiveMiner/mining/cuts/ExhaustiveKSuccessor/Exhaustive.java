@@ -43,9 +43,9 @@ public class Exhaustive {
 	}
 
 	public Result tryAll() {
-		final int nrOfBits = logInfo.getActivities().size();
+		final int nrOfBits = logInfo.getActivities().setSize();
 
-		final XEventClass[] activities = new XEventClass[logInfo.getActivities().size()];
+		final XEventClass[] activities = new XEventClass[logInfo.getActivities().toSet().size()];
 		int i = 0;
 		for (XEventClass e : logInfo.getActivities()) {
 			activities[i] = e;

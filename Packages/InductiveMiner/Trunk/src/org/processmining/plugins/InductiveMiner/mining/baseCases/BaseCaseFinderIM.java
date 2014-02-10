@@ -11,11 +11,11 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		
-		if (logInfo.getActivities().size() == 1) {
+		if (logInfo.getActivities().setSize() == 1) {
 			Node node = new AbstractTask.Manual(logInfo.getActivities().iterator().next().toString());
 			node.setProcessTree(tree);
 			return node;
-		} else if (logInfo.getActivities().size() == 0) {
+		} else if (logInfo.getActivities().setSize() == 0) {
 			Node node = new AbstractTask.Automatic("");
 			node.setProcessTree(tree);
 			return node;

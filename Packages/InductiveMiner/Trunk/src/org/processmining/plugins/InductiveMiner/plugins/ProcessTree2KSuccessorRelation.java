@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.model.conversion;
+package org.processmining.plugins.InductiveMiner.plugins;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;

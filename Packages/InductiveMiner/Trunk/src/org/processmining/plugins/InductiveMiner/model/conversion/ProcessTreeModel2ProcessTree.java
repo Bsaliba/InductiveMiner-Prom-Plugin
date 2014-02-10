@@ -18,7 +18,7 @@ import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
-
+@Deprecated
 public class ProcessTreeModel2ProcessTree {
 	
 	public static ProcessTree convert(Node root) {

@@ -18,7 +18,7 @@ public class SATSolveLoop extends SATSolve {
 	public void solve() {
 		//debug("start SAT search for loop cut likelier than " + bestTillNow.get().getProbability());
 		
-		for (int i = 1; i < logInfo.getActivities().size(); i++) {
+		for (int i = 1; i < logInfo.getActivities().setSize(); i++) {
 			final int j = i;
 			pool.addJob(new Runnable() {
 				public void run() {

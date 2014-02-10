@@ -11,7 +11,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 
-		if (logInfo.getActivities().size() == 1) {
+		if (logInfo.getActivities().setSize() == 1) {
 			//the log contains just one activity
 
 			//assuming application of the activity follows a geometric distribution, we estimate parameter ^p
