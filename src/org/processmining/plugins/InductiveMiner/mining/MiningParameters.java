@@ -14,7 +14,6 @@ import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 
@@ -38,14 +37,10 @@ public abstract class MiningParameters {
 	protected MiningParameters() {
 		
 		classifier = getDefaultClassifier();
-		noiseThreshold = (float) 0.0;
-		incompleteThreshold = (float) 0.0;
-		outputDFGfileName = "D:\\output";
-		outputFlowerLogFileName = null;
 		debug = true;
 		
-		satProbabilities = new ProbabilitiesEstimatedZ();
-		//satProbabilities = new ProbabilitiesNoise();
+		outputDFGfileName = "D:\\output";
+		outputFlowerLogFileName = null;
 		
 		setUseMultithreading(true);
 	}
