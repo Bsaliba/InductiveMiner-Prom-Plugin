@@ -24,8 +24,7 @@ public class Exhaustive {
 
 	public class Result {
 		int distance;
-		public String cutType;
-		public Collection<Set<XEventClass>> cut;
+		public Cut cut;
 		public Collection<IMLog> sublogs;
 	}
 
@@ -35,12 +34,16 @@ public class Exhaustive {
 	private MiningParameters parameters;
 	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
+	
+	private final LogSplitter logSplitter;
 
 	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
+		this.logInfo = logInfo;
 		this.parameters = parameters;
 		bestTillNow = new AtomicInteger();
+		logSplitter = new LogSplitterIMi();
 	}
 
 	public Result tryAll() {
@@ -100,25 +103,25 @@ public class Exhaustive {
 		Result result = new Result();
 		result.distance = Integer.MAX_VALUE;
 		Result result2;
-		List<Set<XEventClass>> cut;
+		List<Set<XEventClass>> partition;
 		for (long cutNr = startCutNr; cutNr < Math.pow(2, nrOfBits) - 1 && result.distance > 0 && cutNr <= endCutNr; cutNr++) {
-			cut = generateCut(cutNr, nrOfBits, activities);
+			partition = generateCut(cutNr, nrOfBits, activities);
 
 			//parallel
-			result2 = processCutParallel(cut);
+			result2 = processCutParallel(partition);
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					Miner.debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
+					Miner.debug(result2.distance + " " + result2.cut, parameters);
 				}
 			}
 
 			//loop
-			result2 = processCutLoop(cut);
+			result2 = processCutLoop(partition);
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					Miner.debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
+					Miner.debug(result2.distance + " " + result2.cut, parameters);
 				}
 			}
 		}
@@ -126,13 +129,14 @@ public class Exhaustive {
 		return result;
 	}
 
-	public Result processCutParallel(Collection<Set<XEventClass>> cut) {
+	public Result processCutParallel(Collection<Set<XEventClass>> partition) {
 
 		Result result = new Result();
 
 		//split log
 		LogSplitter logSplitter = new LogSplitterIMi();
-		result.sublogs = logSplitter.split(log, logInfo, new Cut(Operator.parallel, cut));
+		Cut cut = new Cut(Operator.parallel, partition);
+		result.sublogs = logSplitter.split(log, logInfo, cut);
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
@@ -145,18 +149,17 @@ public class Exhaustive {
 		result.distance = DistanceEuclidian.computeDistance(kSuccessor, combined);
 
 		result.cut = cut;
-		result.cutType = "parallel";
 
 		return result;
 	}
 
-	public Result processCutLoop(Collection<Set<XEventClass>> cut) {
+	public Result processCutLoop(Collection<Set<XEventClass>> partition) {
 
 		Result result = new Result();
 
 		//split log
-		LogSplitter logSplitter = new LogSplitterIMi();
-		result.sublogs = logSplitter.split(log, logInfo, new Cut(Operator.loop, cut));
+		Cut cut = new Cut(Operator.loop, partition);
+		result.sublogs = logSplitter.split(log, logInfo, cut);
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
@@ -169,7 +172,6 @@ public class Exhaustive {
 		result.distance = DistanceEuclidian.computeDistance(kSuccessor, combined);
 
 		result.cut = cut;
-		result.cutType = "loop";
 
 		return result;
 	}
