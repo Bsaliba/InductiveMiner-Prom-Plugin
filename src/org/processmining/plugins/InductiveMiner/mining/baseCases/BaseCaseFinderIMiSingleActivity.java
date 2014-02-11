@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.baseCases;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractTask;
@@ -24,7 +25,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
 				Node node = new AbstractTask.Manual(logInfo.getActivities().iterator().next().toString());
 				node.setProcessTree(tree);
-				return node;
+				return MinerMetrics.attachStatistics(node, logInfo);
 			}
 			//else, the probability to stop is too low or too high, and we better output a flower model
 		}
