@@ -6,10 +6,9 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.Miner2;
+import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
-import org.processmining.plugins.InductiveMiner.model.conversion.ReduceTree;
 import org.processmining.processtree.ProcessTree;
 
 @Plugin(name = "Mine Process Tree with Inductive Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
@@ -33,6 +32,7 @@ public class IMProcessTree {
 	}
 	
 	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
-		return ReduceTree.reduceTree(Miner2.mine(log, parameters));
+		return Miner.mine(log, parameters);
+		//return ReduceTree.reduceTree(Miner2.mine(log, parameters));
 	}
 }

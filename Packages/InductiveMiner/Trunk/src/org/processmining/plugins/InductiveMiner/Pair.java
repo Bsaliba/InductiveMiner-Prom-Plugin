@@ -13,7 +13,7 @@ public class Pair<L, R> {
 	public L getLeft() {
 		return left;
 	}
-
+	
 	public R getRight() {
 		return right;
 	}

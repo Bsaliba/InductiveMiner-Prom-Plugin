@@ -1,8 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
@@ -14,29 +12,19 @@ import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
-public class MiningParameters {
+public abstract class MiningParameters {
 	private XEventClassifier classifier;
 	private float noiseThreshold;
 	private float incompleteThreshold;
 	private String outputDFGfileName;
 	private File outputFlowerLogFileName;
 	
-	private boolean useSAT;
-	private boolean useExhaustiveKSuccessor;
 	private boolean debug;
 	private Probabilities satProbabilities;
 	private JobList minerPool;
@@ -47,28 +35,7 @@ public class MiningParameters {
 	private LogSplitter logSplitter;
 	private List<FallThrough> fallThroughs;
 
-	@Deprecated
-	public MiningParameters() {
-		
-		
-		//TODO: remove
-		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIM()
-				)));
-		
-		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
-				new CutFinderIMExclusiveChoice(),
-				new CutFinderIMSequence(),
-				new CutFinderIMParallelWithMinimumSelfDistance(),
-				new CutFinderIMLoop(),
-				new CutFinderIMParallel()
-				)));
-		
-		setLogSplitter(new LogSplitterIMi());
-		
-		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
-				new FallThroughFlower()
-				)));
+	protected MiningParameters() {
 		
 		classifier = getDefaultClassifier();
 		noiseThreshold = (float) 0.0;
@@ -77,8 +44,6 @@ public class MiningParameters {
 		outputFlowerLogFileName = null;
 		debug = true;
 		
-		useSAT = false;
-		useExhaustiveKSuccessor = false;
 		satProbabilities = new ProbabilitiesEstimatedZ();
 		//satProbabilities = new ProbabilitiesNoise();
 		
@@ -141,24 +106,12 @@ public class MiningParameters {
 		this.outputFlowerLogFileName = outputFlowerLogFileName;
 	}
 
-	@Deprecated
 	public float getIncompleteThreshold() {
 		return incompleteThreshold;
 	}
 
-	@Deprecated
 	public void setIncompleteThreshold(float incompleteThreshold) {
 		this.incompleteThreshold = incompleteThreshold;
-	}
-
-	@Deprecated
-	public boolean isUseSat() {
-		return useSAT;
-	}
-
-	@Deprecated
-	public void setUseSAT(boolean useSAT) {
-		this.useSAT = useSAT;
 	}
 
 	public boolean isDebug() {
@@ -169,22 +122,10 @@ public class MiningParameters {
 		this.debug = debug;
 	}
 
-	@Deprecated
-	public boolean isUseExhaustiveKSuccessor() {
-		return useExhaustiveKSuccessor;
-	}
-
-	@Deprecated
-	public void setUseExhaustiveKSuccessor(boolean useExhaustiveKSuccessor) {
-		this.useExhaustiveKSuccessor = useExhaustiveKSuccessor;
-	}
-
-	@Deprecated
 	public Probabilities getSatProbabilities() {
 		return satProbabilities;
 	}
 
-	@Deprecated
 	public void setSatProbabilities(Probabilities satProbabilities) {
 		this.satProbabilities = satProbabilities;
 	}
@@ -193,12 +134,10 @@ public class MiningParameters {
 		return this.minerPool;
 	}
 	
-	@Deprecated
 	public JobList getSatPool() {
 		return this.satPool;
 	}
 	
-	@Deprecated
 	public void setUseMultithreading(boolean useMultithreading) {
 		setUseMultithreadingGlobal(useMultithreading);
 		

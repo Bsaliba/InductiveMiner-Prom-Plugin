@@ -86,7 +86,7 @@ public class CuttingEdgeMiningDialog extends JPanel {
 		final JCheckBox iminCheckbox = factory.createCheckBox("Handle incomplete logs. (IMin)", false);
 		iminCheckbox.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				parameters.setUseSAT(iminCheckbox.isSelected());
+				//parameters.setUseSAT(iminCheckbox.isSelected());
 				if (iminCheckbox.isSelected()) {
 					incompleteSlider.setEnabled(true);
 					noiseExplanation.setVisible(false);
@@ -96,7 +96,7 @@ public class CuttingEdgeMiningDialog extends JPanel {
 				}
 			}
 		});
-		iminCheckbox.setSelected(parameters.isUseSat());
+		//iminCheckbox.setSelected(parameters.isUseSat());
 		thresholdsPanel.add(iminCheckbox);
 		iminCheckbox.setBounds(15, 110, 535, 20);
 		

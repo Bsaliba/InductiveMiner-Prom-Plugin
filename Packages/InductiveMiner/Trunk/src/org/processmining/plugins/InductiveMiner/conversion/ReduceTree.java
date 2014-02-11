@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.model.conversion;
+package org.processmining.plugins.InductiveMiner.conversion;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

@@ -21,7 +21,6 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.SequenceCutReachability;
 
 public class CutFinderIMSequence implements CutFinder {
 
@@ -62,7 +61,7 @@ public class CutFinderIMSequence implements CutFinder {
 			xorGraph.addVertex(node);
 		}
 
-		SequenceCutReachability<Set<XEventClass>, DefaultEdge> scr1 = new SequenceCutReachability<Set<XEventClass>, DefaultEdge>(
+		CutFinderIMSequenceReachability<Set<XEventClass>, DefaultEdge> scr1 = new CutFinderIMSequenceReachability<Set<XEventClass>, DefaultEdge>(
 				condensedGraph1);
 		for (Set<XEventClass> node : condensedGraph1.vertexSet()) {
 			Set<Set<XEventClass>> reachableFromTo = scr1.getReachableFromTo(node);
@@ -112,7 +111,7 @@ public class CutFinderIMSequence implements CutFinder {
 		}
 
 		//now we have a condensed graph. we need to return a sorted list of condensed nodes.
-		final SequenceCutReachability<Set<XEventClass>, DefaultEdge> scr2 = new SequenceCutReachability<Set<XEventClass>, DefaultEdge>(condensedGraph2);
+		final CutFinderIMSequenceReachability<Set<XEventClass>, DefaultEdge> scr2 = new CutFinderIMSequenceReachability<Set<XEventClass>, DefaultEdge>(condensedGraph2);
 		List<Set<XEventClass>> result = new ArrayList<Set<XEventClass>>();
 		result.addAll(condensedGraph2.vertexSet());
 		Collections.sort(result, new Comparator<Set<XEventClass>>() {

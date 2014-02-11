@@ -183,7 +183,6 @@ public class LogSplitterIMi implements LogSplitter {
 		for (Set<XEventClass> sigma : partition) {
 			IMTrace subtrace = new IMTrace();
 			mapSigma2subtrace.put(sigma, subtrace);
-			mapSigma2sublog.get(sigma).add(subtrace);
 		}
 		
 		for (XEventClass event : trace) {

@@ -16,6 +16,10 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIM
 
 public class MiningParametersIMi extends MiningParameters {
 
+	/*
+	 * No other parameter, except mentioned in this file, has influence on mined model
+	 */
+	
 	public MiningParametersIMi() {
 		//determine algorithm
 		

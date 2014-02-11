@@ -3,8 +3,9 @@ package org.processmining.plugins.InductiveMiner.mining.baseCases;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
-import org.processmining.plugins.InductiveMiner.mining.Miner2;
+import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -24,24 +25,26 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				//filter the empty traces from the log and recurse
 				log.remove(new IMTrace());
 
-				return Miner2.mineNode(log, tree, parameters);
+				return Miner.mineNode(log, tree, parameters);
 
 			} else {
 				//There are too many empty traces to consider them noise.
 				//Mine an xor(tau, ..) and recurse.
 				Block newNode = new AbstractBlock.Xor("");
 				newNode.setProcessTree(tree);
+				MinerMetrics.attachStatistics(newNode, logInfo);
 
 				//add tau
 				Node tau = new AbstractTask.Automatic("");
 				tau.setProcessTree(tree);
 				newNode.addChild(tau);
+				MinerMetrics.attachStatistics(tau, logInfo.getNumberOfEpsilonTraces());
 
 				//filter empty traces
 				log.remove(new IMTrace());
 
 				//recurse
-				Node child = Miner2.mineNode(log, tree, parameters);
+				Node child = Miner.mineNode(log, tree, parameters);
 				newNode.addChild(child);
 
 				return newNode;

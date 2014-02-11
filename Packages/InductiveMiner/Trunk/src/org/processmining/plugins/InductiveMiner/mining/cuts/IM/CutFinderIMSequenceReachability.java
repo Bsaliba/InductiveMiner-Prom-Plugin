@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,13 +6,13 @@ import java.util.Set;
 
 import org.jgrapht.DirectedGraph;
 
-public class SequenceCutReachability<V,E> {
+public class CutFinderIMSequenceReachability<V,E> {
 	
 	private HashMap<V, Set<V>> reachableTo;
 	private HashMap<V, Set<V>> reachableFrom;
 	private DirectedGraph<V, E> condensedGraph;
 
-	public SequenceCutReachability(DirectedGraph<V,E> graph) {
+	public CutFinderIMSequenceReachability(DirectedGraph<V,E> graph) {
 		reachableTo = new HashMap<V, Set<V>>();
 		reachableFrom = new HashMap<V, Set<V>>();
 		this.condensedGraph = graph;
