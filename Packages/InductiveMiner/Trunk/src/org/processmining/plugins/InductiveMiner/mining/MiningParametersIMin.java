@@ -8,6 +8,7 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderI
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMin;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
@@ -37,5 +38,6 @@ public class MiningParametersIMin extends MiningParameters {
 				)));
 		
 		setIncompleteThreshold(0);
+		setSatProbabilities(new ProbabilitiesEstimatedZ());
 	}
 }
