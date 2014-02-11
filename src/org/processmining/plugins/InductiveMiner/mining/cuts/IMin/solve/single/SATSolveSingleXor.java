@@ -106,7 +106,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 			if (result != null) {
 
 				//compute cost of cut
-				String x = "";
+				//String x = "";
 				double sumProbability = 0;
 				for (int i = 0; i < countNodes; i++) {
 					for (int j = i + 1; j < countNodes; j++) {
@@ -115,7 +115,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
 							double p = probabilities.getProbabilityXor(logInfo, aI, aJ);
-							x += e.toString() + " (" + p + "), ";
+							//x += e.toString() + " (" + p + "), ";
 							sumProbability += p;
 						}
 					}

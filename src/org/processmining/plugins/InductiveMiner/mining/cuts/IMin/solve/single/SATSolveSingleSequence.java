@@ -109,7 +109,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 			if (result != null) {
 
 				//compute cost of cut
-				String x = "";
+				//String x = "";
 				double sumProbability = 0;
 				for (int i = 0; i < countNodes; i++) {
 					for (int j = 0; j < countNodes; j++) {
@@ -118,7 +118,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 							XEventClass aJ = nodes[j];
 							Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
-								x += e.toString() + " (" + probabilities.getProbabilitySequence(logInfo, aI, aJ) + "), ";
+								//x += e.toString() + " (" + probabilities.getProbabilitySequence(logInfo, aI, aJ) + "), ";
 								sumProbability += probabilities.getProbabilitySequence(logInfo, aI, aJ);
 							}
 						}
