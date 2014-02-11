@@ -13,6 +13,8 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
+import org.processmining.plugins.InductiveMiner.mining.metrics.PropertyNumberOfTracesRepresented;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Edge;
 import org.processmining.processtree.Node;
@@ -122,6 +124,11 @@ public class ReduceTree {
 		
 		newNode.setProcessTree(newTree);
 		newTree.addNode(newNode);
+		
+		//copy statistics
+		if (getStatistics(node) != null) {
+			MinerMetrics.attachStatistics(newNode, getStatistics(node));	
+		}
 
 		if (newNode instanceof Block) {
 			if (children.size() >= 2) {
@@ -287,5 +294,17 @@ public class ReduceTree {
 			return canProduceTau(((XorLoop) node).getChildren().get(0));
 		}
 		return false;
+	}
+	
+	public static Integer getStatistics(Node node) {
+		PropertyNumberOfTracesRepresented property1 = new PropertyNumberOfTracesRepresented();
+		try {
+			return (Integer) node.getIndependentProperty(property1);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

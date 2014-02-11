@@ -5,6 +5,7 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
@@ -32,7 +33,7 @@ public class IMProcessTree {
 	}
 	
 	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
-		return Miner.mine(log, parameters);
-		//return ReduceTree.reduceTree(Miner2.mine(log, parameters));
+		//return Miner.mine(log, parameters);
+		return ReduceTree.reduceTree(Miner.mine(log, parameters));
 	}
 }
