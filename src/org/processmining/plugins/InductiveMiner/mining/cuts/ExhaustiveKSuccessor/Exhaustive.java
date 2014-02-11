@@ -13,6 +13,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
@@ -108,7 +109,7 @@ public class Exhaustive {
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
+					Miner.debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
 				}
 			}
 
@@ -117,7 +118,7 @@ public class Exhaustive {
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
+					Miner.debug(result2.distance + " " + result2.cutType + " " + cut.toString(), parameters);
 				}
 			}
 		}
@@ -135,8 +136,8 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
-		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
-		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next());
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next());
 
 		//combine the logs
 		UpToKSuccessorMatrix combined = CombineParallel.combine(successor0, successor1);
@@ -159,8 +160,8 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
-		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next(), parameters);
-		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next(), parameters);
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next());
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next());
 
 		//combine the logs
 		UpToKSuccessorMatrix combined = CombineLoop.combine(successor0, successor1);
@@ -205,11 +206,5 @@ public class Exhaustive {
 			return true;
 		}
 		return false;
-	}
-
-	private void debug(String x, MiningParameters parameters) {
-		if (parameters.isDebug()) {
-			System.out.println(x);
-		}
 	}
 }

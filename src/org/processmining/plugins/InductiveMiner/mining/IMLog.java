@@ -52,10 +52,10 @@ public class IMLog extends MultiSet<IMTrace> {
 	public XLog toXLog() {
 		XAttributeMap map = new XAttributeMapImpl();
 		XLog result = new XLogImpl(map);
-		int emptytraces = 0;
+		//int emptytraces = 0;
 		for (IMTrace trace : cardinalities.keySet()) {
 			if (trace.size() == 0) {
-				emptytraces += getCardinalityOf(trace);
+				//emptytraces += getCardinalityOf(trace);
 			} else {
 				for (int i = 0; i < getCardinalityOf(trace); i++) {
 					XTrace xTrace = new XTraceImpl(map);

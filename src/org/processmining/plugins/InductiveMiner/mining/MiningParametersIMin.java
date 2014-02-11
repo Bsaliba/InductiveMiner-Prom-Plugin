@@ -14,6 +14,10 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIM
 
 public class MiningParametersIMin extends MiningParameters {
 	
+	/*
+	 * No other parameter, except mentioned in this file, has influence on mined model
+	 */
+	
 	public MiningParametersIMin() {
 		//determine algorithm
 		
@@ -31,5 +35,7 @@ public class MiningParametersIMin extends MiningParameters {
 		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
 				new FallThroughFlower()
 				)));
+		
+		setIncompleteThreshold(0);
 	}
 }

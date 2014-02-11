@@ -40,12 +40,22 @@ public class ColourMaps {
 		String hexColour = Integer.toHexString(colour.getRGB());
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
-	
+
 	public static String colourMapBlue(int weight, int maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * (float) 0.75) + (float) 0.25;
 		Color colour = new Color(1 - x, 1 - x, 1);
+
+		String hexColour = Integer.toHexString(colour.getRGB());
+		return "#" + hexColour.substring(2, hexColour.length());
+	}
+
+	public static String colourMapGreyBlack(int weight, int maxWeight) {
+		float x = weight / (float) maxWeight;
+
+		x = (x * (float) 0.6) + (float) 0.4;
+		Color colour = new Color(1 - x, 1 - x, 1 - x);
 
 		String hexColour = Integer.toHexString(colour.getRGB());
 		return "#" + hexColour.substring(2, hexColour.length());

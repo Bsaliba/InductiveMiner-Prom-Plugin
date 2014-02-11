@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.baseCases;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractTask;
@@ -15,6 +16,7 @@ public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 
 			Node node = new AbstractTask.Automatic("");
 			node.setProcessTree(tree);
+			MinerMetrics.attachStatistics(node, 0);
 
 			return node;
 		}

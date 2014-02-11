@@ -97,6 +97,11 @@ public class CutFinderIMParallel implements CutFinder {
 				}
 			}
 		}
+		
+		//if there is no set with both start and end activities, there is no parallel cut
+		if (ccsWithStartEnd.size() == 0) {
+			return null;
+		}
 
 		//add full sets
 		List<Set<XEventClass>> connectedComponents2 = new LinkedList<Set<XEventClass>>(ccsWithStartEnd);
