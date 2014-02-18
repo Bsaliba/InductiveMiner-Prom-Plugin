@@ -21,8 +21,7 @@ public abstract class MiningParameters {
 	private XEventClassifier classifier;
 	private float noiseThreshold;
 	private float incompleteThreshold;
-	private String outputDFGfileName;
-	private File outputFlowerLogFileName;
+	private File fallThroughSaveLogFolderName;
 	
 	private boolean debug;
 	private Probabilities satProbabilities;
@@ -39,8 +38,7 @@ public abstract class MiningParameters {
 		classifier = getDefaultClassifier();
 		debug = true;
 		
-		outputDFGfileName = "D:\\output";
-		outputFlowerLogFileName = null;
+		fallThroughSaveLogFolderName = new File("D:\\output");
 		
 		setUseMultithreading(true);
 	}
@@ -67,14 +65,6 @@ public abstract class MiningParameters {
 		this.noiseThreshold = noiseThreshold;
 	}
 
-	public String getOutputDFGfileName() {
-		return outputDFGfileName;
-	}
-
-	public void setOutputDFGfileName(String outputFileName) {
-		this.outputDFGfileName = outputFileName;
-	}
-
 	public boolean equals(Object object) {
 		if (object instanceof MiningParameters) {
 			MiningParameters parameters = (MiningParameters) object;
@@ -93,12 +83,12 @@ public abstract class MiningParameters {
 		return classifier.hashCode();
 	}
 
-	public File getOutputFlowerLogFileName() {
-		return outputFlowerLogFileName;
+	public File getFallThroughSaveLogFolderName() {
+		return fallThroughSaveLogFolderName;
 	}
 
-	public void setOutputFlowerLogFileName(File outputFlowerLogFileName) {
-		this.outputFlowerLogFileName = outputFlowerLogFileName;
+	public void setFallThroughSaveLogFolderName(File outputFlowerLogFileName) {
+		this.fallThroughSaveLogFolderName = outputFlowerLogFileName;
 	}
 
 	public float getIncompleteThreshold() {

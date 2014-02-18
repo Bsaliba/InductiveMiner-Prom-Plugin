@@ -14,7 +14,6 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.Pair;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
-import org.processmining.plugins.InductiveMiner.mining.metrics.PropertyNumberOfTracesRepresented;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Edge;
 import org.processmining.processtree.Node;
@@ -29,8 +28,6 @@ import org.processmining.processtree.impl.AbstractBlock.XorLoop;
 import org.processmining.processtree.impl.AbstractTask.Automatic;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
-
-
 @Plugin(name = "Reduce process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
 public class ReduceTree {
 
@@ -39,17 +36,17 @@ public class ReduceTree {
 	public ProcessTree reduceTree(PluginContext context, ProcessTree tree) {
 		return reduceTree(tree);
 	}
-	
+
 	public static ProcessTree reduceTree(ProcessTree tree) {
 		ProcessTree newTree = new ProcessTreeImpl();
 		Node root = tree.getRoot();
 		newTree.setRoot(reduceNode(root, newTree));
-
+		System.out.println("after reduction " + tree.getRoot());
 		return newTree;
 	}
 
 	private static Node reduceNode(Node node, ProcessTree newTree) {
-		
+
 		Node newNode = null;
 		List<Node> children = null;
 		if (node instanceof Seq) {
@@ -61,7 +58,7 @@ public class ReduceTree {
 		} else if (node instanceof XorLoop) {
 			newNode = new XorLoop("");
 			Pair<Node, Set<Node>> p = flattenLoop((XorLoop) node);
-			
+
 			//construct a children array
 			children = new LinkedList<Node>();
 			children.add(p.getLeft());
@@ -74,7 +71,9 @@ public class ReduceTree {
 				for (Node grandChild : p.getRight()) {
 					middleChild.addChild(grandChild);
 				}
+
 				children.add(middleChild);
+				MinerMetrics.attachStatistics(middleChild, getNumberOfTracesRepresentedChildrenXor(middleChild));
 			}
 			children.add(((XorLoop) node).getChildren().get(2));
 		} else if (node instanceof And) {
@@ -121,14 +120,12 @@ public class ReduceTree {
 				children = ((Block) node).getChildren();
 			}
 		}
-		
+
 		newNode.setProcessTree(newTree);
 		newTree.addNode(newNode);
-		
+
 		//copy statistics
-		if (getStatistics(node) != null) {
-			MinerMetrics.attachStatistics(newNode, getStatistics(node));	
-		}
+		MinerMetrics.copyStatistics(node, newNode);
 
 		if (newNode instanceof Block) {
 			if (children.size() >= 2) {
@@ -167,43 +164,59 @@ public class ReduceTree {
 				result.add(child);
 			}
 		}
-		
+
 		//remove superfluous taus
 		//if one of the children can produce tau, then no explicit tau is necessary
 		boolean oneOfChildrenCanProduceTau = false;
-		Node tauRemoved = null;
+		int numberOfEmptyTracesProduced = 0;
+		Node childTau = null;
+		//Node childThatCanProduceTau = null;
 		Iterator<Node> it = result.iterator();
-		while(it.hasNext()) {
+		while (it.hasNext()) {
 			Node child = it.next();
 			if (child instanceof Task.Automatic) {
-				tauRemoved = child;
+				if (MinerMetrics.getNumberOfTracesRepresented(child) != null) {
+					numberOfEmptyTracesProduced += MinerMetrics.getNumberOfTracesRepresented(child);
+				}
+				childTau = child;
 				it.remove();
 			} else {
-				oneOfChildrenCanProduceTau = oneOfChildrenCanProduceTau || canProduceTau(child);
+				if (canProduceTau(child)) {
+					oneOfChildrenCanProduceTau = true;
+					//childThatCanProduceTau = child;
+				}
 			}
 		}
-		if (tauRemoved != null && !oneOfChildrenCanProduceTau) {
-			result.add(tauRemoved);
+		if (childTau != null) {
+			//there is at least one tau child
+			if (!oneOfChildrenCanProduceTau) {
+				//no non-tau child can produce the empty trace, so we must add the tau
+				MinerMetrics.attachStatistics(childTau, numberOfEmptyTracesProduced);
+				result.add(childTau);
+			} else {
+				//another non-tau child can produce the empty trace
+				//one of such children should represent the empty traces produced by the tau-children,
+				//but in order to know which tau was executed, we need an alignment
+			}
 		}
-		
 		return result;
 	}
-	
+
 	private static Pair<Node, Set<Node>> flattenLoop(XorLoop node) {
 		Node leftChild = node.getChildren().get(0);
 		Node middleChild = node.getChildren().get(1);
 		Set<Node> result = new HashSet<Node>();
-		
+
 		//this reduction only works on loops with an empty third branch
 		if (!(node.getChildren().get(2) instanceof Automatic)) {
 			result.add(middleChild);
 			return new Pair<Node, Set<Node>>(leftChild, result);
 		}
-		
+
 		if (leftChild instanceof XorLoop) {
-			
+
 			Pair<Node, Set<Node>> p = flattenLoop((XorLoop) leftChild);
-			
+
 			result.addAll(p.getRight());
 			if (middleChild instanceof Xor) {
 				result.addAll(flattenXor((Xor) middleChild));
@@ -238,21 +251,21 @@ public class ReduceTree {
 		Edge edge = ((Block) parent).addChild(child);
 		child.addIncomingEdge(edge);
 		newTree.addEdge(edge);
-	}	
-	
+	}
+
 	private static class DummyXor extends AbstractBlock {
-		
+
 		private List<Node> children2;
 
 		public DummyXor(String name) {
 			super(name);
 			children2 = new LinkedList<Node>();
 		}
-		
+
 		public List<Node> getChildren() {
 			return children2;
 		}
-		
+
 		public Edge addChild(Node child) {
 			children2.add(child);
 			return null;
@@ -270,7 +283,7 @@ public class ReduceTree {
 			return null;
 		}
 	}
-	
+
 	public static boolean canProduceTau(Node node) {
 		if (node instanceof Task.Automatic) {
 			return true;
@@ -295,16 +308,21 @@ public class ReduceTree {
 		}
 		return false;
 	}
-	
-	public static Integer getStatistics(Node node) {
-		PropertyNumberOfTracesRepresented property1 = new PropertyNumberOfTracesRepresented();
-		try {
-			return (Integer) node.getIndependentProperty(property1);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+
+	public static Integer getNumberOfTracesRepresentedChildrenXor(Node node) {
+		int sum = 0;
+		if (MinerMetrics.getNumberOfTracesRepresented(node) != null) {
+			return MinerMetrics.getNumberOfTracesRepresented(node);
+		} else if (node instanceof Block) {
+			for (Node child : ((Block) node).getChildren()) {
+				if (getNumberOfTracesRepresentedChildrenXor(child) == null) {
+					return null;
+				}
+				sum += getNumberOfTracesRepresentedChildrenXor(child);
+			}
+			return sum;
+		} else {
+			return null;
 		}
-		return null;
 	}
 }

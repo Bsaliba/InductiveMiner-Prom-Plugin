@@ -30,6 +30,8 @@ public class Miner {
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
+		
+		debug(tree.getRoot(), parameters);
 
 		return tree;
 	}
@@ -102,7 +104,7 @@ public class Miner {
 
 				//add tau as third child
 				{
-					Node tau = new AbstractTask.Automatic("");
+					Node tau = new AbstractTask.Automatic("tau");
 					tau.setProcessTree(tree);
 					newNode.addChild(tau);
 				}

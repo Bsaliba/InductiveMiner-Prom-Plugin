@@ -22,11 +22,11 @@ public class FallThroughFlower implements FallThrough {
 		loopNode.setProcessTree(tree);
 		
 		//body: tau
-		Node body = new AbstractTask.Automatic("");
+		Node body = new AbstractTask.Automatic("tau");
 		body.setProcessTree(tree);
 		loopNode.addChild(body);
 		//count the number of times this tau was used
-		MinerMetrics.attachStatistics(body, logInfo.getNumberOfTraces() + logInfo.getNumberOfEvents());
+		MinerMetrics.attachStatistics(body, (int) (logInfo.getNumberOfTraces() + logInfo.getNumberOfEvents()));
 		
 		//redo: xor/activity
 		Block xorNode;
@@ -36,7 +36,7 @@ public class FallThroughFlower implements FallThrough {
 			xorNode = new AbstractBlock.Xor("");
 			xorNode.setProcessTree(tree);
 			loopNode.addChild(xorNode);
-			MinerMetrics.attachStatistics(xorNode, logInfo.getNumberOfEvents());
+			MinerMetrics.attachStatistics(xorNode, (int) logInfo.getNumberOfEvents());
 		}
 		
 		for (XEventClass activity: logInfo.getActivities()) {
@@ -47,7 +47,7 @@ public class FallThroughFlower implements FallThrough {
 			MinerMetrics.attachStatistics(child, logInfo.getActivities().getCardinalityOf(activity));
 		}
 		
-		Node tau2 = new AbstractTask.Automatic("");
+		Node tau2 = new AbstractTask.Automatic("tau");
 		tau2.setProcessTree(tree);
 		loopNode.addChild(tau2);
 		

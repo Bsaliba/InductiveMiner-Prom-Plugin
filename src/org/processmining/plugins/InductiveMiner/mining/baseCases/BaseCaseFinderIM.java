@@ -18,7 +18,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			node.setProcessTree(tree);
 			return MinerMetrics.attachStatistics(node, logInfo);
 		} else if (logInfo.getActivities().setSize() == 0) {
-			Node node = new AbstractTask.Automatic("");
+			Node node = new AbstractTask.Automatic("tau");
 			node.setProcessTree(tree);
 			return MinerMetrics.attachStatistics(node, logInfo);
 		}
