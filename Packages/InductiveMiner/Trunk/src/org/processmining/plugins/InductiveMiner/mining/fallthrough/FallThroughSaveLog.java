@@ -9,25 +9,32 @@ import org.deckfour.xes.out.XSerializer;
 import org.deckfour.xes.out.XesXmlSerializer;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
 public class FallThroughSaveLog implements FallThrough {
 	
+	int number = 0;
+	
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
-		if (parameters.getOutputFlowerLogFileName() != null) {
-			XLog xLog = log.toXLog();
-			XSerializer logSerializer = new XesXmlSerializer();
-			try {
-				File file = new File(parameters.getOutputFlowerLogFileName() + "" + logInfo.getActivities());
-				FileOutputStream out = new FileOutputStream(file);
-				logSerializer.serialize(xLog, out);
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	
+		XLog xLog = log.toXLog();
+		XSerializer logSerializer = new XesXmlSerializer();
+		try {
+			File file = new File(parameters.getFallThroughSaveLogFolderName() + "\\fall through log " + number + ".xes");
+			
+			Miner.debug(" fall through: save log to " + file, parameters);
+			
+			number++;
+			FileOutputStream out = new FileOutputStream(file);
+			logSerializer.serialize(xLog, out);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	
 		return null;
 	}
 }

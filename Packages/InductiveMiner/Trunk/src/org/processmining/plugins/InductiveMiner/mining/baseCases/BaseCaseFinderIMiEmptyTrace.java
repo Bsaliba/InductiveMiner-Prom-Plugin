@@ -35,10 +35,10 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				MinerMetrics.attachStatistics(newNode, logInfo);
 
 				//add tau
-				Node tau = new AbstractTask.Automatic("");
+				Node tau = new AbstractTask.Automatic("tau");
 				tau.setProcessTree(tree);
 				newNode.addChild(tau);
-				MinerMetrics.attachStatistics(tau, logInfo.getNumberOfEpsilonTraces());
+				MinerMetrics.attachStatistics(tau, (int) logInfo.getNumberOfEpsilonTraces());
 
 				//filter empty traces
 				log.remove(new IMTrace());

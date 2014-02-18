@@ -35,12 +35,12 @@ public class FallThroughTauLoop implements FallThrough {
 			Node body = Miner.mineNode(sublog, tree, parameters);
 			loop.addChild(body);
 			
-			Node redo = new Automatic("");
+			Node redo = new Automatic("tau");
 			redo.setProcessTree(tree);
 			loop.addChild(redo);
-			MinerMetrics.attachStatistics(redo, numberOfTimesTauTaken);
+			MinerMetrics.attachStatistics(redo, (int) numberOfTimesTauTaken);
 			
-			Node exit = new Automatic("");
+			Node exit = new Automatic("tau");
 			exit.setProcessTree(tree);
 			loop.addChild(exit);
 			
