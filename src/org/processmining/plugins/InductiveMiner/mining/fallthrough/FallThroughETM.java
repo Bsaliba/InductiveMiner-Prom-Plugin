@@ -1,8 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
-import org.processmining.contexts.cli.CLIContext;
-import org.processmining.contexts.cli.CLIPluginContext;
-import org.processmining.framework.plugin.PluginContext;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
@@ -10,11 +7,10 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
 public class FallThroughETM implements FallThrough {
-
-	private static PluginContext context = new CLIPluginContext(new CLIContext(), "");
 	
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
 		/*
+		private static PluginContext context = new CLIPluginContext(new CLIContext(), "");
 		ETMParam etmParameters = ETMParamFactory.buildStandardParam(log.toXLog(), context);
 		
 		//set maximum duration
