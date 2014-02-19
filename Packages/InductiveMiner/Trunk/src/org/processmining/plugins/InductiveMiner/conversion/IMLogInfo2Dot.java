@@ -67,8 +67,7 @@ public class IMLogInfo2Dot {
 		}
 
 		dot += "}\n";
-		Dot dot2 = new Dot();
-		dot2.append(dot);
+		Dot dot2 = new Dot(dot);
 		return dot2;
 	}
 
