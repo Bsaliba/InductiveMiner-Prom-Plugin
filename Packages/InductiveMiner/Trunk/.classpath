@@ -67,6 +67,6 @@
 	<classpathentry kind="lib" path="packagelib/ETM.jar"/>
 	<classpathentry kind="lib" path="packagelib/Properties.jar"/>
 	<classpathentry kind="lib" path="packagelib/Widgets.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/GraphViz"/>
+	<classpathentry kind="lib" path="packagelib/GraphViz.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
