@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -12,6 +11,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.graphviz.colourMaps.ColourMaps;
 import org.processmining.plugins.graphviz.dot.Dot;
+import org.processmining.plugins.graphviz.dot.DotNode;
 
 public class IMLogInfo2Dot {
 	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows, Collection<Set<XEventClass>> cut) {
@@ -22,35 +22,35 @@ public class IMLogInfo2Dot {
 		} else {
 			graph = logInfo.getEventuallyFollowsGraph();
 		}
-
-		String dot = "digraph G {\n";
-		dot += "rankdir=LR;\n";
+		
+		Dot dot = new Dot();
 
 		//prepare the nodes
-		HashMap<XEventClass, String> activityToNode = new HashMap<XEventClass, String>();
+		HashMap<XEventClass, DotNode> activityToNode = new HashMap<XEventClass, DotNode>();
 		for (Set<XEventClass> branch : cut) {
 			//dot += "subgraph \"cluster_" + UUID.randomUUID().toString() + "\" {\n";
 			for (XEventClass activity : branch) {
-				String id = UUID.randomUUID().toString();
-				activityToNode.put(activity, id);
-				dot += "\"" + id + "\" [ label=\"" + activity.toString() + "\", shape=\"box\"";
+				DotNode node = dot.addNode(activity.toString());
+				activityToNode.put(activity, node);
+				
+				String options = "shape=\"box\"";
 
 				//determine node colour using start and end activities
 				if (logInfo.getStartActivities().contains(activity) && logInfo.getEndActivities().contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\""
+					options += ", style=\"filled\"" + ", fillcolor=\""
 							+ ColourMaps.colourMapGreen(logInfo.getStartActivities().getCardinalityOf(activity), logInfo.getStrongestStartActivity())
 							+ ":" + ColourMaps.colourMapRed(logInfo.getEndActivities().getCardinalityOf(activity), logInfo.getStrongestEndActivity())
 							+ "\"";
 				} else if (logInfo.getStartActivities().contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\""
+					options += ", style=\"filled\"" + ", fillcolor=\""
 							+ ColourMaps.colourMapGreen(logInfo.getStartActivities().getCardinalityOf(activity), logInfo.getStrongestStartActivity())
 							+ ":white\"";
 				} else if (logInfo.getEndActivities().contains(activity)) {
-					dot += ", style=\"filled\"" + ", fillcolor=\"white:"
+					options += ", style=\"filled\"" + ", fillcolor=\"white:"
 							+ ColourMaps.colourMapRed(logInfo.getEndActivities().getCardinalityOf(activity), logInfo.getStrongestEndActivity()) + "\"";
 				}
-
-				dot += "];\n";
+				
+				node.setOptions(options);
 			}
 		}
 
@@ -59,16 +59,16 @@ public class IMLogInfo2Dot {
 			XEventClass from = graph.getEdgeSource(edge);
 			XEventClass to = graph.getEdgeTarget(edge);
 			int weight = (int) graph.getEdgeWeight(edge);
-			dot += "\"" + activityToNode.get(from) + "\" -> \"" + activityToNode.get(to) + "\" [";
-			dot += "label=\"" + String.valueOf(weight) + "\"";
-			dot += ", ";
-			dot += "color=\"" + ColourMaps.colourMapBlackBody(weight, logInfo.getStrongestDirectEdge()) + "\"";
-			dot += "];\n";
+			
+			DotNode source = activityToNode.get(from);
+			DotNode target = activityToNode.get(to);
+			String label = String.valueOf(weight);
+			String options = "color=\"" + ColourMaps.colourMapBlackBody(weight, logInfo.getStrongestDirectEdge()) + "\"";
+			
+			dot.addEdge(source,target,label,options);
 		}
 
-		dot += "}\n";
-		Dot dot2 = new Dot(dot);
-		return dot2;
+		return dot;
 	}
 
 	public static Dot toDot(IMLogInfo logInfo, boolean useEventuallyFollows) {
