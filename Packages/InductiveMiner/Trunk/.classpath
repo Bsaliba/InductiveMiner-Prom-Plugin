@@ -5,7 +5,6 @@
 	<classpathentry kind="src" output="tests/bin-test" path="tests/src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="stdlib/axis.jar"/>
-	<classpathentry kind="lib" path="stdlib/bsh-2.0b4.jar"/>
 	<classpathentry kind="lib" path="stdlib/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="stdlib/colt.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-compress-1.0.jar"/>
@@ -66,6 +65,7 @@
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
 	<classpathentry kind="lib" path="packagelib/Properties.jar"/>
 	<classpathentry kind="lib" path="packagelib/Widgets.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-GraphViz/svgSalamander.jar"/>
 	<classpathentry kind="lib" path="packagelib/GraphViz.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
