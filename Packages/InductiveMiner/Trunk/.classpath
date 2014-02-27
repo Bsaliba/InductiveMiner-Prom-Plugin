@@ -67,5 +67,6 @@
 	<classpathentry kind="lib" path="packagelib/lib-GraphViz/svgSalamander.jar"/>
 	<classpathentry kind="lib" path="packagelib/GraphViz.jar"/>
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
+	<classpathentry kind="lib" path="stdlib/guava-16.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
