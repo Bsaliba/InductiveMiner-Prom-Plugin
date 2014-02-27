@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
@@ -19,12 +19,12 @@ public class BaseCaseFinderIMi implements BaseCaseFinder {
 			new BaseCaseFinderIMiSingleActivity()
 			));
 	
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		Node n = null;
 		Iterator<BaseCaseFinder> it = baseCaseFinders.iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().findBaseCases(log, logInfo, tree, parameters);
+			n = it.next().findBaseCases(log, logInfo, tree, minerState);
 		}
 		return n;
 	}

@@ -11,14 +11,14 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 
 public class CutFinderIMLoop implements CutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		//initialise the start and end activities as a connected component
 		HashMap<XEventClass, Integer> connectedComponents = new HashMap<XEventClass, Integer>();
 		for (XEventClass startActivity : logInfo.getStartActivities().toSet()) {

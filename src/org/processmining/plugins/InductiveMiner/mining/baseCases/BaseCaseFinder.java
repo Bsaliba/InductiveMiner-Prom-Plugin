@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
@@ -16,5 +16,5 @@ public interface BaseCaseFinder {
 	 * Must be thread-safe and abstract, i.e, no side-effects allowed.
 	 */
 	
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters);
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState);
 }

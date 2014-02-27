@@ -73,7 +73,7 @@ public class ReduceTree {
 				}
 
 				children.add(middleChild);
-				MinerMetrics.attachStatistics(middleChild, getNumberOfTracesRepresentedChildrenXor(middleChild));
+				MinerMetrics.attachNumberOfTracesRepresented(middleChild, getNumberOfTracesRepresentedChildrenXor(middleChild));
 			}
 			children.add(((XorLoop) node).getChildren().get(2));
 		} else if (node instanceof And) {
@@ -191,7 +191,7 @@ public class ReduceTree {
 			//there is at least one tau child
 			if (!oneOfChildrenCanProduceTau) {
 				//no non-tau child can produce the empty trace, so we must add the tau
-				MinerMetrics.attachStatistics(childTau, numberOfEmptyTracesProduced);
+				MinerMetrics.attachNumberOfTracesRepresented(childTau, numberOfEmptyTracesProduced);
 				result.add(childTau);
 			} else {
 				//another non-tau child can produce the empty trace

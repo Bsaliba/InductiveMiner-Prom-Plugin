@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutionException;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveLoop;
@@ -15,14 +15,14 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveX
 
 public class CutFinderIMin implements CutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
-		JobList SATPool = parameters.getSatPool();
-		AtomicResult bestSATResult = new AtomicResult(parameters.getIncompleteThreshold());
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+		JobList SATPool = minerState.parameters.getSatPool();
+		AtomicResult bestSATResult = new AtomicResult(minerState.parameters.getIncompleteThreshold());
 		
-		(new SATSolveXor(logInfo, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveSequence(logInfo, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveParallel(logInfo, parameters, SATPool, bestSATResult)).solve();
-		(new SATSolveLoop(logInfo, parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveXor(logInfo, minerState.parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveSequence(logInfo, minerState.parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveParallel(logInfo, minerState.parameters, SATPool, bestSATResult)).solve();
+		(new SATSolveLoop(logInfo, minerState.parameters, SATPool, bestSATResult)).solve();
 		
 		try {
 			SATPool.join();

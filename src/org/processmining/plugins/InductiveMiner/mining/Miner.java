@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
@@ -8,6 +7,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
@@ -26,70 +26,72 @@ public class Miner {
 	public static ProcessTree mine(IMLog log, MiningParameters parameters) {
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
-		Node root = mineNode(log, tree, parameters);
+		MinerState minerState = new MinerState(parameters);
+		Node root = mineNode(log, tree, minerState);
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
-		
-		debug(tree.getRoot(), parameters);
+
+		debug(tree.getRoot(), minerState);
 
 		return tree;
 	}
 
-	public static Node mineNode(IMLog log, ProcessTree tree, MiningParameters parameters) {
+	public static Node mineNode(IMLog log, ProcessTree tree, MinerState minerState) {
 
 		//construct basic information about log
 		IMLogInfo logInfo = new IMLogInfo(log);
 
 		//output information about the log
-		debug("\nMine " + logInfo.getActivities(), parameters);
+		debug("\nMine " + logInfo.getActivities(), minerState);
 		//debug(log, parameters);
 		//debug(logInfo, parameters);
 
 		//find base cases
-		Node baseCase = findBaseCases(log, logInfo, tree, parameters);
+		Node baseCase = findBaseCases(log, logInfo, tree, minerState);
 		if (baseCase != null) {
 
-			debug(" base case: " + baseCase.getName(), parameters);
+			debug(" base case: " + baseCase.getName(), minerState);
 
 			return baseCase;
 		}
 
 		//find cut
-		Cut cut = findCut(log, logInfo, tree, parameters);
+		Cut cut = findCut(log, logInfo, minerState);
 		if (cut != null && cut.isValid()) {
 			//cut is valid
 
-			debug(" chosen cut: " + cut, parameters);
+			debug(" chosen cut: " + cut, minerState);
 
 			//split logs
-			Collection<IMLog> sublogs = splitLog(log, logInfo, cut, parameters);
+			LogSplitResult splitResult = splitLog(log, logInfo, cut, minerState);
 
 			//make node
-			Block newNode = (Block) MinerMetrics.attachStatistics(newNode(cut.getOperator()), logInfo);
+			Block newNode = newNode(cut.getOperator());
+			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
 			newNode.setProcessTree(tree);
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
-				for (IMLog sublog : sublogs) {
-					Node child = mineNode(sublog, tree, parameters);
+				for (IMLog sublog : splitResult.sublogs) {
+					Node child = mineNode(sublog, tree, minerState);
 					newNode.addChild(child);
 				}
 			} else {
 				//loop needs special treatment:
 				//ProcessTree requires a ternary loop
-				Iterator<IMLog> it = sublogs.iterator();
+				Iterator<IMLog> it = splitResult.sublogs.iterator();
 
 				//mine body
 				{
 					IMLog sublog = it.next();
-					Node child = mineNode(sublog, tree, parameters);
+					Node child = mineNode(sublog, tree, minerState);
 					newNode.addChild(child);
 				}
 
 				//mine redo parts by, if necessary, putting them under an xor
 				Block redoXor;
-				if (sublogs.size() > 2) {
+				if (splitResult.sublogs.size() > 2) {
 					redoXor = new Xor("");
 					redoXor.setProcessTree(tree);
 					newNode.addChild(redoXor);
@@ -98,7 +100,7 @@ public class Miner {
 				}
 				while (it.hasNext()) {
 					IMLog sublog = it.next();
-					Node child = mineNode(sublog, tree, parameters);
+					Node child = mineNode(sublog, tree, minerState);
 					redoXor.addChild(child);
 				}
 
@@ -114,7 +116,7 @@ public class Miner {
 
 		} else {
 			//cut is not valid; fall through
-			return findFallThrough(log, logInfo, tree, parameters);
+			return findFallThrough(log, logInfo, tree, minerState);
 		}
 	}
 
@@ -131,39 +133,44 @@ public class Miner {
 		return null;
 	}
 
-	private static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		Node n = null;
-		Iterator<BaseCaseFinder> it = parameters.getBaseCaseFinders().iterator();
+		Iterator<BaseCaseFinder> it = minerState.parameters.getBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().findBaseCases(log, logInfo, tree, parameters);
+			n = it.next().findBaseCases(log, logInfo, tree, minerState);
 		}
 		return n;
 	}
 
-	private static Cut findCut(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public static Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		Cut c = null;
-		Iterator<CutFinder> it = parameters.getCutFinders().iterator();
+		Iterator<CutFinder> it = minerState.parameters.getCutFinders().iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
-			c = it.next().findCut(log, logInfo, parameters);
+			c = it.next().findCut(log, logInfo, minerState);
 		}
 		return c;
 	}
 
-	private static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		Node n = null;
-		Iterator<FallThrough> it = parameters.getFallThroughs().iterator();
+		Iterator<FallThrough> it = minerState.parameters.getFallThroughs().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().fallThrough(log, logInfo, tree, parameters);
+			n = it.next().fallThrough(log, logInfo, tree, minerState);
 		}
 		return n;
 	}
 
-	private static Collection<IMLog> splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MiningParameters parameters) {
-		return parameters.getLogSplitter().split(log, logInfo, cut);
+	public static LogSplitResult splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+		LogSplitResult result = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
+		
+		//merge the discarded events of this log splitting into the global discarded events list
+		minerState.discardedEvents.addAll(result.discardedEvents);
+		
+		return result;
 	}
 
-	public static void debug(Object x, MiningParameters parameters) {
-		if (parameters.isDebug()) {
+	public static void debug(Object x, MinerState minerState) {
+		if (minerState.parameters.isDebug()) {
 			System.out.println(x.toString());
 		}
 	}

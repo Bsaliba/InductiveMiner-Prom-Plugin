@@ -8,14 +8,14 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 
 public class CutFinderIMExclusiveChoice implements CutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		//compute the connected components of the directly-follows graph
 		ConnectivityInspector<XEventClass, DefaultWeightedEdge> connectedComponentsGraph = 
 				new ConnectivityInspector<XEventClass, DefaultWeightedEdge>(

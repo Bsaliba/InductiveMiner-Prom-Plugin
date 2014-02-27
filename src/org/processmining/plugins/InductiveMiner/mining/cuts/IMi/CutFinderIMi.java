@@ -7,7 +7,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
@@ -18,24 +18,23 @@ public class CutFinderIMi implements CutFinder {
 	private static CutFinder cutFinderIM = new CutFinderIM();
 	private static CutFinder cutFinderIMParallel = new CutFinderIMParallel();
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MiningParameters parameters) {
-
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		//filter logInfo
-		IMLogInfo logInfoFiltered = filterNoise(logInfo, parameters.getNoiseThreshold());
+		IMLogInfo logInfoFiltered = filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 
 		//call IM cut detection
-		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, parameters);
-		
-		if (cut != null && cut.isValid()) {
-			return cut;
-		}
-		
+		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, minerState);
+
+		//if (cut != null && cut.isValid()) {
+		return cut;
+		//}
+
 		//try to add incomplete edges
-		IMLogInfo logInfoAddedEdges = addIncompleteEdges(logInfo, parameters.getNoiseThreshold());
-		
-		return cutFinderIMParallel.findCut(log, logInfoAddedEdges, parameters);
+		//disabled as it does not keep logInfo in good shape
+		//IMLogInfo logInfoAddedEdges = addIncompleteEdges(logInfo, parameters.getNoiseThreshold());
+		//return cutFinderIMParallel.findCut(log, logInfoAddedEdges, parameters);
 	}
-	
+
 	/*
 	 * filter noise
 	 */
@@ -140,12 +139,12 @@ public class CutFinderIMi implements CutFinder {
 		}
 
 		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
-				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), filteredStartActivities,
-				filteredEndActivities, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-				logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(), logInfo.getStrongestDirectEdge(),
-				logInfo.getStrongestEventualEdge(), logInfo.getStrongestStartActivity(),
-				logInfo.getStrongestEndActivity());
+				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
+				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
+				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(),
+				logInfo.getNumberOfEpsilonTraces(), logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(),
+				logInfo.getStrongestDirectEdge(), logInfo.getStrongestEventualEdge(),
+				logInfo.getStrongestStartActivity(), logInfo.getStrongestEndActivity());
 	}
 
 	/*
@@ -160,7 +159,7 @@ public class CutFinderIMi implements CutFinder {
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
 				DefaultWeightedEdge.class);
 		//add nodes
-		for (XEventClass activity : logInfo.getDirectlyFollowsGraph().vertexSet()) {
+		for (XEventClass activity : logInfo.getActivities()) {
 			filteredDirectlyFollowsGraph.addVertex(activity);
 		}
 		//add edges
@@ -191,11 +190,12 @@ public class CutFinderIMi implements CutFinder {
 		}
 
 		return new IMLogInfo(filteredDirectlyFollowsGraph, null,
-				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getStartActivities().copy(),
-				logInfo.getEndActivities().copy(), logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
-				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(),
-				logInfo.getNumberOfEpsilonTraces(), logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(),
-				logInfo.getStrongestDirectEdge(), logInfo.getStrongestEventualEdge(),
-				logInfo.getStrongestStartActivity(), logInfo.getStrongestEndActivity());
+				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
+				logInfo.getStartActivities().copy(), logInfo.getEndActivities().copy(),
+				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
+				logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
+				logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(), logInfo.getStrongestDirectEdge(),
+				logInfo.getStrongestEventualEdge(), logInfo.getStrongestStartActivity(),
+				logInfo.getStrongestEndActivity());
 	}
 }

@@ -9,16 +9,19 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 
 public class LogSplitterIMi implements LogSplitter {
 
-	public List<IMLog> split(IMLog log, IMLogInfo logInfo, Cut cut) {
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		List<IMLog> result = new LinkedList<IMLog>();
+		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
 
 		//map activities to sigmas
 		HashMap<Set<XEventClass>, IMLog> mapSigma2sublog = new HashMap<Set<XEventClass>, IMLog>();
@@ -35,26 +38,26 @@ public class LogSplitterIMi implements LogSplitter {
 		for (IMTrace trace : log) {
 			if (cut.getOperator() == Operator.xor) {
 				splitXor(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
-						mapActivity2sigma);
+						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.sequence) {
 				splitSequence(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
-						mapActivity2sigma);
+						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.parallel) {
 				splitParallel(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
-						mapActivity2sigma);
+						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.loop) {
 				splitLoop(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
-						mapActivity2sigma);
+						mapActivity2sigma, noise);
 			}
 		}
 
-		return result;
+		return new LogSplitResult(result, noise);
 	}
 
 	public static void splitXor(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
 			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma) {
-	
+			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+
 		if (trace.size() == 0) {
 			//an empty trace should have been filtered as a base case, but now we have to handle it
 			//we cannot know in which branch the empty trace should go, so add it to all
@@ -63,7 +66,7 @@ public class LogSplitterIMi implements LogSplitter {
 			}
 			return;
 		}
-		
+
 		//walk through the events and count how many go in each sigma
 		HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
 		for (Set<XEventClass> sigma : partition) {
@@ -85,9 +88,11 @@ public class LogSplitterIMi implements LogSplitter {
 		IMTrace newTrace = new IMTrace();
 		for (XEventClass event : trace) {
 			if (maxSigma.contains(event)) {
+				//non-noise event
 				newTrace.add(event);
 			} else {
 				//noise event
+				noise.add(event, cardinality);
 			}
 		}
 
@@ -98,7 +103,7 @@ public class LogSplitterIMi implements LogSplitter {
 
 	public static void splitSequence(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
 			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma) {
+			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 		int atPosition = 0;
 		int lastPosition = 0;
 		IMTrace newTrace;
@@ -120,9 +125,11 @@ public class LogSplitterIMi implements LogSplitter {
 			newTrace = new IMTrace();
 			for (XEventClass event : trace.subList(lastPosition, atPosition)) {
 				if (sigma.contains(event)) {
+					//non-noise event
 					newTrace.add(event);
 				} else {
 					//noise
+					noise.add(event, cardinality);
 				}
 			}
 
@@ -170,36 +177,36 @@ public class LogSplitterIMi implements LogSplitter {
 				positionLeastCost = position;
 			}
 		}
-		
+
 		return positionLeastCost;
 	}
-	
+
 	public static void splitParallel(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
 			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma) {
-		
+			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+
 		//add a new trace to every sublog
 		HashMap<Set<XEventClass>, IMTrace> mapSigma2subtrace = new HashMap<Set<XEventClass>, IMTrace>();
 		for (Set<XEventClass> sigma : partition) {
 			IMTrace subtrace = new IMTrace();
 			mapSigma2subtrace.put(sigma, subtrace);
 		}
-		
+
 		for (XEventClass event : trace) {
 			Set<XEventClass> sigma = mapActivity2sigma.get(event);
-			 mapSigma2subtrace.get(sigma).add(event);
+			mapSigma2subtrace.get(sigma).add(event);
 		}
-		
+
 		for (Set<XEventClass> sigma : partition) {
 			mapSigma2sublog.get(sigma).add(mapSigma2subtrace.get(sigma), cardinality);
 		}
 	}
-	
+
 	public static void splitLoop(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
 			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma) {
+			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 		IMTrace partialTrace = new IMTrace();
-		
+
 		Set<XEventClass> lastSigma = partition.iterator().next();
 		for (XEventClass event : trace) {
 			if (!lastSigma.contains(event)) {
@@ -210,7 +217,7 @@ public class LogSplitterIMi implements LogSplitter {
 			partialTrace.add(event);
 		}
 		mapSigma2sublog.get(lastSigma).add(partialTrace, cardinality);
-		
+
 		//add an empty trace if the last event was not of sigma_1
 		if (lastSigma != partition.iterator().next()) {
 			mapSigma2sublog.get(lastSigma).add(new IMTrace(), cardinality);
