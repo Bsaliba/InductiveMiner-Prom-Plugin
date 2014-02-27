@@ -14,7 +14,7 @@ import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
@@ -31,17 +31,17 @@ public class Exhaustive {
 	private UpToKSuccessorMatrix kSuccessor;
 	private IMLog log;
 	private IMLogInfo logInfo;
-	private MiningParameters parameters;
+	private MinerState minerState;
 	private ThreadPoolMiner pool;
 	private final AtomicInteger bestTillNow;
 	
 	private final LogSplitter logSplitter;
 
-	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MiningParameters parameters) {
+	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.logInfo = logInfo;
-		this.parameters = parameters;
+		this.minerState = minerState;
 		bestTillNow = new AtomicInteger();
 		logSplitter = new LogSplitterIMi();
 	}
@@ -112,7 +112,7 @@ public class Exhaustive {
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					Miner.debug(result2.distance + " " + result2.cut, parameters);
+					Miner.debug(result2.distance + " " + result2.cut, minerState);
 				}
 			}
 
@@ -121,7 +121,7 @@ public class Exhaustive {
 			if (result.distance > result2.distance) {
 				result = result2;
 				if (updateBestTillNow(result2.distance)) {
-					Miner.debug(result2.distance + " " + result2.cut, parameters);
+					Miner.debug(result2.distance + " " + result2.cut, minerState);
 				}
 			}
 		}
@@ -136,7 +136,7 @@ public class Exhaustive {
 		//split log
 		LogSplitter logSplitter = new LogSplitterIMi();
 		Cut cut = new Cut(Operator.parallel, partition);
-		result.sublogs = logSplitter.split(log, logInfo, cut);
+		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
@@ -159,7 +159,7 @@ public class Exhaustive {
 
 		//split log
 		Cut cut = new Cut(Operator.loop, partition);
-		result.sublogs = logSplitter.split(log, logInfo, cut);
+		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();

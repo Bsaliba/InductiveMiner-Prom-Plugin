@@ -6,7 +6,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
@@ -16,7 +16,7 @@ import org.processmining.processtree.impl.AbstractTask.Automatic;
 
 public class FallThroughTauLoop implements FallThrough {
 
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		//try to find a tau loop
 		IMLog sublog = new IMLog();
@@ -27,24 +27,24 @@ public class FallThroughTauLoop implements FallThrough {
 		}
 
 		if (sublog.size() > log.size()) {
-			Miner.debug(" fall through: tau loop", parameters);
+			Miner.debug(" fall through: tau loop", minerState);
 			//making a tau loop split makes sense
 			Block loop = new XorLoop("");
 			loop.setProcessTree(tree);
 			
-			Node body = Miner.mineNode(sublog, tree, parameters);
+			Node body = Miner.mineNode(sublog, tree, minerState);
 			loop.addChild(body);
 			
 			Node redo = new Automatic("tau");
 			redo.setProcessTree(tree);
 			loop.addChild(redo);
-			MinerMetrics.attachStatistics(redo, (int) numberOfTimesTauTaken);
+			MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
 			
 			Node exit = new Automatic("tau");
 			exit.setProcessTree(tree);
 			loop.addChild(exit);
 			
-			return MinerMetrics.attachStatistics(loop, logInfo);
+			return MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
 		}
 
 		return null;

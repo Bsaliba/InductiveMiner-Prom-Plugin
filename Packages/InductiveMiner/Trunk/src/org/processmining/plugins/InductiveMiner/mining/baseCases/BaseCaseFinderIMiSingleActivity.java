@@ -1,8 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
+import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -10,7 +11,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MiningParameters parameters) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		if (logInfo.getActivities().setSize() == 1) {
 			//the log contains just one activity
@@ -20,12 +21,17 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 			//calculate the event-per-trace size of the log
 			double p = logInfo.getNumberOfTraces() / ((logInfo.getNumberOfEvents() + logInfo.getNumberOfTraces()) * 1.0);
 
-			if (0.5 - parameters.getNoiseThreshold() <= p && p <= 0.5 + parameters.getNoiseThreshold()) {
+			if (0.5 - minerState.parameters.getNoiseThreshold() <= p && p <= 0.5 + minerState.parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
 
-				Node node = new AbstractTask.Manual(logInfo.getActivities().iterator().next().toString());
+				XEventClass activity = logInfo.getActivities().iterator().next();
+				Node node = new AbstractTask.Manual(activity.toString());
 				node.setProcessTree(tree);
-				return MinerMetrics.attachStatistics(node, logInfo);
+				
+				MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
+				MinerMetrics.attachNumberOfEventsDiscarded(node, minerState.discardedEvents.getCardinalityOf(activity));
+				
+				return node;
 			}
 			//else, the probability to stop is too low or too high, and we better output a flower model
 		}
