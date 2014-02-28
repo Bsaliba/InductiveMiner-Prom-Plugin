@@ -30,7 +30,7 @@ public class IMLogInfo2Dot {
 		for (Set<XEventClass> branch : cut) {
 			//dot += "subgraph \"cluster_" + UUID.randomUUID().toString() + "\" {\n";
 			for (XEventClass activity : branch) {
-				DotNode node = dot.addNode(activity.toString());
+				DotNode node = dot.addNode(activity.toString(), "");
 				activityToNode.put(activity, node);
 				
 				String options = "shape=\"box\"";
