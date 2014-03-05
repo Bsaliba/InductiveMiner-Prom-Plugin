@@ -17,14 +17,23 @@ import org.processmining.processtree.conversion.ProcessTree2Petrinet.InvalidProc
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.NotYetImplementedException;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWithMarkings;
 
-@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
-"Log" }, userAccessible = true)
+
 public class IMPetriNet {
-	
+
+	@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
+			"Log", "Inductive Miner parameters" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree", requiredParameterLabels = { 0 })
 	public Object[] minePetriNet(PluginContext context, XLog log) {
 		return minePetriNet(context, log, new MiningParametersIM());
+	}
+	
+	@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
+			"Log", "Inductive Miner parameters" }, userAccessible = false)
+	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@PluginVariant(variantLabel = "Mine a Process Tree, parameters", requiredParameterLabels = { 0, 1 })
+	public Object[] minePetriNetParameters(PluginContext context, XLog log, MiningParameters parameters) {
+		return minePetriNet(context, log, parameters);
 	}
 	
 	public static Object[] minePetriNet(PluginContext context, XLog log, MiningParameters parameters) {

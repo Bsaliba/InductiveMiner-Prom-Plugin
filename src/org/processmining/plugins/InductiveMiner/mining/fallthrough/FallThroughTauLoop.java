@@ -18,53 +18,57 @@ public class FallThroughTauLoop implements FallThrough {
 
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
-		//try to find a tau loop
-		IMLog sublog = new IMLog();
-		long numberOfTimesTauTaken = 0;
-		
-		for (IMTrace trace : log) {
-			numberOfTimesTauTaken += filterTrace(sublog, trace, log.getCardinalityOf(trace), logInfo.getStartActivities());
-		}
+		if (logInfo.getActivities().toSet().size() > 1) {
 
-		if (sublog.size() > log.size()) {
-			Miner.debug(" fall through: tau loop", minerState);
-			//making a tau loop split makes sense
-			Block loop = new XorLoop("");
-			loop.setProcessTree(tree);
-			
-			Node body = Miner.mineNode(sublog, tree, minerState);
-			loop.addChild(body);
-			
-			Node redo = new Automatic("tau");
-			redo.setProcessTree(tree);
-			loop.addChild(redo);
-			MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
-			
-			Node exit = new Automatic("tau");
-			exit.setProcessTree(tree);
-			loop.addChild(exit);
-			
-			return MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
+			//try to find a tau loop
+			IMLog sublog = new IMLog();
+			long numberOfTimesTauTaken = 0;
+
+			for (IMTrace trace : log) {
+				numberOfTimesTauTaken += filterTrace(sublog, trace, log.getCardinalityOf(trace),
+						logInfo.getStartActivities());
+			}
+
+			if (sublog.size() > log.size()) {
+				Miner.debug(" fall through: tau loop", minerState);
+				//making a tau loop split makes sense
+				Block loop = new XorLoop("");
+				loop.setProcessTree(tree);
+
+				Node body = Miner.mineNode(sublog, tree, minerState);
+				loop.addChild(body);
+
+				Node redo = new Automatic("tau");
+				redo.setProcessTree(tree);
+				loop.addChild(redo);
+				MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
+
+				Node exit = new Automatic("tau");
+				exit.setProcessTree(tree);
+				loop.addChild(exit);
+
+				return MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
+			}
 		}
 
 		return null;
 	}
-	
+
 	public static long filterTrace(IMLog sublog, IMTrace trace, int cardinality, MultiSet<XEventClass> startActivities) {
 		boolean first = true;
 		long numberOfTimesTauTaken = 0;
 		IMTrace partialTrace = new IMTrace();
-		for (XEventClass event: trace) {
-			
+		for (XEventClass event : trace) {
+
 			if (!first && startActivities.contains(event)) {
 				//we discovered a transition body -> body
 				sublog.add(partialTrace, cardinality);
 				partialTrace = new IMTrace();
 				first = true;
-				
+
 				numberOfTimesTauTaken += cardinality;
 			}
-			
+
 			partialTrace.add(event);
 			first = false;
 		}
