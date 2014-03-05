@@ -1,9 +1,13 @@
 package org.processmining.plugins.InductiveMiner;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -160,6 +164,19 @@ public class MultiSet<X> implements Iterable<X> {
 		for (X element : cardinalities.keySet()) {
 			result.add(element, cardinalities.get(element));
 		}
+		return result;
+	}
+	
+	private class CardinalityComparator implements Comparator<X> {
+		public int compare(X arg0, X arg1) {
+			getCardinalityOf(arg0).compareTo(getCardinalityOf(arg1));
+			return 0;
+		}
+	}
+	
+	public List<X> sortByCardinality() {
+		List<X> result = new ArrayList<X>(toSet());
+		Collections.sort(result, new CardinalityComparator());
 		return result;
 	}
 	

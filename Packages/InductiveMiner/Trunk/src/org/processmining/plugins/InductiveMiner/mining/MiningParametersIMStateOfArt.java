@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
@@ -25,7 +25,7 @@ public class MiningParametersIMStateOfArt extends MiningParameters {
 		//determine algorithm
 		
 		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIM()
+				new BaseCaseFinderIMi()
 				)));
 		
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(

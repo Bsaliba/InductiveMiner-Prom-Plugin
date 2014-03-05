@@ -46,6 +46,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Node exit = new Automatic("tau");
 				exit.setProcessTree(tree);
 				loop.addChild(exit);
+				MinerMetrics.attachNumberOfTracesRepresented(exit, logInfo);
 
 				return MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
 			}

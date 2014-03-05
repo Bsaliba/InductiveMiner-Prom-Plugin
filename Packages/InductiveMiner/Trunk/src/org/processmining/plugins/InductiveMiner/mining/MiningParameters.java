@@ -44,6 +44,7 @@ public abstract class MiningParameters {
 	}
 	
 	public static XEventClassifier getDefaultClassifier() {
+		//return new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		return new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
 	}
 
