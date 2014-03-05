@@ -50,6 +50,7 @@ public class FallThroughFlower implements FallThrough {
 		Node tau2 = new AbstractTask.Automatic("tau");
 		tau2.setProcessTree(tree);
 		loopNode.addChild(tau2);
+		MinerMetrics.attachNumberOfTracesRepresented(tau2, logInfo);
 		
 		return MinerMetrics.attachNumberOfTracesRepresented(loopNode, logInfo);
 	}

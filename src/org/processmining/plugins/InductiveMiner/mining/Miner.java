@@ -109,6 +109,7 @@ public class Miner {
 					Node tau = new AbstractTask.Automatic("tau");
 					tau.setProcessTree(tree);
 					newNode.addChild(tau);
+					MinerMetrics.attachNumberOfTracesRepresented(tau, logInfo);
 				}
 			}
 
