@@ -35,6 +35,8 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 				filtered += logInfo.getNumberOfEvents()
 						- (logInfo.getNumberOfTraces() - logInfo.getNumberOfEpsilonTraces());
 				MinerMetrics.attachNumberOfEventsDiscarded(node, filtered);
+				
+				System.out.println(activity);
 
 				return node;
 			}
