@@ -69,6 +69,7 @@ public class Miner {
 			//make node
 			Block newNode = newNode(cut.getOperator());
 			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
+			MinerMetrics.attachNumberOfEventsDiscarded(newNode, splitResult.discardedEvents.size());
 			newNode.setProcessTree(tree);
 
 			//recurse

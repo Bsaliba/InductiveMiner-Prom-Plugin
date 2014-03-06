@@ -17,6 +17,7 @@ public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 			Node node = new AbstractTask.Automatic("tau");
 			node.setProcessTree(tree);
 			MinerMetrics.attachNumberOfTracesRepresented(node, 0);
+			MinerMetrics.attachNumberOfEventsDiscarded(node, 0);
 
 			return node;
 		}
