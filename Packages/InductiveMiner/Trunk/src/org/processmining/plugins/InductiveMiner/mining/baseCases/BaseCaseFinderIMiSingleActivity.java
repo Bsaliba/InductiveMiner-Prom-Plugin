@@ -19,23 +19,28 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 			//assuming application of the activity follows a geometric distribution, we estimate parameter ^p
 
 			//calculate the event-per-trace size of the log
-			double p = logInfo.getNumberOfTraces() / ((logInfo.getNumberOfEvents() + logInfo.getNumberOfTraces()) * 1.0);
+			double p = logInfo.getNumberOfTraces()
+					/ ((logInfo.getNumberOfEvents() + logInfo.getNumberOfTraces()) * 1.0);
 
-			if (0.5 - minerState.parameters.getNoiseThreshold() <= p && p <= 0.5 + minerState.parameters.getNoiseThreshold()) {
+			if (0.5 - minerState.parameters.getNoiseThreshold() <= p
+					&& p <= 0.5 + minerState.parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
 
 				XEventClass activity = logInfo.getActivities().iterator().next();
 				Node node = new AbstractTask.Manual(activity.toString());
 				node.setProcessTree(tree);
-				
+
 				MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-				MinerMetrics.attachNumberOfEventsDiscarded(node, minerState.discardedEvents.getCardinalityOf(activity));
-				
+				int filtered = (int) logInfo.getNumberOfEpsilonTraces();
+				filtered += logInfo.getNumberOfEvents()
+						- (logInfo.getNumberOfTraces() - logInfo.getNumberOfEpsilonTraces());
+				MinerMetrics.attachNumberOfEventsDiscarded(node, filtered);
+
 				return node;
 			}
 			//else, the probability to stop is too low or too high, and we better output a flower model
 		}
-		
+
 		return null;
 	}
 }

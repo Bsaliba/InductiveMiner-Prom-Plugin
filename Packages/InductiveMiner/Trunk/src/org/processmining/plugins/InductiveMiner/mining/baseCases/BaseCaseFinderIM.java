@@ -19,13 +19,15 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			Node node = new AbstractTask.Manual(activity.toString());
 			node.setProcessTree(tree);
 			MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-			MinerMetrics.attachNumberOfEventsDiscarded(node, minerState.discardedEvents.getCardinalityOf(activity));
+			MinerMetrics.attachNumberOfEventsDiscarded(node, 0);
 			
 			return node;
 		} else if (logInfo.getActivities().setSize() == 0) {
 			Node node = new AbstractTask.Automatic("tau");
 			node.setProcessTree(tree);
-			return MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
+			MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
+			MinerMetrics.attachNumberOfEventsDiscarded(node, 0);
+			return node;
 		}
 
 		return null;
