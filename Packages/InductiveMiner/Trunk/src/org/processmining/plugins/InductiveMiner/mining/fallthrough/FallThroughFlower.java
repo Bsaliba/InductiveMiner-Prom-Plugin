@@ -20,6 +20,10 @@ public class FallThroughFlower implements FallThrough {
 		
 		Block loopNode = new AbstractBlock.XorLoop("");
 		loopNode.setProcessTree(tree);
+		MinerMetrics.attachNumberOfTracesRepresented(loopNode, logInfo);
+		MinerMetrics.attachMovesOnLog(loopNode, 0);
+		MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(loopNode, 0);
+		MinerMetrics.attachProducer(loopNode, "fall through: flower model");
 		
 		//body: tau
 		Node body = new AbstractTask.Automatic("tau");
@@ -27,6 +31,9 @@ public class FallThroughFlower implements FallThrough {
 		loopNode.addChild(body);
 		//count the number of times this tau was used
 		MinerMetrics.attachNumberOfTracesRepresented(body, (int) (logInfo.getNumberOfTraces() + logInfo.getNumberOfEvents()));
+		MinerMetrics.attachMovesOnLog(body, 0);
+		MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(body, 0);
+		MinerMetrics.attachProducer(body, "fall through: flower model");
 		
 		//redo: xor/activity
 		Block xorNode;
@@ -37,6 +44,9 @@ public class FallThroughFlower implements FallThrough {
 			xorNode.setProcessTree(tree);
 			loopNode.addChild(xorNode);
 			MinerMetrics.attachNumberOfTracesRepresented(xorNode, (int) logInfo.getNumberOfEvents());
+			MinerMetrics.attachMovesOnLog(xorNode, 0);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(xorNode, 0);
+			MinerMetrics.attachProducer(xorNode, "fall through: flower model");
 		}
 		
 		for (XEventClass activity: logInfo.getActivities()) {
@@ -45,14 +55,20 @@ public class FallThroughFlower implements FallThrough {
 			xorNode.addChild(child);
 			
 			MinerMetrics.attachNumberOfTracesRepresented(child, logInfo.getActivities().getCardinalityOf(activity));
+			MinerMetrics.attachMovesOnLog(child, 0);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(child, 0);
+			MinerMetrics.attachProducer(child, "fall through: flower model");
 		}
 		
 		Node tau2 = new AbstractTask.Automatic("tau");
 		tau2.setProcessTree(tree);
 		loopNode.addChild(tau2);
 		MinerMetrics.attachNumberOfTracesRepresented(tau2, logInfo);
+		MinerMetrics.attachMovesOnLog(tau2, 0);
+		MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau2, 0);
+		MinerMetrics.attachProducer(tau2, "fall through: flower model");
 		
-		return MinerMetrics.attachNumberOfTracesRepresented(loopNode, logInfo);
+		return loopNode;
 	}
 	
 }
