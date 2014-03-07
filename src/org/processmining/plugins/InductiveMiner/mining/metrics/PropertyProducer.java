@@ -5,23 +5,21 @@ import org.processmining.plugins.properties.annotations.PropertableElementProper
 
 @ControlFlowPerspective
 @PropertableElementProperty
-public class PropertyNumberOfEventsDiscarded extends org.processmining.plugins.properties.processmodel.abstractproperty.PropertyInteger {
+public class PropertyProducer extends org.processmining.plugins.properties.processmodel.abstractproperty.PropertyString {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3618758818233488504L;
+	private static final long serialVersionUID = 3315044337356838863L;
 
 	public Long getID() {
 		return serialVersionUID;
 	}
 
 	public String getName() {
-		return "number of events discarded";
+		return "Module of IM that produced this node";
 	}
 
-	public Integer getDefaultValue() {
-		return 0;
+	public String getDefaultValue() {
+		return "";
 	}
+
 	
 }

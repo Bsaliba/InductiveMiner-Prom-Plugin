@@ -33,7 +33,10 @@ public class IMProcessTree {
 	}
 	
 	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
-		//return Miner.mine(log, parameters);
 		return ReduceTree.reduceTree(Miner.mine(log, parameters));
+	}
+	
+	public static ProcessTree mineProcessTreeWithoutReducing(IMLog log, MiningParameters parameters) {
+		return Miner.mine(log, parameters);
 	}
 }

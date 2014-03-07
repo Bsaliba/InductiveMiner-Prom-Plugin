@@ -24,28 +24,42 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				
 				int numberOfEpsilonTraces = log.getCardinalityOf(new IMTrace());
 				
+				Miner.debug(" base case: IMi empty traces", minerState);
+				
 
 				//filter the empty traces from the log and recurse
 				log.remove(new IMTrace());
 				
 				Node newNode = Miner.mineNode(log, tree, minerState);
-				MinerMetrics.attachNumberOfEventsDiscarded(newNode, numberOfEpsilonTraces);
+				
+				MinerMetrics.attachMovesOnLog(newNode, MinerMetrics.getMovesOnLog(newNode));
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(newNode));
+				MinerMetrics.attachEpsilonTracesSkipped(newNode, numberOfEpsilonTraces + MinerMetrics.getEpsilonTracesSkipped(newNode));
+				MinerMetrics.attachProducer(newNode, "base case: IMi empty traces; " + MinerMetrics.getProducer(newNode));
 				
 				return newNode;
 
 			} else {
 				//There are too many empty traces to consider them noise.
 				//Mine an xor(tau, ..) and recurse.
+				
+				Miner.debug(" base case: IMi xor(tau, ..)", minerState);
+				
 				Block newNode = new AbstractBlock.Xor("");
 				newNode.setProcessTree(tree);
 				MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
+				MinerMetrics.attachMovesOnLog(newNode, 0);
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, 0);
+				MinerMetrics.attachProducer(newNode, "base case: IMi xor(tau, ..)");
 
 				//add tau
 				Node tau = new AbstractTask.Automatic("tau");
 				tau.setProcessTree(tree);
 				newNode.addChild(tau);
 				MinerMetrics.attachNumberOfTracesRepresented(tau, (int) logInfo.getNumberOfEpsilonTraces());
-				MinerMetrics.attachNumberOfEventsDiscarded(tau, 0);
+				MinerMetrics.attachMovesOnLog(tau, 0);
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, 0);
+				MinerMetrics.attachProducer(tau, "base case: IMi xor(tau, ..)");
 
 				//filter empty traces
 				log.remove(new IMTrace());

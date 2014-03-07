@@ -1,85 +1,150 @@
 package org.processmining.plugins.InductiveMiner.mining.metrics;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.properties.processmodel.Property;
+import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
+import org.processmining.processtree.impl.AbstractBlock;
+import org.processmining.processtree.impl.AbstractBlock.And;
+import org.processmining.processtree.impl.AbstractBlock.Def;
+import org.processmining.processtree.impl.AbstractBlock.Or;
+import org.processmining.processtree.impl.AbstractBlock.Seq;
+import org.processmining.processtree.impl.AbstractBlock.Xor;
+import org.processmining.processtree.impl.AbstractTask.Automatic;
+import org.processmining.processtree.impl.AbstractTask.Manual;
 
 public class MinerMetrics {
 
-	public static Node attachNumberOfTracesRepresented(Node node, Integer numberOfTracesRepresented) {
-		if (numberOfTracesRepresented == null) {
-			return node;
-		}
-
-		/*
-		 * if (numberOfTracesRepresented == 0) { new
-		 * Exception("no traces represented").printStackTrace();
-		 * System.out.println(node.toString()); }
-		 */
-
-		PropertyNumberOfTracesRepresented property1 = new PropertyNumberOfTracesRepresented();
-		try {
-			node.setIndependentProperty(property1, new Integer(numberOfTracesRepresented));
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		}
-
-		return node;
+	public static void attachProducer(Node node, String producer) {
+		attachProperty(node, new PropertyProducer(), new String(producer));
 	}
 
-	public static Node attachNumberOfTracesRepresented(Node node, IMLogInfo logInfo) {
-		return attachNumberOfTracesRepresented(node, (int) logInfo.getNumberOfTraces());
+	public static void attachMovesOnModelWithoutEpsilonTracesFiltered(Node node, Integer movesOnModel) {
+		attachProperty(node, new PropertyMovesOnModel(), new Integer(movesOnModel));
 	}
 
-	public static Node attachNumberOfEventsDiscarded(Node node, Integer numberOfEventsDiscarded) {
-		if (numberOfEventsDiscarded == null) {
-			return node;
-		}
-
-		PropertyNumberOfEventsDiscarded property1 = new PropertyNumberOfEventsDiscarded();
-		try {
-			node.setIndependentProperty(property1, new Integer(numberOfEventsDiscarded));
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		}
-
-		return node;
+	public static void attachMovesOnLog(Node node, Integer movesOnLog) {
+		attachProperty(node, new PropertyMovesOnLog(), new Integer(movesOnLog));
 	}
 
-	public static void copyStatistics(Node node, Node newNode) {
-		if (getNumberOfTracesRepresented(node) != null) {
-			attachNumberOfTracesRepresented(newNode, getNumberOfTracesRepresented(node));
-		}
-		if (getNumberOfEventsDiscarded(node) != null) {
-			attachNumberOfEventsDiscarded(newNode, getNumberOfEventsDiscarded(node));
-		}
+	public static void attachEpsilonTracesSkipped(Node node, Integer epsilonTracesSkipped) {
+		attachProperty(node, new PropertyEpsilonTracesSkipped(), new Integer(epsilonTracesSkipped));
 	}
 
-	public static Integer getNumberOfEventsDiscarded(Node node) {
-		PropertyNumberOfEventsDiscarded property1 = new PropertyNumberOfEventsDiscarded();
-		try {
-			return (Integer) node.getIndependentProperty(property1);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public static void attachNumberOfTracesRepresented(Node node, Integer numberOfTracesRepresented) {
+		attachProperty(node, new PropertyNumberOfTracesRepresented(), new Integer(numberOfTracesRepresented));
+	}
+
+	public static void attachNumberOfTracesRepresented(Node node, IMLogInfo logInfo) {
+		attachNumberOfTracesRepresented(node, (int) logInfo.getNumberOfTraces());
+	}
+
+	public static Integer getMovesOnLog(Node node) {
+		return (Integer) getProperty(node, new PropertyMovesOnLog());
+	}
+
+	public static Integer getMovesOnModelWithoutEpsilonTracesFiltered(Node node) {
+		return (Integer) getProperty(node, new PropertyMovesOnModel());
+	}
+
+	public static Integer getEpsilonTracesSkipped(Node node) {
+		return (Integer) getProperty(node, new PropertyEpsilonTracesSkipped());
 	}
 
 	public static Integer getNumberOfTracesRepresented(Node node) {
-		PropertyNumberOfTracesRepresented property1 = new PropertyNumberOfTracesRepresented();
+		return (Integer) getProperty(node, new PropertyNumberOfTracesRepresented());
+	}
+
+	public static String getProducer(Node node) {
+		return (String) getProperty(node, new PropertyProducer());
+	}
+
+	public static void copyStatistics(Node node, Node newNode) {
+		attachNumberOfTracesRepresented(newNode, getNumberOfTracesRepresented(node));
+		attachEpsilonTracesSkipped(newNode, getEpsilonTracesSkipped(node));
+		attachMovesOnLog(newNode, getMovesOnLog(node));
+		attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, getMovesOnModelWithoutEpsilonTracesFiltered(node));
+		attachProducer(newNode, getProducer(node));
+	}
+	
+	public static String statisticsToString(Node node) {
+		StringBuilder result = new StringBuilder();
+		result.append(" subtraces represented " + getNumberOfTracesRepresented(node) + "\n");
+		result.append(" moves on log " + getMovesOnLog(node) + "\n");
+		result.append(" moves on model " + getMovesOnModel(node) + "\n");
+		result.append(" produced by " + getProducer(node) + "\n");
+		result.append(" epsilon traces filtered " + getEpsilonTracesSkipped(node) + "\n");
+		result.append(" shortest trace " + getShortestTrace(node) + "\n");
+		result.append(" moves on model without epsilon traces filtered " + getMovesOnModelWithoutEpsilonTracesFiltered(node) + "\n");
+		result.append(" moves on model from epsilon traces filtered " + getMovesOnModelFromEmptyTraces(node) + "\n");
+		return result.toString();
+	}
+	
+	public static int getMovesOnModelFromEmptyTraces(Node node) {
+		return getEpsilonTracesSkipped(node) * getShortestTrace(node);
+	}
+	
+	public static int getMovesOnModel(Node node) {
+		return getMovesOnModelWithoutEpsilonTracesFiltered(node) + getMovesOnModelFromEmptyTraces(node);
+	}
+	
+	public static int getShortestTrace(Node node) {
+		if (node instanceof Manual) {
+			return 1;
+		} else if (node instanceof Automatic) {
+			return 0;
+		} else if (node instanceof Block) {
+			Block block = (Block) node;
+			if (block instanceof Xor || block instanceof Def || block instanceof Or) {
+				int result = Integer.MAX_VALUE;
+				for (Node child: block.getChildren()) {
+					result = Math.min(result, getShortestTrace(child));
+				}
+				return result;
+			} else if (block instanceof And || block instanceof Seq) {
+				int result = 0;
+				for (Node child: block.getChildren()) {
+					result += getShortestTrace(child);
+				}
+				return result;
+			} else if (block instanceof AbstractBlock.DefLoop || block instanceof AbstractBlock.XorLoop) {
+				return getShortestTrace(block.getChildren().get(0));
+			}
+		}
+		assert(false);
+		return 0;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static Object getProperty(Node node, Property property) {
+		Object result = null;
 		try {
-			return (Integer) node.getIndependentProperty(property1);
+			result = node.getIndependentProperty(property);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		return null;
+		if (result == null &&!( property instanceof PropertyEpsilonTracesSkipped)) {
+			System.out.println("==== node without property ====");
+			System.out.println(property.getClass());
+			System.out.println(node);
+			assert(false);
+		}
+		return result;
+		//return property.getDefaultValue();
 	}
 
+	@SuppressWarnings("rawtypes")
+	public static void attachProperty(Node node, Property property, Object value) {
+		if (value != null) {
+			try {
+				node.setIndependentProperty(property, value);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

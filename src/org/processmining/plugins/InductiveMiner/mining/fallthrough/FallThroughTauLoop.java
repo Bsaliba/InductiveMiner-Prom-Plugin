@@ -34,21 +34,38 @@ public class FallThroughTauLoop implements FallThrough {
 				//making a tau loop split makes sense
 				Block loop = new XorLoop("");
 				loop.setProcessTree(tree);
+				MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
+				MinerMetrics.attachMovesOnLog(loop, 0);
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(loop, 0);
+				MinerMetrics.attachProducer(loop, "fall through: tau loop");
 
-				Node body = Miner.mineNode(sublog, tree, minerState);
-				loop.addChild(body);
+				{
+					Node body = Miner.mineNode(sublog, tree, minerState);
+					loop.addChild(body);
+					MinerMetrics.attachProducer(body, "fall through: tau loop, " + MinerMetrics.getProducer(body));
+				}
 
-				Node redo = new Automatic("tau");
-				redo.setProcessTree(tree);
-				loop.addChild(redo);
-				MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
+				{
+					Node redo = new Automatic("tau");
+					redo.setProcessTree(tree);
+					loop.addChild(redo);
+					MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
+					MinerMetrics.attachMovesOnLog(redo, 0);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redo, 0);
+					MinerMetrics.attachProducer(redo, "fall through: tau loop");
+				}
 
-				Node exit = new Automatic("tau");
-				exit.setProcessTree(tree);
-				loop.addChild(exit);
-				MinerMetrics.attachNumberOfTracesRepresented(exit, logInfo);
+				{
+					Node exit = new Automatic("tau");
+					exit.setProcessTree(tree);
+					loop.addChild(exit);
+					MinerMetrics.attachNumberOfTracesRepresented(exit, logInfo);
+					MinerMetrics.attachMovesOnLog(exit, 0);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(exit, 0);
+					MinerMetrics.attachProducer(exit, "fall through: tau loop");
+				}
 
-				return MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
+				return loop;
 			}
 		}
 

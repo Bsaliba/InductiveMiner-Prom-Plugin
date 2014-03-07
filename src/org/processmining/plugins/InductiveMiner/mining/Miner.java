@@ -43,16 +43,13 @@ public class Miner {
 		IMLogInfo logInfo = new IMLogInfo(log);
 
 		//output information about the log
-		debug("\nMine " + logInfo.getActivities(), minerState);
+		debug("\nMine []=" + logInfo.getNumberOfEpsilonTraces() + " " + logInfo.getActivities(), minerState);
 		//debug(log, parameters);
 		//debug(logInfo, parameters);
 
 		//find base cases
 		Node baseCase = findBaseCases(log, logInfo, tree, minerState);
 		if (baseCase != null) {
-
-			debug(" base case: " + baseCase.getName(), minerState);
-
 			return baseCase;
 		}
 
@@ -68,9 +65,11 @@ public class Miner {
 
 			//make node
 			Block newNode = newNode(cut.getOperator());
-			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
-			MinerMetrics.attachNumberOfEventsDiscarded(newNode, splitResult.discardedEvents.size());
 			newNode.setProcessTree(tree);
+			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
+			MinerMetrics.attachMovesOnLog(newNode, splitResult.discardedEvents.size());
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, 0);
+			MinerMetrics.attachProducer(newNode, "cut detection " + cut);
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
@@ -84,10 +83,10 @@ public class Miner {
 				Iterator<IMLog> it = splitResult.sublogs.iterator();
 
 				//mine body
+				IMLog firstSublog = it.next();
 				{
-					IMLog sublog = it.next();
-					Node child = mineNode(sublog, tree, minerState);
-					newNode.addChild(child);
+					Node firstChild = mineNode(firstSublog, tree, minerState);
+					newNode.addChild(firstChild);
 				}
 
 				//mine redo parts by, if necessary, putting them under an xor
@@ -96,6 +95,12 @@ public class Miner {
 					redoXor = new Xor("");
 					redoXor.setProcessTree(tree);
 					newNode.addChild(redoXor);
+					
+					MinerMetrics.attachNumberOfTracesRepresented(redoXor, log.size() - firstSublog.size());
+					MinerMetrics.attachMovesOnLog(redoXor, 0);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor, 0);
+					MinerMetrics.attachProducer(redoXor, "cut detection " + cut);
+					
 				} else {
 					redoXor = newNode;
 				}
@@ -111,6 +116,9 @@ public class Miner {
 					tau.setProcessTree(tree);
 					newNode.addChild(tau);
 					MinerMetrics.attachNumberOfTracesRepresented(tau, logInfo);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, 0);
+					MinerMetrics.attachMovesOnLog(tau, 0);
+					MinerMetrics.attachProducer(tau, "cut detection " + cut);
 				}
 			}
 
