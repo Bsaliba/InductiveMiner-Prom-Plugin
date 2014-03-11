@@ -31,6 +31,7 @@ public class MiningParametersIMStateOfArt extends MiningParameters {
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
 				new CutFinderIM(),
 				new CutFinderIMi()
+				//new CutFinderIMin()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());
