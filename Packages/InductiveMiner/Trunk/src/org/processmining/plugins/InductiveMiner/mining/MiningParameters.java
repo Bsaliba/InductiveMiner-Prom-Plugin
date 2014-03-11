@@ -3,7 +3,6 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.io.File;
 import java.util.List;
 
-import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
@@ -45,7 +44,7 @@ public abstract class MiningParameters {
 	
 	public static XEventClassifier getDefaultClassifier() {
 		//return new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
-		return new XEventAndClassifier(new XEventNameClassifier(), new XEventNameClassifier());
+		return new XEventNameClassifier();
 	}
 
 	public void setClassifier(XEventClassifier classifier) {
@@ -125,20 +124,12 @@ public abstract class MiningParameters {
 	}
 	
 	public void setUseMultithreading(boolean useMultithreading) {
-		setUseMultithreadingGlobal(useMultithreading);
-		
-		if (useMultithreading) {
+		if (!useMultithreading) {
+			minerPool = new JobListBlocking();
 			satPool = new JobListBlocking();
 		} else {
-			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
-		}
-	}
-	
-	protected void setUseMultithreadingGlobal(boolean useMultithreading) {
-		if (useMultithreading) {
-			minerPool = new JobListBlocking();
-		} else {
 			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
+			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
 		}
 	}
 
