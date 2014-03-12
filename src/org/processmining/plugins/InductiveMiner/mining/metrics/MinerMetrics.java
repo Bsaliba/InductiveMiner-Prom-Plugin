@@ -58,14 +58,31 @@ public class MinerMetrics {
 	public static String getProducer(Node node) {
 		return (String) getProperty(node, new PropertyProducer());
 	}
-
-	public static void copyStatistics(Node node, Node newNode) {
-		attachNumberOfTracesRepresented(newNode, getNumberOfTracesRepresented(node));
-		attachEpsilonTracesSkipped(newNode, getEpsilonTracesSkipped(node));
-		attachMovesOnLog(newNode, getMovesOnLog(node));
-		attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, getMovesOnModelWithoutEpsilonTracesFiltered(node));
-		attachProducer(newNode, getProducer(node));
+	
+	public static void saveMovesSumInto(Node into, Node add) {
+		attachEpsilonTracesSkipped(into, getEpsilonTracesSkipped(into) + getEpsilonTracesSkipped(add));
+		attachMovesOnLog(into, getMovesOnLog(into) + getMovesOnLog(into));
+		int epsilon = 0;
+		if (getEpsilonTracesSkipped(into) != null) {
+			epsilon += getEpsilonTracesSkipped(into);
+		}
+		if (getEpsilonTracesSkipped(add) != null) {
+			epsilon += getEpsilonTracesSkipped(add);
+		}
+		if (epsilon != 0) {
+			attachMovesOnModelWithoutEpsilonTracesFiltered(into, epsilon);
+		}
+		
+		attachProducer(into, getProducer(into) + ", " + getProducer(add));
 	}
+
+//	public static void copyStatistics(Node node, Node newNode) {
+//		attachNumberOfTracesRepresented(newNode, getNumberOfTracesRepresented(node));
+//		attachEpsilonTracesSkipped(newNode, getEpsilonTracesSkipped(node));
+//		attachMovesOnLog(newNode, getMovesOnLog(node));
+//		attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, getMovesOnModelWithoutEpsilonTracesFiltered(node));
+//		attachProducer(newNode, getProducer(node));
+//	}
 	
 	public static String statisticsToString(Node node) {
 		StringBuilder result = new StringBuilder();

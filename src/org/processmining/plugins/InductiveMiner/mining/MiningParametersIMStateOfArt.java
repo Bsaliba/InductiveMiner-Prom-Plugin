@@ -6,8 +6,7 @@ import java.util.LinkedList;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMin;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
@@ -29,9 +28,9 @@ public class MiningParametersIMStateOfArt extends MiningParameters {
 				)));
 		
 		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
-				new CutFinderIM(),
-				new CutFinderIMi()
-				//new CutFinderIMin()
+				//new CutFinderIM(),
+				//new CutFinderIMi()
+				new CutFinderIMin()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());

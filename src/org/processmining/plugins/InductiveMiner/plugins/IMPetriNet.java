@@ -42,7 +42,7 @@ public class IMPetriNet {
 		
 		//create Petri net connections
 		context.addConnection(new InitialMarkingConnection((Petrinet) result[0], (Marking) result[1]));
-		context.addConnection(new FinalMarkingConnection((Petrinet) result[0], (Marking) result[1]));
+		context.addConnection(new FinalMarkingConnection((Petrinet) result[0], (Marking) result[2]));
 		
 		return result;
 	}
