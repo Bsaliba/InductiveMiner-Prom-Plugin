@@ -40,8 +40,7 @@ public class MiningParametersEKS extends MiningParameters {
 				new FallThroughFlower()
 				)));
 
+		setReduce(true);
 	}
-	
-	
 
 }
