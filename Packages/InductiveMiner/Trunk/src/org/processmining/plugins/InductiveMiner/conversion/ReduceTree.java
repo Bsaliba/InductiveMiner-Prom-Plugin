@@ -31,7 +31,7 @@ public class ReduceTree {
 	}
 
 	public static List<ReductionPattern> patterns = new LinkedList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
-			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor()));
+			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor(), new RPFlattenLoop()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
@@ -130,20 +130,20 @@ public class ReduceTree {
 			return changed;
 		}
 	}
-	
+
 	public static class RPFlattenLoop extends ReductionPattern {
 
 		public boolean apply(Node node, ProcessTree tree) {
 			if (!(node instanceof XorLoop)) {
 				return false;
 			}
-			
+
 			Node b = ((Block) node).getChildren().get(0);
-			
+
 			if (!(b instanceof XorLoop)) {
 				return false;
 			}
-			
+
 			XorLoop loop = (XorLoop) node;
 			XorLoop oldBody = (XorLoop) b;
 			Node oldRedo = ((Block) node).getChildren().get(1);
@@ -151,15 +151,15 @@ public class ReduceTree {
 			Node bodyBody = oldBody.getChildren().get(0);
 			Node bodyRedo = oldBody.getChildren().get(1);
 			Node bodyExit = oldBody.getChildren().get(2);
-			
+
 			if (!(exit instanceof Automatic)) {
 				return false;
 			}
-			
+
 			if (!(oldBody.getChildren().get(2) instanceof Automatic)) {
 				return false;
 			}
-			
+
 			//clean up the old body
 			removeChild(oldBody, bodyBody, tree);
 			removeChild(oldBody, bodyRedo, tree);
@@ -167,27 +167,28 @@ public class ReduceTree {
 			tree.removeNode(bodyExit);
 			removeChild(loop, oldBody, tree);
 			tree.removeNode(oldBody);
-			
+
 			//reconnect bodybody
 			loop.addChildAt(bodyBody, 0);
-			
+
 			//reconnect redo and bodyredo
 			removeChild(loop, oldRedo, tree);
 			Xor redoXor = new Xor("");
 			loop.addChildAt(redoXor, 1);
 			redoXor.addChild(oldRedo);
 			redoXor.addChild(bodyRedo);
-			
+
 			//set metrics
 			MinerMetrics.attachProducer(redoXor, "reduceTree, " + MinerMetrics.getProducer(oldBody));
 			MinerMetrics.attachEpsilonTracesSkipped(redoXor, MinerMetrics.getEpsilonTracesSkipped(oldBody));
 			MinerMetrics.attachMovesOnLog(redoXor, MinerMetrics.getMovesOnLog(oldBody));
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor, MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(oldBody));
-			MinerMetrics.attachNumberOfTracesRepresented(redoXor,MinerMetrics.getNumberOfTracesRepresented(bodyRedo)+MinerMetrics.getNumberOfTracesRepresented(oldRedo));
-			
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor,
+					MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(oldBody));
+			MinerMetrics.attachNumberOfTracesRepresented(redoXor, getNumberOfTracesRepresentedChildrenXor(redoXor));
+
 			return true;
 		}
-		
+
 	}
 
 	public static ProcessTree reduceTree(ProcessTree tree) {

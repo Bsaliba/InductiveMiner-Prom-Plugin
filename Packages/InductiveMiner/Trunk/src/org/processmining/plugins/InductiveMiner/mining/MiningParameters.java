@@ -23,6 +23,7 @@ public abstract class MiningParameters {
 	private File fallThroughSaveLogFolderName;
 	
 	private boolean debug;
+	private boolean reduce;
 	private Probabilities satProbabilities;
 	private JobList minerPool;
 	private JobList satPool;
@@ -163,6 +164,14 @@ public abstract class MiningParameters {
 
 	public void setFallThroughs(List<FallThrough> fallThroughs) {
 		this.fallThroughs = fallThroughs;
+	}
+
+	public boolean isReduce() {
+		return reduce;
+	}
+
+	public void setReduce(boolean reduce) {
+		this.reduce = reduce;
 	}
 
 
