@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.Iterator;
 
+import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
@@ -33,6 +34,12 @@ public class Miner {
 		tree.setRoot(root);
 
 		debug(tree.getRoot(), minerState);
+		
+		//reduce if necessary
+		if (parameters.isReduce()) {
+			ReduceTree.reduceTree(tree);
+			debug("after reduction " + tree.getRoot(), minerState);
+		}
 
 		return tree;
 	}
