@@ -89,6 +89,11 @@ public class MinerMetrics {
 		result.append(" subtraces represented " + getNumberOfTracesRepresented(node) + "\n");
 		result.append(" moves on log " + getMovesOnLog(node) + "\n");
 		result.append(" moves on model " + getMovesOnModel(node) + "\n");
+		result.append(" synchronous moves " + getSynchronousMoves(node) + "\n");
+		result.append(" moves on log recursive " + getMovesOnLogRecursive(node) + "\n");
+		result.append(" moves on model recursive " + getMovesOnModelRecursive(node) + "\n");
+		result.append(" synchronous moves recursive " + getSynchronousMovesRecursive(node) + "\n");
+		result.append(" fitness recursive " + getFitnessRecursive(node) + "\n");
 		result.append(" produced by " + getProducer(node) + "\n");
 		result.append(" epsilon traces filtered " + getEpsilonTracesSkipped(node) + "\n");
 		result.append(" shortest trace " + getShortestTrace(node) + "\n");
@@ -103,6 +108,50 @@ public class MinerMetrics {
 	
 	public static int getMovesOnModel(Node node) {
 		return getMovesOnModelWithoutEpsilonTracesFiltered(node) + getMovesOnModelFromEmptyTraces(node);
+	}
+	
+	public static int getSynchronousMoves(Node node) {
+		if (node instanceof Manual) {
+			return getNumberOfTracesRepresented(node);
+		}
+		return 0;
+	}
+	
+	public static long getMovesOnModelRecursive(Node node) {
+		long result = getMovesOnModel(node);
+		if (node instanceof Block) {
+			for (Node child : ((Block) node).getChildren()) {
+				result += getMovesOnModelRecursive(child);
+			}
+		}
+		return result;
+	}
+	
+	public static long getMovesOnLogRecursive(Node node) {
+		long result = getMovesOnLog(node);
+		if (node instanceof Block) {
+			for (Node child : ((Block) node).getChildren()) {
+				result += getMovesOnLogRecursive(child);
+			}
+		}
+		return result;
+	}
+	
+	public static long getSynchronousMovesRecursive(Node node) {
+		long result = getSynchronousMoves(node);
+		if (node instanceof Block) {
+			for (Node child : ((Block) node).getChildren()) {
+				result += getSynchronousMovesRecursive(child);
+			}
+		}
+		return result;
+	}
+	
+	public static double getFitnessRecursive(Node node) {
+		long logMoves = getMovesOnLogRecursive(node);
+		long modelMoves = getMovesOnModelRecursive(node);
+		long synchronousMoves = getSynchronousMovesRecursive(node);
+		return synchronousMoves / (logMoves + modelMoves + synchronousMoves * 1.0);
 	}
 	
 	public static int getShortestTrace(Node node) {
