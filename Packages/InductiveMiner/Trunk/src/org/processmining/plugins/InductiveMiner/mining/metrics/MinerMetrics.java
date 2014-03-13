@@ -125,7 +125,7 @@ public class MinerMetrics {
 				}
 				return result;
 			} else if (block instanceof AbstractBlock.DefLoop || block instanceof AbstractBlock.XorLoop) {
-				return getShortestTrace(block.getChildren().get(0));
+				return getShortestTrace(block.getChildren().get(0)) + getShortestTrace(block.getChildren().get(2));
 			}
 		}
 		assert(false);
