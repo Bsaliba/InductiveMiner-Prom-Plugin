@@ -169,8 +169,7 @@ public class MultiSet<X> implements Iterable<X> {
 	
 	private class CardinalityComparator implements Comparator<X> {
 		public int compare(X arg0, X arg1) {
-			getCardinalityOf(arg0).compareTo(getCardinalityOf(arg1));
-			return 0;
+			return getCardinalityOf(arg0).compareTo(getCardinalityOf(arg1));
 		}
 	}
 	
