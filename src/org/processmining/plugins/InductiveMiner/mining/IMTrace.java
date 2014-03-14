@@ -1,14 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import java.util.LinkedList;
-
 import org.deckfour.xes.classification.XEventClass;
 
-public class IMTrace extends LinkedList<XEventClass> {
+public class IMTrace extends IMTraceG<XEventClass> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6105620544975752919L;
+	private static final long serialVersionUID = 6001651522514809848L;
 	
 }
