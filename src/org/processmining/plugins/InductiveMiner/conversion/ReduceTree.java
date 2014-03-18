@@ -34,10 +34,33 @@ public class ReduceTree {
 	}
 
 	public static List<ReductionPattern> patterns = new LinkedList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
-			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor(), new RPFlattenLoop()));
+			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPOneChild()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
+	}
+
+	public static class RPOneChild extends ReductionPattern {
+		public boolean apply(Node node, ProcessTree tree) {
+			if (!(node instanceof Block)) {
+				return false;
+			}
+
+			int i = 0;
+			boolean changed = false;
+			for (Node child : ((Block) node).getChildren()) {
+				if (child instanceof Block && ((Block) node).getChildren().size() == 1) {
+					
+					changed = true;
+					i = flattenChildAt((Block) node, (Block) child, i, tree);
+
+					//for all of these, the number of traces represented remains the same
+				} else {
+					i++;
+				}
+			}
+			return changed;
+		}
 	}
 
 	public static class RPFlattenXor extends ReductionPattern {
@@ -325,7 +348,7 @@ public class ReduceTree {
 			}
 			return result;
 		}
-		assert(false);
+		assert (false);
 		return null;
 	}
 
