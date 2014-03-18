@@ -81,7 +81,7 @@ public class CutFinderIMi implements CutFinder {
 		//method 2: local threshold
 		for (XEventClass activity : logInfo.getActivities()) {
 			//find the maximum outgoing weight of this node
-			Integer maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
+			long maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
 			for (DefaultWeightedEdge edge : logInfo.getDirectlyFollowsGraph().outgoingEdgesOf(activity)) {
 				maxWeightOut = Math.max(maxWeightOut, (int) logInfo.getDirectlyFollowsGraph().getEdgeWeight(edge));
 			}
@@ -121,7 +121,7 @@ public class CutFinderIMi implements CutFinder {
 		//method 2: local threshold
 		for (XEventClass activity : logInfo.getActivities()) {
 			//find the maximum outgoing weight of this node
-			Integer maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
+			long maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
 			for (DefaultWeightedEdge edge : logInfo.getEventuallyFollowsGraph().outgoingEdgesOf(activity)) {
 				maxWeightOut = Math.max(maxWeightOut, (int) logInfo.getEventuallyFollowsGraph().getEdgeWeight(edge));
 			}

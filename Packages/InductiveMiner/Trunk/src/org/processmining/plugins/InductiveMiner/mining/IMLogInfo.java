@@ -22,8 +22,8 @@ public class IMLogInfo extends IMLogInfoG<XEventClass> {
 			MultiSet<XEventClass> endActivities,
 			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
 			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
-			long numberOfEpsilonTraces, int longestTrace, int lengthStrongestTrace, int strongestDirectEdge,
-			int strongestEventualEdge, int strongestStartActivity, int strongestEndActivity) {
+			long numberOfEpsilonTraces, int longestTrace, long lengthStrongestTrace, long strongestDirectEdge,
+			long strongestEventualEdge, long strongestStartActivity, long strongestEndActivity) {
 		super(directlyFollowsGraph, eventuallyFollowsGraph, directlyFollowsTransitiveClosureGraph, activities, startActivities,
 				endActivities, minimumSelfDistancesBetween, minimumSelfDistances, numberOfTraces, numberOfEvents,
 				numberOfEpsilonTraces, longestTrace, lengthStrongestTrace, strongestDirectEdge, strongestEventualEdge,

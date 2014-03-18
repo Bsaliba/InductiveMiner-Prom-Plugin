@@ -27,11 +27,11 @@ public class IMLogInfoG<X> {
 	protected final long numberOfEvents;
 	protected final long numberOfEpsilonTraces;
 	protected final int longestTrace;
-	protected final int lengthStrongestTrace;
-	protected final int strongestDirectEdge;
-	protected final int strongestEventualEdge;
-	protected final int strongestStartActivity;
-	protected final int strongestEndActivity;
+	protected final long lengthStrongestTrace;
+	protected final long strongestDirectEdge;
+	protected final long strongestEventualEdge;
+	protected final long strongestStartActivity;
+	protected final long strongestEndActivity;
 	
 	public IMLogInfoG(MultiSet<? extends IMTraceG<X>> log) {
 		//initialise, read the log
@@ -45,10 +45,10 @@ public class IMLogInfoG<X> {
 		minimumSelfDistances = new HashMap<X, Integer>();
 		minimumSelfDistancesBetween = new HashMap<X, MultiSet<X>>();
 		int numberOfTraces = 0;
-		int numberOfEvents = 0;
-		int numberOfEpsilonTraces = 0;
+		long numberOfEvents = 0;
+		long numberOfEpsilonTraces = 0;
 		int longestTrace = 0;
-		int lengthStrongestTrace = 0;
+		long lengthStrongestTrace = 0;
 
 		X fromEventClass;
 		X toEventClass;
@@ -58,7 +58,7 @@ public class IMLogInfoG<X> {
 		List<X> readTrace;
 
 		for (List<X> trace : log) {
-			Integer cardinality = log.getCardinalityOf(trace);
+			long cardinality = log.getCardinalityOf(trace);
 
 			toEventClass = null;
 			fromEventClass = null;
@@ -80,13 +80,13 @@ public class IMLogInfoG<X> {
 
 				//add connections to the eventually-follows graph
 				DefaultWeightedEdge edge;
-				Integer newEventuallyCardinality;
+				long newEventuallyCardinality;
 				for (X eventuallySeen : readTrace) {
 					edge = eventuallyFollowsGraph.addEdge(eventuallySeen, toEventClass);
 					newEventuallyCardinality = cardinality;
 					if (edge == null) {
 						edge = eventuallyFollowsGraph.getEdge(eventuallySeen, toEventClass);
-						newEventuallyCardinality += (int) eventuallyFollowsGraph.getEdgeWeight(edge);
+						newEventuallyCardinality += eventuallyFollowsGraph.getEdgeWeight(edge);
 					}
 					eventuallyFollowsGraph.setEdgeWeight(edge, newEventuallyCardinality);
 				}
@@ -123,7 +123,7 @@ public class IMLogInfoG<X> {
 
 					//add edge to directly-follows graph
 					edge = directlyFollowsGraph.addEdge(fromEventClass, toEventClass);
-					Integer newCardinality = cardinality;
+					long newCardinality = cardinality;
 					if (edge == null) {
 						edge = directlyFollowsGraph.getEdge(fromEventClass, toEventClass);
 						newCardinality = newCardinality + (int) (directlyFollowsGraph.getEdgeWeight(edge));
@@ -179,14 +179,14 @@ public class IMLogInfoG<X> {
 		this.strongestEventualEdge = strongestEventualEdge;
 
 		//find the strongest start activity
-		int strongestStartActivity = 0;
+		long strongestStartActivity = 0;
 		for (X activity : startActivities) {
 			strongestStartActivity = Math.max(strongestStartActivity, startActivities.getCardinalityOf(activity));
 		}
 		this.strongestStartActivity = strongestStartActivity;
 
 		//find the strongest end activity
-		int strongestEndActivity = 0;
+		long strongestEndActivity = 0;
 		for (X activity : endActivities) {
 			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
 		}
@@ -203,8 +203,8 @@ public class IMLogInfoG<X> {
 			MultiSet<X> startActivities, MultiSet<X> endActivities,
 			HashMap<X, MultiSet<X>> minimumSelfDistancesBetween,
 			HashMap<X, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
-			long numberOfEpsilonTraces, int longestTrace, int lengthStrongestTrace, int strongestDirectEdge,
-			int strongestEventualEdge, int strongestStartActivity, int strongestEndActivity) {
+			long numberOfEpsilonTraces, int longestTrace, long lengthStrongestTrace, long strongestDirectEdge,
+			long strongestEventualEdge, long strongestStartActivity, long strongestEndActivity) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.directlyFollowsTransitiveClosureGraph = directlyFollowsTransitiveClosureGraph;
@@ -295,23 +295,23 @@ public class IMLogInfoG<X> {
 		return longestTrace;
 	}
 
-	public int getLengthStrongestTrace() {
+	public long getLengthStrongestTrace() {
 		return lengthStrongestTrace;
 	}
 
-	public int getStrongestDirectEdge() {
+	public long getStrongestDirectEdge() {
 		return strongestDirectEdge;
 	}
 
-	public int getStrongestEventualEdge() {
+	public long getStrongestEventualEdge() {
 		return strongestEventualEdge;
 	}
 
-	public int getStrongestStartActivity() {
+	public long getStrongestStartActivity() {
 		return strongestStartActivity;
 	}
 
-	public int getStrongestEndActivity() {
+	public long getStrongestEndActivity() {
 		return strongestEndActivity;
 	}
 }

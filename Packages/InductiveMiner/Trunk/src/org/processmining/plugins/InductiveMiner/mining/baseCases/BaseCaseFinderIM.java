@@ -25,8 +25,8 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			node.setProcessTree(tree);
 			
 			MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-			MinerMetrics.attachMovesOnLog(node, 0);
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, 0);
+			MinerMetrics.attachMovesOnLog(node, (long) 0);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, (long) 0);
 			MinerMetrics.attachProducer(node, "base case IM - single activity");
 			
 			return node;
@@ -39,8 +39,8 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			node.setProcessTree(tree);
 			
 			MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-			MinerMetrics.attachMovesOnLog(node, 0);
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, 0);
+			MinerMetrics.attachMovesOnLog(node, (long) 0);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, (long) 0);
 			MinerMetrics.attachProducer(node, "base case IM - empty log");
 			
 			return node;

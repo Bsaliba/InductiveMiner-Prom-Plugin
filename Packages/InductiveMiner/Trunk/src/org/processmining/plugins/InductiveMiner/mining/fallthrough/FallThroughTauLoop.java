@@ -35,8 +35,8 @@ public class FallThroughTauLoop implements FallThrough {
 				Block loop = new XorLoop("");
 				loop.setProcessTree(tree);
 				MinerMetrics.attachNumberOfTracesRepresented(loop, logInfo);
-				MinerMetrics.attachMovesOnLog(loop, 0);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(loop, 0);
+				MinerMetrics.attachMovesOnLog(loop, (long) 0);
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(loop, (long) 0);
 				MinerMetrics.attachProducer(loop, "fall through: tau loop");
 
 				{
@@ -49,9 +49,9 @@ public class FallThroughTauLoop implements FallThrough {
 					Node redo = new Automatic("tau");
 					redo.setProcessTree(tree);
 					loop.addChild(redo);
-					MinerMetrics.attachNumberOfTracesRepresented(redo, (int) numberOfTimesTauTaken);
-					MinerMetrics.attachMovesOnLog(redo, 0);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redo, 0);
+					MinerMetrics.attachNumberOfTracesRepresented(redo, numberOfTimesTauTaken);
+					MinerMetrics.attachMovesOnLog(redo, 0l);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redo, 0l);
 					MinerMetrics.attachProducer(redo, "fall through: tau loop");
 				}
 
@@ -60,8 +60,8 @@ public class FallThroughTauLoop implements FallThrough {
 					exit.setProcessTree(tree);
 					loop.addChild(exit);
 					MinerMetrics.attachNumberOfTracesRepresented(exit, logInfo);
-					MinerMetrics.attachMovesOnLog(exit, 0);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(exit, 0);
+					MinerMetrics.attachMovesOnLog(exit, 0l);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(exit, 0l);
 					MinerMetrics.attachProducer(exit, "fall through: tau loop");
 				}
 
@@ -72,7 +72,7 @@ public class FallThroughTauLoop implements FallThrough {
 		return null;
 	}
 
-	public static long filterTrace(IMLog sublog, IMTrace trace, int cardinality, MultiSet<XEventClass> startActivities) {
+	public static long filterTrace(IMLog sublog, IMTrace trace, long cardinality, MultiSet<XEventClass> startActivities) {
 		boolean first = true;
 		long numberOfTimesTauTaken = 0;
 		IMTrace partialTrace = new IMTrace();

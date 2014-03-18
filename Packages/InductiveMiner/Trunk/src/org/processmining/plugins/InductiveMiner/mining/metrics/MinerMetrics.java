@@ -19,40 +19,40 @@ public class MinerMetrics {
 		attachProperty(node, new PropertyProducer(), new String(producer));
 	}
 
-	public static void attachMovesOnModelWithoutEpsilonTracesFiltered(Node node, Integer movesOnModel) {
-		attachProperty(node, new PropertyMovesOnModel(), new Integer(movesOnModel));
+	public static void attachMovesOnModelWithoutEpsilonTracesFiltered(Node node, Long movesOnModel) {
+		attachProperty(node, new PropertyMovesOnModel(), new Long(movesOnModel));
 	}
 
-	public static void attachMovesOnLog(Node node, Integer movesOnLog) {
-		attachProperty(node, new PropertyMovesOnLog(), new Integer(movesOnLog));
+	public static void attachMovesOnLog(Node node, Long movesOnLog) {
+		attachProperty(node, new PropertyMovesOnLog(), new Long(movesOnLog));
 	}
 
-	public static void attachEpsilonTracesSkipped(Node node, Integer epsilonTracesSkipped) {
-		attachProperty(node, new PropertyEpsilonTracesSkipped(), new Integer(epsilonTracesSkipped));
+	public static void attachEpsilonTracesSkipped(Node node, Long epsilonTracesSkipped) {
+		attachProperty(node, new PropertyEpsilonTracesSkipped(), new Long(epsilonTracesSkipped));
 	}
 
-	public static void attachNumberOfTracesRepresented(Node node, Integer numberOfTracesRepresented) {
-		attachProperty(node, new PropertyNumberOfTracesRepresented(), new Integer(numberOfTracesRepresented));
+	public static void attachNumberOfTracesRepresented(Node node, Long numberOfTracesRepresented) {
+		attachProperty(node, new PropertyNumberOfTracesRepresented(), new Long(numberOfTracesRepresented));
 	}
 
 	public static void attachNumberOfTracesRepresented(Node node, IMLogInfo logInfo) {
-		attachNumberOfTracesRepresented(node, (int) logInfo.getNumberOfTraces());
+		attachNumberOfTracesRepresented(node, logInfo.getNumberOfTraces());
 	}
 
-	public static Integer getMovesOnLog(Node node) {
-		return (Integer) getProperty(node, new PropertyMovesOnLog());
+	public static Long getMovesOnLog(Node node) {
+		return (Long) getProperty(node, new PropertyMovesOnLog());
 	}
 
-	public static Integer getMovesOnModelWithoutEpsilonTracesFiltered(Node node) {
-		return (Integer) getProperty(node, new PropertyMovesOnModel());
+	public static Long getMovesOnModelWithoutEpsilonTracesFiltered(Node node) {
+		return (Long) getProperty(node, new PropertyMovesOnModel());
 	}
 
-	public static Integer getEpsilonTracesSkipped(Node node) {
-		return (Integer) getProperty(node, new PropertyEpsilonTracesSkipped());
+	public static Long getEpsilonTracesSkipped(Node node) {
+		return (Long) getProperty(node, new PropertyEpsilonTracesSkipped());
 	}
 
-	public static Integer getNumberOfTracesRepresented(Node node) {
-		return (Integer) getProperty(node, new PropertyNumberOfTracesRepresented());
+	public static Long getNumberOfTracesRepresented(Node node) {
+		return (Long) getProperty(node, new PropertyNumberOfTracesRepresented());
 	}
 
 	public static String getProducer(Node node) {
@@ -62,7 +62,7 @@ public class MinerMetrics {
 	public static void saveMovesSumInto(Node into, Node add) {
 		attachEpsilonTracesSkipped(into, getEpsilonTracesSkipped(into) + getEpsilonTracesSkipped(add));
 		attachMovesOnLog(into, getMovesOnLog(into) + getMovesOnLog(into));
-		int epsilon = 0;
+		long epsilon = 0;
 		if (getEpsilonTracesSkipped(into) != null) {
 			epsilon += getEpsilonTracesSkipped(into);
 		}
@@ -102,15 +102,15 @@ public class MinerMetrics {
 		return result.toString();
 	}
 	
-	public static int getMovesOnModelFromEmptyTraces(Node node) {
+	public static long getMovesOnModelFromEmptyTraces(Node node) {
 		return getEpsilonTracesSkipped(node) * getShortestTrace(node);
 	}
 	
-	public static int getMovesOnModel(Node node) {
+	public static long getMovesOnModel(Node node) {
 		return getMovesOnModelWithoutEpsilonTracesFiltered(node) + getMovesOnModelFromEmptyTraces(node);
 	}
 	
-	public static int getSynchronousMoves(Node node) {
+	public static long getSynchronousMoves(Node node) {
 		if (node instanceof Manual) {
 			return getNumberOfTracesRepresented(node);
 		}
@@ -154,7 +154,7 @@ public class MinerMetrics {
 		return synchronousMoves / (logMoves + modelMoves + synchronousMoves * 1.0);
 	}
 	
-	public static int getShortestTrace(Node node) {
+	public static long getShortestTrace(Node node) {
 		if (node instanceof Manual) {
 			return 1;
 		} else if (node instanceof Automatic) {
@@ -162,7 +162,7 @@ public class MinerMetrics {
 		} else if (node instanceof Block) {
 			Block block = (Block) node;
 			if (block instanceof Xor || block instanceof Def || block instanceof Or) {
-				int result = Integer.MAX_VALUE;
+				long result = Long.MAX_VALUE;
 				for (Node child: block.getChildren()) {
 					result = Math.min(result, getShortestTrace(child));
 				}
