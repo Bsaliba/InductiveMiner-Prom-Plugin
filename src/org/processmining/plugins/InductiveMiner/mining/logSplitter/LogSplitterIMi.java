@@ -37,16 +37,16 @@ public class LogSplitterIMi implements LogSplitter {
 
 		for (IMTrace trace : log) {
 			if (cut.getOperator() == Operator.xor) {
-				splitXor(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
+				splitXor(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.sequence) {
-				splitSequence(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
+				splitSequence(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.parallel) {
-				splitParallel(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
+				splitParallel(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
 			} else if (cut.getOperator() == Operator.loop) {
-				splitLoop(result, trace, cut.getPartition(), log.getCardinalityOf(trace), mapSigma2sublog,
+				splitLoop(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
 			}
 		}

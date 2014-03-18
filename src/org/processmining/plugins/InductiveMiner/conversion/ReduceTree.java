@@ -235,7 +235,7 @@ public class ReduceTree {
 			MinerMetrics.attachMovesOnLog(redoXor, MinerMetrics.getMovesOnLog(oldBody));
 			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor,
 					MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(oldBody));
-			MinerMetrics.attachNumberOfTracesRepresented(redoXor, 0);
+			MinerMetrics.attachNumberOfTracesRepresented(redoXor, 0l);
 			MinerMetrics.attachNumberOfTracesRepresented(redoXor, getNumberOfTracesRepresentedChildrenXor(redoXor));
 
 			return true;
@@ -609,8 +609,8 @@ public class ReduceTree {
 	//		}
 	//	}
 
-	public static Integer getNumberOfTracesRepresentedChildrenXor(Node node) {
-		int sum = 0;
+	public static Long getNumberOfTracesRepresentedChildrenXor(Node node) {
+		long sum = 0;
 		if (MinerMetrics.getNumberOfTracesRepresented(node) != null) {
 			return MinerMetrics.getNumberOfTracesRepresented(node);
 		} else if (node instanceof Block) {

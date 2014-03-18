@@ -20,9 +20,9 @@ public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 			Node node = new AbstractTask.Automatic("tau");
 			node.setProcessTree(tree);
 			
-			MinerMetrics.attachNumberOfTracesRepresented(node, 0);
-			MinerMetrics.attachMovesOnLog(node, 0);
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, 0);			
+			MinerMetrics.attachNumberOfTracesRepresented(node, 0l);
+			MinerMetrics.attachMovesOnLog(node, 0l);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, 0l);			
 			MinerMetrics.attachProducer(node, "base case: IMi empty log");
 
 			return node;

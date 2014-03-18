@@ -13,12 +13,12 @@ import java.util.Set;
 
 public class MultiSet<X> implements Iterable<X> {
 	
-	protected HashMap<X, Integer> cardinalities;
-	protected int size;
+	protected HashMap<X, Long> cardinalities;
+	protected long size;
 	
 	public MultiSet() {
 		//use a linked hash map here, as it provides O(1) iteration complexity
-		cardinalities = new LinkedHashMap<X, Integer>();
+		cardinalities = new LinkedHashMap<X, Long>();
 		size = 0;
 	}
 	
@@ -49,21 +49,21 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
-	public boolean add(X element, Integer cardinality) {
+	public boolean add(X element, long cardinality) {
 		if (!cardinalities.containsKey(element)) {
 			cardinalities.put(element, cardinality);
 		} else {
-			Integer newCardinality = cardinalities.get(element) + cardinality;
+			Long newCardinality = cardinalities.get(element) + cardinality;
 			cardinalities.put(element, newCardinality);
 		}
 		size += cardinality;
 		return true;
 	}
 	
-	public boolean remove(X element, Integer cardinality) {
+	public boolean remove(X element, Long cardinality) {
 		assert(cardinality >= 0);
 		
-		Integer oldCardinality = getCardinalityOf(element);
+		Long oldCardinality = getCardinalityOf(element);
 		if (oldCardinality - cardinality > 0) {
 			cardinalities.put(element, cardinalities.get(element) - cardinality);
 			size -= cardinality;
@@ -86,7 +86,7 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
-	public boolean addAll(Collection<X> collection, int cardinality) {
+	public boolean addAll(Collection<X> collection, long cardinality) {
 		for (X element : collection) {
 			add(element, cardinality);
 		}
@@ -101,11 +101,11 @@ public class MultiSet<X> implements Iterable<X> {
 	}
 	
 	public void empty() {
-		cardinalities = new LinkedHashMap<X, Integer>();
+		cardinalities = new LinkedHashMap<X, Long>();
 		size = 0;
 	}
 	
-	public int size() {
+	public long size() {
 		return size;
 	}
 	
@@ -121,7 +121,7 @@ public class MultiSet<X> implements Iterable<X> {
 		return cardinalities.containsKey(a);
 	}
 	
-	public Integer getCardinalityOf(Object e) {
+	public long getCardinalityOf(Object e) {
 		if (contains(e)) {
 			return cardinalities.get(e);
 		} else {
@@ -139,7 +139,7 @@ public class MultiSet<X> implements Iterable<X> {
 		
 		Iterator<X> it = new Iterator<X>() {
 
-			private Iterator<Entry<X, Integer>> it2 = cardinalities.entrySet().iterator();
+			private Iterator<Entry<X, Long>> it2 = cardinalities.entrySet().iterator();
 
             @Override
             public boolean hasNext() {
@@ -148,7 +148,7 @@ public class MultiSet<X> implements Iterable<X> {
 
             @Override
             public X next() {
-            	Entry<X, Integer> n = it2.next();
+            	Entry<X, Long> n = it2.next();
                 return n.getKey();
             }
 
@@ -169,7 +169,7 @@ public class MultiSet<X> implements Iterable<X> {
 	
 	private class CardinalityComparator implements Comparator<X> {
 		public int compare(X arg0, X arg1) {
-			return getCardinalityOf(arg0).compareTo(getCardinalityOf(arg1));
+			return Long.valueOf(getCardinalityOf(arg0)).compareTo(Long.valueOf(getCardinalityOf(arg1)));
 		}
 	}
 	

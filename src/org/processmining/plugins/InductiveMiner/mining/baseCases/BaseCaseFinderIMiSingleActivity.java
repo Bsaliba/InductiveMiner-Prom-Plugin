@@ -26,7 +26,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 			if (0.5 - minerState.parameters.getNoiseThreshold() <= p
 					&& p <= 0.5 + minerState.parameters.getNoiseThreshold()) {
 				//^p is close enough to 0.5, consider it as a single activity
-				
+
 				Miner.debug(" base case: IMi single activity", minerState);
 
 				XEventClass activity = logInfo.getActivities().iterator().next();
@@ -34,10 +34,10 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 				node.setProcessTree(tree);
 
 				MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, (int) logInfo.getNumberOfEpsilonTraces());
-				MinerMetrics.attachMovesOnLog(node,
-						(int) (logInfo.getNumberOfEvents() - (logInfo.getNumberOfTraces() - logInfo
-								.getNumberOfEpsilonTraces())));
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node,
+						logInfo.getNumberOfEpsilonTraces());
+				MinerMetrics.attachMovesOnLog(node, logInfo.getNumberOfEvents()
+						- (logInfo.getNumberOfTraces() - logInfo.getNumberOfEpsilonTraces()));
 				MinerMetrics.attachProducer(node, "base case: IMi single activity");
 
 				return node;

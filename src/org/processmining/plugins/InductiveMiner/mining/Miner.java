@@ -75,7 +75,7 @@ public class Miner {
 			newNode.setProcessTree(tree);
 			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
 			MinerMetrics.attachMovesOnLog(newNode, splitResult.discardedEvents.size());
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, 0);
+			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, (long) 0);
 			MinerMetrics.attachProducer(newNode, "cut detection " + cut);
 
 			//recurse
@@ -104,8 +104,8 @@ public class Miner {
 					newNode.addChild(redoXor);
 					
 					MinerMetrics.attachNumberOfTracesRepresented(redoXor, log.size() - firstSublog.size());
-					MinerMetrics.attachMovesOnLog(redoXor, 0);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor, 0);
+					MinerMetrics.attachMovesOnLog(redoXor, (long) 0);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor, (long) 0);
 					MinerMetrics.attachProducer(redoXor, "cut detection " + cut);
 					
 				} else {
@@ -123,8 +123,8 @@ public class Miner {
 					tau.setProcessTree(tree);
 					newNode.addChild(tau);
 					MinerMetrics.attachNumberOfTracesRepresented(tau, logInfo);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, 0);
-					MinerMetrics.attachMovesOnLog(tau, 0);
+					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, (long) 0);
+					MinerMetrics.attachMovesOnLog(tau, (long) 0);
 					MinerMetrics.attachProducer(tau, "cut detection " + cut);
 				}
 			}

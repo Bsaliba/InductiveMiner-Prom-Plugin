@@ -67,8 +67,8 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 				Block newNode = new AbstractBlock.And("");
 				newNode.setProcessTree(tree);
 				MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
-				MinerMetrics.attachMovesOnLog(newNode, 0);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, 0);
+				MinerMetrics.attachMovesOnLog(newNode, (long) 0);
+				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, (long) 0);
 				MinerMetrics.attachProducer(newNode, "fall through: leave out activity");
 				
 				Node child1 = Miner.mineNode(log1, tree, minerState);
