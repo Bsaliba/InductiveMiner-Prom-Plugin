@@ -36,6 +36,6 @@ public class MiningParametersIM extends MiningParameters {
 				new FallThroughFlower()
 				)));
 		
-		setReduce(true);
+		setReduce(false);
 	}
 }

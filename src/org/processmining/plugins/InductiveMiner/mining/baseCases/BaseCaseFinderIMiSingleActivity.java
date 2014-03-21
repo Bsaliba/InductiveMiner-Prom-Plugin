@@ -5,7 +5,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractTask;
@@ -31,14 +30,10 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
 				XEventClass activity = logInfo.getActivities().iterator().next();
 				Node node = new AbstractTask.Manual(activity.toString());
-				node.setProcessTree(tree);
-
-				MinerMetrics.attachNumberOfTracesRepresented(node, logInfo);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node,
-						logInfo.getNumberOfEpsilonTraces());
-				MinerMetrics.attachMovesOnLog(node, logInfo.getNumberOfEvents()
-						- (logInfo.getNumberOfTraces() - logInfo.getNumberOfEpsilonTraces()));
-				MinerMetrics.attachProducer(node, "base case: IMi single activity");
+				Miner.addNode(tree, node, logInfo.getNumberOfTraces(), logInfo.getNumberOfEpsilonTraces(),
+						logInfo.getNumberOfEvents()
+								- (logInfo.getNumberOfTraces() - logInfo.getNumberOfEpsilonTraces()),
+						"base case: IMi single activity");
 
 				return node;
 			}
