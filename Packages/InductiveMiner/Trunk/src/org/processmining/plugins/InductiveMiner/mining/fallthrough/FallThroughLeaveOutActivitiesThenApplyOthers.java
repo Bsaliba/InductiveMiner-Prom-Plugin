@@ -14,7 +14,6 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -65,11 +64,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 				Miner.debug(" fall through: leave out activity " + leaveOutActivity, minerState);
 				
 				Block newNode = new AbstractBlock.And("");
-				newNode.setProcessTree(tree);
-				MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
-				MinerMetrics.attachMovesOnLog(newNode, (long) 0);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, (long) 0);
-				MinerMetrics.attachProducer(newNode, "fall through: leave out activity");
+				Miner.addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, 0l, "fall through: leave out activity");
 				
 				Node child1 = Miner.mineNode(log1, tree, minerState);
 				newNode.addChild(child1);

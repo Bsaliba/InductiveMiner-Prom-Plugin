@@ -4,7 +4,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractTask;
@@ -18,12 +17,7 @@ public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 			Miner.debug(" base case: IMi empty log", minerState);
 
 			Node node = new AbstractTask.Automatic("tau");
-			node.setProcessTree(tree);
-			
-			MinerMetrics.attachNumberOfTracesRepresented(node, 0l);
-			MinerMetrics.attachMovesOnLog(node, 0l);
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, 0l);			
-			MinerMetrics.attachProducer(node, "base case: IMi empty log");
+			Miner.addNode(tree, node, 0l, 0l, 0l, "base case: IMi empty log");
 
 			return node;
 		}

@@ -32,8 +32,6 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				
 				Node newNode = Miner.mineNode(log, tree, minerState);
 				
-				MinerMetrics.attachMovesOnLog(newNode, MinerMetrics.getMovesOnLog(newNode));
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(newNode));
 				MinerMetrics.attachEpsilonTracesSkipped(newNode, numberOfEpsilonTraces + MinerMetrics.getEpsilonTracesSkipped(newNode));
 				MinerMetrics.attachProducer(newNode, "base case: IMi empty traces; " + MinerMetrics.getProducer(newNode));
 				

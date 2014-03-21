@@ -34,7 +34,7 @@ public class Miner {
 		tree.setRoot(root);
 
 		debug(tree.getRoot(), minerState);
-		
+
 		//reduce if necessary
 		if (parameters.isReduce()) {
 			ReduceTree.reduceTree(tree);
@@ -72,11 +72,7 @@ public class Miner {
 
 			//make node
 			Block newNode = newNode(cut.getOperator());
-			newNode.setProcessTree(tree);
-			MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
-			MinerMetrics.attachMovesOnLog(newNode, splitResult.discardedEvents.size());
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, (long) 0);
-			MinerMetrics.attachProducer(newNode, "cut detection " + cut);
+			addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, splitResult.discardedEvents.size(), "cut detection " + cut);
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
@@ -100,14 +96,8 @@ public class Miner {
 				Block redoXor;
 				if (splitResult.sublogs.size() > 2) {
 					redoXor = new Xor("");
-					redoXor.setProcessTree(tree);
+					addNode(tree, redoXor, log.size() - firstSublog.size(), 0l, 0l, "cut detection " + cut);
 					newNode.addChild(redoXor);
-					
-					MinerMetrics.attachNumberOfTracesRepresented(redoXor, log.size() - firstSublog.size());
-					MinerMetrics.attachMovesOnLog(redoXor, (long) 0);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor, (long) 0);
-					MinerMetrics.attachProducer(redoXor, "cut detection " + cut);
-					
 				} else {
 					redoXor = newNode;
 				}
@@ -120,12 +110,8 @@ public class Miner {
 				//add tau as third child
 				{
 					Node tau = new AbstractTask.Automatic("tau");
-					tau.setProcessTree(tree);
+					addNode(tree, tau, logInfo.getNumberOfTraces(), 0l, 0l, "cut detection " + cut);
 					newNode.addChild(tau);
-					MinerMetrics.attachNumberOfTracesRepresented(tau, logInfo);
-					MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, (long) 0);
-					MinerMetrics.attachMovesOnLog(tau, (long) 0);
-					MinerMetrics.attachProducer(tau, "cut detection " + cut);
 				}
 			}
 
@@ -148,6 +134,16 @@ public class Miner {
 			return new AbstractBlock.XorLoop("");
 		}
 		return null;
+	}
+
+	public static void addNode(ProcessTree tree, Node node, long traces, long modelMovesWithoutEpsilonFiltered, long logMoves,
+			String producer) {
+		node.setProcessTree(tree);
+		tree.addNode(node);
+		MinerMetrics.attachNumberOfTracesRepresented(node, traces);
+		MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, modelMovesWithoutEpsilonFiltered);
+		MinerMetrics.attachMovesOnLog(node, logMoves);
+		MinerMetrics.attachProducer(node, producer);
 	}
 
 	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
@@ -179,10 +175,10 @@ public class Miner {
 
 	public static LogSplitResult splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		LogSplitResult result = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
-		
+
 		//merge the discarded events of this log splitting into the global discarded events list
 		minerState.discardedEvents.addAll(result.discardedEvents);
-		
+
 		return result;
 	}
 
