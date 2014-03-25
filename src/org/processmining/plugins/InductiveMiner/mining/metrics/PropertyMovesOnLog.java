@@ -2,11 +2,10 @@ package org.processmining.plugins.InductiveMiner.mining.metrics;
 
 import org.processmining.plugins.properties.annotations.ControlFlowPerspective;
 import org.processmining.plugins.properties.annotations.PropertableElementProperty;
-import org.processmining.plugins.properties.processmodel.abstractproperty.PropertyInteger;
 
 @ControlFlowPerspective
 @PropertableElementProperty
-public class PropertyMovesOnLog extends PropertyInteger {
+public class PropertyMovesOnLog extends PropertyLong {
 
 	private static final long serialVersionUID = 3208126370849190661L;
 
@@ -18,8 +17,8 @@ public class PropertyMovesOnLog extends PropertyInteger {
 		return "moves on log";
 	}
 
-	public Integer getDefaultValue() {
-		return 0;
+	public Long getDefaultValue() {
+		return 0l;
 	}
 
 }

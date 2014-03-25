@@ -13,7 +13,7 @@ public class Pair<L, R> {
 	public L getLeft() {
 		return left;
 	}
-	
+
 	public R getRight() {
 		return right;
 	}
@@ -25,6 +25,13 @@ public class Pair<L, R> {
 
 	@Override
 	public int hashCode() {
+		if (left == null && right == null) {
+			return 0;
+		} else if (left == null) {
+			return right.hashCode();
+		} else if (right == null) {
+			return left.hashCode();
+		}
 		return left.hashCode() ^ right.hashCode();
 	}
 
@@ -35,6 +42,11 @@ public class Pair<L, R> {
 		if (!(o instanceof Pair))
 			return false;
 		Pair<?, ?> pairo = (Pair<?, ?>) o;
+		if (left == null) {
+			return pairo.getLeft() == null && right.equals(pairo.getRight());
+		} else if (right == null) {
+			return pairo.getRight() == null && left.equals(pairo.getLeft());
+		}
 		return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
 	}
 

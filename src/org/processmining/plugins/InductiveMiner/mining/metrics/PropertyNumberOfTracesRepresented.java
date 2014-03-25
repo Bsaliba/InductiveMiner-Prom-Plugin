@@ -5,7 +5,7 @@ import org.processmining.plugins.properties.annotations.PropertableElementProper
 
 @ControlFlowPerspective
 @PropertableElementProperty
-public class PropertyNumberOfTracesRepresented extends org.processmining.plugins.properties.processmodel.abstractproperty.PropertyInteger {
+public class PropertyNumberOfTracesRepresented extends PropertyLong {
 
 	private static final long serialVersionUID = -3260227079823636872L;
 
@@ -17,8 +17,8 @@ public class PropertyNumberOfTracesRepresented extends org.processmining.plugins
 		return "number of traces represented";
 	}
 
-	public Integer getDefaultValue() {
-		return 0;
+	public Long getDefaultValue() {
+		return 0l;
 	}
 
 }
