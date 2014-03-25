@@ -182,7 +182,7 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitParallel(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
+			long cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
 			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 
 		//add a new trace to every sublog
@@ -203,7 +203,7 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitLoop(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
+			long cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
 			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 		IMTrace partialTrace = new IMTrace();
 

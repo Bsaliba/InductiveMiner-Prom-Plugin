@@ -11,6 +11,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughDirectlyFollowsGraph;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughLeaveOutActivitiesThenApplyOthers;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
@@ -38,11 +39,11 @@ public class MiningParametersIMStateOfArt extends MiningParameters {
 		
 		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
 				//new FallThroughSaveLog(),
-				new FallThroughDirectlyFollowsGraph(),
 				new FallThroughLeaveOutActivitiesThenApplyOthers(),
 				//new FallThroughETM(),
 				new FallThroughTauLoop(),
-				new FallThroughDirectlyFollowsGraph()
+				new FallThroughDirectlyFollowsGraph(),
+				new FallThroughFlower()
 				)));
 		
 		setIncompleteThreshold(0);
