@@ -44,20 +44,12 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				Miner.debug(" base case: IMi xor(tau, ..)", minerState);
 				
 				Block newNode = new AbstractBlock.Xor("");
-				newNode.setProcessTree(tree);
-				MinerMetrics.attachNumberOfTracesRepresented(newNode, logInfo);
-				MinerMetrics.attachMovesOnLog(newNode, (long) 0);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(newNode, (long) 0);
-				MinerMetrics.attachProducer(newNode, "base case: IMi xor(tau, ..)");
+				Miner.addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, 0l, "base case: IMi xor(tau, ..)");
 
 				//add tau
 				Node tau = new AbstractTask.Automatic("tau");
-				tau.setProcessTree(tree);
+				Miner.addNode(tree, tau, logInfo.getNumberOfEpsilonTraces(), 0l, 0l, "base case: IMi xor(tau, ..)");
 				newNode.addChild(tau);
-				MinerMetrics.attachNumberOfTracesRepresented(tau, logInfo.getNumberOfEpsilonTraces());
-				MinerMetrics.attachMovesOnLog(tau, (long) 0);
-				MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(tau, (long) 0);
-				MinerMetrics.attachProducer(tau, "base case: IMi xor(tau, ..)");
 
 				//filter empty traces
 				log.remove(new IMTrace());
