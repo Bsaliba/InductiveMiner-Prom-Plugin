@@ -10,7 +10,8 @@ public class ThreadPoolSingleton2 {
 	//constructor
 	public static ExecutorService getInstance() {
 		if (instance == null) {
-			instance = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 4);
+			int numberOfThreads = Math.max(Runtime.getRuntime().availableProcessors() / 4, 1);
+			instance = Executors.newFixedThreadPool(numberOfThreads);
 		}
 		return instance;
 	}
