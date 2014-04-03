@@ -1,7 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -16,7 +16,7 @@ public class SATResult {
 		if (sigma1 == null || sigma1 == null) {
 			cut = null;
 		} else {
-			Collection<Set<XEventClass>> partition = new LinkedList<Set<XEventClass>>();
+			Collection<Set<XEventClass>> partition = new ArrayList<Set<XEventClass>>();
 			partition.add(sigma1);
 			partition.add(sigma2);
 			cut = new Cut(operator, partition);

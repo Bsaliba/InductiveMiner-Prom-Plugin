@@ -1,7 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,10 +70,10 @@ public class CutFinderIMParallel implements CutFinder {
 		List<Set<XEventClass>> connectedComponents = connectedComponentsGraph.connectedSets();
 
 		//not all connected components are guaranteed to have start and end activities. Merge those that do not.
-		List<Set<XEventClass>> ccsWithStartEnd = new LinkedList<Set<XEventClass>>();
-		List<Set<XEventClass>> ccsWithStart = new LinkedList<Set<XEventClass>>();
-		List<Set<XEventClass>> ccsWithEnd = new LinkedList<Set<XEventClass>>();
-		List<Set<XEventClass>> ccsWithNothing = new LinkedList<Set<XEventClass>>();
+		List<Set<XEventClass>> ccsWithStartEnd = new ArrayList<Set<XEventClass>>();
+		List<Set<XEventClass>> ccsWithStart = new ArrayList<Set<XEventClass>>();
+		List<Set<XEventClass>> ccsWithEnd = new ArrayList<Set<XEventClass>>();
+		List<Set<XEventClass>> ccsWithNothing = new ArrayList<Set<XEventClass>>();
 		for (Set<XEventClass> cc : connectedComponents) {
 			Boolean hasStart = true;
 			if (Sets.intersection(cc, logInfo.getStartActivities().toSet()).size() == 0) {
@@ -104,7 +104,7 @@ public class CutFinderIMParallel implements CutFinder {
 		}
 
 		//add full sets
-		List<Set<XEventClass>> connectedComponents2 = new LinkedList<Set<XEventClass>>(ccsWithStartEnd);
+		List<Set<XEventClass>> connectedComponents2 = new ArrayList<Set<XEventClass>>(ccsWithStartEnd);
 		//add combinations of end-only and start-only components
 		Integer startCounter = 0;
 		Integer endCounter = 0;

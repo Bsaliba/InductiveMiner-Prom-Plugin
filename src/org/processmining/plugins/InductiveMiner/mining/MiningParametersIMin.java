@@ -1,7 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
@@ -22,18 +22,18 @@ public class MiningParametersIMin extends MiningParameters {
 	public MiningParametersIMin() {
 		//determine algorithm
 		
-		setBaseCaseFinders(new LinkedList<BaseCaseFinder>(Arrays.asList(
+		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIM()
 				)));
 		
-		setCutFinder(new LinkedList<CutFinder>(Arrays.asList(
+		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIM(),
 				new CutFinderIMin()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());
 		
-		setFallThroughs(new LinkedList<FallThrough>(Arrays.asList(
+		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughFlower()
 				)));
 		
