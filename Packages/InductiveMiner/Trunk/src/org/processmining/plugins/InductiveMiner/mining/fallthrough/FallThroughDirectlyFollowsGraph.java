@@ -1,6 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -35,7 +35,7 @@ public class FallThroughDirectlyFollowsGraph implements FallThrough {
 		IMLogInfo filteredLogInfo = CutFinderIMi.filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 
 		//make a list of weighted edges
-		List<Triple<String, String, Long>> edges = new LinkedList<Triple<String, String, Long>>();
+		List<Triple<String, String, Long>> edges = new ArrayList<Triple<String, String, Long>>();
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = filteredLogInfo
 				.getDirectlyFollowsGraph();
 		for (DefaultWeightedEdge edge : graph.edgeSet()) {

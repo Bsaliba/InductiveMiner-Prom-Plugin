@@ -1,9 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -178,7 +178,7 @@ public class Exhaustive {
 
 	public List<Set<XEventClass>> generateCut(long input, int nrOfBits, XEventClass[] activities) {
 
-		List<Set<XEventClass>> result = new LinkedList<Set<XEventClass>>();
+		List<Set<XEventClass>> result = new ArrayList<Set<XEventClass>>();
 		Set<XEventClass> a = new HashSet<XEventClass>();
 		Set<XEventClass> b = new HashSet<XEventClass>();
 

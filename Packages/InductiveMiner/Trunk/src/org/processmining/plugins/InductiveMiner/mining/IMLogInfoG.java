@@ -1,7 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -65,7 +65,7 @@ public class IMLogInfoG<X> {
 
 			int traceSize = 0;
 			eventSeenAt = new HashMap<X, Integer>();
-			readTrace = new LinkedList<X>();
+			readTrace = new ArrayList<X>();
 
 			for (X ec : trace) {
 

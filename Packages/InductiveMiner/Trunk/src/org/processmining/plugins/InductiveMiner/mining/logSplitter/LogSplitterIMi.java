@@ -1,10 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +20,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 public class LogSplitterIMi implements LogSplitter {
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		List<IMLog> result = new LinkedList<IMLog>();
+		List<IMLog> result = new ArrayList<IMLog>();
 		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
 
 		//map activities to sigmas

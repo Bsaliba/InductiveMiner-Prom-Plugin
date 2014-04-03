@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.metrics;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,7 +69,7 @@ public class PropertyDirectlyFollowsGraph extends PropertyList<Triple<String, St
 	}
 
 	public List<Triple<String, String, Long>> getDefaultValue() {
-		return new LinkedList<Triple<String, String, Long>>();
+		return new ArrayList<Triple<String, String, Long>>();
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class PropertyDirectlyFollowsGraph extends PropertyList<Triple<String, St
 			.compile("<valueEntry><A>([^<]*)</A><B>([^<]*)</B><C>(\\d*)</C></valueEntry>");
 
 	public Object unmarshall(String xml) {
-		List<Triple<String, String, Long>> result = new LinkedList<Triple<String, String, Long>>();
+		List<Triple<String, String, Long>> result = new ArrayList<Triple<String, String, Long>>();
 		Matcher m = pattern.matcher(xml);
 		while (m.find()) {
 			result.add(new Triple<String, String, Long>(m.group(1), m.group(2), Long.valueOf(m.group(3))));

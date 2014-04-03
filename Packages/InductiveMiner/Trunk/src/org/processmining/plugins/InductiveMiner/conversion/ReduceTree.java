@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.conversion;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -33,7 +33,7 @@ public class ReduceTree {
 		return tree;
 	}
 
-	public static List<ReductionPattern> patterns = new LinkedList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
+	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
 			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPOneChild()));
 
 	public static abstract class ReductionPattern {
@@ -93,7 +93,7 @@ public class ReduceTree {
 			Xor xor = (Xor) node;
 
 			//gather taus and children that can produce the empty trace
-			List<Automatic> taus = new LinkedList<Automatic>();
+			List<Automatic> taus = new ArrayList<Automatic>();
 			Node childProducingTau = null;
 			for (Node child : ((Block) node).getChildren()) {
 				if (child instanceof Automatic) {
@@ -256,7 +256,7 @@ public class ReduceTree {
 
 	private static void removeChild(Block node, Node child, ProcessTree tree) {
 		//remove grandChild <-> childXor connection\
-		List<Edge> edges = new LinkedList<Edge>();
+		List<Edge> edges = new ArrayList<Edge>();
 		for (Edge edge : node.getOutgoingEdges()) {
 			if (edge.getTarget() == child) {
 				edges.add(edge);
@@ -304,7 +304,7 @@ public class ReduceTree {
 	}
 
 	private static List<Node> getPathToTau(Node node) {
-		List<Node> result = new LinkedList<Node>(Arrays.asList(node));
+		List<Node> result = new ArrayList<Node>(Arrays.asList(node));
 		if (node instanceof Manual) {
 			return null;
 		} else if (node instanceof Automatic) {
@@ -384,7 +384,7 @@ public class ReduceTree {
 	//			Pair<Node, Set<Node>> p = flattenLoop((XorLoop) node);
 	//
 	//			//construct a children array
-	//			children = new LinkedList<Node>();
+	//			children = new ArrayList<Node>();
 	//			children.add(p.getLeft());
 	//			if (p.getRight().size() == 1) {
 	//				//if only one right-side child remains, add it
@@ -467,7 +467,7 @@ public class ReduceTree {
 	//	}
 	//
 	//	private static List<Node> flattenSequence(Seq node) {
-	//		List<Node> result = new LinkedList<Node>();
+	//		List<Node> result = new ArrayList<Node>();
 	//		for (Node child : node.getChildren()) {
 	//			if (child instanceof Seq) {
 	//				//this child is a sequence-child of a sequence
@@ -480,7 +480,7 @@ public class ReduceTree {
 	//	}
 	//
 	//	private static List<Node> flattenXor(AbstractBlock node) {
-	//		List<Node> result = new LinkedList<Node>();
+	//		List<Node> result = new ArrayList<Node>();
 	//		for (Node child : node.getChildren()) {
 	//			if (child instanceof Xor) {
 	//				//this child is an xor-child of an xor
@@ -560,7 +560,7 @@ public class ReduceTree {
 	//	}
 	//
 	//	private static List<Node> flattenParallel(And node) {
-	//		List<Node> result = new LinkedList<Node>();
+	//		List<Node> result = new ArrayList<Node>();
 	//		for (Node child : node.getChildren()) {
 	//			if (child instanceof And) {
 	//				//this child is an xor-child of an xor
@@ -584,7 +584,7 @@ public class ReduceTree {
 	//
 	//		public DummyXor(String name) {
 	//			super(name);
-	//			children2 = new LinkedList<Node>();
+	//			children2 = new ArrayList<Node>();
 	//		}
 	//
 	//		public List<Node> getChildren() {

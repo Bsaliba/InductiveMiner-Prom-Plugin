@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 
 public class CutFinderIM implements CutFinder {
 	
-	private static List<CutFinder> cutFinders = new LinkedList<CutFinder>(Arrays.asList(
+	private static List<CutFinder> cutFinders = new ArrayList<CutFinder>(Arrays.asList(
 			new CutFinderIMExclusiveChoice(),
 			new CutFinderIMSequence(),
 			new CutFinderIMParallelWithMinimumSelfDistance(),
