@@ -96,7 +96,7 @@ public class Miner {
 				Block redoXor;
 				if (splitResult.sublogs.size() > 2) {
 					redoXor = new Xor("");
-					addNode(tree, redoXor, log.size() - firstSublog.size(), 0l, 0l, "cut detection " + cut);
+					addNode(tree, redoXor, firstSublog.size() - log.size(), 0l, 0l, "cut detection " + cut);
 					newNode.addChild(redoXor);
 				} else {
 					redoXor = newNode;
