@@ -13,6 +13,10 @@ public class Quadruple<A,B,C,D> {
 			this.d = d;
 		}
 		
+		public static <A,B,C,D> Quadruple<A,B,C,D> of(A a, B b, C c, D d){
+	        return new Quadruple<A,B,C,D>(a,b,c,d);
+	    }
+		
 		public A getA() { return a; }
 		public B getB() { return b; }
 		public C getC() { return c; }
