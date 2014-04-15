@@ -50,7 +50,7 @@ public class Miner {
 		IMLogInfo logInfo = new IMLogInfo(log);
 
 		//output information about the log
-		debug("\nMine " + logInfo.getActivities(), minerState);
+		debug("\nMine epsilon=" + logInfo.getNumberOfEpsilonTraces() + ", " + logInfo.getActivities(), minerState);
 		//debug(log, parameters);
 		//debug(logInfo, parameters);
 

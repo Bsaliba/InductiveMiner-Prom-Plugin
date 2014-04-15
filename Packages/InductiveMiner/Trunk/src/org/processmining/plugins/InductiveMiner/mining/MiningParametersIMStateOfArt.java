@@ -49,6 +49,6 @@ public class MiningParametersIMStateOfArt extends MiningParameters {
 		setIncompleteThreshold(0);
 		setNoiseThreshold(0.2f);
 		setSatProbabilities(new ProbabilitiesEstimatedZ());
-		setReduce(false);
+		setReduce(true);
 	}
 }

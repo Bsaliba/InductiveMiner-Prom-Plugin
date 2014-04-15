@@ -17,7 +17,7 @@ public class IMStateOfArtProcessTree {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Petri net, dialog", requiredParameterLabels = { 0 })
-	public ProcessTree mineGuiPetrinet(UIPluginContext context, XLog log) {
+	public ProcessTree mineGuiProcessTree(UIPluginContext context, XLog log) {
 		MiningParameters parameters = new MiningParametersIMStateOfArt();
 		IMiMiningDialog dialog = new IMiMiningDialog(log, parameters);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner - state of art", true, true, dialog);
