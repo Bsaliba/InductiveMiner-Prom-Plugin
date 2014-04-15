@@ -86,6 +86,7 @@ public class MinerMetrics {
 	
 	public static String statisticsToString(Node node) {
 		StringBuilder result = new StringBuilder();
+		result.append("node " + node.toString() + "\n");
 		result.append(" subtraces represented " + getNumberOfTracesRepresented(node) + "\n");
 		result.append(" moves on log " + getMovesOnLog(node) + "\n");
 		result.append(" moves on model " + getMovesOnModel(node) + "\n");
