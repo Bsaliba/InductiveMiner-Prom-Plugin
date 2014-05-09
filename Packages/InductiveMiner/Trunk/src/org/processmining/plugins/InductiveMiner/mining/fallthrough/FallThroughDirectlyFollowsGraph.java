@@ -6,6 +6,7 @@ import java.util.List;
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.processmining.plugins.InductiveMiner.MaybeString;
 import org.processmining.plugins.InductiveMiner.Triple;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -35,23 +36,24 @@ public class FallThroughDirectlyFollowsGraph implements FallThrough {
 		IMLogInfo filteredLogInfo = CutFinderIMi.filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 
 		//make a list of weighted edges
-		List<Triple<String, String, Long>> edges = new ArrayList<Triple<String, String, Long>>();
+		List<Triple<MaybeString, MaybeString, Long>> edges = new ArrayList<Triple<MaybeString, MaybeString, Long>>();
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = filteredLogInfo
 				.getDirectlyFollowsGraph();
 		for (DefaultWeightedEdge edge : graph.edgeSet()) {
-			edges.add(new Triple<String, String, Long>(graph.getEdgeSource(edge).toString(), graph.getEdgeTarget(edge)
-					.toString(), (long) graph.getEdgeWeight(edge)));
+			edges.add(new Triple<MaybeString, MaybeString, Long>(new MaybeString(graph.getEdgeSource(edge).toString()),
+					new MaybeString(graph.getEdgeTarget(edge).toString()), (long) graph.getEdgeWeight(edge)));
 		}
 
 		//add start activities
 		for (XEventClass a : logInfo.getStartActivities()) {
-			edges.add(new Triple<String, String, Long>("", a.toString(), logInfo.getStartActivities().getCardinalityOf(
-					a)));
+			edges.add(new Triple<MaybeString, MaybeString, Long>(new MaybeString(null), new MaybeString(a.toString()), logInfo.getStartActivities()
+					.getCardinalityOf(a)));
 		}
 
 		//add end activities
 		for (XEventClass a : logInfo.getEndActivities()) {
-			edges.add(new Triple<String, String, Long>(a.toString(), "", logInfo.getEndActivities().getCardinalityOf(a)));
+			edges.add(new Triple<MaybeString, MaybeString, Long>(new MaybeString(a.toString()), new MaybeString(null), logInfo.getEndActivities()
+					.getCardinalityOf(a)));
 		}
 
 		PropertyDirectlyFollowsGraph property = new PropertyDirectlyFollowsGraph();
