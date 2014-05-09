@@ -1,11 +1,15 @@
 package org.processmining.plugins.InductiveMiner;
 
 public class Maybe<X> {
-	private X x;
+	protected X x;
 
 	public Maybe(X x) {
 		this.x = x;
 	}
+	
+	public static <X> Maybe<X> of(X x){
+        return new Maybe<X>(x);
+    }
 
 	public X get() {
 		return x;
