@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
@@ -28,6 +29,7 @@ public class MiningParametersIvM extends MiningParameters {
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIMiEmptyLog(),
 				new BaseCaseFinderIMiEmptyTrace(),
+				new BaseCaseFinderIMi(),
 				new BaseCaseFinderIM()
 				)));
 		
