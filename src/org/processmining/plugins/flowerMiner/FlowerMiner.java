@@ -8,7 +8,6 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
-import org.processmining.connections.logmodel.LogPetrinetConnectionImpl;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
@@ -41,7 +40,8 @@ public class FlowerMiner {
 		TransEvClassMapping mapping = (TransEvClassMapping) result[3];
 		
 		//create connections
-		context.addConnection(new LogPetrinetConnectionImpl(log, logInfo.getEventClasses(), petrinet, mapping));
+//		TODO: re-enable once replayer package is updated
+//		context.addConnection(new LogPetrinetConnectionImpl(log, logInfo.getEventClasses(), petrinet, mapping));
 		context.addConnection(new InitialMarkingConnection(petrinet, initialMarking));
 		context.addConnection(new FinalMarkingConnection(petrinet, finalMarking));
 		context.addConnection(new EvClassLogPetrinetConnection("classifier-log-petrinet connection", petrinet, log, classifier, mapping));

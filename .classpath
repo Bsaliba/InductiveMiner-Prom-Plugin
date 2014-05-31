@@ -20,8 +20,6 @@
 	<classpathentry kind="lib" path="stdlib/jung-graph-impl-2.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-io-2.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-visualization-2.0.jar"/>
-	<classpathentry kind="lib" path="stdlib/OpenXES-XStream.jar"/>
-	<classpathentry kind="lib" path="stdlib/OpenXES.jar"/>
 	<classpathentry kind="lib" path="stdlib/simmetrics.jar"/>
 	<classpathentry kind="lib" path="stdlib/slickerbox1.0rc1.jar"/>
 	<classpathentry kind="lib" path="stdlib/Spex.jar"/>
@@ -68,5 +66,7 @@
 	<classpathentry kind="lib" path="packagelib/lib-PNetReplayer/lpsolve55j.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-PNetReplayer/trove-3.0.1.jar"/>
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES-XStream.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
