@@ -1,5 +1,6 @@
 package org.processmining.plugins.InductiveMiner;
 
+
 public class Pair<L, R> {
 
 	private final L left;
@@ -52,6 +53,14 @@ public class Pair<L, R> {
 			return pairo.getRight() == null && left.equals(pairo.getLeft());
 		}
 		return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
+	}
+
+	public L getA() {
+		return getLeft();
+	}
+	
+	public R getB() {
+		return getRight();
 	}
 
 }
