@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="stdlib/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="stdlib/colt.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-compress-1.0.jar"/>
-	<classpathentry kind="lib" path="stdlib/commons-math-1.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/FilterableSortableTablePanel.jar"/>
 	<classpathentry kind="lib" path="stdlib/flanagan.jar"/>
 	<classpathentry kind="lib" path="stdlib/jargs.jar"/>
@@ -58,7 +57,6 @@
 	<classpathentry kind="lib" path="stdlib/freehep-util-2.0.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-xml-2.1.1.jar"/>
 	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="packagelib/Properties.jar"/>
 	<classpathentry kind="lib" path="stdlib/guava-16.0.1.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-PNetReplayer/javailp-1.2a.jar"/>
@@ -68,5 +66,7 @@
 	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES-XStream.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="stdlib/commons-math-3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
