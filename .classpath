@@ -39,7 +39,6 @@
 	<classpathentry kind="lib" path="tests/libs-external/lib-cobertura/log4j-1.2.9.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/cobertura.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/junit-4.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="lib" path="stdlib/EfficientStorage.jar"/>
 	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-export-2.1.1.jar"/>
@@ -68,5 +67,6 @@
 	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-math-3.1.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
