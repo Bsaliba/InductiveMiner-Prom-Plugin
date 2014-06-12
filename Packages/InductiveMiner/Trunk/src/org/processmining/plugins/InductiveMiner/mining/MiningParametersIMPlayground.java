@@ -16,13 +16,13 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughLe
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
-public class MiningParametersIMStateOfArt extends MiningParameters {
+public class MiningParametersIMPlayground extends MiningParameters {
 	
 	/*
 	 * No other parameter, except mentioned in this file, has influence on mined model
 	 */
 	
-	public MiningParametersIMStateOfArt() {
+	public MiningParametersIMPlayground() {
 		//determine algorithm
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
