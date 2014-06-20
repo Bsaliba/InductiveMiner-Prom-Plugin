@@ -222,8 +222,8 @@ public class IMMiningDialog extends JPanel {
 				Variant variant = (Variant) variantCombobox.getSelectedItem();
 				float noise = p.parameters.getNoiseThreshold();
 				p.parameters = variant.getMiningParameters();
+				p.parameters.setNoiseThreshold(noise);
 				if (variant.hasNoise()) {
-					p.parameters.setNoiseThreshold(noise);
 					noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
 				} else {
 					int width = noiseValue.getWidth();
