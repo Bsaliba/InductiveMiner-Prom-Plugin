@@ -1,10 +1,7 @@
 package org.processmining.plugins.InductiveMiner.plugins;
 
 import org.deckfour.xes.model.XLog;
-import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
-import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
 import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
@@ -20,18 +17,10 @@ import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWit
 
 public class IMPetriNet {
 
-	@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
-			"Log", "Inductive Miner parameters" }, userAccessible = true)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree", requiredParameterLabels = { 0 })
 	public Object[] minePetriNet(PluginContext context, XLog log) {
 		return minePetriNet(context, log, new MiningParametersIM());
 	}
 	
-	@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = {
-			"Log", "Inductive Miner parameters" }, userAccessible = false)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree, parameters", requiredParameterLabels = { 0, 1 })
 	public Object[] minePetriNetParameters(PluginContext context, XLog log, MiningParameters parameters) {
 		return minePetriNet(context, log, parameters);
 	}
