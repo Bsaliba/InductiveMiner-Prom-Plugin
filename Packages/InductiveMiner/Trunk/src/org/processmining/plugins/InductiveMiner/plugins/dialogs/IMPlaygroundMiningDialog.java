@@ -14,11 +14,11 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
-public class IMiMiningDialog extends JPanel {
+public class IMPlaygroundMiningDialog extends JPanel {
 
 	private static final long serialVersionUID = 7693870370139578439L;
 
-	public IMiMiningDialog(XLog log, final MiningParameters parameters) {
+	public IMPlaygroundMiningDialog(XLog log, final MiningParameters parameters) {
 
 		SlickerFactory factory = SlickerFactory.instance();
 
