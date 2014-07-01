@@ -20,10 +20,15 @@ public interface LogSplitter {
 		}
 	}
 	
-	/*
+	/**
 	 * usage: returns a list of sublogs and a multiset of noise events
 	 * 
 	 * Must be thread-safe and abstract, i.e, no side-effects allowed.
+	 * @param log
+	 * @param logInfo
+	 * @param cut
+	 * @param minerState
+	 * @return
 	 */
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState);
 }

@@ -8,7 +8,7 @@ import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMPlayground;
-import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMiMiningDialog;
+import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMPlaygroundMiningDialog;
 import org.processmining.processtree.ProcessTree;
 
 @Plugin(name = "Mine Process Tree with Inductive Miner-playground", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
@@ -17,7 +17,7 @@ public class IMPlaygroundProcessTree {
 	
 	public ProcessTree mineGuiProcessTree(UIPluginContext context, XLog log) {
 		MiningParameters parameters = new MiningParametersIMPlayground();
-		IMiMiningDialog dialog = new IMiMiningDialog(log, parameters);
+		IMPlaygroundMiningDialog dialog = new IMPlaygroundMiningDialog(log, parameters);
 		
 		JOptionPane.showMessageDialog(dialog, "Please note that this is a plug-in to test new ideas.\nIt can change without notice.");
 		
