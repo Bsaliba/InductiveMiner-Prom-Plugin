@@ -3,8 +3,6 @@ package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,10 +37,13 @@ public class LogSplitterIvM implements LogSplitter {
 			if (cut.getOperator() == Operator.loop) {
 				splitLoop(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
+			} else if (cut.getOperator() == Operator.xor) {
+				splitXor(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
+						mapActivity2sigma, noise);
 			} else {
 				splitParallel(result, trace, cut.getPartition(), (int) log.getCardinalityOf(trace), mapSigma2sublog,
 						mapActivity2sigma, noise);
-			} 
+			}
 		}
 
 		return new LogSplitResult(result, noise);
@@ -61,118 +62,23 @@ public class LogSplitterIvM implements LogSplitter {
 			return;
 		}
 
-		//walk through the events and count how many go in each sigma
-		HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
+		//add a new trace to every sublog
+		HashMap<Set<XEventClass>, IMTrace> mapSigma2subtrace = new HashMap<Set<XEventClass>, IMTrace>();
 		for (Set<XEventClass> sigma : partition) {
-			eventCounter.put(sigma, 0);
+			IMTrace subtrace = new IMTrace();
+			mapSigma2subtrace.put(sigma, subtrace);
 		}
-		int maxCounter = 0;
-		Set<XEventClass> maxSigma = null;
+
 		for (XEventClass event : trace) {
 			Set<XEventClass> sigma = mapActivity2sigma.get(event);
-			int newCounter = eventCounter.get(sigma) + 1;
-			if (newCounter > maxCounter) {
-				maxCounter = newCounter;
-				maxSigma = sigma;
-			}
-			eventCounter.put(sigma, newCounter);
+			mapSigma2subtrace.get(sigma).add(event);
 		}
 
-		//make a copy of the trace, leaving out the noise
-		IMTrace newTrace = new IMTrace();
-		for (XEventClass event : trace) {
-			if (maxSigma.contains(event)) {
-				//non-noise event
-				newTrace.add(event);
-			} else {
-				//noise event
-				noise.add(event, cardinality);
-			}
-		}
-
-		IMLog sublog = mapSigma2sublog.get(maxSigma);
-		sublog.add(newTrace, cardinality);
-		mapSigma2sublog.put(maxSigma, sublog);
-	}
-
-	public static void splitSequence(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
-		int atPosition = 0;
-		int lastPosition = 0;
-		IMTrace newTrace;
-		Set<XEventClass> ignore = new HashSet<XEventClass>();
-
-		int i = 0;
 		for (Set<XEventClass> sigma : partition) {
-
-			if (i < partition.size() - 1) {
-				atPosition = findOptimalSplit(trace, sigma, atPosition, ignore);
-			} else {
-				//if this is the last sigma, there's no point in splitting
-				atPosition = trace.size();
-			}
-
-			ignore.addAll(sigma);
-
-			//split the trace
-			newTrace = new IMTrace();
-			for (XEventClass event : trace.subList(lastPosition, atPosition)) {
-				if (sigma.contains(event)) {
-					//non-noise event
-					newTrace.add(event);
-				} else {
-					//noise
-					noise.add(event, cardinality);
-				}
-			}
-
-			IMLog sublog = mapSigma2sublog.get(sigma);
-			sublog.add(newTrace, cardinality);
-
-			lastPosition = atPosition;
-			i++;
-		}
-	}
-
-	private static int findOptimalSplit(List<XEventClass> trace, Set<XEventClass> sigma, int startPosition,
-			Set<XEventClass> ignore) {
-		int positionLeastCost = 0;
-		int leastCost = 0;
-		int cost = 0;
-		int position = 0;
-
-		Iterator<XEventClass> it = trace.iterator();
-
-		//debug("find optimal split in " + trace.toString() + " for " + sigma.toString());
-
-		//move to the start position
-		while (position < startPosition && it.hasNext()) {
-			position = position + 1;
-			positionLeastCost = positionLeastCost + 1;
-			it.next();
-		}
-
-		XEventClass event;
-		while (it.hasNext()) {
-			event = it.next();
-			if (ignore.contains(event)) {
-				//skip
-			} else if (sigma.contains(event)) {
-				cost = cost - 1;
-			} else {
-				cost = cost + 1;
-			}
-
-			position = position + 1;
-
-			if (cost < leastCost) {
-				leastCost = cost;
-				positionLeastCost = position;
+			if (!mapSigma2subtrace.get(sigma).isEmpty()) {
+				mapSigma2sublog.get(sigma).add(mapSigma2subtrace.get(sigma), cardinality);
 			}
 		}
-
-		return positionLeastCost;
 	}
 
 	public static void splitParallel(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
