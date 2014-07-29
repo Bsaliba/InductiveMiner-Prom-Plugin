@@ -19,7 +19,7 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 		if (logInfo.getNumberOfEpsilonTraces() != 0) {
 			//the log contains empty traces
 
-			if (logInfo.getNumberOfEpsilonTraces() < logInfo.getLengthStrongestTrace() * minerState.parameters.getNoiseThreshold()) {
+			if (logInfo.getNumberOfEpsilonTraces() < logInfo.getHighestTraceCardinality() * minerState.parameters.getNoiseThreshold()) {
 				//there are not enough empty traces, the empty traces are considered noise
 				
 				long numberOfEpsilonTraces = log.getCardinalityOf(new IMTrace());
@@ -44,7 +44,7 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				Miner.debug(" base case: IMi xor(tau, ..)", minerState);
 				
 				Block newNode = new AbstractBlock.Xor("");
-				Miner.addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, 0l, "base case: IMi xor(tau, ..)");
+				Miner.addNode(tree, newNode, log.size(), 0l, 0l, "base case: IMi xor(tau, ..)");
 
 				//add tau
 				Node tau = new AbstractTask.Automatic("tau");

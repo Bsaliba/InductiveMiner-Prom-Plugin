@@ -1,6 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.metrics;
 
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.properties.processmodel.Property;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
@@ -35,8 +35,8 @@ public class MinerMetrics {
 		attachProperty(node, new PropertyNumberOfTracesRepresented(), new Long(numberOfTracesRepresented));
 	}
 
-	public static void attachNumberOfTracesRepresented(Node node, IMLogInfo logInfo) {
-		attachNumberOfTracesRepresented(node, logInfo.getNumberOfTraces());
+	public static void attachNumberOfTracesRepresented(Node node, IMLog log) {
+		attachNumberOfTracesRepresented(node, log.size());
 	}
 
 	public static Long getMovesOnLog(Node node) {

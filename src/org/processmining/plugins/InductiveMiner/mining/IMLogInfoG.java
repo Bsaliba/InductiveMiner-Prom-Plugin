@@ -23,32 +23,26 @@ public class IMLogInfoG<X> {
 	protected final HashMap<X, MultiSet<X>> minimumSelfDistancesBetween;
 	protected final HashMap<X, Integer> minimumSelfDistances;
 
-	protected final long numberOfTraces;
 	protected final long numberOfEvents;
 	protected final long numberOfEpsilonTraces;
-	protected final int longestTrace;
-	protected final long lengthStrongestTrace;
-	protected final long strongestDirectEdge;
-	protected final long strongestEventualEdge;
-	protected final long strongestStartActivity;
-	protected final long strongestEndActivity;
-	
+	protected final long highestTraceCardinality;
+	protected final long occurencesOfMostOccuringDirectEdge;
+	protected final X mostOccurringStartActivity;
+	protected final X mostOccurringEndActivity;
+
 	public IMLogInfoG(MultiSet<? extends IMTraceG<X>> log) {
 		//initialise, read the log
-		directlyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
-		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
+		directlyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		activities = new MultiSet<X>();
 		startActivities = new MultiSet<X>();
 		endActivities = new MultiSet<X>();
 		minimumSelfDistances = new HashMap<X, Integer>();
 		minimumSelfDistancesBetween = new HashMap<X, MultiSet<X>>();
-		int numberOfTraces = 0;
 		long numberOfEvents = 0;
 		long numberOfEpsilonTraces = 0;
 		int longestTrace = 0;
-		long lengthStrongestTrace = 0;
+		long highestTraceCardinality = 0;
 
 		X fromEventClass;
 		X toEventClass;
@@ -142,10 +136,9 @@ public class IMLogInfoG<X> {
 				longestTrace = traceSize;
 			}
 
-			numberOfTraces += cardinality;
 			numberOfEvents += traceSize * cardinality;
 
-			lengthStrongestTrace = Math.max(lengthStrongestTrace, cardinality);
+			highestTraceCardinality = Math.max(highestTraceCardinality, cardinality);
 
 			if (toEventClass != null) {
 				endActivities.add(toEventClass, cardinality);
@@ -158,53 +151,49 @@ public class IMLogInfoG<X> {
 		//debug(minimumSelfDistancesBetween.toString());
 
 		//copy local fields to class fields
-		this.numberOfTraces = numberOfTraces;
 		this.numberOfEvents = numberOfEvents;
 		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
-		this.longestTrace = longestTrace;
-		this.lengthStrongestTrace = lengthStrongestTrace;
+		this.highestTraceCardinality = highestTraceCardinality;
 
 		//find the edge with the greatest weight
-		int strongestDirectEdge = 0;
+		int occurencesOfMostOccuringDirectEdge = 0;
 		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
-			strongestDirectEdge = Math.max(strongestDirectEdge, (int) directlyFollowsGraph.getEdgeWeight(edge));
+			occurencesOfMostOccuringDirectEdge = Math.max(occurencesOfMostOccuringDirectEdge,
+					(int) directlyFollowsGraph.getEdgeWeight(edge));
 		}
-		this.strongestDirectEdge = strongestDirectEdge;
+		this.occurencesOfMostOccuringDirectEdge = occurencesOfMostOccuringDirectEdge;
 
-		//find the edge with the greatest weight
-		int strongestEventualEdge = 0;
-		for (DefaultWeightedEdge edge : eventuallyFollowsGraph.edgeSet()) {
-			strongestEventualEdge = Math.max(strongestEventualEdge, (int) eventuallyFollowsGraph.getEdgeWeight(edge));
+		//find the strongest start and end activities
+		{
+			long occurrencesOfMostOccuringStartActivity = 0;
+			long occurrencesOfMostOccuringEndActivity = 0;
+			X mostOccurringStartActivity = null;
+			X mostOccurringEndActivity = null;
+			for (X activity : startActivities) {
+				if (startActivities.getCardinalityOf(activity) > occurrencesOfMostOccuringStartActivity) {
+					occurrencesOfMostOccuringStartActivity = startActivities.getCardinalityOf(activity);
+					mostOccurringStartActivity = activity;
+				}
+				if (endActivities.getCardinalityOf(activity) > occurrencesOfMostOccuringEndActivity) {
+					occurrencesOfMostOccuringEndActivity = endActivities.getCardinalityOf(activity);
+					mostOccurringEndActivity = activity;
+				}
+			}
+			this.mostOccurringStartActivity = mostOccurringStartActivity;
+			this.mostOccurringEndActivity = mostOccurringEndActivity;
 		}
-		this.strongestEventualEdge = strongestEventualEdge;
-
-		//find the strongest start activity
-		long strongestStartActivity = 0;
-		for (X activity : startActivities) {
-			strongestStartActivity = Math.max(strongestStartActivity, startActivities.getCardinalityOf(activity));
-		}
-		this.strongestStartActivity = strongestStartActivity;
-
-		//find the strongest end activity
-		long strongestEndActivity = 0;
-		for (X activity : endActivities) {
-			strongestEndActivity = Math.max(strongestEndActivity, endActivities.getCardinalityOf(activity));
-		}
-		this.strongestEndActivity = strongestEndActivity;
 
 		//compute the transitive closure of the directly-follows graph
 		directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(directlyFollowsGraph);
 	}
-	
+
 	public IMLogInfoG(DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> eventuallyFollowsGraph,
-			DefaultDirectedGraph<X, DefaultEdge> directlyFollowsTransitiveClosureGraph,
-			MultiSet<X> activities,
+			DefaultDirectedGraph<X, DefaultEdge> directlyFollowsTransitiveClosureGraph, MultiSet<X> activities,
 			MultiSet<X> startActivities, MultiSet<X> endActivities,
-			HashMap<X, MultiSet<X>> minimumSelfDistancesBetween,
-			HashMap<X, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
-			long numberOfEpsilonTraces, int longestTrace, long lengthStrongestTrace, long strongestDirectEdge,
-			long strongestEventualEdge, long strongestStartActivity, long strongestEndActivity) {
+			HashMap<X, MultiSet<X>> minimumSelfDistancesBetween, HashMap<X, Integer> minimumSelfDistances,
+			long numberOfEvents, long numberOfEpsilonTraces, long lengthStrongestTrace,
+			long strongestDirectEdge, X mostOccurringStartActivity, X mostOccurringEndActivity) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.directlyFollowsTransitiveClosureGraph = directlyFollowsTransitiveClosureGraph;
@@ -213,20 +202,16 @@ public class IMLogInfoG<X> {
 		this.endActivities = endActivities;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
 		this.minimumSelfDistances = minimumSelfDistances;
-		this.numberOfTraces = numberOfTraces;
 		this.numberOfEvents = numberOfEvents;
 		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
-		this.longestTrace = longestTrace;
-		this.lengthStrongestTrace = lengthStrongestTrace;
-		this.strongestDirectEdge = strongestDirectEdge;
-		this.strongestEventualEdge = strongestEventualEdge;
-		this.strongestStartActivity = strongestStartActivity;
-		this.strongestEndActivity = strongestEndActivity;
+		this.highestTraceCardinality = lengthStrongestTrace;
+		this.occurencesOfMostOccuringDirectEdge = strongestDirectEdge;
+		this.mostOccurringStartActivity = mostOccurringStartActivity;
+		this.mostOccurringEndActivity = mostOccurringEndActivity;
 	}
 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append("number of traces: " + numberOfTraces + "\n");
 		result.append("number of events: " + numberOfEvents + "\n");
 		result.append("start activities: " + startActivities + "\n");
 		result.append("end activities: " + endActivities);
@@ -279,39 +264,52 @@ public class IMLogInfoG<X> {
 		return 0;
 	}
 
-	public long getNumberOfTraces() {
-		return numberOfTraces;
-	}
-
 	public long getNumberOfEvents() {
 		return numberOfEvents;
 	}
 
+	/**
+	 * Gives the number of empty traces in the log.
+	 * 
+	 * @return
+	 */
 	public long getNumberOfEpsilonTraces() {
 		return numberOfEpsilonTraces;
 	}
 
-	public int getLongestTrace() {
-		return longestTrace;
+	/**
+	 * Gives the number of times the trace that occurs the most occurs in the
+	 * log.
+	 * 
+	 * @return
+	 */
+	public long getHighestTraceCardinality() {
+		return highestTraceCardinality;
 	}
 
-	public long getLengthStrongestTrace() {
-		return lengthStrongestTrace;
+	/**
+	 * Gives the number of times the directed edge that occurs the most occurs
+	 * in the log.
+	 * 
+	 * @return
+	 */
+	public long getOccurencesOfMostOccuringDirectEdge() {
+		return occurencesOfMostOccuringDirectEdge;
+	}
+	
+	public X getMostOccurringStartActivity() {
+		return mostOccurringStartActivity;
 	}
 
-	public long getStrongestDirectEdge() {
-		return strongestDirectEdge;
+	public long getOccurrencesOfMostOccurringStartActivity() {
+		return startActivities.getCardinalityOf(mostOccurringStartActivity);
+	}
+	
+	public X getMostOccurringEndActivity() {
+		return mostOccurringEndActivity;
 	}
 
-	public long getStrongestEventualEdge() {
-		return strongestEventualEdge;
-	}
-
-	public long getStrongestStartActivity() {
-		return strongestStartActivity;
-	}
-
-	public long getStrongestEndActivity() {
-		return strongestEndActivity;
+	public long getOccurrencesOfMostOccurringEndActivity() {
+		return endActivities.getCardinalityOf(mostOccurringEndActivity);
 	}
 }

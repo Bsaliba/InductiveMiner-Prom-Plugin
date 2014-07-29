@@ -72,7 +72,7 @@ public class Miner {
 
 			//make node
 			Block newNode = newNode(cut.getOperator());
-			addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, splitResult.discardedEvents.size(), "cut detection " + cut);
+			addNode(tree, newNode, log.size(), 0l, splitResult.discardedEvents.size(), "cut detection " + cut);
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
@@ -110,7 +110,7 @@ public class Miner {
 				//add tau as third child
 				{
 					Node tau = new AbstractTask.Automatic("tau");
-					addNode(tree, tau, logInfo.getNumberOfTraces(), 0l, 0l, "cut detection " + cut);
+					addNode(tree, tau, log.size(), 0l, 0l, "cut detection " + cut);
 					newNode.addChild(tau);
 				}
 			}

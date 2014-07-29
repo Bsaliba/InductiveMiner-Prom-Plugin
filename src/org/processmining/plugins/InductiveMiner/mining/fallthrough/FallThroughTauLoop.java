@@ -33,7 +33,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.debug(" fall through: tau loop", minerState);
 				//making a tau loop split makes sense
 				Block loop = new XorLoop("");
-				Miner.addNode(tree, loop, logInfo.getNumberOfTraces(), 0l, 0l, "fall through: tau loop");
+				Miner.addNode(tree, loop, log.size(), 0l, 0l, "fall through: tau loop");
 
 				{
 					Node body = Miner.mineNode(sublog, tree, minerState);
@@ -49,7 +49,7 @@ public class FallThroughTauLoop implements FallThrough {
 
 				{
 					Node exit = new Automatic("tau");
-					Miner.addNode(tree, exit, logInfo.getNumberOfTraces(), 0l, 0l, "fall through: tau loop");
+					Miner.addNode(tree, exit, log.size(), 0l, 0l, "fall through: tau loop");
 					loop.addChild(exit);
 				}
 
