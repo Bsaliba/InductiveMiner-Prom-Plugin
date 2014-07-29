@@ -43,8 +43,8 @@ public class CutFinderIMi implements CutFinder {
 		//filter start activities
 		MultiSet<XEventClass> filteredStartActivities = new MultiSet<XEventClass>();
 		for (XEventClass activity : logInfo.getStartActivities()) {
-			if (logInfo.getStartActivities().getCardinalityOf(activity) >= logInfo.getStrongestStartActivity()
-					* threshold) {
+			if (logInfo.getStartActivities().getCardinalityOf(activity) >= logInfo
+					.getOccurrencesOfMostOccurringStartActivity() * threshold) {
 				filteredStartActivities.add(activity, logInfo.getStartActivities().getCardinalityOf(activity));
 			}
 		}
@@ -52,7 +52,8 @@ public class CutFinderIMi implements CutFinder {
 		//filter end activities
 		MultiSet<XEventClass> filteredEndActivities = new MultiSet<XEventClass>();
 		for (XEventClass activity : logInfo.getEndActivities()) {
-			if (logInfo.getEndActivities().getCardinalityOf(activity) >= logInfo.getStrongestEndActivity() * threshold) {
+			if (logInfo.getEndActivities().getCardinalityOf(activity) >= logInfo
+					.getOccurrencesOfMostOccurringEndActivity() * threshold) {
 				filteredEndActivities.add(activity, logInfo.getEndActivities().getCardinalityOf(activity));
 			}
 		}
@@ -141,10 +142,9 @@ public class CutFinderIMi implements CutFinder {
 		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
 				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
-				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(),
-				logInfo.getNumberOfEpsilonTraces(), logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(),
-				logInfo.getStrongestDirectEdge(), logInfo.getStrongestEventualEdge(),
-				logInfo.getStrongestStartActivity(), logInfo.getStrongestEndActivity());
+				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
+				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
+				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
 	}
 
 	/*
@@ -193,9 +193,8 @@ public class CutFinderIMi implements CutFinder {
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
 				logInfo.getStartActivities().copy(), logInfo.getEndActivities().copy(),
 				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfTraces(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-				logInfo.getLongestTrace(), logInfo.getLengthStrongestTrace(), logInfo.getStrongestDirectEdge(),
-				logInfo.getStrongestEventualEdge(), logInfo.getStrongestStartActivity(),
-				logInfo.getStrongestEndActivity());
+				logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
+				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
+				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
 	}
 }

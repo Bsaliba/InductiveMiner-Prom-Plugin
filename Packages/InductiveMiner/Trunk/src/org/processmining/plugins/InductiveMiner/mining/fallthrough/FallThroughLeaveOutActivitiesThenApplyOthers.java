@@ -64,7 +64,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 				Miner.debug(" fall through: leave out activity " + leaveOutActivity, minerState);
 				
 				Block newNode = new AbstractBlock.And("");
-				Miner.addNode(tree, newNode, logInfo.getNumberOfTraces(), 0l, 0l, "fall through: leave out activity");
+				Miner.addNode(tree, newNode, log.size(), 0l, 0l, "fall through: leave out activity");
 				
 				Node child1 = Miner.mineNode(log1, tree, minerState);
 				newNode.addChild(child1);

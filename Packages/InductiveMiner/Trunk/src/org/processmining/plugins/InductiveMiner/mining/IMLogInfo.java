@@ -14,19 +14,19 @@ public class IMLogInfo extends IMLogInfoG<XEventClass> {
 	public IMLogInfo(MultiSet<? extends IMTraceG<XEventClass>> log) {
 		super(log);
 	}
-	
+
 	public IMLogInfo(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
 			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
 			DefaultDirectedGraph<XEventClass, DefaultEdge> directlyFollowsTransitiveClosureGraph,
 			MultiSet<XEventClass> activities, MultiSet<XEventClass> startActivities,
 			MultiSet<XEventClass> endActivities,
 			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
-			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfTraces, long numberOfEvents,
-			long numberOfEpsilonTraces, int longestTrace, long lengthStrongestTrace, long strongestDirectEdge,
-			long strongestEventualEdge, long strongestStartActivity, long strongestEndActivity) {
-		super(directlyFollowsGraph, eventuallyFollowsGraph, directlyFollowsTransitiveClosureGraph, activities, startActivities,
-				endActivities, minimumSelfDistancesBetween, minimumSelfDistances, numberOfTraces, numberOfEvents,
-				numberOfEpsilonTraces, longestTrace, lengthStrongestTrace, strongestDirectEdge, strongestEventualEdge,
-				strongestStartActivity, strongestEndActivity);
+			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces,
+			long lengthStrongestTrace, long strongestDirectEdge, XEventClass mostOccurringStartActivity,
+			XEventClass mostOccurringEndActivity) {
+		super(directlyFollowsGraph, eventuallyFollowsGraph, directlyFollowsTransitiveClosureGraph, activities,
+				startActivities, endActivities, minimumSelfDistancesBetween, minimumSelfDistances, numberOfEvents,
+				numberOfEpsilonTraces, lengthStrongestTrace, strongestDirectEdge, mostOccurringStartActivity,
+				mostOccurringEndActivity);
 	}
 }
