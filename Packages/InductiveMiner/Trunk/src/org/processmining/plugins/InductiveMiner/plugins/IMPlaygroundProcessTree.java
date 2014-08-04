@@ -5,14 +5,11 @@ import javax.swing.JOptionPane;
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMPlayground;
 import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMPlaygroundMiningDialog;
 import org.processmining.processtree.ProcessTree;
 
-@Plugin(name = "Mine Process Tree with Inductive Miner-playground", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = {
-		"Log" }, userAccessible = false)
 public class IMPlaygroundProcessTree {
 	
 	public ProcessTree mineGuiProcessTree(UIPluginContext context, XLog log) {
