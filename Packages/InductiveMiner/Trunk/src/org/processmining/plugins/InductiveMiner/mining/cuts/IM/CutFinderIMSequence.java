@@ -12,9 +12,13 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.StrongConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -22,12 +26,20 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 
-public class CutFinderIMSequence implements CutFinder {
+public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+		return findCut(logInfo.getDirectlyFollowsGraph());
+	}
+	
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+		return findCut(dfg.getDirectlyFollowsGraph());
+	}
+		
+	public static Cut findCut(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph) {
 		//compute the strongly connected components of the directly-follows graph
 		StrongConnectivityInspector<XEventClass, DefaultWeightedEdge> SCCg = new StrongConnectivityInspector<XEventClass, DefaultWeightedEdge>(
-				logInfo.getDirectlyFollowsGraph());
+				graph);
 		Set<Set<XEventClass>> SCCs = new HashSet<Set<XEventClass>>(SCCg.stronglyConnectedSets());
 
 		//condense the strongly connected components
@@ -38,11 +50,11 @@ public class CutFinderIMSequence implements CutFinder {
 			condensedGraph1.addVertex(SCC);
 		}
 		//add edges
-		for (DefaultWeightedEdge edge : logInfo.getDirectlyFollowsGraph().edgeSet()) {
+		for (DefaultWeightedEdge edge : graph.edgeSet()) {
 			//find the connected components belonging to these nodes
-			XEventClass u = logInfo.getDirectlyFollowsGraph().getEdgeSource(edge);
+			XEventClass u = graph.getEdgeSource(edge);
 			Set<XEventClass> SCCu = Sets.findComponentWith(SCCs, u);
-			XEventClass v = logInfo.getDirectlyFollowsGraph().getEdgeTarget(edge);
+			XEventClass v = graph.getEdgeTarget(edge);
 			Set<XEventClass> SCCv = Sets.findComponentWith(SCCs, v);
 
 			//add an edge if it is not internal

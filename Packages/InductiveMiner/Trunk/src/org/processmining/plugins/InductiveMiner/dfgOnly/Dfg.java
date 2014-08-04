@@ -13,7 +13,7 @@ public class Dfg {
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainDirectlyFollowsGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainEventuallyFollowsGraph;
 
-	private final MultiSet<XEventClass> startActivities;	
+	private final MultiSet<XEventClass> startActivities;
 	private final MultiSet<XEventClass> endActivities;
 	private final MultiSet<XEventClass> uncertainStartActivities;
 	private final MultiSet<XEventClass> uncertainEndActivities;
@@ -29,6 +29,14 @@ public class Dfg {
 		endActivities = new MultiSet<>();
 		uncertainStartActivities = new MultiSet<>();
 		uncertainEndActivities = new MultiSet<>();
+	}
+
+	public void addActivity(XEventClass activity) {
+		directlyFollowsGraph.addVertex(activity);
+		eventuallyFollowsGraph.addVertex(activity);
+		parallelGraph.addVertex(activity);
+		uncertainDirectlyFollowsGraph.addVertex(activity);
+		uncertainEventuallyFollowsGraph.addVertex(activity);
 	}
 
 	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {
@@ -65,5 +73,17 @@ public class Dfg {
 
 	public MultiSet<XEventClass> getUncertainEndActivities() {
 		return uncertainEndActivities;
+	}
+
+	public void addDirectlyFollowsEdge(XEventClass source, XEventClass target) {
+		double newCardinality = 1;
+		DefaultWeightedEdge edge;
+		if (directlyFollowsGraph.containsEdge(source, target)) {
+			edge = directlyFollowsGraph.getEdge(source, target);
+			newCardinality += directlyFollowsGraph.getEdgeWeight(edge);
+		} else {
+			edge = directlyFollowsGraph.addEdge(source, target);
+		}
+		directlyFollowsGraph.setEdgeWeight(edge, newCardinality);
 	}
 }

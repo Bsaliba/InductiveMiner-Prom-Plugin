@@ -13,7 +13,7 @@ public interface BaseCaseFinder {
 	 * base case, returns a Node. Each (in)direct child of that Node must be
 	 * attached to tree.
 	 * 
-	 * Must be thread-safe and abstract, i.e, no side-effects allowed.
+	 * Must be thread-safe and static, i.e, no side-effects allowed.
 	 * 
 	 * @param log
 	 * @param logInfo
