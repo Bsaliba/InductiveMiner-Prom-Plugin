@@ -8,18 +8,15 @@ import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
-import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.plugin.annotations.Plugin;
-import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class Log2Dfg {
-	@Plugin(name = "Convert log to directly-follows graph", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = {
-	"Log" }, userAccessible = true)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
+//	@Plugin(name = "Convert log to directly-follows graph", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = {
+//	"Log" }, userAccessible = true)
+//	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+//	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Dfg log2Dfg(PluginContext context, XLog log) {
 		
 		context.getFutureResult(0).setLabel("Directly-follows graph of " + XConceptExtension.instance().extractName(log));
