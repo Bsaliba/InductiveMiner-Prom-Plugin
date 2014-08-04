@@ -9,8 +9,15 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.processmining.plugins.InductiveMiner.Function;
+import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -18,17 +25,23 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 
-public class CutFinderIMParallel implements CutFinder {
+public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(log, logInfo, minerState, false);
+		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(), null);
 	}
-	
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, boolean useMinimumSelfDistance) {
+
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), null);
+	}
+
+	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
+			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> dfg,
+			Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
 
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return
-		if (logInfo.getStartActivities().toSet().size() == 0 || logInfo.getEndActivities().toSet().size() == 0) {
+		if (startActivities.toSet().size() == 0 || endActivities.toSet().size() == 0) {
 			return null;
 		}
 
@@ -37,27 +50,32 @@ public class CutFinderIMParallel implements CutFinder {
 				DefaultEdge.class);
 
 		//add the vertices
-		for (XEventClass e : logInfo.getActivities()) {
+		for (XEventClass e : dfg.vertexSet()) {
 			negatedGraph.addVertex(e);
 		}
 
 		//walk through the edges and negate them
-		for (XEventClass e1 : logInfo.getActivities()) {
-			for (XEventClass e2 : logInfo.getActivities()) {
+		for (XEventClass e1 : dfg.vertexSet()) {
+			for (XEventClass e2 : dfg.vertexSet()) {
 				if (e1 != e2) {
-					if (!logInfo.getDirectlyFollowsGraph().containsEdge(e1, e2) || !logInfo.getDirectlyFollowsGraph().containsEdge(e2, e1)) {
+					if (!dfg.containsEdge(e1, e2) || !dfg.containsEdge(e2, e1)) {
 						negatedGraph.addEdge(e1, e2);
 					}
 				}
 			}
 		}
 
-		//if wanted, apply an extension to the B' algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
+		//if wanted, apply an extension to the IM algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
-		if (useMinimumSelfDistance) {
-			for (XEventClass activity : logInfo.getActivities()) {
-				for (XEventClass activity2 : logInfo.getMinimumSelfDistanceBetween(activity).toSet()) {
-					negatedGraph.addEdge(activity, activity2);
+		if (minimumSelfDistanceBetween != null) {
+			for (XEventClass activity : dfg.vertexSet()) {
+				try {
+					for (XEventClass activity2 : minimumSelfDistanceBetween.call(activity).toSet()) {
+						negatedGraph.addEdge(activity, activity2);
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+					return null;
 				}
 			}
 		}
@@ -76,11 +94,11 @@ public class CutFinderIMParallel implements CutFinder {
 		List<Set<XEventClass>> ccsWithNothing = new ArrayList<Set<XEventClass>>();
 		for (Set<XEventClass> cc : connectedComponents) {
 			Boolean hasStart = true;
-			if (Sets.intersection(cc, logInfo.getStartActivities().toSet()).size() == 0) {
+			if (Sets.intersection(cc, startActivities.toSet()).size() == 0) {
 				hasStart = false;
 			}
 			Boolean hasEnd = true;
-			if (Sets.intersection(cc, logInfo.getEndActivities().toSet()).size() == 0) {
+			if (Sets.intersection(cc, endActivities.toSet()).size() == 0) {
 				hasEnd = false;
 			}
 			if (hasStart) {
@@ -97,7 +115,7 @@ public class CutFinderIMParallel implements CutFinder {
 				}
 			}
 		}
-		
+
 		//if there is no set with both start and end activities, there is no parallel cut
 		if (ccsWithStartEnd.size() == 0) {
 			return null;
