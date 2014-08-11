@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -51,7 +52,7 @@ public class Dfg {
 		return parallelGraph;
 	}
 
-	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getUncertaintyGraph() {
+	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getUncertainDirectlyFollowsGraph() {
 		return uncertainDirectlyFollowsGraph;
 	}
 
@@ -75,15 +76,45 @@ public class Dfg {
 		return uncertainEndActivities;
 	}
 
-	public void addDirectlyFollowsEdge(XEventClass source, XEventClass target) {
-		double newCardinality = 1;
-		DefaultWeightedEdge edge;
-		if (directlyFollowsGraph.containsEdge(source, target)) {
-			edge = directlyFollowsGraph.getEdge(source, target);
-			newCardinality += directlyFollowsGraph.getEdgeWeight(edge);
+	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+		addEdgeToGraph(directlyFollowsGraph, source, target, cardinality);
+	}
+	
+	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+		addEdgeToGraph(eventuallyFollowsGraph, source, target, cardinality);
+	}
+	
+	public void addParallelEdge(final XEventClass a, final XEventClass b, final int cardinality) {
+		addEdgeToGraph(parallelGraph, a, b, cardinality);
+	}
+	
+	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+		addEdgeToGraph(uncertainDirectlyFollowsGraph, source, target, cardinality);
+	}
+	
+	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+		addEdgeToGraph(uncertainEventuallyFollowsGraph, source, target, cardinality);
+	}
+	
+	public static <X> void addEdgeToGraph(final SimpleWeightedGraph<X, DefaultWeightedEdge> graph, final X a,
+			final X b, final int cardinality) {
+		if (graph.containsEdge(a, b)) {
+			DefaultWeightedEdge oldEdge = graph.getEdge(a, b);
+			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
 		} else {
-			edge = directlyFollowsGraph.addEdge(source, target);
+			DefaultWeightedEdge edge = graph.addEdge(a, b);
+			graph.setEdgeWeight(edge, cardinality);
 		}
-		directlyFollowsGraph.setEdgeWeight(edge, newCardinality);
+	}
+	
+	public static <X> void addEdgeToGraph(final DefaultDirectedGraph<X, DefaultWeightedEdge> graph, final X source,
+			final X target, final int cardinality) {
+		if (graph.containsEdge(source, target)) {
+			DefaultWeightedEdge oldEdge = graph.getEdge(source, target);
+			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
+		} else {
+			DefaultWeightedEdge edge = graph.addEdge(source, target);
+			graph.setEdgeWeight(edge, cardinality);
+		}
 	}
 }

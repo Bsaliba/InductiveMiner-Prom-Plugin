@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -41,7 +40,7 @@ public class SimpleDfgSplitter implements DfgSplitter {
 					
 					if (sigma.contains(source) && sigma.contains(target)) {
 						//internal edge in sigma
-						addEdgeToGraph(subDfg.getDirectlyFollowsGraph(), source, target, cardinality);
+						Dfg.addEdgeToGraph(subDfg.getDirectlyFollowsGraph(), source, target, cardinality);
 					} else if (sigma.contains(source) && !sigma.contains(target)){
 						//edge going out of sigma
 						//source is an end activity
@@ -59,16 +58,4 @@ public class SimpleDfgSplitter implements DfgSplitter {
 
 		return new DfgSplitResult(subDfgs);
 	}
-
-	public static <X> void addEdgeToGraph(DefaultDirectedGraph<X, DefaultWeightedEdge> graph, X source,
-			X target, int cardinality) {
-		if (graph.containsEdge(source, target)) {
-			DefaultWeightedEdge oldEdge = graph.getEdge(source, target);
-			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
-		} else {
-			DefaultWeightedEdge edge = graph.addEdge(source, target);
-			graph.setEdgeWeight(edge, cardinality);
-		}
-	}
-
 }
