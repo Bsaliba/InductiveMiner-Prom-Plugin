@@ -1,5 +1,6 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder;
 
+import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -14,8 +15,12 @@ public class DfgCutFinderMergeParallelGraph implements DfgCutFinder {
 		
 		//add edges from parallel graph
 		for (DefaultWeightedEdge e : dfg.getParallelGraph().edgeSet()) {
-			dfg.getDirectlyFollowsGraph().addEdge(dfg.getParallelGraph().getEdgeSource(e), dfg.getParallelGraph().getEdgeTarget(e));
-			dfg.getDirectlyFollowsGraph().addEdge(dfg.getParallelGraph().getEdgeTarget(e), dfg.getParallelGraph().getEdgeSource(e));
+			double weight = dfg.getParallelGraph().getEdgeWeight(e);
+			XEventClass a1 = dfg.getParallelGraph().getEdgeSource(e);
+			XEventClass a2 = dfg.getParallelGraph().getEdgeTarget(e);
+			
+			dfg.addDirectlyFollowsEdge(a1, a2, weight);
+			dfg.addDirectlyFollowsEdge(a2, a1, weight);
 		}
 		
 		return null;
