@@ -76,28 +76,28 @@ public class Dfg {
 		return uncertainEndActivities;
 	}
 
-	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addEdgeToGraph(directlyFollowsGraph, source, target, cardinality);
 	}
 	
-	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addEdgeToGraph(eventuallyFollowsGraph, source, target, cardinality);
 	}
 	
-	public void addParallelEdge(final XEventClass a, final XEventClass b, final int cardinality) {
+	public void addParallelEdge(final XEventClass a, final XEventClass b, final double cardinality) {
 		addEdgeToGraph(parallelGraph, a, b, cardinality);
 	}
 	
-	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addEdgeToGraph(uncertainDirectlyFollowsGraph, source, target, cardinality);
 	}
 	
-	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final int cardinality) {
+	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addEdgeToGraph(uncertainEventuallyFollowsGraph, source, target, cardinality);
 	}
 	
 	public static <X> void addEdgeToGraph(final SimpleWeightedGraph<X, DefaultWeightedEdge> graph, final X a,
-			final X b, final int cardinality) {
+			final X b, final double cardinality) {
 		if (graph.containsEdge(a, b)) {
 			DefaultWeightedEdge oldEdge = graph.getEdge(a, b);
 			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
@@ -108,7 +108,7 @@ public class Dfg {
 	}
 	
 	public static <X> void addEdgeToGraph(final DefaultDirectedGraph<X, DefaultWeightedEdge> graph, final X source,
-			final X target, final int cardinality) {
+			final X target, final double cardinality) {
 		if (graph.containsEdge(source, target)) {
 			DefaultWeightedEdge oldEdge = graph.getEdge(source, target);
 			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
