@@ -4,13 +4,13 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
+import org.jgrapht.graph.ListenableUndirectedWeightedGraph;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 
 public class Dfg {
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
-	private final SimpleWeightedGraph<XEventClass, DefaultWeightedEdge> parallelGraph;
+	private final ListenableUndirectedWeightedGraph<XEventClass, DefaultWeightedEdge> parallelGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainDirectlyFollowsGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainEventuallyFollowsGraph;
 
@@ -22,7 +22,7 @@ public class Dfg {
 	public Dfg() {
 		directlyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-		parallelGraph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+		parallelGraph = new ListenableUndirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		uncertainDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		uncertainEventuallyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 
@@ -48,7 +48,7 @@ public class Dfg {
 		return eventuallyFollowsGraph;
 	}
 
-	public SimpleWeightedGraph<XEventClass, DefaultWeightedEdge> getParallelGraph() {
+	public ListenableUndirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getParallelGraph() {
 		return parallelGraph;
 	}
 
@@ -96,7 +96,7 @@ public class Dfg {
 		addEdgeToGraph(uncertainEventuallyFollowsGraph, source, target, cardinality);
 	}
 	
-	public static <X> void addEdgeToGraph(final SimpleWeightedGraph<X, DefaultWeightedEdge> graph, final X a,
+	public static <X> void addEdgeToGraph(final ListenableUndirectedWeightedGraph<X, DefaultWeightedEdge> graph, final X a,
 			final X b, final double cardinality) {
 		if (graph.containsEdge(a, b)) {
 			DefaultWeightedEdge oldEdge = graph.getEdge(a, b);
