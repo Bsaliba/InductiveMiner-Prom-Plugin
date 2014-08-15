@@ -77,22 +77,32 @@ public class Dfg {
 	}
 
 	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+		addActivity(source);
+		addActivity(target);
 		addEdgeToGraph(directlyFollowsGraph, source, target, cardinality);
 	}
 	
 	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+		addActivity(source);
+		addActivity(target);
 		addEdgeToGraph(eventuallyFollowsGraph, source, target, cardinality);
 	}
 	
 	public void addParallelEdge(final XEventClass a, final XEventClass b, final double cardinality) {
+		addActivity(a);
+		addActivity(b);
 		addEdgeToGraph(parallelGraph, a, b, cardinality);
 	}
 	
 	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+		addActivity(source);
+		addActivity(target);
 		addEdgeToGraph(uncertainDirectlyFollowsGraph, source, target, cardinality);
 	}
 	
 	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+		addActivity(source);
+		addActivity(target);
 		addEdgeToGraph(uncertainEventuallyFollowsGraph, source, target, cardinality);
 	}
 	
