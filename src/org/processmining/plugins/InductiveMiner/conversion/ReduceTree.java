@@ -123,10 +123,7 @@ public class ReduceTree {
 				for (Automatic tau : taus) {
 					removeChild(xor, tau, tree);
 					tree.removeNode(tau);
-					MinerMetrics.saveMovesSumInto(childProducingTau, tau);
-					emptyTraces += MinerMetrics.getNumberOfTracesRepresented(tau);
 				}
-				addEmptyTraces(childProducingTau, emptyTraces);
 			} else {
 				//only the non-first taus can be removed
 				Iterator<Automatic> it = taus.iterator();
@@ -135,7 +132,6 @@ public class ReduceTree {
 					Automatic tau = it.next();
 					removeChild(xor, tau, tree);
 					tree.removeNode(tau);
-					MinerMetrics.saveMovesSumInto(keepTau, tau);
 				}
 			}
 
@@ -233,15 +229,6 @@ public class ReduceTree {
 			redoXor.addChild(oldRedo);
 			redoXor.addChild(bodyRedo);
 
-			//set metrics
-			MinerMetrics.attachProducer(redoXor, "reduceTree, " + MinerMetrics.getProducer(oldBody));
-			MinerMetrics.attachEpsilonTracesSkipped(redoXor, MinerMetrics.getEpsilonTracesSkipped(oldBody));
-			MinerMetrics.attachMovesOnLog(redoXor, MinerMetrics.getMovesOnLog(oldBody));
-			MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(redoXor,
-					MinerMetrics.getMovesOnModelWithoutEpsilonTracesFiltered(oldBody));
-			MinerMetrics.attachNumberOfTracesRepresented(redoXor, 0l);
-			MinerMetrics.attachNumberOfTracesRepresented(redoXor, getNumberOfTracesRepresentedChildrenXor(redoXor));
-
 			return true;
 		}
 
@@ -271,9 +258,6 @@ public class ReduceTree {
 			removeChild(child, grandChild, tree);
 		}
 		removeChild(node, child, tree);
-
-		//merge move metrics
-		MinerMetrics.saveMovesSumInto(node, child);
 
 		//remove old node
 		tree.removeNode(child);
@@ -343,38 +327,5 @@ public class ReduceTree {
 		}
 		assert (false);
 		return null;
-	}
-
-	/*
-	 * Adds empty traces to metrics of nodes. Returns whether successful.
-	 */
-	private static void addEmptyTraces(Node node, int emptyTraces) {
-		List<Node> pathToTau = getPathToTau(node);
-		if (pathToTau == null) {
-			System.out.println(pathToTau);
-			System.out.println(MinerMetrics.getShortestTrace(node));
-			System.out.println(node);
-			throw new RuntimeException("no path to tau found while it should be there");
-		}
-		for (Node child : pathToTau) {
-			MinerMetrics.attachNumberOfTracesRepresented(child, MinerMetrics.getNumberOfTracesRepresented(child));
-		}
-	}
-
-	public static Long getNumberOfTracesRepresentedChildrenXor(Node node) {
-		long sum = 0;
-		if (MinerMetrics.getNumberOfTracesRepresented(node) != null) {
-			return MinerMetrics.getNumberOfTracesRepresented(node);
-		} else if (node instanceof Block) {
-			for (Node child : ((Block) node).getChildren()) {
-				if (getNumberOfTracesRepresentedChildrenXor(child) == null) {
-					return null;
-				}
-				sum += getNumberOfTracesRepresentedChildrenXor(child);
-			}
-			return sum;
-		} else {
-			return null;
-		}
 	}
 }

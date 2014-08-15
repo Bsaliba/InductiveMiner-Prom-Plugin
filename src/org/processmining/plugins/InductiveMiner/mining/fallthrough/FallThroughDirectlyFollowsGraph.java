@@ -13,7 +13,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.plugins.InductiveMiner.mining.metrics.PropertyDirectlyFollowsGraph;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -66,9 +65,6 @@ public class FallThroughDirectlyFollowsGraph implements FallThrough {
 			e.printStackTrace();
 			return null;
 		}
-
-		MinerMetrics.attachProducer(flowerNode,
-				"fall through: directly-follows graph, " + MinerMetrics.getProducer(flowerNode));
 
 		return flowerNode;
 	}
