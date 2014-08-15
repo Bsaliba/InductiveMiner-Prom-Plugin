@@ -5,7 +5,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -31,9 +30,6 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				log.remove(new IMTrace());
 				
 				Node newNode = Miner.mineNode(log, tree, minerState);
-				
-				MinerMetrics.attachEpsilonTracesSkipped(newNode, numberOfEpsilonTraces + MinerMetrics.getEpsilonTracesSkipped(newNode));
-				MinerMetrics.attachProducer(newNode, "base case: IMi empty traces; " + MinerMetrics.getProducer(newNode));
 				
 				return newNode;
 

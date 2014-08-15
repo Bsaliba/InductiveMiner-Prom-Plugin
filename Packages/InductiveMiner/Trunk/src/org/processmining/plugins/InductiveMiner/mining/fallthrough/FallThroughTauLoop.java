@@ -7,7 +7,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -37,7 +36,6 @@ public class FallThroughTauLoop implements FallThrough {
 
 				{
 					Node body = Miner.mineNode(sublog, tree, minerState);
-					MinerMetrics.attachProducer(body, "fall through: tau loop, " + MinerMetrics.getProducer(body));
 					loop.addChild(body);
 				}
 

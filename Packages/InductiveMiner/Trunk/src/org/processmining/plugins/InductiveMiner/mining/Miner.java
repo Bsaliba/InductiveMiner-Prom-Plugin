@@ -9,7 +9,6 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
-import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -140,10 +139,6 @@ public class Miner {
 			String producer) {
 		node.setProcessTree(tree);
 		tree.addNode(node);
-		MinerMetrics.attachNumberOfTracesRepresented(node, traces);
-		MinerMetrics.attachMovesOnModelWithoutEpsilonTracesFiltered(node, modelMovesWithoutEpsilonFiltered);
-		MinerMetrics.attachMovesOnLog(node, logMoves);
-		MinerMetrics.attachProducer(node, producer);
 	}
 
 	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
