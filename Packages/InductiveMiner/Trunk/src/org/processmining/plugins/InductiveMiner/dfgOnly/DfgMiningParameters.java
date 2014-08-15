@@ -14,6 +14,8 @@ public abstract class DfgMiningParameters {
 
 	private boolean reduce;
 	private boolean debug;
+	
+	private float noiseThreshold = 0.2f;
 
 	public Iterable<DfgBaseCaseFinder> getDfgBaseCaseFinders() {
 		return dfgBaseCaseFinders;
@@ -61,6 +63,14 @@ public abstract class DfgMiningParameters {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public float getNoiseThreshold() {
+		return noiseThreshold;
+	}
+
+	public void setNoiseThreshold(float noiseThreshold) {
+		this.noiseThreshold = noiseThreshold;
 	}
 
 }

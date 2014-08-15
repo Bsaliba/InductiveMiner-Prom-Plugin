@@ -173,9 +173,29 @@ public class MultiSet<X> implements Iterable<X> {
 		}
 	}
 	
+	/**
+	 * Returns a list of the elements, sorted by their cardinality.
+	 * @return
+	 */
 	public List<X> sortByCardinality() {
 		List<X> result = new ArrayList<X>(toSet());
 		Collections.sort(result, new CardinalityComparator());
+		return result;
+	}
+	
+	/**
+	 * Get an element with the highest cardinality of all elements.
+	 * @return
+	 */
+	public X getElementWithHighestCardinality() {
+		long c = Long.MIN_VALUE;
+		X result = null;
+		for (X element : cardinalities.keySet()) {
+			if (cardinalities.get(element) < c) {
+				c = cardinalities.get(element);
+				result = element;
+			}
+		}
 		return result;
 	}
 	

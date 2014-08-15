@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 
-public class SimpleDfgCutFinder implements DfgCutFinder {
+public class DfgCutFinderSimple implements DfgCutFinder {
 
 	private static List<DfgCutFinder> cutFinders = new ArrayList<DfgCutFinder>(Arrays.asList(
 			new DfgCutFinderMergeParallelGraph(),
