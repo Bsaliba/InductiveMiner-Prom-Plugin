@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.SimpleDfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderMergeParallelGraph;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderNoiseFiltering;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
@@ -20,6 +21,7 @@ public class DfgMiningParametersPartialOrder extends DfgMiningParameters {
 				)));
 		
 		setDfgCutFinders(new ArrayList<DfgCutFinder>(Arrays.asList(
+				new DfgCutFinderMergeParallelGraph(),
 				new DfgCutFinderSimple(),
 				new DfgCutFinderNoiseFiltering()
 				)));
