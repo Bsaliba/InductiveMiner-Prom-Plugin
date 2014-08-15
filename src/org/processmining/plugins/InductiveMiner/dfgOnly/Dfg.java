@@ -32,6 +32,25 @@ public class Dfg {
 		uncertainEndActivities = new MultiSet<>();
 	}
 
+	public Dfg(final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
+			final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
+			final Pseudograph<XEventClass, DefaultWeightedEdge> parallelGraph,
+			final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainDirectlyFollowsGraph,
+			final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainEventuallyFollowsGraph,
+			final MultiSet<XEventClass> startActivities, final MultiSet<XEventClass> endActivities,
+			final MultiSet<XEventClass> uncertainStartActivities, final MultiSet<XEventClass> uncertainEndActivities) {
+		this.directlyFollowsGraph = directlyFollowsGraph;
+		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
+		this.parallelGraph = parallelGraph;
+		this.uncertainDirectlyFollowsGraph = uncertainDirectlyFollowsGraph;
+		this.uncertainEventuallyFollowsGraph = uncertainEventuallyFollowsGraph;
+
+		this.startActivities = startActivities;
+		this.endActivities = endActivities;
+		this.uncertainStartActivities = uncertainStartActivities;
+		this.uncertainEndActivities = uncertainEndActivities;
+	}
+
 	public void addActivity(XEventClass activity) {
 		directlyFollowsGraph.addVertex(activity);
 		eventuallyFollowsGraph.addVertex(activity);
@@ -81,33 +100,35 @@ public class Dfg {
 		addActivity(target);
 		addEdgeToGraph(directlyFollowsGraph, source, target, cardinality);
 	}
-	
+
 	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addActivity(source);
 		addActivity(target);
 		addEdgeToGraph(eventuallyFollowsGraph, source, target, cardinality);
 	}
-	
+
 	public void addParallelEdge(final XEventClass a, final XEventClass b, final double cardinality) {
 		addActivity(a);
 		addActivity(b);
 		addEdgeToGraph(parallelGraph, a, b, cardinality);
 	}
-	
-	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+
+	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target,
+			final double cardinality) {
 		addActivity(source);
 		addActivity(target);
 		addEdgeToGraph(uncertainDirectlyFollowsGraph, source, target, cardinality);
 	}
-	
-	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
+
+	public void addUncertainEventuallyFollowsEdge(final XEventClass source, final XEventClass target,
+			final double cardinality) {
 		addActivity(source);
 		addActivity(target);
 		addEdgeToGraph(uncertainEventuallyFollowsGraph, source, target, cardinality);
 	}
-	
-	public static <X> void addEdgeToGraph(final Pseudograph<X, DefaultWeightedEdge> graph, final X a,
-			final X b, final double cardinality) {
+
+	public static <X> void addEdgeToGraph(final Pseudograph<X, DefaultWeightedEdge> graph, final X a, final X b,
+			final double cardinality) {
 		if (graph.containsEdge(a, b)) {
 			DefaultWeightedEdge oldEdge = graph.getEdge(a, b);
 			graph.setEdgeWeight(oldEdge, cardinality + graph.getEdgeWeight(oldEdge));
@@ -116,7 +137,7 @@ public class Dfg {
 			graph.setEdgeWeight(edge, cardinality);
 		}
 	}
-	
+
 	public static <X> void addEdgeToGraph(final DefaultDirectedGraph<X, DefaultWeightedEdge> graph, final X source,
 			final X target, final double cardinality) {
 		if (graph.containsEdge(source, target)) {

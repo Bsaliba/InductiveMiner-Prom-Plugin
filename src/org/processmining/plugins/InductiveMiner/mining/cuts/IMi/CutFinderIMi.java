@@ -11,12 +11,12 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
 
 public class CutFinderIMi implements CutFinder {
 
 	private static CutFinder cutFinderIM = new CutFinderIM();
-	private static CutFinder cutFinderIMParallel = new CutFinderIMParallel();
+
+	//	private static CutFinder cutFinderIMParallel = new CutFinderIMParallel();
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		//filter logInfo
@@ -41,103 +41,18 @@ public class CutFinderIMi implements CutFinder {
 
 	public static IMLogInfo filterNoise(IMLogInfo logInfo, float threshold) {
 		//filter start activities
-		MultiSet<XEventClass> filteredStartActivities = new MultiSet<XEventClass>();
-		for (XEventClass activity : logInfo.getStartActivities()) {
-			if (logInfo.getStartActivities().getCardinalityOf(activity) >= logInfo
-					.getOccurrencesOfMostOccurringStartActivity() * threshold) {
-				filteredStartActivities.add(activity, logInfo.getStartActivities().getCardinalityOf(activity));
-			}
-		}
+		MultiSet<XEventClass> filteredStartActivities = filterActivities(logInfo.getStartActivities(), threshold);
 
 		//filter end activities
-		MultiSet<XEventClass> filteredEndActivities = new MultiSet<XEventClass>();
-		for (XEventClass activity : logInfo.getEndActivities()) {
-			if (logInfo.getEndActivities().getCardinalityOf(activity) >= logInfo
-					.getOccurrencesOfMostOccurringEndActivity() * threshold) {
-				filteredEndActivities.add(activity, logInfo.getEndActivities().getCardinalityOf(activity));
-			}
-		}
+		MultiSet<XEventClass> filteredEndActivities = filterActivities(logInfo.getEndActivities(), threshold);
 
 		//filter directly-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
-		//add nodes
-		for (XEventClass activity : logInfo.getActivities()) {
-			filteredDirectlyFollowsGraph.addVertex(activity);
-		}
-		//add edges
-
-		/*
-		 * //method 1: global threshold for (DefaultWeightedEdge edge :
-		 * directlyFollowsGraph.edgeSet()) { if
-		 * (directlyFollowsGraph.getEdgeWeight(edge) >= strongestDirectEdge *
-		 * threshold) { XEventClass from =
-		 * directlyFollowsGraph.getEdgeSource(edge); XEventClass to =
-		 * directlyFollowsGraph.getEdgeTarget(edge); DefaultWeightedEdge
-		 * filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
-		 * filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge,
-		 * directlyFollowsGraph.getEdgeWeight(edge)); } }
-		 */
-
-		//method 2: local threshold
-		for (XEventClass activity : logInfo.getActivities()) {
-			//find the maximum outgoing weight of this node
-			long maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
-			for (DefaultWeightedEdge edge : logInfo.getDirectlyFollowsGraph().outgoingEdgesOf(activity)) {
-				maxWeightOut = Math.max(maxWeightOut, (int) logInfo.getDirectlyFollowsGraph().getEdgeWeight(edge));
-			}
-
-			//add all edges that are strong enough
-			for (DefaultWeightedEdge edge : logInfo.getDirectlyFollowsGraph().outgoingEdgesOf(activity)) {
-				if (logInfo.getDirectlyFollowsGraph().getEdgeWeight(edge) >= maxWeightOut * threshold) {
-					XEventClass from = logInfo.getDirectlyFollowsGraph().getEdgeSource(edge);
-					XEventClass to = logInfo.getDirectlyFollowsGraph().getEdgeTarget(edge);
-					DefaultWeightedEdge filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
-					filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge, logInfo.getDirectlyFollowsGraph()
-							.getEdgeWeight(edge));
-				}
-			}
-		}
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = filterGraph(
+				logInfo.getDirectlyFollowsGraph(), filteredEndActivities, threshold);
 
 		//filter eventually-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
-		//add nodes
-		for (XEventClass activity : logInfo.getEventuallyFollowsGraph().vertexSet()) {
-			filteredEventuallyFollowsGraph.addVertex(activity);
-		}
-		//add edges
-		/*
-		 * //method 1: global threshold for (DefaultWeightedEdge edge :
-		 * eventuallyFollowsGraph.edgeSet()) { if
-		 * (eventuallyFollowsGraph.getEdgeWeight(edge) >= strongestEventualEdge
-		 * * threshold) { XEventClass from =
-		 * eventuallyFollowsGraph.getEdgeSource(edge); XEventClass to =
-		 * eventuallyFollowsGraph.getEdgeTarget(edge); DefaultWeightedEdge
-		 * filteredEdge = filteredEventuallyFollowsGraph.addEdge(from, to);
-		 * filteredEventuallyFollowsGraph.setEdgeWeight(filteredEdge,
-		 * eventuallyFollowsGraph.getEdgeWeight(edge)); } }
-		 */
-
-		//method 2: local threshold
-		for (XEventClass activity : logInfo.getActivities()) {
-			//find the maximum outgoing weight of this node
-			long maxWeightOut = logInfo.getEndActivities().getCardinalityOf(activity);
-			for (DefaultWeightedEdge edge : logInfo.getEventuallyFollowsGraph().outgoingEdgesOf(activity)) {
-				maxWeightOut = Math.max(maxWeightOut, (int) logInfo.getEventuallyFollowsGraph().getEdgeWeight(edge));
-			}
-
-			//add all edges that are strong enough
-			for (DefaultWeightedEdge edge : logInfo.getEventuallyFollowsGraph().outgoingEdgesOf(activity)) {
-				if (logInfo.getEventuallyFollowsGraph().getEdgeWeight(edge) >= maxWeightOut * threshold) {
-					XEventClass from = logInfo.getEventuallyFollowsGraph().getEdgeSource(edge);
-					XEventClass to = logInfo.getEventuallyFollowsGraph().getEdgeTarget(edge);
-					DefaultWeightedEdge filteredEdge = filteredEventuallyFollowsGraph.addEdge(from, to);
-					filteredEventuallyFollowsGraph.setEdgeWeight(filteredEdge, logInfo.getEventuallyFollowsGraph()
-							.getEdgeWeight(edge));
-				}
-			}
-		}
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = filterGraph(
+				logInfo.getEventuallyFollowsGraph(), filteredEndActivities, threshold);
 
 		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
@@ -145,6 +60,47 @@ public class CutFinderIMi implements CutFinder {
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
 				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
 				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
+	}
+
+	/**
+	 * Filter a graph. Only keep the edges that occur often enough, compared
+	 * with other outgoing edges of the source. 0 <= threshold <= 1.
+	 * 
+	 * @param graph
+	 * @param threshold
+	 * @return
+	 */
+	public static DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filterGraph(
+			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph, MultiSet<XEventClass> endActivities,
+			float threshold) {
+		//filter directly-follows graph
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filtered = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
+				DefaultWeightedEdge.class);
+
+		//add nodes
+		for (XEventClass activity : graph.vertexSet()) {
+			filtered.addVertex(activity);
+		}
+
+		//add edges
+		for (XEventClass activity : graph.vertexSet()) {
+			//find the maximum outgoing weight of this node
+			long maxWeightOut = endActivities.getCardinalityOf(activity);
+			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(activity)) {
+				maxWeightOut = Math.max(maxWeightOut, (int) graph.getEdgeWeight(edge));
+			}
+
+			//add all edges that are strong enough
+			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(activity)) {
+				if (graph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
+					XEventClass from = graph.getEdgeSource(edge);
+					XEventClass to = graph.getEdgeTarget(edge);
+					DefaultWeightedEdge filteredEdge = filtered.addEdge(from, to);
+					filtered.setEdgeWeight(filteredEdge, graph.getEdgeWeight(edge));
+				}
+			}
+		}
+		return filtered;
 	}
 
 	/*
@@ -158,10 +114,12 @@ public class CutFinderIMi implements CutFinder {
 		//filter directly-follows graph
 		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
 				DefaultWeightedEdge.class);
+
 		//add nodes
 		for (XEventClass activity : logInfo.getActivities()) {
 			filteredDirectlyFollowsGraph.addVertex(activity);
 		}
+
 		//add edges
 		for (XEventClass activity : logInfo.getActivities()) {
 
@@ -193,8 +151,27 @@ public class CutFinderIMi implements CutFinder {
 				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
 				logInfo.getStartActivities().copy(), logInfo.getEndActivities().copy(),
 				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
-				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
+				logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(), logInfo.getHighestTraceCardinality(),
+				logInfo.getOccurencesOfMostOccuringDirectEdge(), logInfo.getMostOccurringStartActivity(),
+				logInfo.getMostOccurringEndActivity());
+	}
+
+	/**
+	 * Filter start or end activities. Only keep those occurring more times than
+	 * threshold * the most occurring activity. 0 <= threshold <= 1.
+	 * 
+	 * @param activities
+	 * @param threshold
+	 * @return
+	 */
+	public static MultiSet<XEventClass> filterActivities(MultiSet<XEventClass> activities, float threshold) {
+		long max = activities.getCardinalityOf(activities.getElementWithHighestCardinality());
+		MultiSet<XEventClass> filtered = new MultiSet<XEventClass>();
+		for (XEventClass activity : activities) {
+			if (activities.getCardinalityOf(activity) >= threshold * max) {
+				filtered.add(activity, activities.getCardinalityOf(activity));
+			}
+		}
+		return filtered;
 	}
 }
