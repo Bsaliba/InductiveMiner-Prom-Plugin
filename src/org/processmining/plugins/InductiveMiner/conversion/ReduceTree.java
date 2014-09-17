@@ -11,17 +11,15 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
+import org.processmining.processtree.Block.And;
+import org.processmining.processtree.Block.Seq;
+import org.processmining.processtree.Block.Xor;
+import org.processmining.processtree.Block.XorLoop;
 import org.processmining.processtree.Edge;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
-import org.processmining.processtree.impl.AbstractBlock.And;
-import org.processmining.processtree.impl.AbstractBlock.Def;
-import org.processmining.processtree.impl.AbstractBlock.DefLoop;
-import org.processmining.processtree.impl.AbstractBlock.Seq;
-import org.processmining.processtree.impl.AbstractBlock.Xor;
-import org.processmining.processtree.impl.AbstractBlock.XorLoop;
-import org.processmining.processtree.impl.AbstractTask.Automatic;
-import org.processmining.processtree.impl.AbstractTask.Manual;
+import org.processmining.processtree.Task.Automatic;
+import org.processmining.processtree.impl.AbstractBlock;
 
 @Plugin(name = "Reduce process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
 public class ReduceTree {
@@ -34,7 +32,10 @@ public class ReduceTree {
 	}
 	
 	public static void reduceTree(ProcessTree tree) {
-		reduceNode(tree.getRoot(), tree);
+		boolean changed = true;
+		while (changed) {
+			changed = reduceNode(tree.getRoot(), tree);
+		}
 	}
 
 	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
@@ -57,8 +58,6 @@ public class ReduceTree {
 					
 					changed = true;
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
-
-					//for all of these, the number of traces represented remains the same
 				} else {
 					i++;
 				}
@@ -78,8 +77,6 @@ public class ReduceTree {
 				if (child instanceof Xor) {
 					changed = true;
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
-
-					//for xor, the number of traces represented remains the same
 				} else {
 					i++;
 				}
@@ -119,7 +116,6 @@ public class ReduceTree {
 			//reduce
 			if (childProducingTau != null) {
 				//all taus can be removed
-				int emptyTraces = 0;
 				for (Automatic tau : taus) {
 					removeChild(xor, tau, tree);
 					tree.removeNode(tau);
@@ -127,7 +123,6 @@ public class ReduceTree {
 			} else {
 				//only the non-first taus can be removed
 				Iterator<Automatic> it = taus.iterator();
-				Automatic keepTau = it.next();
 				while (it.hasNext()) {
 					Automatic tau = it.next();
 					removeChild(xor, tau, tree);
@@ -223,7 +218,7 @@ public class ReduceTree {
 
 			//reconnect redo and bodyredo
 			removeChild(loop, oldRedo, tree);
-			Xor redoXor = new Xor("");
+			Xor redoXor = new AbstractBlock.Xor("");
 			redoXor.setProcessTree(tree);
 			loop.addChildAt(redoXor, 1);
 			redoXor.addChild(oldRedo);
@@ -265,67 +260,25 @@ public class ReduceTree {
 		return i;
 	}
 
-	private static void reduceNode(Node node, ProcessTree tree) {
+	private static boolean reduceNode(Node node, ProcessTree tree) {
 		boolean changed = true;
+		boolean changed2 = false;
 		while (changed) {
 			changed = false;
 			for (ReductionPattern pattern : patterns) {
-				changed = changed || pattern.apply(node, tree);
+				boolean x = pattern.apply(node, tree);
+				if (x) {
+					System.out.println("applied " + pattern.toString() + " to " + node);
+				}
+				changed = changed || x;
+				changed2 = changed2 || x;
 			}
 		}
 		if (node instanceof Block) {
 			for (Node child : ((Block) node).getChildren()) {
-				reduceNode(child, tree);
+				changed2 = changed2 || reduceNode(child, tree);
 			}
 		}
-	}
-
-	private static List<Node> getPathToTau(Node node) {
-		List<Node> result = new ArrayList<Node>(Arrays.asList(node));
-		if (node instanceof Manual) {
-			return null;
-		} else if (node instanceof Automatic) {
-			return result;
-		} else if (node instanceof And || node instanceof Seq) {
-			for (Node child : ((Block) node).getChildren()) {
-				List<Node> childPath = getPathToTau(child);
-				if (childPath != null) {
-					result.addAll(childPath);
-				} else {
-					return null;
-				}
-			}
-			return result;
-		} else if (node instanceof Xor || node instanceof Def) {
-			for (Node child : ((Block) node).getChildren()) {
-				List<Node> childPath = getPathToTau(child);
-				if (childPath != null) {
-					result.addAll(childPath);
-					return result;
-				}
-			}
-			return null;
-		} else if (node instanceof DefLoop || node instanceof XorLoop) {
-			{
-				List<Node> childPath = getPathToTau(((Block) node).getChildren().get(0));
-				if (childPath != null) {
-					result.addAll(childPath);
-				} else {
-					return null;
-				}
-			}
-
-			{
-				List<Node> childPath = getPathToTau(((Block) node).getChildren().get(2));
-				if (childPath != null) {
-					result.addAll(childPath);
-				} else {
-					return null;
-				}
-			}
-			return result;
-		}
-		assert (false);
-		return null;
+		return changed2;
 	}
 }
