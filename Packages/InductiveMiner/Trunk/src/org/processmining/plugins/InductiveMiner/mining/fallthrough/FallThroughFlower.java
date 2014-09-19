@@ -18,11 +18,11 @@ public class FallThroughFlower implements FallThrough {
 		Miner.debug(" fall through: flower model", minerState);
 		
 		Block loopNode = new AbstractBlock.XorLoop("");
-		Miner.addNode(tree, loopNode, log.size(), 0l, 0l, "fall through: flower model");
+		Miner.addNode(tree, loopNode);
 		
 		//body: tau
 		Node body = new AbstractTask.Automatic("tau");
-		Miner.addNode(tree, body, log.size() + logInfo.getNumberOfEvents(), 0l, 0l, "fall through: flower model");
+		Miner.addNode(tree, body);
 		loopNode.addChild(body);
 		
 		//redo: xor/activity
@@ -31,18 +31,18 @@ public class FallThroughFlower implements FallThrough {
 			xorNode = loopNode;
 		} else {
 			xorNode = new AbstractBlock.Xor("");
-			Miner.addNode(tree, xorNode, logInfo.getNumberOfEvents(), 0l, 0l, "fall through: flower model");
+			Miner.addNode(tree, xorNode);
 			loopNode.addChild(xorNode);
 		}
 		
 		for (XEventClass activity: logInfo.getActivities()) {
 			Node child = new AbstractTask.Manual(activity.toString());
-			Miner.addNode(tree, child, logInfo.getActivities().getCardinalityOf(activity), 0l, 0l, "fall through: flower model");
+			Miner.addNode(tree, child);
 			xorNode.addChild(child);
 		}
 		
 		Node tau2 = new AbstractTask.Automatic("tau");
-		Miner.addNode(tree, tau2, log.size(), 0l, 0l, "fall through: flower model");
+		Miner.addNode(tree, tau2);
 		loopNode.addChild(tau2);
 		
 		return loopNode;

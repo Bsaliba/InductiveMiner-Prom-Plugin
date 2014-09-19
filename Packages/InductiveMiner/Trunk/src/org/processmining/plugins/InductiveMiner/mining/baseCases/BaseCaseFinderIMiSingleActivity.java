@@ -30,10 +30,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
 				XEventClass activity = logInfo.getActivities().iterator().next();
 				Node node = new AbstractTask.Manual(activity.toString());
-				Miner.addNode(tree, node, log.size(), logInfo.getNumberOfEpsilonTraces(),
-						logInfo.getNumberOfEvents()
-								- (log.size() - logInfo.getNumberOfEpsilonTraces()),
-						"base case: IMi single activity");
+				Miner.addNode(tree, node);
 
 				return node;
 			}

@@ -71,7 +71,7 @@ public class Miner {
 
 			//make node
 			Block newNode = newNode(cut.getOperator());
-			addNode(tree, newNode, log.size(), 0l, splitResult.discardedEvents.size(), "cut detection " + cut);
+			addNode(tree, newNode);
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
@@ -95,7 +95,7 @@ public class Miner {
 				Block redoXor;
 				if (splitResult.sublogs.size() > 2) {
 					redoXor = new Xor("");
-					addNode(tree, redoXor, firstSublog.size() - log.size(), 0l, 0l, "cut detection " + cut);
+					addNode(tree, redoXor);
 					newNode.addChild(redoXor);
 				} else {
 					redoXor = newNode;
@@ -109,7 +109,7 @@ public class Miner {
 				//add tau as third child
 				{
 					Node tau = new AbstractTask.Automatic("tau");
-					addNode(tree, tau, log.size(), 0l, 0l, "cut detection " + cut);
+					addNode(tree, tau);
 					newNode.addChild(tau);
 				}
 			}
@@ -135,8 +135,7 @@ public class Miner {
 		return null;
 	}
 
-	public static void addNode(ProcessTree tree, Node node, long traces, long modelMovesWithoutEpsilonFiltered, long logMoves,
-			String producer) {
+	public static void addNode(ProcessTree tree, Node node) {
 		node.setProcessTree(tree);
 		tree.addNode(node);
 	}
