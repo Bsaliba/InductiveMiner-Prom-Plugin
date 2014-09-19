@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.metrics;
 
-import org.processmining.plugins.properties.processmodel.Property;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.impl.AbstractBlock;
@@ -39,38 +38,5 @@ public class MinerMetrics {
 		}
 		assert(false);
 		return 0;
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static Object getProperty(Node node, Property property) {
-		Object result = null;
-		try {
-			result = node.getIndependentProperty(property);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		if (result == null &&!( property instanceof PropertyEpsilonTracesSkipped)) {
-			System.out.println("==== node without property ====");
-			System.out.println(property.getClass());
-			System.out.println(node);
-			assert(false);
-		}
-		return result;
-		//return property.getDefaultValue();
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void attachProperty(Node node, Property property, Object value) {
-		if (value != null) {
-			try {
-				node.setIndependentProperty(property, value);
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

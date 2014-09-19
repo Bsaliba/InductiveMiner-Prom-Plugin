@@ -21,7 +21,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			
 			XEventClass activity = logInfo.getActivities().iterator().next();
 			Node node = new AbstractTask.Manual(activity.toString());
-			Miner.addNode(tree, node, log.size(), 0l, 0l, "base case IM - single activity");
+			Miner.addNode(tree, node);
 			
 			return node;
 		} else if (logInfo.getActivities().setSize() == 0) {
@@ -30,7 +30,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			Miner.debug(" base case: IM empty log", minerState);
 			
 			Node node = new AbstractTask.Automatic("tau");
-			Miner.addNode(tree, node, log.size(), 0l, 0l, "base case IM - empty log");
+			Miner.addNode(tree, node);
 			
 			return node;
 		}

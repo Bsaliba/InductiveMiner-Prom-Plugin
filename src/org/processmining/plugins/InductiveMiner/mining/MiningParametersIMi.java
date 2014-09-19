@@ -41,5 +41,7 @@ public class MiningParametersIMi extends MiningParameters {
 		//set parameters
 		setNoiseThreshold((float) 0.2);
 		setReduce(true);
+		
+		setDebug(true);
 	}
 }

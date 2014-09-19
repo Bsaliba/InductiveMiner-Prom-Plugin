@@ -17,7 +17,7 @@ public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 			Miner.debug(" base case: IMi empty log", minerState);
 
 			Node node = new AbstractTask.Automatic("tau");
-			Miner.addNode(tree, node, 0l, 0l, 0l, "base case: IMi empty log");
+			Miner.addNode(tree, node);
 
 			return node;
 		}
