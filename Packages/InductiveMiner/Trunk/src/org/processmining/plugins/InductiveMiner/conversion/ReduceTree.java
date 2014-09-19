@@ -197,11 +197,7 @@ public class ReduceTree {
 			Node bodyRedo = oldBody.getChildren().get(1);
 			Node bodyExit = oldBody.getChildren().get(2);
 
-			if (!(exit instanceof Automatic)) {
-				return false;
-			}
-
-			if (!(oldBody.getChildren().get(2) instanceof Automatic)) {
+			if (!(bodyExit instanceof Automatic)) {
 				return false;
 			}
 
@@ -220,6 +216,7 @@ public class ReduceTree {
 			removeChild(loop, oldRedo, tree);
 			Xor redoXor = new AbstractBlock.Xor("");
 			redoXor.setProcessTree(tree);
+			tree.addNode(redoXor);
 			loop.addChildAt(redoXor, 1);
 			redoXor.addChild(oldRedo);
 			redoXor.addChild(bodyRedo);
