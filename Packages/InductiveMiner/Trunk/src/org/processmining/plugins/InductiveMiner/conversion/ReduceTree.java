@@ -30,7 +30,7 @@ public class ReduceTree {
 		reduceTree(tree);
 		return tree;
 	}
-	
+
 	public static void reduceTree(ProcessTree tree) {
 		boolean changed = true;
 		while (changed) {
@@ -47,22 +47,26 @@ public class ReduceTree {
 
 	public static class RPOneChild extends ReductionPattern {
 		public boolean apply(Node node, ProcessTree tree) {
-			if (!(node instanceof Block)) {
-				return false;
-			}
-
-			int i = 0;
-			boolean changed = false;
-			for (Node child : ((Block) node).getChildren()) {
-				if (child instanceof Block && ((Block) child).getChildren().size() == 1) {
-					
-					changed = true;
-					i = flattenChildAt((Block) node, (Block) child, i, tree);
+			if (node instanceof Block && ((Block) node).getChildren().size() == 1) {
+				Node child = ((Block) node).getChildren().get(0);
+				if (node.getProcessTree().getRoot() == node) {
+					//root
+					removeChild((Block) node, child, tree);
+					tree.setRoot(child);
+					tree.removeNode(node);
 				} else {
-					i++;
+					//non-root
+					Block parent = node.getParents().iterator().next();
+					for (int i = 0; i < parent.getChildren().size();i++) {
+						if (parent.getChildren().get(i) == node) {
+							flattenChildAt(parent, (Block) node, i, tree);
+							return true;
+						}
+					}
 				}
+				return true;
 			}
-			return changed;
+			return false;
 		}
 	}
 
