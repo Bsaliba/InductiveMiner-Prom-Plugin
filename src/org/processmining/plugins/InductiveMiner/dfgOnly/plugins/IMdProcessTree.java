@@ -10,8 +10,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParameters;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersPartialOrder;
 import org.processmining.processtree.ProcessTree;
 
-
-public class IMd {
+public class IMdProcessTree {
 
 	@Plugin(name = "Convert directly-follows graph to process tree ", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Direclty-follows graph" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
@@ -19,7 +18,7 @@ public class IMd {
 	public ProcessTree mineProcessTree(PluginContext context, Dfg dfg) {
 		return mineProcessTree(dfg, new DfgMiningParametersPartialOrder());
 	}
-	
+
 	public static ProcessTree mineProcessTree(Dfg dfg, DfgMiningParameters parameters) {
 		return DfgMiner.mine(dfg, parameters);
 	}
