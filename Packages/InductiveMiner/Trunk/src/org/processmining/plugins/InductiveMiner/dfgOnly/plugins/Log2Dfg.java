@@ -21,8 +21,11 @@ public class Log2Dfg {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Dfg log2Dfg(PluginContext context, XLog log) {
-		
 		context.getFutureResult(0).setLabel("Directly-follows graph of " + XConceptExtension.instance().extractName(log));
+		return log2Dfg(log);
+	}
+	
+	public static Dfg log2Dfg(XLog log) {
 		XEventClassifier classifier = MiningParameters.getDefaultClassifier();
 		XLogInfo info = XLogInfoFactory.createLogInfo(log, classifier);
 		
