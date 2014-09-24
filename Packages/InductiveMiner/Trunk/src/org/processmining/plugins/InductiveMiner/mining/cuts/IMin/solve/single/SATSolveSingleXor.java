@@ -8,9 +8,8 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.sat4j.core.Vec;
@@ -22,16 +21,15 @@ import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleXor extends SATSolveSingle {
 
-	public SATSolveSingleXor(IMLogInfo logInfo, MiningParameters parameters) {
-		super(logInfo, parameters);
+	public SATSolveSingleXor(CutFinderIMinInfo info) {
+		super(info);
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
 		//debug(" solve xor with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = logInfo
-				.getDirectlyFollowsGraph();
-		Probabilities probabilities = parameters.getSatProbabilities();
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Probabilities probabilities = info.getProbabilities();
 
 		//compute number of edges in the cut
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
@@ -90,7 +88,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityXorB(logInfo, aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityXorB(info, aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -114,7 +112,7 @@ public class SATSolveSingleXor extends SATSolveSingle {
 						XEventClass aJ = nodes[j];
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
-							double p = probabilities.getProbabilityXor(logInfo, aI, aJ);
+							double p = probabilities.getProbabilityXor(info, aI, aJ);
 							//x += e.toString() + " (" + p + "), ";
 							sumProbability += p;
 						}

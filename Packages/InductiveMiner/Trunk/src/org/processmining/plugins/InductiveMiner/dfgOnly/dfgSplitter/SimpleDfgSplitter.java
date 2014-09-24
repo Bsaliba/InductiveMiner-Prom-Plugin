@@ -9,6 +9,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 
 public class SimpleDfgSplitter implements DfgSplitter {
 
@@ -21,7 +22,7 @@ public class SimpleDfgSplitter implements DfgSplitter {
 			//walk through the nodes
 			for (XEventClass activity : sigma) {
 				subDfg.getDirectlyFollowsGraph().addVertex(activity);
-			
+
 				if (dfg.getStartActivities().contains(activity)) {
 					subDfg.getStartActivities().add(activity, dfg.getStartActivities().getCardinalityOf(activity));
 				}
@@ -37,18 +38,22 @@ public class SimpleDfgSplitter implements DfgSplitter {
 					int cardinality = (int) dfg.getDirectlyFollowsGraph().getEdgeWeight(edge);
 					XEventClass source = dfg.getDirectlyFollowsGraph().getEdgeSource(edge);
 					XEventClass target = dfg.getDirectlyFollowsGraph().getEdgeTarget(edge);
-					
+
 					if (sigma.contains(source) && sigma.contains(target)) {
 						//internal edge in sigma
 						Dfg.addEdgeToGraph(subDfg.getDirectlyFollowsGraph(), source, target, cardinality);
-					} else if (sigma.contains(source) && !sigma.contains(target)){
+					} else if (sigma.contains(source) && !sigma.contains(target)) {
 						//edge going out of sigma
-						//source is an end activity
-						subDfg.getEndActivities().add(source, cardinality);
+						if (cut.getOperator() == Operator.sequence || cut.getOperator() == Operator.loop) {
+							//source is an end activity
+							subDfg.getEndActivities().add(source, cardinality);
+						}
 					} else if (!sigma.contains(source) && sigma.contains(target)) {
 						//edge going into sigma
-						//target is a start activity
-						subDfg.getStartActivities().add(target, cardinality);
+						if (cut.getOperator() == Operator.sequence || cut.getOperator() == Operator.loop) {
+							//target is a start activity
+							subDfg.getStartActivities().add(target, cardinality);
+						}
 					} else {
 						//edge unrelated to sigma
 					}

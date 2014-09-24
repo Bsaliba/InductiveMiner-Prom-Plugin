@@ -2,12 +2,10 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
-import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.jobList.JobListBlocking;
-import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
@@ -15,6 +13,8 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 public abstract class MiningParameters {
 	private XEventClassifier classifier;
@@ -25,8 +25,8 @@ public abstract class MiningParameters {
 	private boolean debug;
 	private boolean reduce;
 	private Probabilities satProbabilities;
-	private JobList minerPool;
-	private JobList satPool;
+	private ExecutorService minerPool;
+	private ExecutorService satPool;
 	
 	private List<BaseCaseFinder> baseCaseFinders;
 	private List<CutFinder> cutFinders;
@@ -116,21 +116,21 @@ public abstract class MiningParameters {
 		this.satProbabilities = satProbabilities;
 	}
 	
-	public JobList getMinerPool() {
+	public ExecutorService getMinerPool() {
 		return this.minerPool;
 	}
 	
-	public JobList getSatPool() {
+	public ExecutorService getSatPool() {
 		return this.satPool;
 	}
 	
 	public void setUseMultithreading(boolean useMultithreading) {
 		if (!useMultithreading) {
-			minerPool = new JobListBlocking();
-			satPool = new JobListBlocking();
+			minerPool = MoreExecutors.sameThreadExecutor();
+			satPool = MoreExecutors.sameThreadExecutor();
 		} else {
-			minerPool = new JobListConcurrent(ThreadPoolSingleton2.getInstance());
-			satPool = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
+			minerPool = ThreadPoolSingleton2.getInstance();
+			satPool = ThreadPoolSingleton1.getInstance();
 		}
 	}
 

@@ -16,7 +16,6 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequen
 public class DfgCutFinderSimple implements DfgCutFinder {
 
 	private static List<DfgCutFinder> cutFinders = new ArrayList<DfgCutFinder>(Arrays.asList(
-			new DfgCutFinderMergeParallelGraph(),
 			new CutFinderIMExclusiveChoice(),
 			new CutFinderIMSequence(),
 			new CutFinderIMParallel(),

@@ -1,15 +1,13 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 
-import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single.SATSolveSingleParallel;
 
 public class SATSolveParallel extends SATSolve {
 
-	public SATSolveParallel(IMLogInfo logInfo, MiningParameters parameters, JobList pool, AtomicResult result) {
-		super(logInfo, parameters, pool, result);
+	public SATSolveParallel(CutFinderIMinInfo info, AtomicResult result) {
+		super(info, result);
 	}
 	
 	public void solve() {

@@ -9,9 +9,8 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.sat4j.core.Vec;
@@ -23,15 +22,15 @@ import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleSequence extends SATSolveSingle {
 
-	public SATSolveSingleSequence(IMLogInfo logInfo, MiningParameters parameters) {
-		super(logInfo, parameters);
+	public SATSolveSingleSequence(CutFinderIMinInfo info) {
+		super(info);
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
 		//debug(" solve sequence with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = logInfo.getDirectlyFollowsGraph();
-		Probabilities probabilities = parameters.getSatProbabilities();
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Probabilities probabilities = info.getProbabilities();
 
 		//compute number of edges in the cut
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
@@ -92,7 +91,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 						XEventClass aI = nodes[i];
 						XEventClass aJ = nodes[j];
 						clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-						coefficients.push(probabilities.getProbabilitySequenceB(logInfo, aI, aJ).negate());
+						coefficients.push(probabilities.getProbabilitySequenceB(info, aI, aJ).negate());
 					}
 				}
 			}
@@ -119,7 +118,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 							Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 							if (e.isResult()) {
 								//x += e.toString() + " (" + probabilities.getProbabilitySequence(logInfo, aI, aJ) + "), ";
-								sumProbability += probabilities.getProbabilitySequence(logInfo, aI, aJ);
+								sumProbability += probabilities.getProbabilitySequence(info, aI, aJ);
 							}
 						}
 					}

@@ -2,45 +2,37 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single.SATSolveSingle;
 
 public abstract class SATSolve {
 
-	protected final JobList pool;
 	protected final AtomicResult bestTillNow;
-	protected final IMLogInfo logInfo;
-	protected final MiningParameters parameters;
+	protected final CutFinderIMinInfo info;
 
-	public SATSolve(IMLogInfo logInfo, MiningParameters parameters, JobList pool,
-			AtomicResult bestTillNow) {
-		this.logInfo = logInfo;
-		this.parameters = parameters;
-		this.pool = pool;
+	public SATSolve(CutFinderIMinInfo info, AtomicResult bestTillNow) {
+		this.info = info;
 		this.bestTillNow = bestTillNow;
 	}
-	
+
 	public abstract void solve();
 
 	public void solveDefault(final Class<? extends SATSolveSingle> c, boolean commutative) {
 		double maxCut;
 		if (commutative) {
-			maxCut = 0.5 + logInfo.getActivities().setSize() / 2;
+			maxCut = 0.5 + info.getActivities().size() / 2;
 		} else {
-			maxCut = logInfo.getActivities().setSize();
+			maxCut = info.getActivities().size();
 		}
 		for (int i = 1; i < maxCut; i++) {
 			final int j = i;
-			pool.addJob(new Runnable() {
+			info.getJobList().addJob(new Runnable() {
 				public void run() {
 					SATSolveSingle solver = null;
 					try {
-						solver = c.getConstructor(IMLogInfo.class, MiningParameters.class).newInstance(
-								logInfo, parameters);
+						solver = c.getConstructor(CutFinderIMinInfo.class).newInstance(info);
 					} catch (InstantiationException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
@@ -66,7 +58,7 @@ public abstract class SATSolve {
 	}
 
 	protected void debug(String x) {
-		if (parameters.isDebug()) {
+		if (info.isDebug()) {
 			System.out.println(x);
 		}
 	}

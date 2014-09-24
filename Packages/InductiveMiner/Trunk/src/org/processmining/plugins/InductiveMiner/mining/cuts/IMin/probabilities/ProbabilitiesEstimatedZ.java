@@ -1,18 +1,18 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 
 public class ProbabilitiesEstimatedZ extends Probabilities {
 
-	public double getProbabilityXor(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilityXor(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		if (!D(r, a, b) && !D(r, b, a) && !E(r, a, b) && !E(r, b, a)) {
 			return 1 - (1 / (z(r, a, b) + 1));
 		}
 		return 0;
 	}
 
-	public double getProbabilitySequence(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilitySequence(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		if (!D(r, a, b) && !D(r, b, a)) {
 			if (!E(r, b, a)) {
 				if (!E(r, a, b)) {
@@ -27,7 +27,7 @@ public class ProbabilitiesEstimatedZ extends Probabilities {
 		return 0;
 	}
 
-	public double getProbabilityLoopIndirect(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopIndirect(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		if (!D(r, a, b) && !D(r, b, a)) {
 			if (!E(r, a, b) && !E(r, b, a)) {
 				return (1 / 6.0) * 1 / (z(r, a, b) + 1);
@@ -40,7 +40,7 @@ public class ProbabilitiesEstimatedZ extends Probabilities {
 		return 0;
 	}
 
-	public double getProbabilityLoopSingle(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopSingle(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		if (!D(r, a, b) && !D(r, b, a)) {
 			if (!E(r, a, b) && !E(r, b, a)) {
 				return (1 / 6.0) * 1 / (z(r, a, b) + 1);
@@ -59,7 +59,7 @@ public class ProbabilitiesEstimatedZ extends Probabilities {
 		return 0;
 	}
 
-	public double getProbabilityParallel(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilityParallel(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		if (!D(r, a, b) && !D(r, b, a)) {
 			if (!E(r, a, b) && !E(r, b, a)) {
 				return (1 / 6.0) * 1 / (z(r, a, b) + 1);
@@ -85,7 +85,7 @@ public class ProbabilitiesEstimatedZ extends Probabilities {
 		}
 	}
 
-	public double getProbabilityLoopDouble(IMLogInfo r, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopDouble(CutFinderIMinInfo r, XEventClass a, XEventClass b) {
 		return 0;
 	}
 

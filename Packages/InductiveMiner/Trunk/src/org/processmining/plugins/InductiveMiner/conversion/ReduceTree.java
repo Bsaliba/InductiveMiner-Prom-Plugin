@@ -268,9 +268,6 @@ public class ReduceTree {
 			changed = false;
 			for (ReductionPattern pattern : patterns) {
 				boolean x = pattern.apply(node, tree);
-				if (x) {
-					System.out.println("applied " + pattern.toString() + " to " + node);
-				}
 				changed = changed || x;
 				changed2 = changed2 || x;
 			}
