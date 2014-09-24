@@ -4,12 +4,11 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Matrix;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class DebugProbabilities {
 	
-	public static String debug(IMLogInfo logInfo, MiningParameters parameters, boolean useHTML) {
+	public static String debug(CutFinderIMinInfo info, MiningParameters parameters, boolean useHTML) {
 		
 		String newLine;
 		if (useHTML) {
@@ -18,7 +17,7 @@ public class DebugProbabilities {
 			newLine = "\n";
 		}
 		
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = logInfo.getDirectlyFollowsGraph();
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
 
 		if (graph.vertexSet().size() == 1) {
 			return "";
@@ -32,7 +31,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(info, a, b));
 					}
 				}
 			}
@@ -46,7 +45,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(info, a, b));
 					}
 				}
 			}
@@ -60,7 +59,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(info, a, b));
 					}
 				}
 			}
@@ -74,7 +73,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(info, a, b));
 					}
 				}
 			}
@@ -88,7 +87,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(info, a, b));
 					}
 				}
 			}
@@ -102,7 +101,7 @@ public class DebugProbabilities {
 			for (XEventClass a : graph.vertexSet()) {
 				for (XEventClass b : graph.vertexSet()) {
 					if (a != b) {
-						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(logInfo, a, b));
+						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(info, a, b));
 					}
 				}
 			}

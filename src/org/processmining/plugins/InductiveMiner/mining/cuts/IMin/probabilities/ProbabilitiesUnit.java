@@ -1,11 +1,11 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 
 public class ProbabilitiesUnit extends Probabilities {
 
-	public double getProbabilityXor(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilityXor(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		if (!D(logInfo, a, b) && !D(logInfo, b, a) && !E(logInfo, a, b) && !E(logInfo, b, a)) {
 			return 1;
 		} else {
@@ -13,7 +13,7 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilitySequence(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilitySequence(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		if (D(logInfo, a, b) && !D(logInfo, b, a) && !E(logInfo, b, a)) {
 			return 1;
 		} else if (!D(logInfo, a, b) && !D(logInfo, b, a) && E(logInfo, a, b) && !E(logInfo, b, a)) {
@@ -23,7 +23,7 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilityParallel(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilityParallel(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		if (D(logInfo, a, b) && D(logInfo, b, a)) {
 			return 1;
 		} else {
@@ -31,21 +31,21 @@ public class ProbabilitiesUnit extends Probabilities {
 		}
 	}
 
-	public double getProbabilityLoopSingle(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopSingle(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		if (D(logInfo, a, b) && !D(logInfo, b, a) && E(logInfo, b, a)) {
 			return 1;
 		}
 		return 0;
 	}
 
-	public double getProbabilityLoopIndirect(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopIndirect(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		if (!D(logInfo, a, b) && !D(logInfo, b, a) && E(logInfo, a, b) && E(logInfo, b, a)) {
 			return 1;
 		}
 		return 0;
 	}
 
-	public double getProbabilityLoopDouble(IMLogInfo logInfo, XEventClass a, XEventClass b) {
+	public double getProbabilityLoopDouble(CutFinderIMinInfo logInfo, XEventClass a, XEventClass b) {
 		return 0;
 	}
 	

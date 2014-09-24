@@ -1,15 +1,13 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 
-import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single.SATSolveSingleXor;
 
 public class SATSolveXor extends SATSolve {
 
-	public SATSolveXor(IMLogInfo logInfo, MiningParameters parameters, JobList pool, AtomicResult result) {
-		super(logInfo, parameters, pool, result);
+	public SATSolveXor(CutFinderIMinInfo info, AtomicResult result) {
+		super(info, result);
 	}
 	
 	public void solve() {

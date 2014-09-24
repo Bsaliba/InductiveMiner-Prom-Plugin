@@ -9,9 +9,8 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.sat4j.core.Vec;
@@ -23,15 +22,15 @@ import org.sat4j.specs.TimeoutException;
 
 public class SATSolveSingleParallel extends SATSolveSingle {
 
-	public SATSolveSingleParallel(IMLogInfo logInfo, MiningParameters parameters) {
-		super(logInfo, parameters);
+	public SATSolveSingleParallel(CutFinderIMinInfo info) {
+		super(info);
 	}
 
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
 		//debug(" solve parallel with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = logInfo.getDirectlyFollowsGraph();
-		Probabilities probabilities = parameters.getSatProbabilities();
+		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Probabilities probabilities = info.getProbabilities();
 
 		//compute number of edges in the cut
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
@@ -77,9 +76,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has a start activity
 			{
-				int[] clause = new int[logInfo.getStartActivities().toSet().size()];
+				int[] clause = new int[info.getStartActivities().toSet().size()];
 				int i = 0;
-				for (XEventClass e : logInfo.getStartActivities().toSet()) {
+				for (XEventClass e : info.getStartActivities().toSet()) {
 					clause[i] = node2var.get(e).getVarInt();
 					i++;
 				}
@@ -88,9 +87,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has an end activity
 			{
-				int[] clause = new int[logInfo.getEndActivities().toSet().size()];
+				int[] clause = new int[info.getEndActivities().toSet().size()];
 				int i = 0;
-				for (XEventClass e : logInfo.getEndActivities().toSet()) {
+				for (XEventClass e : info.getEndActivities().toSet()) {
 					clause[i] = node2var.get(e).getVarInt();
 					i++;
 				}
@@ -99,9 +98,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: -cut side has a start activity
 			{
-				int[] clause = new int[logInfo.getStartActivities().toSet().size()];
+				int[] clause = new int[info.getStartActivities().toSet().size()];
 				int i = 0;
-				for (XEventClass e : logInfo.getStartActivities().toSet()) {
+				for (XEventClass e : info.getStartActivities().toSet()) {
 					clause[i] = -node2var.get(e).getVarInt();
 					i++;
 				}
@@ -110,9 +109,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has an end activity
 			{
-				int[] clause = new int[logInfo.getEndActivities().toSet().size()];
+				int[] clause = new int[info.getEndActivities().toSet().size()];
 				int i = 0;
-				for (XEventClass e : logInfo.getEndActivities().toSet()) {
+				for (XEventClass e : info.getEndActivities().toSet()) {
 					clause[i] = -node2var.get(e).getVarInt();
 					i++;
 				}
@@ -127,7 +126,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 					XEventClass aI = nodes[i];
 					XEventClass aJ = nodes[j];
 					clause.push(edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ)).getVarInt());
-					coefficients.push(probabilities.getProbabilityParallelB(logInfo, aI, aJ).negate());
+					coefficients.push(probabilities.getProbabilityParallelB(info, aI, aJ).negate());
 				}
 			}
 			ObjectiveFunction obj = new ObjectiveFunction(clause, coefficients);
@@ -152,7 +151,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 						Edge e = edge2var.get(new Pair<XEventClass, XEventClass>(aI, aJ));
 						if (e.isResult()) {
 							//x += e.toString() + " (" + probabilities.getProbabilityParallel(logInfo, aI, aJ) + "), ";
-							sumProbability += probabilities.getProbabilityParallel(logInfo, aI, aJ);
+							sumProbability += probabilities.getProbabilityParallel(info, aI, aJ);
 						}
 					}
 				}

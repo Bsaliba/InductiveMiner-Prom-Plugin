@@ -7,8 +7,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
@@ -84,21 +83,19 @@ public abstract class SATSolveSingle {
 	
 	private int varCounter;
 
-	protected final IMLogInfo logInfo;
-	protected final MiningParameters parameters;
+	protected final CutFinderIMinInfo info;
 
-	public SATSolveSingle(IMLogInfo logInfo, MiningParameters parameters) {
+	public SATSolveSingle(CutFinderIMinInfo info) {
 		varInt2var = new HashMap<Integer, Var>();
 		varCounter = 1;
 		solver = SolverFactory.newDefaultOptimizer();
-		this.logInfo = logInfo;
-		this.parameters = parameters;
+		this.info = info;
 
-		countNodes = logInfo.getActivities().setSize();
+		countNodes = info.getActivities().size();
 
 		//initialise nodes
 		node2var = new HashMap<XEventClass, Node>();
-		for (XEventClass a : logInfo.getActivities()) {
+		for (XEventClass a : info.getActivities()) {
 			node2var.put(a, newNodeVar(a));
 		}
 
@@ -106,7 +103,7 @@ public abstract class SATSolveSingle {
 		nodes = new XEventClass[countNodes];
 		{
 			int i = 0;
-			for (XEventClass a : logInfo.getActivities()) {
+			for (XEventClass a : info.getActivities()) {
 				nodes[i] = a;
 				i++;
 			}
@@ -161,7 +158,7 @@ public abstract class SATSolveSingle {
 	}
 	
 	protected void debug(String x) {
-		if (parameters.isDebug()) {
+		if (info.isDebug()) {
 			System.out.println(x);
 		}
 	}
