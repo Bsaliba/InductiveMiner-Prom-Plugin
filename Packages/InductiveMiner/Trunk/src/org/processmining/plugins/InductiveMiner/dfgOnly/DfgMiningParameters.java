@@ -105,6 +105,10 @@ public abstract class DfgMiningParameters {
 	public float getIncompleteThreshold() {
 		return this.incompleteThreshold;
 	}
+	
+	public void setIncompleteThreshold(float incompleteThreshold) {
+		this.incompleteThreshold = incompleteThreshold;
+	}
 
 	public ExecutorService getSatPool() {
 		return this.satPool;

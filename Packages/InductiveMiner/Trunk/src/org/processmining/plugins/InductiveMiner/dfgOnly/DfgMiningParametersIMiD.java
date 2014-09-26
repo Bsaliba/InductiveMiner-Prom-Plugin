@@ -6,22 +6,21 @@ import java.util.Arrays;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.SimpleDfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderNoiseFiltering;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThroughFlower;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.SimpleDfgSplitter;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMin;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
 
-public class DfgMiningParametersIMinD extends DfgMiningParameters {
-	public DfgMiningParametersIMinD() {
+public class DfgMiningParametersIMiD extends DfgMiningParameters {
+	public DfgMiningParametersIMiD() {
 		setDfgBaseCaseFinders(new ArrayList<DfgBaseCaseFinder>(Arrays.asList(
 				new SimpleDfgBaseCaseFinder()
 				)));
 
 		setDfgCutFinders(new ArrayList<DfgCutFinder>(Arrays.asList(
-				new CutFinderIMin(),
-				new DfgCutFinderSimple()
+				new DfgCutFinderSimple(),
+				new DfgCutFinderNoiseFiltering()
 				)));
 
 		setDfgFallThroughs(new ArrayList<DfgFallThrough>(Arrays.asList(
@@ -33,7 +32,6 @@ public class DfgMiningParametersIMinD extends DfgMiningParameters {
 				);
 
 		setReduce(true);
-		setSatProbabilities(new ProbabilitiesEstimatedZ());
-		setIncompleteThreshold(0);
+		setNoiseThreshold(0.2f);
 	}
 }
