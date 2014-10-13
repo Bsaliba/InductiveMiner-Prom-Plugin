@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class MultiSet<X> implements Iterable<X> {
 	
-	protected HashMap<X, Long> cardinalities;
+	protected Map<X, Long> cardinalities;
 	protected long size;
 	
 	public MultiSet() {
@@ -191,7 +191,7 @@ public class MultiSet<X> implements Iterable<X> {
 		long c = Long.MIN_VALUE;
 		X result = null;
 		for (X element : cardinalities.keySet()) {
-			if (cardinalities.get(element) < c) {
+			if (cardinalities.get(element) > c) {
 				c = cardinalities.get(element);
 				result = element;
 			}
