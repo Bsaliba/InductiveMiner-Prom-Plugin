@@ -71,6 +71,10 @@ public class IM {
 	//			return classifiers;
 	//		}
 	
+	public static class ClassifierWrapper {
+		
+	}
+	
 	public static XEventClassifier[] getClassifiers(XLog log) {
 		return new XEventClassifier[]{new XEventNameClassifier()};
 	}
