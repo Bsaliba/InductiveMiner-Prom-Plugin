@@ -15,12 +15,14 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
+import org.processmining.plugins.InductiveMiner.plugins.IM;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -153,15 +155,14 @@ public class IMMiningDialog extends JPanel {
 		
 		gridy++;
 		
-		JLabel spacer = factory.createLabel(" ");
 		{
+			JLabel spacer = factory.createLabel(" ");
 			GridBagConstraints cSpacer = new GridBagConstraints();
 			cSpacer.gridx = 0;
 			cSpacer.gridy = gridy;
 			cSpacer.anchor = GridBagConstraints.WEST;
 			add(spacer, cSpacer);
 		}
-		
 
 		gridy++;
 
@@ -208,6 +209,42 @@ public class IMMiningDialog extends JPanel {
 		}
 		
 		gridy++;
+		
+		//spacer
+		{
+			JLabel spacer = factory.createLabel(" ");
+			GridBagConstraints cSpacer = new GridBagConstraints();
+			cSpacer.gridx = 0;
+			cSpacer.gridy = gridy;
+			cSpacer.anchor = GridBagConstraints.WEST;
+			add(spacer, cSpacer);
+		}
+		
+		gridy++;
+		
+		//classifiers
+		{
+			final JLabel classifierLabel = factory.createLabel("Event classifier");
+			GridBagConstraints cClassifierLabel = new GridBagConstraints();
+			cClassifierLabel.gridx = 0;
+			cClassifierLabel.gridy = gridy;
+			cClassifierLabel.weightx = 0.4;
+			cClassifierLabel.anchor = GridBagConstraints.NORTHWEST;
+			add(classifierLabel, cClassifierLabel);
+		}
+		
+		final JComboBox<XEventClassifier> classifiers = factory.createComboBox(IM.getClassifiers(log));
+		{
+			GridBagConstraints cClassifiers = new GridBagConstraints();
+			cClassifiers.gridx = 1;
+			cClassifiers.gridy = gridy;
+			cClassifiers.anchor = GridBagConstraints.NORTHWEST;
+			cClassifiers.fill = GridBagConstraints.HORIZONTAL;
+			cClassifiers.weightx = 0.6;
+			add(classifiers, cClassifiers);
+		}
+		
+		gridy++;
 
 		{
 			GridBagConstraints gbcFiller = new GridBagConstraints();
@@ -242,6 +279,12 @@ public class IMMiningDialog extends JPanel {
 			public void stateChanged(ChangeEvent arg0) {
 				p.parameters.setNoiseThreshold((float) (noiseSlider.getValue() / 1000.0));
 				noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
+			}
+		});
+		
+		classifiers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				p.parameters.setClassifier((XEventClassifier) classifiers.getSelectedItem());
 			}
 		});
 	}
