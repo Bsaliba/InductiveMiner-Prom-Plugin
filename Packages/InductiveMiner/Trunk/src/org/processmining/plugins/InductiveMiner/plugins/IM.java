@@ -1,8 +1,6 @@
 package org.processmining.plugins.InductiveMiner.plugins;
 
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
-import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -71,11 +69,11 @@ public class IM {
 	//			return classifiers;
 	//		}
 	
-	public static class ClassifierWrapper {
-		
-	}
-	
-	public static XEventClassifier[] getClassifiers(XLog log) {
-		return new XEventClassifier[]{new XEventNameClassifier()};
-	}
+//	public static class ClassifierWrapper {
+//		
+//	}
+//	
+//	public static XEventClassifier[] getClassifiers(XLog log) {
+//		return new XEventClassifier[]{new XEventNameClassifier()};
+//	}
 }
