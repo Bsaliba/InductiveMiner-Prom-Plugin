@@ -16,13 +16,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.deckfour.xes.model.XLog;
+import org.processmining.plugins.InductiveMiner.Classifiers;
+import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
-import org.processmining.plugins.InductiveMiner.plugins.IM;
-import org.processmining.plugins.InductiveMiner.plugins.IM.ClassifierWrapper;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -233,7 +233,7 @@ public class IMMiningDialog extends JPanel {
 			add(classifierLabel, cClassifierLabel);
 		}
 		
-		final JComboBox<IM.ClassifierWrapper> classifiers = factory.createComboBox(IM.getClassifiers(log));
+		final JComboBox<ClassifierWrapper> classifiers = factory.createComboBox(Classifiers.getClassifiers(log));
 		{
 			GridBagConstraints cClassifiers = new GridBagConstraints();
 			cClassifiers.gridx = 1;
