@@ -15,7 +15,6 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
@@ -23,6 +22,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 import org.processmining.plugins.InductiveMiner.plugins.IM;
+import org.processmining.plugins.InductiveMiner.plugins.IM.ClassifierWrapper;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -233,7 +233,7 @@ public class IMMiningDialog extends JPanel {
 			add(classifierLabel, cClassifierLabel);
 		}
 		
-		final JComboBox<XEventClassifier> classifiers = factory.createComboBox(IM.getClassifiers(log));
+		final JComboBox<IM.ClassifierWrapper> classifiers = factory.createComboBox(IM.getClassifiers(log));
 		{
 			GridBagConstraints cClassifiers = new GridBagConstraints();
 			cClassifiers.gridx = 1;
@@ -284,7 +284,7 @@ public class IMMiningDialog extends JPanel {
 		
 		classifiers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				p.parameters.setClassifier((XEventClassifier) classifiers.getSelectedItem());
+				p.parameters.setClassifier(((ClassifierWrapper) classifiers.getSelectedItem()).classifier);
 			}
 		});
 	}

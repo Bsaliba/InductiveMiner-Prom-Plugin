@@ -1,10 +1,16 @@
 package org.processmining.plugins.InductiveMiner.plugins;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
+import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
+import org.deckfour.xes.info.XLogInfo;
+import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -39,7 +45,7 @@ public class IM {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
 		if (result != InteractionResult.FINISHED) {
-			return new Object[]{null, null, null};
+			return new Object[] { null, null, null };
 		}
 		return IMPetriNet.minePetriNet(context, log, dialog.getMiningParameters());
 	}
@@ -59,12 +65,56 @@ public class IM {
 		return IMPetriNet.minePetriNet(context, log, parameters);
 	}
 
-	public static XEventClassifier[] getClassifiers(XLog log) {
-		List<XEventClassifier> logClassifiers = log.getClassifiers();
-		XEventClassifier[] result = new XEventClassifier[logClassifiers.size() + 1];
-		result[0] = new XEventNameClassifier();
-		for (int i = 0; i < logClassifiers.size(); i++) {
-			result[i+1] = logClassifiers.get(i);
+	//make xloginfo to obtain a list of classifiers
+	//		public List<XEventClassifier> getClassifiers(XLog xLog) {
+	//			XLogInfo xLogInfo = XLogInfoFactory.createLogInfo(xLog);
+	//			List<XEventClassifier> classifiers = new ArrayList<XEventClassifier>(xLogInfo.getEventClassifiers());
+	//			classifiers.addAll(xLog.getClassifiers());
+	//			classifiers.add(new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier()));
+	//			Collections.sort(classifiers, new Comparator<XEventClassifier>() {
+	//				public int compare(XEventClassifier o1, XEventClassifier o2) {
+	//					return o1.name().compareTo(o2.name());
+	//				}
+	//			});
+	//			return classifiers;
+	//		}
+
+	public static class ClassifierWrapper implements Comparable<ClassifierWrapper> {
+		public final XEventClassifier classifier;
+		public final String name;
+
+		public ClassifierWrapper(String prefix, XEventClassifier classifier) {
+			this.classifier = classifier;
+			this.name = prefix + classifier.toString();
+		}
+
+		public String toString() {
+			return name;
+		}
+		
+		public int compareTo(ClassifierWrapper o) {
+			return name.compareTo(o.name);
+		}
+	}
+
+	public static ClassifierWrapper[] getClassifiers(XLog log) {
+		Set<ClassifierWrapper> classifiers = new TreeSet<>();
+
+		for (XEventClassifier c : log.getClassifiers()) {
+			classifiers.add(new ClassifierWrapper("(log) ", c));
+		}
+
+		XLogInfo xLogInfo = XLogInfoFactory.createLogInfo(log);
+		for (XEventClassifier c : xLogInfo.getEventClassifiers()) {
+			classifiers.add(new ClassifierWrapper("(log info) ", c));
+		}
+
+		ClassifierWrapper[] result = new ClassifierWrapper[classifiers.size() + 2];
+		result[0] = new ClassifierWrapper("", new XEventNameClassifier());
+		result[1] = new ClassifierWrapper("", new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier()));
+		Iterator<ClassifierWrapper> it = classifiers.iterator();
+		for (int i = 0; i < classifiers.size(); i++) {
+			result[i + 2] = it.next();
 		}
 		return result;
 	}
