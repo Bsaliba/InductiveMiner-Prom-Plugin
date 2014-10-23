@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
@@ -29,7 +28,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
 		//debug(" solve sequence with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Graph<XEventClass> graph = info.getGraph();
 		Probabilities probabilities = info.getProbabilities();
 
 		//compute number of edges in the cut
@@ -52,7 +51,7 @@ public class SATSolveSingleSequence extends SATSolveSingle {
 			{
 				int[] clause = new int[countNodes];
 				int i = 0;
-				for (XEventClass a : graph.vertexSet()) {
+				for (XEventClass a : graph.getVertices()) {
 					clause[i] = node2var.get(a).getVarInt();
 					i++;
 				}

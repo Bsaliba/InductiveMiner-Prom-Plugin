@@ -1,15 +1,16 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.processmining.plugins.InductiveMiner.Matrix;
 
 public class UpToKSuccessorMatrix {
 	private Matrix<String, Integer> matrix;
+	private final Set<String> activities;
 
 	public UpToKSuccessorMatrix(Set<String> activities) {
-		matrix = new Matrix<String, Integer>(activities, true);
+		this.activities = activities;
+		matrix = new Matrix<String, Integer>((String[]) activities.toArray(), true);
 	}
 
 	public Integer getKSuccessor(String from, String to) {
@@ -25,7 +26,7 @@ public class UpToKSuccessorMatrix {
 	}
 
 	public Set<String> getActivities() {
-		return new HashSet<String>(matrix.getActivities());
+		return activities;
 	}
 
 	public String toString() {

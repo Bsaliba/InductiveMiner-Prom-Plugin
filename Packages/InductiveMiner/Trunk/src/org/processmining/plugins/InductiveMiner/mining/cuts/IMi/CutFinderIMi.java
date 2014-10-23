@@ -1,10 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMi;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -25,14 +24,7 @@ public class CutFinderIMi implements CutFinder {
 		//call IM cut detection
 		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, minerState);
 
-		//if (cut != null && cut.isValid()) {
 		return cut;
-		//}
-
-		//try to add incomplete edges
-		//disabled as it does not keep logInfo in good shape
-		//IMLogInfo logInfoAddedEdges = addIncompleteEdges(logInfo, parameters.getNoiseThreshold());
-		//return cutFinderIMParallel.findCut(log, logInfoAddedEdges, parameters);
 	}
 
 	/*
@@ -47,15 +39,22 @@ public class CutFinderIMi implements CutFinder {
 		MultiSet<XEventClass> filteredEndActivities = filterActivities(logInfo.getEndActivities(), threshold);
 
 		//filter directly-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = filterGraph(
-				logInfo.getDirectlyFollowsGraph(), filteredEndActivities, threshold);
+		Graph<XEventClass> filteredDirectlyFollowsGraph = filterGraph(logInfo.getDirectlyFollowsGraph(),
+				filteredEndActivities, threshold);
 
 		//filter eventually-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = filterGraph(
-				logInfo.getEventuallyFollowsGraph(), filteredEndActivities, threshold);
+		//		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = filterGraph(
+		//				logInfo.getEventuallyFollowsGraph(), filteredEndActivities, threshold);
 
-		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
-				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
+		//		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
+		//				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
+		//				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
+		//				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
+		//				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
+		//				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
+
+		return new IMLogInfo(filteredDirectlyFollowsGraph,
+				TransitiveClosure.transitiveClosure(XEventClass.class, filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
 				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
 				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
@@ -70,90 +69,32 @@ public class CutFinderIMi implements CutFinder {
 	 * @param threshold
 	 * @return
 	 */
-	public static DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filterGraph(
-			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph, MultiSet<XEventClass> endActivities,
-			float threshold) {
+	public static Graph<XEventClass> filterGraph(Graph<XEventClass> graph,
+			MultiSet<XEventClass> endActivities, float threshold) {
 		//filter directly-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filtered = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
+		Graph<XEventClass> filtered = new Graph<>(XEventClass.class);
 
 		//add nodes
-		for (XEventClass activity : graph.vertexSet()) {
-			filtered.addVertex(activity);
-		}
+		filtered.addVertices(graph.getVertices());
 
 		//add edges
-		for (XEventClass activity : graph.vertexSet()) {
+		for (XEventClass activity : graph.getVertices()) {
 			//find the maximum outgoing weight of this node
 			long maxWeightOut = endActivities.getCardinalityOf(activity);
-			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(activity)) {
+			for (int edge : graph.getOutgoingEdgesOf(activity)) {
 				maxWeightOut = Math.max(maxWeightOut, (int) graph.getEdgeWeight(edge));
 			}
 
 			//add all edges that are strong enough
-			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(activity)) {
+			for (int edge : graph.getOutgoingEdgesOf(activity)) {
 				if (graph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
 					XEventClass from = graph.getEdgeSource(edge);
 					XEventClass to = graph.getEdgeTarget(edge);
-					DefaultWeightedEdge filteredEdge = filtered.addEdge(from, to);
-					filtered.setEdgeWeight(filteredEdge, graph.getEdgeWeight(edge));
+					filtered.addEdge(from, to, graph.getEdgeWeight(edge));
 				}
 			}
 		}
 		return filtered;
-	}
-
-	/*
-	 * Try to guess new parallel edges
-	 */
-
-	public static IMLogInfo addIncompleteEdges(IMLogInfo logInfo, float threshold) {
-
-		//debug("add incomplete edges");
-
-		//filter directly-follows graph
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge>(
-				DefaultWeightedEdge.class);
-
-		//add nodes
-		for (XEventClass activity : logInfo.getActivities()) {
-			filteredDirectlyFollowsGraph.addVertex(activity);
-		}
-
-		//add edges
-		for (XEventClass activity : logInfo.getActivities()) {
-
-			//add all outgoing edges of this node that are already present
-			for (DefaultWeightedEdge edge : logInfo.getDirectlyFollowsGraph().outgoingEdgesOf(activity)) {
-				XEventClass from = logInfo.getDirectlyFollowsGraph().getEdgeSource(edge);
-				XEventClass to = logInfo.getDirectlyFollowsGraph().getEdgeTarget(edge);
-				DefaultWeightedEdge filteredEdge = filteredDirectlyFollowsGraph.addEdge(from, to);
-				double weight = logInfo.getDirectlyFollowsGraph().getEdgeWeight(edge);
-				filteredDirectlyFollowsGraph.setEdgeWeight(filteredEdge, weight);
-
-				//see if this edge is weak enough to justify adding the reversed edge
-				//debug(" check edge " + from + " -> " + to + " weight " + weight + " expected reverse weight " + Math.exp(1 / (1-threshold)));
-				if (threshold != 0 && (threshold == 1 || weight < Math.exp(1 / (1 - threshold)))) {
-					//if the reversed edge is not present, add it
-					if (!logInfo.getDirectlyFollowsGraph().containsEdge(to, from)) {
-						//debug("  add edge " + to + " -> " + from);
-						DefaultWeightedEdge reversedEdge = filteredDirectlyFollowsGraph.addEdge(to, from);
-						filteredDirectlyFollowsGraph.setEdgeWeight(reversedEdge, 1);
-					} else {
-						//debug("  edge " + to + " -> " + from + " exists already");
-					}
-				}
-			}
-
-		}
-
-		return new IMLogInfo(filteredDirectlyFollowsGraph, null,
-				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
-				logInfo.getStartActivities().copy(), logInfo.getEndActivities().copy(),
-				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(), logInfo.getHighestTraceCardinality(),
-				logInfo.getOccurencesOfMostOccuringDirectEdge(), logInfo.getMostOccurringStartActivity(),
-				logInfo.getMostOccurringEndActivity());
 	}
 
 	/**

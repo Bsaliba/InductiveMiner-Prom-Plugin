@@ -4,11 +4,8 @@ import java.math.BigInteger;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 
 public abstract class Probabilities {
@@ -59,9 +56,9 @@ public abstract class Probabilities {
 
 	protected long getActivityCount(XEventClass a, CutFinderIMinInfo info) {
 		//count how often each activity occurs
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Graph<XEventClass> graph = info.getGraph();
 		double sum = 0;
-		for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(a)) {
+		for (int edge : graph.getOutgoingEdgesOf(a)) {
 			sum += graph.getEdgeWeight(edge);
 		}
 		sum += info.getEndActivities().getCardinalityOf(a);
@@ -71,13 +68,13 @@ public abstract class Probabilities {
 
 	//Directly follows
 	protected boolean D(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Graph<XEventClass> graph = info.getGraph();
 		return graph.containsEdge(a, b);
 	}
 
 	//Eventually follows
 	protected boolean E(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
-		DefaultDirectedGraph<XEventClass, DefaultEdge> graph = info.getTransitiveGraph();
+		Graph<XEventClass> graph = info.getTransitiveGraph();
 		return graph.containsEdge(a, b);
 	}
 
@@ -91,9 +88,7 @@ public abstract class Probabilities {
 	}
 
 	protected double x(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
-		DefaultWeightedEdge edge = graph.getEdge(a, b);
-		return graph.getEdgeWeight(edge);
+		return info.getGraph().getEdgeWeight(a, b);
 	}
 	
 	protected boolean noSEinvolvedInMsd(CutFinderIMinInfo info, XEventClass a, XEventClass b) {

@@ -1,15 +1,13 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -27,12 +25,9 @@ public class CutFinderIMExclusiveChoice implements CutFinder, DfgCutFinder {
 		return findCut(dfg.getDirectlyFollowsGraph());
 	}
 	
-	public static Cut findCut(final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph) {
+	public static Cut findCut(final Graph<XEventClass> graph) {
 		//compute the connected components of the directly-follows graph
-		ConnectivityInspector<XEventClass, DefaultWeightedEdge> connectedComponentsGraph = 
-				new ConnectivityInspector<XEventClass, DefaultWeightedEdge>(
-				graph);
-		List<Set<XEventClass>> connectedComponents = connectedComponentsGraph.connectedSets();
+		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(graph);
 
 		return new Cut(Operator.xor, connectedComponents);
 	}

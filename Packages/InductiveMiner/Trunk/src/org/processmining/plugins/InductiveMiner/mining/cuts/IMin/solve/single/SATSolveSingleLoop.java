@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
@@ -29,7 +28,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 	public SATResult solveSingle(int cutSize, double bestAverageTillNow) {
 		//debug(" solve loop with cut size " + cutSize + " and probability " + bestAverageTillNow);
 
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Graph<XEventClass> graph = info.getGraph();
 		Probabilities probabilities = info.getProbabilities();
 
 		//compute number of edges in the cut
@@ -148,7 +147,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 			}
 
 			//constraint: startB(a) or endB(a) => -cut(a)
-			for (XEventClass a : graph.vertexSet()) {
+			for (XEventClass a : graph.getVertices()) {
 				int A = node2var.get(a).getVarInt();
 				int B = startRedo.get(a).getVarInt();
 				int C = endRedo.get(a).getVarInt();
@@ -267,7 +266,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 				String ea = "";
 				String sb = "";
 				String eb = "";
-				for (XEventClass e : graph.vertexSet()) {
+				for (XEventClass e : graph.getVertices()) {
 					if (startBody.get(e).isResult()) {
 						sa += e.toString() + ", ";
 					}

@@ -1,9 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Matrix;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class DebugProbabilities {
@@ -17,9 +16,9 @@ public class DebugProbabilities {
 			newLine = "\n";
 		}
 		
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = info.getGraph();
+		Graph<XEventClass> graph = info.getGraph();
 
-		if (graph.vertexSet().size() == 1) {
+		if (graph.getNumberOfVertices() == 1) {
 			return "";
 		}
 
@@ -27,9 +26,9 @@ public class DebugProbabilities {
 		{
 			r.append("xor");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityXor(info, a, b));
 					}
@@ -41,9 +40,9 @@ public class DebugProbabilities {
 		{
 			r.append("sequence");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilitySequence(info, a, b));
 					}
@@ -55,9 +54,9 @@ public class DebugProbabilities {
 		{
 			r.append("parallel");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityParallel(info, a, b));
 					}
@@ -69,9 +68,9 @@ public class DebugProbabilities {
 		{
 			r.append("loop single");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopSingle(info, a, b));
 					}
@@ -83,9 +82,9 @@ public class DebugProbabilities {
 		{
 			r.append("loop indirect");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopIndirect(info, a, b));
 					}
@@ -97,9 +96,9 @@ public class DebugProbabilities {
 		{
 			r.append("loop double");
 			r.append(newLine);
-			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.vertexSet(), false);
-			for (XEventClass a : graph.vertexSet()) {
-				for (XEventClass b : graph.vertexSet()) {
+			Matrix<XEventClass, Double> m = new Matrix<XEventClass, Double>(graph.getVertices(), false);
+			for (XEventClass a : graph.getVertices()) {
+				for (XEventClass b : graph.getVertices()) {
 					if (a != b) {
 						m.set(a, b, parameters.getSatProbabilities().getProbabilityLoopDouble(info, a, b));
 					}

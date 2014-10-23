@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -32,7 +30,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph) {
+			Graph<XEventClass> graph) {
 		//initialise the start and end activities as a connected component
 		HashMap<XEventClass, Integer> connectedComponents = new HashMap<XEventClass, Integer>();
 		for (XEventClass startActivity : startActivities.toSet()) {
@@ -44,7 +42,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 
 		//find the other connected components
 		Integer ccs = 1;
-		for (XEventClass node : graph.vertexSet()) {
+		for (XEventClass node : graph.getVertices()) {
 			if (!connectedComponents.containsKey(node)) {
 				labelConnectedComponents(graph, node, connectedComponents, ccs);
 				ccs += 1;
@@ -56,9 +54,9 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			subStartActivities.put(cc, new HashSet<XEventClass>());
 		}
-		for (XEventClass node : graph.vertexSet()) {
+		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultWeightedEdge edge : graph.incomingEdgesOf(node)) {
+			for (int edge : graph.getIncomingEdgesOf(node)) {
 				if (cc != connectedComponents.get(graph.getEdgeSource(edge))) {
 					//this is a start activity
 					Set<XEventClass> start = subStartActivities.get(cc);
@@ -73,9 +71,9 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			subEndActivities.put(cc, new HashSet<XEventClass>());
 		}
-		for (XEventClass node : graph.vertexSet()) {
+		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(node)) {
+			for (int edge : graph.getOutgoingEdgesOf(node)) {
 				if (cc != connectedComponents.get(graph.getEdgeTarget(edge))) {
 					//this is an end activity
 					Set<XEventClass> end = subEndActivities.get(cc);
@@ -96,7 +94,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
 		for (XEventClass startActivity : startActivities.toSet()) {
 			if (!endActivities.contains(startActivity)) {
-				for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(startActivity)) {
+				for (int edge : graph.getOutgoingEdgesOf(startActivity)) {
 					candidates[connectedComponents.get(graph.getEdgeTarget(edge))] = false;
 				}
 			}
@@ -105,7 +103,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		//exclude all candidates that can reach an end activity (which is not a start activity)
 		for (XEventClass endActivity : endActivities.toSet()) {
 			if (!startActivities.contains(endActivity)) {
-				for (DefaultWeightedEdge edge : graph.incomingEdgesOf(endActivity)) {
+				for (int edge : graph.getIncomingEdgesOf(endActivity)) {
 					candidates[connectedComponents.get(graph.getEdgeSource(edge))] = false;
 				}
 			}
@@ -144,7 +142,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 
 		//divide the activities
-		for (XEventClass node : graph.vertexSet()) {
+		for (XEventClass node : graph.getVertices()) {
 			//debug(node.toString() + " in connected component " + connectedComponents.get(node));
 			int index;
 			if (candidates[connectedComponents.get(node)]) {
@@ -171,11 +169,11 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		return new Cut(Operator.loop, result2);
 	}
 
-	private static void labelConnectedComponents(DefaultDirectedGraph<XEventClass, DefaultWeightedEdge> graph,
+	private static void labelConnectedComponents(Graph<XEventClass> graph,
 			XEventClass node, HashMap<XEventClass, Integer> connectedComponents, Integer connectedComponent) {
 		if (!connectedComponents.containsKey(node)) {
 			connectedComponents.put(node, connectedComponent);
-			for (DefaultWeightedEdge edge : graph.edgesOf(node)) {
+			for (int edge : graph.getEdgesOf(node)) {
 				labelConnectedComponents(graph, graph.getEdgeSource(edge), connectedComponents, connectedComponent);
 				labelConnectedComponents(graph, graph.getEdgeTarget(edge), connectedComponents, connectedComponent);
 			}

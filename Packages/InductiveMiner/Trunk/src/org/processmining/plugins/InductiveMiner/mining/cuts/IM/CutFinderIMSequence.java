@@ -3,22 +3,20 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.alg.StrongConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.StronglyConnectedComponents;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -36,11 +34,9 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		return findCut(dfg.getDirectlyFollowsGraph());
 	}
 		
-	public static Cut findCut(DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph) {
+	public static Cut findCut(Graph<XEventClass> graph) {
 		//compute the strongly connected components of the directly-follows graph
-		StrongConnectivityInspector<XEventClass, DefaultWeightedEdge> SCCg = new StrongConnectivityInspector<XEventClass, DefaultWeightedEdge>(
-				graph);
-		Set<Set<XEventClass>> SCCs = new HashSet<Set<XEventClass>>(SCCg.stronglyConnectedSets());
+		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
 		//condense the strongly connected components
 		DirectedGraph<Set<XEventClass>, DefaultEdge> condensedGraph1 = new DefaultDirectedGraph<Set<XEventClass>, DefaultEdge>(
@@ -50,7 +46,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			condensedGraph1.addVertex(SCC);
 		}
 		//add edges
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+		for (int edge : graph.getEdges()) {
 			//find the connected components belonging to these nodes
 			XEventClass u = graph.getEdgeSource(edge);
 			Set<XEventClass> SCCu = Sets.findComponentWith(SCCs, u);

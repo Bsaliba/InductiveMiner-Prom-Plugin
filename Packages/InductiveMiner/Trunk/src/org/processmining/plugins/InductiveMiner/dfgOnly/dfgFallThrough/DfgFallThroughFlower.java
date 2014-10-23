@@ -25,7 +25,7 @@ public class DfgFallThroughFlower implements DfgFallThrough {
 
 		//redo: xor/activity
 		Block xorNode;
-		if (dfg.getDirectlyFollowsGraph().vertexSet().size() == 1) {
+		if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 1) {
 			xorNode = loopNode;
 		} else {
 			xorNode = new AbstractBlock.Xor("");
@@ -33,7 +33,7 @@ public class DfgFallThroughFlower implements DfgFallThrough {
 			loopNode.addChild(xorNode);
 		}
 
-		for (XEventClass activity : dfg.getDirectlyFollowsGraph().vertexSet()) {
+		for (XEventClass activity : dfg.getDirectlyFollowsGraph().getVertices()) {
 			Node child = new AbstractTask.Manual(activity.toString());
 			DfgMiner.addNode(tree, child);
 			xorNode.addChild(child);

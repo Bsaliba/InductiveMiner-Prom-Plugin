@@ -4,15 +4,12 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
@@ -34,8 +31,8 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		
 		MultiSet<XEventClass> startActivities = dfg.getStartActivities();
 		MultiSet<XEventClass> endActivities = dfg.getEndActivities();
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = dfg.getDirectlyFollowsGraph();
-		DefaultDirectedGraph<XEventClass, DefaultEdge> transitiveGraph = TransitiveClosure.transitiveClosure(graph);
+		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
+		Graph<XEventClass> transitiveGraph = TransitiveClosure.transitiveClosure(XEventClass.class, graph);
 		HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = null;
 		Probabilities satProbabilities = minerState.getParameters().getSatProbabilities();
 		boolean debug = minerState.getParameters().isDebug();
@@ -50,8 +47,8 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 
 		MultiSet<XEventClass> startActivities = logInfo.getStartActivities();
 		MultiSet<XEventClass> endActivities = logInfo.getEndActivities();
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = logInfo.getDirectlyFollowsGraph();
-		DefaultDirectedGraph<XEventClass, DefaultEdge> transitiveGraph = logInfo
+		Graph<XEventClass> graph = logInfo.getDirectlyFollowsGraph();
+		Graph<XEventClass> transitiveGraph = logInfo
 				.getDirectlyFollowsTransitiveClosureGraph();
 		HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo
 				.getMinimumSelfDistancesBetween();

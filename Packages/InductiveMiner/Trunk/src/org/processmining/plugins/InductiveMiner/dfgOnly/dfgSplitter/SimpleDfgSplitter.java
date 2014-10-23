@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -34,14 +33,14 @@ public class SimpleDfgSplitter implements DfgSplitter {
 			//walk through the edges
 			{
 				//directly-follows graph
-				for (DefaultWeightedEdge edge : dfg.getDirectlyFollowsGraph().edgeSet()) {
+				for (int edge : dfg.getDirectlyFollowsGraph().getEdges()) {
 					int cardinality = (int) dfg.getDirectlyFollowsGraph().getEdgeWeight(edge);
 					XEventClass source = dfg.getDirectlyFollowsGraph().getEdgeSource(edge);
 					XEventClass target = dfg.getDirectlyFollowsGraph().getEdgeTarget(edge);
 
 					if (sigma.contains(source) && sigma.contains(target)) {
 						//internal edge in sigma
-						Dfg.addEdgeToGraph(subDfg.getDirectlyFollowsGraph(), source, target, cardinality);
+						subDfg.getDirectlyFollowsGraph().addEdge(source, target, cardinality);
 					} else if (sigma.contains(source) && !sigma.contains(target)) {
 						//edge going out of sigma
 						if (cut.getOperator() == Operator.sequence || cut.getOperator() == Operator.loop) {
