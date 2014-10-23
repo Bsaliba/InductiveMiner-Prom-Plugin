@@ -1,20 +1,19 @@
 package org.processmining.plugins.InductiveMiner;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Matrix<X extends Comparable<X>, Y extends Number> {
 	private Map<Pair<Maybe<X>, Maybe<X>>, Y> matrix;
 	private List<X> activities;
 	private boolean includeStartEnd;
 
-	public Matrix(Set<X> activities, boolean includeStartEnd) {
+	public Matrix(X[] activities, boolean includeStartEnd) {
 		matrix = new HashMap<Pair<Maybe<X>, Maybe<X>>, Y>();
-		this.activities = new ArrayList<X>(activities);
+		this.activities = Arrays.asList(activities);
 		Collections.sort(this.activities);
 		this.includeStartEnd = includeStartEnd;
 	}

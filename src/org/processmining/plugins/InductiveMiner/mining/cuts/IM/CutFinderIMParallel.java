@@ -9,15 +9,14 @@ import org.deckfour.xes.classification.XEventClass;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.Function;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -36,7 +35,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> dfg,
+			Graph<XEventClass> dfg,
 			Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
 
 		//noise filtering can have removed all start and end activities.
@@ -50,13 +49,13 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 				DefaultEdge.class);
 
 		//add the vertices
-		for (XEventClass e : dfg.vertexSet()) {
+		for (XEventClass e : dfg.getVertices()) {
 			negatedGraph.addVertex(e);
 		}
 
 		//walk through the edges and negate them
-		for (XEventClass e1 : dfg.vertexSet()) {
-			for (XEventClass e2 : dfg.vertexSet()) {
+		for (XEventClass e1 : dfg.getVertices()) {
+			for (XEventClass e2 : dfg.getVertices()) {
 				if (e1 != e2) {
 					if (!dfg.containsEdge(e1, e2) || !dfg.containsEdge(e2, e1)) {
 						negatedGraph.addEdge(e1, e2);
@@ -68,7 +67,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		//if wanted, apply an extension to the IM algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
 		if (minimumSelfDistanceBetween != null) {
-			for (XEventClass activity : dfg.vertexSet()) {
+			for (XEventClass activity : dfg.getVertices()) {
 				try {
 					for (XEventClass activity2 : minimumSelfDistanceBetween.call(activity).toSet()) {
 						negatedGraph.addEdge(activity, activity2);

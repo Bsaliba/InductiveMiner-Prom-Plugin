@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MaybeString;
 import org.processmining.plugins.InductiveMiner.Triple;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
@@ -36,11 +35,11 @@ public class FallThroughDirectlyFollowsGraph implements FallThrough {
 
 		//make a list of weighted edges
 		List<Triple<MaybeString, MaybeString, Long>> edges = new ArrayList<Triple<MaybeString, MaybeString, Long>>();
-		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph = filteredLogInfo
+		Graph<XEventClass> graph = filteredLogInfo
 				.getDirectlyFollowsGraph();
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+		for (int edge : graph.getEdges()) {
 			edges.add(new Triple<MaybeString, MaybeString, Long>(new MaybeString(graph.getEdgeSource(edge).toString()),
-					new MaybeString(graph.getEdgeTarget(edge).toString()), (long) graph.getEdgeWeight(edge)));
+					new MaybeString(graph.getEdgeTarget(edge).toString()), graph.getEdgeWeight(edge)));
 		}
 
 		//add start activities

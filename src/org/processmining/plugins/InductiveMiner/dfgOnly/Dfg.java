@@ -6,9 +6,10 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.Pseudograph;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
 public class Dfg {
-	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph;
+	private final Graph<XEventClass> directlyFollowsGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph;
 	private final Pseudograph<XEventClass, DefaultWeightedEdge> parallelGraph;
 	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainDirectlyFollowsGraph;
@@ -20,7 +21,7 @@ public class Dfg {
 	private final MultiSet<XEventClass> uncertainEndActivities;
 
 	public Dfg() {
-		directlyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
+		directlyFollowsGraph = new Graph<XEventClass>(XEventClass.class);
 		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		parallelGraph = new Pseudograph<>(DefaultWeightedEdge.class);
 		uncertainDirectlyFollowsGraph = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
@@ -32,7 +33,7 @@ public class Dfg {
 		uncertainEndActivities = new MultiSet<>();
 	}
 
-	public Dfg(final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> directlyFollowsGraph,
+	public Dfg(final Graph<XEventClass> directlyFollowsGraph,
 			final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> eventuallyFollowsGraph,
 			final Pseudograph<XEventClass, DefaultWeightedEdge> parallelGraph,
 			final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> uncertainDirectlyFollowsGraph,
@@ -59,7 +60,7 @@ public class Dfg {
 		uncertainEventuallyFollowsGraph.addVertex(activity);
 	}
 
-	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getDirectlyFollowsGraph() {
+	public Graph<XEventClass> getDirectlyFollowsGraph() {
 		return directlyFollowsGraph;
 	}
 
@@ -98,7 +99,7 @@ public class Dfg {
 	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {
 		addActivity(source);
 		addActivity(target);
-		addEdgeToGraph(directlyFollowsGraph, source, target, cardinality);
+		directlyFollowsGraph.addEdge(source, target, 1);
 	}
 
 	public void addEventuallyFollowsEdge(final XEventClass source, final XEventClass target, final double cardinality) {

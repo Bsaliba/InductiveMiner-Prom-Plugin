@@ -1,22 +1,21 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 
 public class CutFinderIMinInfo {
 	private final MultiSet<XEventClass> startActivities;
 	private final MultiSet<XEventClass> endActivities;
-	private final DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph;
-	private final DefaultDirectedGraph<XEventClass, DefaultEdge> transitiveGraph;
+	private final Graph<XEventClass> graph;
+	private final Graph<XEventClass> transitiveGraph;
 	private final HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
 	private final Probabilities probabilities;
 	private final JobList jobList;
@@ -27,20 +26,20 @@ public class CutFinderIMinInfo {
 	 * 
 	 * @param startActivities
 	 * @param endActivities
-	 * @param graph
-	 * @param transitiveGraph
+	 * @param graph2
+	 * @param transitiveGraph2
 	 * @param probabilities
 	 * @param debug
 	 */
 	public CutFinderIMinInfo(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> graph,
-			DefaultDirectedGraph<XEventClass, DefaultEdge> transitiveGraph,
+			Graph<XEventClass> graph2,
+			Graph<XEventClass> transitiveGraph2,
 			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween, Probabilities probabilities,
 			JobList jobList, boolean debug) {
 		this.startActivities = startActivities;
 		this.endActivities = endActivities;
-		this.graph = graph;
-		this.transitiveGraph = transitiveGraph;
+		this.graph = graph2;
+		this.transitiveGraph = transitiveGraph2;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
 		this.probabilities = probabilities;
 		this.jobList = jobList;
@@ -55,11 +54,11 @@ public class CutFinderIMinInfo {
 		return endActivities;
 	}
 
-	public DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> getGraph() {
+	public Graph<XEventClass> getGraph() {
 		return graph;
 	}
 
-	public DefaultDirectedGraph<XEventClass, DefaultEdge> getTransitiveGraph() {
+	public Graph<XEventClass> getTransitiveGraph() {
 		return transitiveGraph;
 	}
 
@@ -72,7 +71,7 @@ public class CutFinderIMinInfo {
 	}
 
 	public Set<XEventClass> getActivities() {
-		return graph.vertexSet();
+		return new HashSet<>(Arrays.asList(graph.getVertices()));
 	}
 
 	public MultiSet<XEventClass> getMinimumSelfDistanceBetween(XEventClass activity) {

@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
 public class IMLogInfoG<X> {
-	protected final DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> directlyFollowsGraph;
-	protected final DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> eventuallyFollowsGraph;
-	protected final DefaultDirectedGraph<X, DefaultEdge> directlyFollowsTransitiveClosureGraph;
+	protected final Graph<X> directlyFollowsGraph;
+	protected final Graph<X> directlyFollowsTransitiveClosureGraph;
 
 	protected final MultiSet<X> activities;
 	protected final MultiSet<X> startActivities;
@@ -29,11 +25,26 @@ public class IMLogInfoG<X> {
 	protected final long occurencesOfMostOccuringDirectEdge;
 	protected final X mostOccurringStartActivity;
 	protected final X mostOccurringEndActivity;
-
+	
 	public IMLogInfoG(MultiSet<? extends IMTraceG<X>> log) {
+		directlyFollowsGraph = null;
+		directlyFollowsTransitiveClosureGraph = null;
+		activities = null;
+		startActivities = null;
+		endActivities = null;
+		minimumSelfDistances = null;
+		minimumSelfDistancesBetween = null;
+		numberOfEvents = 1;
+		numberOfEpsilonTraces = 1;
+		highestTraceCardinality = 1;
+		occurencesOfMostOccuringDirectEdge = 1;
+		mostOccurringStartActivity = null;
+		mostOccurringEndActivity = null;
+	}
+
+	public IMLogInfoG(Class<X> clazz, MultiSet<? extends IMTraceG<X>> log) {
 		//initialise, read the log
-		directlyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		eventuallyFollowsGraph = new DefaultDirectedWeightedGraph<X, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		directlyFollowsGraph = new Graph<X>(clazz);
 		activities = new MultiSet<X>();
 		startActivities = new MultiSet<X>();
 		endActivities = new MultiSet<X>();
@@ -64,26 +75,10 @@ public class IMLogInfoG<X> {
 			for (X ec : trace) {
 
 				activities.add(ec, cardinality);
-				if (!directlyFollowsGraph.containsVertex(ec)) {
-					directlyFollowsGraph.addVertex(ec);
-					eventuallyFollowsGraph.addVertex(ec);
-				}
+				directlyFollowsGraph.addVertex(ec);
 
 				fromEventClass = toEventClass;
 				toEventClass = ec;
-
-				//add connections to the eventually-follows graph
-				DefaultWeightedEdge edge;
-				long newEventuallyCardinality;
-				for (X eventuallySeen : readTrace) {
-					edge = eventuallyFollowsGraph.addEdge(eventuallySeen, toEventClass);
-					newEventuallyCardinality = cardinality;
-					if (edge == null) {
-						edge = eventuallyFollowsGraph.getEdge(eventuallySeen, toEventClass);
-						newEventuallyCardinality += eventuallyFollowsGraph.getEdgeWeight(edge);
-					}
-					eventuallyFollowsGraph.setEdgeWeight(edge, newEventuallyCardinality);
-				}
 
 				readTrace.add(toEventClass);
 
@@ -112,20 +107,14 @@ public class IMLogInfoG<X> {
 					}
 				}
 				eventSeenAt.put(toEventClass, traceSize);
-
-				if (fromEventClass != null) {
-
-					//add edge to directly-follows graph
-					edge = directlyFollowsGraph.addEdge(fromEventClass, toEventClass);
-					long newCardinality = cardinality;
-					if (edge == null) {
-						edge = directlyFollowsGraph.getEdge(fromEventClass, toEventClass);
-						newCardinality = newCardinality + (int) (directlyFollowsGraph.getEdgeWeight(edge));
+				{
+					if (fromEventClass != null) {
+						//add edge to directly-follows graph
+						directlyFollowsGraph.addEdge(fromEventClass, toEventClass, cardinality);
+					} else {
+						//add edge to start activities
+						startActivities.add(toEventClass, cardinality);
 					}
-					directlyFollowsGraph.setEdgeWeight(edge, newCardinality);
-
-				} else {
-					startActivities.add(toEventClass, cardinality);
 				}
 
 				traceSize += 1;
@@ -156,12 +145,7 @@ public class IMLogInfoG<X> {
 		this.highestTraceCardinality = highestTraceCardinality;
 
 		//find the edge with the greatest weight
-		int occurencesOfMostOccuringDirectEdge = 0;
-		for (DefaultWeightedEdge edge : directlyFollowsGraph.edgeSet()) {
-			occurencesOfMostOccuringDirectEdge = Math.max(occurencesOfMostOccuringDirectEdge,
-					(int) directlyFollowsGraph.getEdgeWeight(edge));
-		}
-		this.occurencesOfMostOccuringDirectEdge = occurencesOfMostOccuringDirectEdge;
+		this.occurencesOfMostOccuringDirectEdge = directlyFollowsGraph.getWeightOfHeaviestEdge();
 
 		//find the strongest start and end activities
 		{
@@ -184,18 +168,15 @@ public class IMLogInfoG<X> {
 		}
 
 		//compute the transitive closure of the directly-follows graph
-		directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(directlyFollowsGraph);
+		directlyFollowsTransitiveClosureGraph = TransitiveClosure.transitiveClosure(clazz, directlyFollowsGraph);
 	}
 
-	public IMLogInfoG(DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> directlyFollowsGraph,
-			DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> eventuallyFollowsGraph,
-			DefaultDirectedGraph<X, DefaultEdge> directlyFollowsTransitiveClosureGraph, MultiSet<X> activities,
-			MultiSet<X> startActivities, MultiSet<X> endActivities,
+	public IMLogInfoG(Graph<X> directlyFollowsGraph, Graph<X> directlyFollowsTransitiveClosureGraph,
+			MultiSet<X> activities, MultiSet<X> startActivities, MultiSet<X> endActivities,
 			HashMap<X, MultiSet<X>> minimumSelfDistancesBetween, HashMap<X, Integer> minimumSelfDistances,
-			long numberOfEvents, long numberOfEpsilonTraces, long lengthStrongestTrace,
-			long strongestDirectEdge, X mostOccurringStartActivity, X mostOccurringEndActivity) {
+			long numberOfEvents, long numberOfEpsilonTraces, long lengthStrongestTrace, long strongestDirectEdge,
+			X mostOccurringStartActivity, X mostOccurringEndActivity) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
-		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.directlyFollowsTransitiveClosureGraph = directlyFollowsTransitiveClosureGraph;
 		this.activities = activities;
 		this.startActivities = startActivities;
@@ -222,15 +203,15 @@ public class IMLogInfoG<X> {
 		return activities;
 	}
 
-	public DefaultDirectedGraph<X, DefaultEdge> getDirectlyFollowsTransitiveClosureGraph() {
+	public Graph<X> getDirectlyFollowsTransitiveClosureGraph() {
 		return directlyFollowsTransitiveClosureGraph;
 	}
 
-	public DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> getEventuallyFollowsGraph() {
-		return eventuallyFollowsGraph;
-	}
+	//	public DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> getEventuallyFollowsGraph() {
+	//		return eventuallyFollowsGraph;
+	//	}
 
-	public DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> getDirectlyFollowsGraph() {
+	public Graph<X> getDirectlyFollowsGraph() {
 		return directlyFollowsGraph;
 	}
 
@@ -296,7 +277,7 @@ public class IMLogInfoG<X> {
 	public long getOccurencesOfMostOccuringDirectEdge() {
 		return occurencesOfMostOccuringDirectEdge;
 	}
-	
+
 	public X getMostOccurringStartActivity() {
 		return mostOccurringStartActivity;
 	}
@@ -304,7 +285,7 @@ public class IMLogInfoG<X> {
 	public long getOccurrencesOfMostOccurringStartActivity() {
 		return startActivities.getCardinalityOf(mostOccurringStartActivity);
 	}
-	
+
 	public X getMostOccurringEndActivity() {
 		return mostOccurringEndActivity;
 	}

@@ -14,18 +14,18 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 	private static DfgFallThroughFlower flower = new DfgFallThroughFlower();
 	
 	public Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
-		if (dfg.getDirectlyFollowsGraph().vertexSet().isEmpty()) {
+		if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 0) {
 			//no activities (should not happen)
 			Node node = new AbstractTask.Automatic("tau empty log");
 			DfgMiner.addNode(tree, node);
 			return node;
 			
-		} else if (dfg.getDirectlyFollowsGraph().vertexSet().size() == 1) {
+		} else if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 1) {
 			//single activity
 			
-			if (dfg.getDirectlyFollowsGraph().edgeSet().isEmpty()) {
+			if (dfg.getDirectlyFollowsGraph().getWeightOfHeaviestEdge() < 1) {
 				//no self-edges present: single activity
-				XEventClass activity = dfg.getDirectlyFollowsGraph().vertexSet().iterator().next();
+				XEventClass activity = dfg.getDirectlyFollowsGraph().getVertices()[0];
 				Node node = new AbstractTask.Manual(activity.toString());
 				DfgMiner.addNode(tree, node);
 				return node;

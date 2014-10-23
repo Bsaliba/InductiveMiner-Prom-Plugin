@@ -1,24 +1,24 @@
 package org.processmining.plugins.InductiveMiner;
 
+import gnu.trove.iterator.TObjectLongIterator;
+import gnu.trove.map.hash.TObjectLongHashMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 public class MultiSet<X> implements Iterable<X> {
 	
-	protected Map<X, Long> cardinalities;
+	protected TObjectLongHashMap<X> cardinalities;
 	protected long size;
 	
 	public MultiSet() {
 		//use a linked hash map here, as it provides O(1) iteration complexity
-		cardinalities = new LinkedHashMap<X, Long>();
+		cardinalities = new TObjectLongHashMap<X>();
 		size = 0;
 	}
 	
@@ -101,7 +101,7 @@ public class MultiSet<X> implements Iterable<X> {
 	}
 	
 	public void empty() {
-		cardinalities = new LinkedHashMap<X, Long>();
+		cardinalities = new TObjectLongHashMap<X>();
 		size = 0;
 	}
 	
@@ -138,22 +138,21 @@ public class MultiSet<X> implements Iterable<X> {
 	public Iterator<X> iterator() {
 		
 		Iterator<X> it = new Iterator<X>() {
-
-			private Iterator<Entry<X, Long>> it2 = cardinalities.entrySet().iterator();
+			private TObjectLongIterator<X> it3 = cardinalities.iterator();
 
             @Override
             public boolean hasNext() {
-            	return it2.hasNext();
+            	return it3.hasNext();
             }
 
             @Override
             public X next() {
-            	Entry<X, Long> n = it2.next();
-                return n.getKey();
+            	it3.advance();
+            	return it3.key();
             }
 
 			public void remove() {
-				it2.remove();
+				it3.remove();
 			}
         };
         return it;
