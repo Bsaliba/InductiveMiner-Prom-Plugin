@@ -6,16 +6,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import org.processmining.plugins.InductiveMiner.Function;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -27,7 +24,8 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(), null);
+		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
+				null);
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
@@ -35,8 +33,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> dfg,
-			Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
+			Graph<XEventClass> dfg, Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
 
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return
@@ -45,20 +42,17 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		}
 
 		//construct the negated graph
-		DirectedGraph<XEventClass, DefaultEdge> negatedGraph = new DefaultDirectedGraph<XEventClass, DefaultEdge>(
-				DefaultEdge.class);
+		Graph<XEventClass> negatedGraph = new Graph<>(XEventClass.class);
 
 		//add the vertices
-		for (XEventClass e : dfg.getVertices()) {
-			negatedGraph.addVertex(e);
-		}
+		negatedGraph.addVertices(dfg.getVertices());
 
-		//walk through the edges and negate them
-		for (XEventClass e1 : dfg.getVertices()) {
-			for (XEventClass e2 : dfg.getVertices()) {
+		//walk through all possible edges and negate them
+		for (int e1 : dfg.getVertexIndices()) {
+			for (int e2 : dfg.getVertexIndices()) {
 				if (e1 != e2) {
 					if (!dfg.containsEdge(e1, e2) || !dfg.containsEdge(e2, e1)) {
-						negatedGraph.addEdge(e1, e2);
+						negatedGraph.addEdge(e1, e2, 1);
 					}
 				}
 			}
@@ -70,7 +64,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 			for (XEventClass activity : dfg.getVertices()) {
 				try {
 					for (XEventClass activity2 : minimumSelfDistanceBetween.call(activity).toSet()) {
-						negatedGraph.addEdge(activity, activity2);
+						negatedGraph.addEdge(activity, activity2, 1);
 					}
 				} catch (Exception e2) {
 					e2.printStackTrace();
@@ -82,9 +76,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		//debug(dfr.debugGraph());
 
 		//compute the connected components of the negated graph
-		ConnectivityInspector<XEventClass, DefaultEdge> connectedComponentsGraph = new ConnectivityInspector<XEventClass, DefaultEdge>(
-				negatedGraph);
-		List<Set<XEventClass>> connectedComponents = connectedComponentsGraph.connectedSets();
+		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(negatedGraph);
 
 		//not all connected components are guaranteed to have start and end activities. Merge those that do not.
 		List<Set<XEventClass>> ccsWithStartEnd = new ArrayList<Set<XEventClass>>();

@@ -1,8 +1,9 @@
 package org.processmining.plugins.InductiveMiner;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class Matrix<X extends Comparable<X>, Y extends Number> {
 	private boolean includeStartEnd;
 
 	public Matrix(X[] activities, boolean includeStartEnd) {
-		matrix = new HashMap<Pair<Maybe<X>, Maybe<X>>, Y>();
+		matrix = new THashMap<Pair<Maybe<X>, Maybe<X>>, Y>();
 		this.activities = Arrays.asList(activities);
 		Collections.sort(this.activities);
 		this.includeStartEnd = includeStartEnd;

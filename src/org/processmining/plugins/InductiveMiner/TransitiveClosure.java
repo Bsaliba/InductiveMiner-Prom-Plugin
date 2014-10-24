@@ -1,6 +1,9 @@
 package org.processmining.plugins.InductiveMiner;
 
-import java.util.HashMap;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
@@ -12,8 +15,8 @@ public class TransitiveClosure {
 	public static <V> Graph<V> transitiveClosure(Class<V> clazz, Graph<V> graph) {
 		int countNodes = graph.getNumberOfVertices();
 		boolean dist[][] = new boolean[countNodes][countNodes];
-		HashMap<V, Integer> node2index = new HashMap<V, Integer>();
-		HashMap<Integer, V> index2node = new HashMap<Integer, V>();
+		TObjectIntMap<V> node2index = new TObjectIntHashMap<>();
+		TIntObjectMap<V> index2node = new TIntObjectHashMap<>();
 
 		//initialise
 		{
@@ -53,7 +56,7 @@ public class TransitiveClosure {
 
 		//extract a graph from the distances
 		Graph<V> transitiveClosure = new Graph<>(clazz);
-		transitiveClosure.addVertices(index2node.values());
+		transitiveClosure.addVertices(index2node.valueCollection());
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = 0; j < countNodes; j++) {
 				if (dist[i][j]) {

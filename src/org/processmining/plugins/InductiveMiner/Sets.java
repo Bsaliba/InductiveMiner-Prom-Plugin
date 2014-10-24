@@ -1,7 +1,9 @@
 package org.processmining.plugins.InductiveMiner;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class Sets {
@@ -40,6 +42,18 @@ public class Sets {
 	public static <X> Set<X> complement(Set<X> set, Set<X> universe) {
 		Set<X> result = new HashSet<X>(universe);
 		result.removeAll(set);
+		return result;
+	}
+	
+	public static <X> X[] toArray(Class<?> clazz, Collection<X> a) {
+		@SuppressWarnings("unchecked")
+		X[] result = (X[]) Array.newInstance(clazz, a.size());
+		int i = 0;
+		Iterator<X> it = a.iterator();
+		while (it.hasNext()) {
+			result[i] = it.next();
+			i++;
+		}
 		return result;
 	}
 	

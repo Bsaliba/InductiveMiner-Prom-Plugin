@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -16,7 +16,7 @@ public class CutFinderIMinInfo {
 	private final MultiSet<XEventClass> endActivities;
 	private final Graph<XEventClass> graph;
 	private final Graph<XEventClass> transitiveGraph;
-	private final HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
+	private final Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
 	private final Probabilities probabilities;
 	private final JobList jobList;
 	private final boolean debug;
@@ -34,7 +34,7 @@ public class CutFinderIMinInfo {
 	public CutFinderIMinInfo(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
 			Graph<XEventClass> graph2,
 			Graph<XEventClass> transitiveGraph2,
-			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween, Probabilities probabilities,
+			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween, Probabilities probabilities,
 			JobList jobList, boolean debug) {
 		this.startActivities = startActivities;
 		this.endActivities = endActivities;

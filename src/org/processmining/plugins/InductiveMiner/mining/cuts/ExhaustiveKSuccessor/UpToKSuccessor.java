@@ -1,8 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccessor;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -36,12 +38,12 @@ public class UpToKSuccessor {
 		UpToKSuccessorMatrix kSuccessors = new UpToKSuccessorMatrix(h);
 
 		//walk trough the log
-		HashMap<XEventClass, Integer> eventSeenAt;
+		Map<XEventClass, Integer> eventSeenAt;
 
 		for (IMTrace trace : log) {
 
 			int pos = 0;
-			eventSeenAt = new HashMap<XEventClass, Integer>();
+			eventSeenAt = new THashMap<XEventClass, Integer>();
 
 			for (XEventClass currentEvent : trace) {
 

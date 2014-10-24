@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +87,7 @@ public abstract class SATSolveSingle {
 	protected final CutFinderIMinInfo info;
 
 	public SATSolveSingle(CutFinderIMinInfo info) {
-		varInt2var = new HashMap<Integer, Var>();
+		varInt2var = new THashMap<Integer, Var>();
 		varCounter = 1;
 		solver = SolverFactory.newDefaultOptimizer();
 		this.info = info;
@@ -94,7 +95,7 @@ public abstract class SATSolveSingle {
 		countNodes = info.getActivities().size();
 
 		//initialise nodes
-		node2var = new HashMap<XEventClass, Node>();
+		node2var = new THashMap<XEventClass, Node>();
 		for (XEventClass a : info.getActivities()) {
 			node2var.put(a, newNodeVar(a));
 		}

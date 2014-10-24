@@ -13,17 +13,15 @@ public class Graph<V> {
 	private long[][] edges; //matrix of weights of edges
 	private TObjectIntMap<V> v2index; //map V to its vertex index
 	private V[] index2x; //map vertex index to V
-	private final Class<V> clazz;
 
 	@SuppressWarnings("unchecked")
-	public Graph(Class<V> clazz) {
+	public Graph(Class<?> clazz) {
 		int initialSize = 1;
 
 		vertices = 0;
 		edges = new long[initialSize][initialSize];
 		v2index = new TObjectIntHashMap<V>();
 
-		this.clazz = clazz;
 		index2x = (V[]) Array.newInstance(clazz, 0);
 	}
 
@@ -73,6 +71,14 @@ public class Graph<V> {
 		return index2x;
 	}
 
+	public int[] getVertexIndices() {
+		int[] result = new int[vertices];
+		for (int i = 0; i < vertices; i++) {
+			result[i] = i;
+		}
+		return result;
+	}
+
 	public int getNumberOfVertices() {
 		return vertices;
 	}
@@ -101,12 +107,21 @@ public class Graph<V> {
 	}
 
 	/**
-	 * Returns whether the graph contains a certain edge.
+	 * Returns whether the graph contains an edge between source and target.
 	 * 
 	 * @return
 	 */
 	public boolean containsEdge(V source, V target) {
 		return edges[v2index.get(source)][v2index.get(target)] > 0;
+	}
+	
+	/**
+	 * Returns whether the graph contains an edge between source and target.
+	 * 
+	 * @return
+	 */
+	public boolean containsEdge(int source, int target) {
+		return edges[source][target] > 0;
 	}
 
 	/**
@@ -222,7 +237,6 @@ public class Graph<V> {
 	}
 
 	public int[] getEdgesOf(int indexOfV) {
-
 		//first count every edge, count a self-edge only in the row-run
 		int count = 0;
 		for (int column = 0; column < vertices; column++) {

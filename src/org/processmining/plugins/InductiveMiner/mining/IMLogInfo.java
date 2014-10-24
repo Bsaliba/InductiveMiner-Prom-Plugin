@@ -1,6 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
@@ -16,8 +16,8 @@ public class IMLogInfo extends IMLogInfoG<XEventClass> {
 			Graph<XEventClass> directlyFollowsTransitiveClosureGraph,
 			MultiSet<XEventClass> activities, MultiSet<XEventClass> startActivities,
 			MultiSet<XEventClass> endActivities,
-			HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
-			HashMap<XEventClass, Integer> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces,
+			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
+			Map<XEventClass, Integer> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces,
 			long lengthStrongestTrace, long strongestDirectEdge, XEventClass mostOccurringStartActivity,
 			XEventClass mostOccurringEndActivity) {
 		super(directlyFollowsGraph, directlyFollowsTransitiveClosureGraph, activities,

@@ -1,9 +1,14 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -32,7 +37,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
 			Graph<XEventClass> graph) {
 		//initialise the start and end activities as a connected component
-		HashMap<XEventClass, Integer> connectedComponents = new HashMap<XEventClass, Integer>();
+		Map<XEventClass, Integer> connectedComponents = new THashMap<XEventClass, Integer>();
 		for (XEventClass startActivity : startActivities.toSet()) {
 			connectedComponents.put(startActivity, 0);
 		}
@@ -50,9 +55,9 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 
 		//find the start activities of each component
-		HashMap<Integer, Set<XEventClass>> subStartActivities = new HashMap<Integer, Set<XEventClass>>();
+		TIntObjectMap<Set<XEventClass>> subStartActivities = new TIntObjectHashMap<Set<XEventClass>>();
 		for (Integer cc = 0; cc < ccs; cc++) {
-			subStartActivities.put(cc, new HashSet<XEventClass>());
+			subStartActivities.put(cc, new THashSet<XEventClass>());
 		}
 		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
@@ -67,9 +72,9 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 
 		//find the end activities of each component
-		HashMap<Integer, Set<XEventClass>> subEndActivities = new HashMap<Integer, Set<XEventClass>>();
+		TIntObjectMap<Set<XEventClass>> subEndActivities = new TIntObjectHashMap<Set<XEventClass>>();
 		for (Integer cc = 0; cc < ccs; cc++) {
-			subEndActivities.put(cc, new HashSet<XEventClass>());
+			subEndActivities.put(cc, new THashSet<XEventClass>());
 		}
 		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
@@ -170,7 +175,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 	}
 
 	private static void labelConnectedComponents(Graph<XEventClass> graph,
-			XEventClass node, HashMap<XEventClass, Integer> connectedComponents, Integer connectedComponent) {
+			XEventClass node, Map<XEventClass, Integer> connectedComponents, Integer connectedComponent) {
 		if (!connectedComponents.containsKey(node)) {
 			connectedComponents.put(node, connectedComponent);
 			for (int edge : graph.getEdgesOf(node)) {

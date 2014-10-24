@@ -1,11 +1,13 @@
 package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -24,8 +26,8 @@ public class LogSplitterIMi implements LogSplitter {
 		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
 
 		//map activities to sigmas
-		HashMap<Set<XEventClass>, IMLog> mapSigma2sublog = new HashMap<Set<XEventClass>, IMLog>();
-		HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma = new HashMap<XEventClass, Set<XEventClass>>();
+		Map<Set<XEventClass>, IMLog> mapSigma2sublog = new THashMap<Set<XEventClass>, IMLog>();
+		Map<XEventClass, Set<XEventClass>> mapActivity2sigma = new THashMap<XEventClass, Set<XEventClass>>();
 		for (Set<XEventClass> sigma : cut.getPartition()) {
 			IMLog sublog = new IMLog();
 			result.add(sublog);
@@ -55,8 +57,8 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitXor(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+			int cardinality, Map<Set<XEventClass>, IMLog> mapSigma2sublog,
+			Map<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 
 		if (trace.size() == 0) {
 			//an empty trace should have been filtered as a base case, but now we have to handle it
@@ -68,7 +70,7 @@ public class LogSplitterIMi implements LogSplitter {
 		}
 
 		//walk through the events and count how many go in each sigma
-		HashMap<Set<XEventClass>, Integer> eventCounter = new HashMap<Set<XEventClass>, Integer>();
+		Map<Set<XEventClass>, Integer> eventCounter = new THashMap<Set<XEventClass>, Integer>();
 		for (Set<XEventClass> sigma : partition) {
 			eventCounter.put(sigma, 0);
 		}
@@ -102,8 +104,8 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitSequence(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			int cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+			int cardinality, Map<Set<XEventClass>, IMLog> mapSigma2sublog,
+			Map<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 		int atPosition = 0;
 		int lastPosition = 0;
 		IMTrace newTrace;
@@ -182,11 +184,11 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitParallel(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			long cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+			long cardinality, Map<Set<XEventClass>, IMLog> mapSigma2sublog,
+			Map<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 
 		//add a new trace to every sublog
-		HashMap<Set<XEventClass>, IMTrace> mapSigma2subtrace = new HashMap<Set<XEventClass>, IMTrace>();
+		Map<Set<XEventClass>, IMTrace> mapSigma2subtrace = new THashMap<Set<XEventClass>, IMTrace>();
 		for (Set<XEventClass> sigma : partition) {
 			IMTrace subtrace = new IMTrace();
 			mapSigma2subtrace.put(sigma, subtrace);
@@ -203,8 +205,8 @@ public class LogSplitterIMi implements LogSplitter {
 	}
 
 	public static void splitLoop(List<IMLog> result, IMTrace trace, Collection<Set<XEventClass>> partition,
-			long cardinality, HashMap<Set<XEventClass>, IMLog> mapSigma2sublog,
-			HashMap<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
+			long cardinality, Map<Set<XEventClass>, IMLog> mapSigma2sublog,
+			Map<XEventClass, Set<XEventClass>> mapActivity2sigma, MultiSet<XEventClass> noise) {
 		IMTrace partialTrace = new IMTrace();
 
 		Set<XEventClass> lastSigma = partition.iterator().next();

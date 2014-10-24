@@ -1,7 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 		int numberOfEdgesInCut = (countNodes - cutSize) * cutSize;
 
 		//edges
-		Map<Pair<XEventClass, XEventClass>, Edge> edge2var = new HashMap<Pair<XEventClass, XEventClass>, Edge>();
+		Map<Pair<XEventClass, XEventClass>, Edge> edge2var = new THashMap<Pair<XEventClass, XEventClass>, Edge>();
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = i + 1; j < countNodes; j++) {
 				XEventClass aI = nodes[i];
