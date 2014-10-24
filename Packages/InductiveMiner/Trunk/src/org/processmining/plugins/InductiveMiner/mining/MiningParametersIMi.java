@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughLeaveOutActivitiesThenApplyOthers;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
@@ -23,7 +27,10 @@ public class MiningParametersIMi extends MiningParameters {
 		//determine algorithm
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIMi()
+				new BaseCaseFinderIMiEmptyLog(),
+				new BaseCaseFinderIMiEmptyTrace(),
+				new BaseCaseFinderIMi(),
+				new BaseCaseFinderIM()
 				)));
 		
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
@@ -34,6 +41,7 @@ public class MiningParametersIMi extends MiningParameters {
 		setLogSplitter(new LogSplitterIMi());
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
+				new FallThroughLeaveOutActivitiesThenApplyOthers(),
 				new FallThroughTauLoop(),
 				new FallThroughFlower()
 				)));

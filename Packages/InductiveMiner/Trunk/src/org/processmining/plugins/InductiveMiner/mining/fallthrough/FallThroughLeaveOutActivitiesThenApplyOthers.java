@@ -1,7 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
+import gnu.trove.set.hash.THashSet;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,14 +40,14 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		for (XEventClass leaveOutActivity: logInfo.getActivities()) {
 			
 			//in a typical overcomplicated java-way, create a cut (parallel, [{a}, Sigma\{a}])
-			Set<XEventClass> leaveOutSet = new HashSet<XEventClass>();
+			Set<XEventClass> leaveOutSet = new THashSet<XEventClass>();
 			leaveOutSet.add(leaveOutActivity);
 			List<Set<XEventClass>> partition = new ArrayList<Set<XEventClass>>();
 			partition.add(leaveOutSet);
 			partition.add(Sets.complement(leaveOutSet, logInfo.getActivities().toSet()));
 			Cut cut = new Cut(Operator.parallel, partition);
 			
-			//Miner.debug("  try cut " + cut, parameters);
+			Miner.debug("  try cut " + cut, minerState);
 			
 			//split the log
 			LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
