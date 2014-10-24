@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.ExhaustiveKSuccesso
 import java.util.Set;
 
 import org.processmining.plugins.InductiveMiner.Matrix;
+import org.processmining.plugins.InductiveMiner.Sets;
 
 public class UpToKSuccessorMatrix {
 	private Matrix<String, Integer> matrix;
@@ -10,7 +11,7 @@ public class UpToKSuccessorMatrix {
 
 	public UpToKSuccessorMatrix(Set<String> activities) {
 		this.activities = activities;
-		matrix = new Matrix<String, Integer>((String[]) activities.toArray(), true);
+		matrix = new Matrix<String, Integer>(Sets.toArray(String.class, activities), true);
 	}
 
 	public Integer getKSuccessor(String from, String to) {

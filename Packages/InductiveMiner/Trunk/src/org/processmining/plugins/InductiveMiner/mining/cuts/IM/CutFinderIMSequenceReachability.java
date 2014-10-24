@@ -1,25 +1,28 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.jgrapht.DirectedGraph;
+import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
-public class CutFinderIMSequenceReachability<V,E> {
+public class CutFinderIMSequenceReachability<V> {
 	
-	private HashMap<V, Set<V>> reachableTo;
-	private HashMap<V, Set<V>> reachableFrom;
-	private DirectedGraph<V, E> condensedGraph;
+	private Map<V, Set<V>> reachableTo;
+	private Map<V, Set<V>> reachableFrom;
+	private Graph<V> condensedGraph;
 
-	public CutFinderIMSequenceReachability(DirectedGraph<V,E> graph) {
-		reachableTo = new HashMap<V, Set<V>>();
-		reachableFrom = new HashMap<V, Set<V>>();
+	public CutFinderIMSequenceReachability(Graph<V> graph) {
+		reachableTo = new THashMap<V, Set<V>>();
+		reachableFrom = new THashMap<V, Set<V>>();
 		this.condensedGraph = graph;
 	}
 	
 	public Set<V> getReachableFromTo(V node) {
-		Set<V> r = new HashSet<V>(findReachableTo(node));
+		Set<V> r = new THashSet<V>(findReachableTo(node));
 		r.addAll(findReachableFrom(node));
 		return r;
 	}
@@ -30,9 +33,9 @@ public class CutFinderIMSequenceReachability<V,E> {
 	
 	private Set<V> findReachableTo(V from) {
 		if (!reachableTo.containsKey(from)) {
-			Set<V> reached = new HashSet<V>();
+			Set<V> reached = new THashSet<V>();
 			
-			for (E edge : condensedGraph.outgoingEdgesOf(from)) {
+			for (int edge : condensedGraph.getOutgoingEdgesOf(from)) {
 				V target = condensedGraph.getEdgeTarget(edge);
 				reached.add(target);
 				
@@ -49,7 +52,7 @@ public class CutFinderIMSequenceReachability<V,E> {
 		if (!reachableFrom.containsKey(to)) {
 			Set<V> reached = new HashSet<V>();
 			
-			for (E edge : condensedGraph.incomingEdgesOf(to)) {
+			for (int edge : condensedGraph.getIncomingEdgesOf(to)) {
 				V target = condensedGraph.getEdgeSource(edge);
 				reached.add(target);
 				

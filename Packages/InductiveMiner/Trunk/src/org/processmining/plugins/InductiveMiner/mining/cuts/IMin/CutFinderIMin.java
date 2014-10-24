@@ -1,6 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -33,7 +33,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		MultiSet<XEventClass> endActivities = dfg.getEndActivities();
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 		Graph<XEventClass> transitiveGraph = TransitiveClosure.transitiveClosure(XEventClass.class, graph);
-		HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = null;
+		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = null;
 		Probabilities satProbabilities = minerState.getParameters().getSatProbabilities();
 		boolean debug = minerState.getParameters().isDebug();
 		CutFinderIMinInfo info = new CutFinderIMinInfo(startActivities, endActivities, graph, transitiveGraph,
@@ -50,7 +50,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		Graph<XEventClass> graph = logInfo.getDirectlyFollowsGraph();
 		Graph<XEventClass> transitiveGraph = logInfo
 				.getDirectlyFollowsTransitiveClosureGraph();
-		HashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo
+		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo
 				.getMinimumSelfDistancesBetween();
 		Probabilities satProbabilities = minerState.parameters.getSatProbabilities();
 		boolean debug = minerState.parameters.isDebug();

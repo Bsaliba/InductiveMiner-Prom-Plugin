@@ -1,9 +1,21 @@
 package org.processmining.plugins.InductiveMiner;
 
+import gnu.trove.set.hash.THashSet;
+
 import java.util.Arrays;
+import java.util.Set;
 
 public class ArrayUtilities {
 
+	/**
+	 * Returns a set containing the elements of the array
+	 * @param a
+	 * @return
+	 */
+	public static <X> Set<X> toSet(X[] a) {
+		return new THashSet<X>(Arrays.asList(a));
+	}
+	
 	/**
 	 * Returns a new array containing the elements of a followed by the elements
 	 * of b.

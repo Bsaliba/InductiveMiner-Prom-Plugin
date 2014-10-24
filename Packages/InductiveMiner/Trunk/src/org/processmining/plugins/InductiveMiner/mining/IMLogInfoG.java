@@ -1,8 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
@@ -16,8 +18,8 @@ public class IMLogInfoG<X> {
 	protected final MultiSet<X> startActivities;
 	protected final MultiSet<X> endActivities;
 
-	protected final HashMap<X, MultiSet<X>> minimumSelfDistancesBetween;
-	protected final HashMap<X, Integer> minimumSelfDistances;
+	protected final Map<X, MultiSet<X>> minimumSelfDistancesBetween;
+	protected final Map<X, Integer> minimumSelfDistances;
 
 	protected final long numberOfEvents;
 	protected final long numberOfEpsilonTraces;
@@ -48,8 +50,8 @@ public class IMLogInfoG<X> {
 		activities = new MultiSet<X>();
 		startActivities = new MultiSet<X>();
 		endActivities = new MultiSet<X>();
-		minimumSelfDistances = new HashMap<X, Integer>();
-		minimumSelfDistancesBetween = new HashMap<X, MultiSet<X>>();
+		minimumSelfDistances = new THashMap<X, Integer>();
+		minimumSelfDistancesBetween = new THashMap<X, MultiSet<X>>();
 		long numberOfEvents = 0;
 		long numberOfEpsilonTraces = 0;
 		int longestTrace = 0;
@@ -59,7 +61,7 @@ public class IMLogInfoG<X> {
 		X toEventClass;
 
 		//walk trough the log
-		HashMap<X, Integer> eventSeenAt;
+		Map<X, Integer> eventSeenAt;
 		List<X> readTrace;
 
 		for (List<X> trace : log) {
@@ -69,7 +71,7 @@ public class IMLogInfoG<X> {
 			fromEventClass = null;
 
 			int traceSize = 0;
-			eventSeenAt = new HashMap<X, Integer>();
+			eventSeenAt = new THashMap<X, Integer>();
 			readTrace = new ArrayList<X>();
 
 			for (X ec : trace) {
@@ -173,7 +175,7 @@ public class IMLogInfoG<X> {
 
 	public IMLogInfoG(Graph<X> directlyFollowsGraph, Graph<X> directlyFollowsTransitiveClosureGraph,
 			MultiSet<X> activities, MultiSet<X> startActivities, MultiSet<X> endActivities,
-			HashMap<X, MultiSet<X>> minimumSelfDistancesBetween, HashMap<X, Integer> minimumSelfDistances,
+			Map<X, MultiSet<X>> minimumSelfDistancesBetween, Map<X, Integer> minimumSelfDistances,
 			long numberOfEvents, long numberOfEpsilonTraces, long lengthStrongestTrace, long strongestDirectEdge,
 			X mostOccurringStartActivity, X mostOccurringEndActivity) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
@@ -207,10 +209,6 @@ public class IMLogInfoG<X> {
 		return directlyFollowsTransitiveClosureGraph;
 	}
 
-	//	public DefaultDirectedWeightedGraph<X, DefaultWeightedEdge> getEventuallyFollowsGraph() {
-	//		return eventuallyFollowsGraph;
-	//	}
-
 	public Graph<X> getDirectlyFollowsGraph() {
 		return directlyFollowsGraph;
 	}
@@ -223,7 +221,7 @@ public class IMLogInfoG<X> {
 		return endActivities;
 	}
 
-	public HashMap<X, MultiSet<X>> getMinimumSelfDistancesBetween() {
+	public Map<X, MultiSet<X>> getMinimumSelfDistancesBetween() {
 		return minimumSelfDistancesBetween;
 	}
 
@@ -234,7 +232,7 @@ public class IMLogInfoG<X> {
 		return minimumSelfDistancesBetween.get(activity);
 	}
 
-	public HashMap<X, Integer> getMinimumSelfDistances() {
+	public Map<X, Integer> getMinimumSelfDistances() {
 		return minimumSelfDistances;
 	}
 
