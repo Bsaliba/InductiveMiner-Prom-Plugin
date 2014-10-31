@@ -63,7 +63,6 @@
 	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-math-3.1.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/javailp-1.2a.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jbpt-0.2.393.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/trove-3.0.3.jar"/>
