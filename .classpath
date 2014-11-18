@@ -67,5 +67,6 @@
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jbpt-0.2.393.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/trove-3.0.3.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-LpSolve/lpsolve55j.jar"/>
+	<classpathentry kind="lib" path="lib/opencsv-2.4-patched.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
