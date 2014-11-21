@@ -20,8 +20,8 @@ public class DfgMiningParametersIMinD extends DfgMiningParameters {
 				)));
 
 		setDfgCutFinders(new ArrayList<DfgCutFinder>(Arrays.asList(
-				new CutFinderIMin(),
-				new DfgCutFinderSimple()
+				new DfgCutFinderSimple(),
+				new CutFinderIMin()
 				)));
 
 		setDfgFallThroughs(new ArrayList<DfgFallThrough>(Arrays.asList(
