@@ -1,0 +1,110 @@
+package org.processmining.plugins.InductiveMiner.dfgOnly.log2dfg;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.mining.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+
+public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
+
+	public IMLogInfo createLogInfo(IMLog log) {
+		//initialise, read the log
+		Dfg dfg = new Dfg();
+		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
+		TObjectIntHashMap<XEventClass> minimumSelfDistances = new TObjectIntHashMap<>();
+		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
+		long numberOfEvents = 0;
+		long numberOfEpsilonTraces = 0;
+		long highestTraceCardinality = 0;
+
+		XEventClass fromEventClass;
+		XEventClass toEventClass;
+
+		//walk trough the log
+		Map<XEventClass, Integer> eventSeenAt;
+		List<XEventClass> readTrace;
+
+		for (IMTrace trace : log) {
+			long cardinality = log.getCardinalityOf(trace);
+
+			toEventClass = null;
+			fromEventClass = null;
+
+			int traceSize = 0;
+			eventSeenAt = new THashMap<XEventClass, Integer>();
+			readTrace = new ArrayList<XEventClass>();
+
+			for (XEventClass ec : trace) {
+
+				activities.add(ec, cardinality);
+				dfg.addActivity(ec);
+
+				fromEventClass = toEventClass;
+				toEventClass = ec;
+
+				readTrace.add(toEventClass);
+
+				if (eventSeenAt.containsKey(toEventClass)) {
+					//we have detected an activity for the second time
+					//check whether this is shorter than what we had already seen
+					int oldDistance = Integer.MAX_VALUE;
+					if (minimumSelfDistances.containsKey(toEventClass)) {
+						oldDistance = minimumSelfDistances.get(toEventClass);
+					}
+
+					if (!minimumSelfDistances.containsKey(toEventClass)
+							|| traceSize - eventSeenAt.get(toEventClass) <= oldDistance) {
+						//keep the new minimum self distance
+						int newDistance = traceSize - eventSeenAt.get(toEventClass);
+						if (oldDistance > newDistance) {
+							//we found a shorter minimum self distance, record and restart with a new multiset
+							minimumSelfDistances.put(toEventClass, newDistance);
+
+							minimumSelfDistancesBetween.put(toEventClass, new MultiSet<XEventClass>());
+						}
+
+						//store the minimum self-distance activities
+						MultiSet<XEventClass> mb = minimumSelfDistancesBetween.get(toEventClass);
+						mb.addAll(readTrace.subList(eventSeenAt.get(toEventClass) + 1, traceSize), cardinality);
+					}
+				}
+				eventSeenAt.put(toEventClass, traceSize);
+				{
+					if (fromEventClass != null) {
+						//add edge to directly-follows graph
+						dfg.addDirectlyFollowsEdge(fromEventClass, toEventClass, cardinality);
+					} else {
+						//add edge to start activities
+						dfg.addStartActivity(toEventClass, cardinality);
+					}
+				}
+
+				traceSize += 1;
+			}
+
+			numberOfEvents += trace.size() * cardinality;
+
+			highestTraceCardinality = Math.max(highestTraceCardinality, cardinality);
+
+			if (toEventClass != null) {
+				dfg.addEndActivity(toEventClass, cardinality);
+			}
+
+			if (traceSize == 0) {
+				numberOfEpsilonTraces = numberOfEpsilonTraces + cardinality;
+			}
+		}
+
+		return new IMLogInfo(dfg, activities, minimumSelfDistancesBetween, minimumSelfDistances,
+				numberOfEvents, numberOfEpsilonTraces, highestTraceCardinality);
+	}
+}

@@ -27,8 +27,7 @@ public class UpToKSuccessor {
 
 	}
 
-	public static UpToKSuccessorMatrix fromLog(IMLog log) {
-		IMLogInfo logInfo = new IMLogInfo(log);
+	public static UpToKSuccessorMatrix fromLog(IMLog log, IMLogInfo logInfo) {
 		
 		//make a list of names of event classes
 		Set<String> h = new HashSet<String>();

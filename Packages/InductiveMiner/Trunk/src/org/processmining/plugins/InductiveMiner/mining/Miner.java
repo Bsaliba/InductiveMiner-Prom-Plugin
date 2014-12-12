@@ -46,7 +46,7 @@ public class Miner {
 	public static Node mineNode(IMLog log, ProcessTree tree, MinerState minerState) {
 
 		//construct basic information about log
-		IMLogInfo logInfo = new IMLogInfo(log);
+		IMLogInfo logInfo = minerState.parameters.getLog2LogInfo().createLogInfo(log);
 
 		//output information about the log
 		debug("\nMine epsilon=" + logInfo.getNumberOfEpsilonTraces() + ", " + logInfo.getActivities(), minerState);

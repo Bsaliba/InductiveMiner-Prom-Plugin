@@ -123,4 +123,12 @@ public class Dfg {
 		addActivity(target);
 		uncertainEventuallyFollowsGraph.addEdge(source, target, cardinality);
 	}
+	
+	public void addStartActivity(XEventClass activity, long cardinality)  {
+		startActivities.add(activity, cardinality);
+	}
+	
+	public void addEndActivity(XEventClass activity, long cardinality)  {
+		endActivities.add(activity, cardinality);
+	}
 }

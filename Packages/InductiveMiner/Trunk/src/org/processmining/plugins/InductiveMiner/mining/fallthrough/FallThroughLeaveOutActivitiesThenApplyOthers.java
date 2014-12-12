@@ -55,7 +55,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			IMLog log2 = logSplitResult.sublogs.get(1);
 			
 			//create logInfos
-			IMLogInfo logInfo2 = new IMLogInfo(log2);
+			IMLogInfo logInfo2 = minerState.parameters.getLog2LogInfo().createLogInfo(log2);
 			
 			//see if a cut applies
 			Cut cut2 = Miner.findCut(log2, logInfo2, minerState);

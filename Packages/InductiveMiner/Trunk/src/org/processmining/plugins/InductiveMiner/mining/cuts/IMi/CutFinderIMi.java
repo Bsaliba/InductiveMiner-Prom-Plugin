@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IMi;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
-import org.processmining.plugins.InductiveMiner.TransitiveClosure;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -53,12 +53,12 @@ public class CutFinderIMi implements CutFinder {
 		//				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
 		//				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
 
-		return new IMLogInfo(filteredDirectlyFollowsGraph,
-				TransitiveClosure.transitiveClosure(XEventClass.class, filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
-				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
+		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, null, null, null, filteredStartActivities,
+				filteredEndActivities, null, null);
+
+		return new IMLogInfo(dfg, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
-				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
+				logInfo.getHighestTraceCardinality());
 	}
 
 	/**
@@ -69,8 +69,8 @@ public class CutFinderIMi implements CutFinder {
 	 * @param threshold
 	 * @return
 	 */
-	public static Graph<XEventClass> filterGraph(Graph<XEventClass> graph,
-			MultiSet<XEventClass> endActivities, float threshold) {
+	public static Graph<XEventClass> filterGraph(Graph<XEventClass> graph, MultiSet<XEventClass> endActivities,
+			float threshold) {
 		//filter directly-follows graph
 		Graph<XEventClass> filtered = new Graph<>(XEventClass.class);
 
