@@ -11,7 +11,7 @@ public class CutFinderEKS implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		
-		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log);
+		UpToKSuccessorMatrix kSuccessor = UpToKSuccessor.fromLog(log, logInfo);
 		Exhaustive exhaustive = new Exhaustive(log, logInfo, kSuccessor, minerState);
 		Result r = exhaustive.tryAll();
 		

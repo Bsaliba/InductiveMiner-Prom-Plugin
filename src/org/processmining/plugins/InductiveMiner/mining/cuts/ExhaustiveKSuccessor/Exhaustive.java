@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2dfg.IMLog2IMLogInfo;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -36,6 +37,7 @@ public class Exhaustive {
 	private final AtomicInteger bestTillNow;
 	
 	private final LogSplitter logSplitter;
+	private final IMLog2IMLogInfo log2dfg;
 
 	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
 		this.kSuccessor = kSuccessor;
@@ -44,6 +46,7 @@ public class Exhaustive {
 		this.minerState = minerState;
 		bestTillNow = new AtomicInteger();
 		logSplitter = new LogSplitterIMi();
+		log2dfg = minerState.parameters.getLog2LogInfo();
 	}
 
 	public Result tryAll() {
@@ -140,8 +143,10 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
-		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next());
-		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next());
+		IMLog log0 = it.next();
+		IMLog log1 = it.next();
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 
 		//combine the logs
 		UpToKSuccessorMatrix combined = CombineParallel.combine(successor0, successor1);
@@ -163,8 +168,10 @@ public class Exhaustive {
 
 		//make k-successor relations
 		Iterator<IMLog> it = result.sublogs.iterator();
-		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(it.next());
-		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(it.next());
+		IMLog log0 = it.next();
+		IMLog log1 = it.next();
+		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
+		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 
 		//combine the logs
 		UpToKSuccessorMatrix combined = CombineLoop.combine(successor0, successor1);

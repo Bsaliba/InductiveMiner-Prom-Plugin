@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2dfg.IMLog2IMLogInfo;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
@@ -28,6 +29,7 @@ public abstract class MiningParameters {
 	private ExecutorService minerPool;
 	private ExecutorService satPool;
 	
+	private IMLog2IMLogInfo log2logInfo;
 	private List<BaseCaseFinder> baseCaseFinders;
 	private List<CutFinder> cutFinders;
 	private LogSplitter logSplitter;
@@ -132,6 +134,14 @@ public abstract class MiningParameters {
 			minerPool = ThreadPoolSingleton2.getInstance();
 			satPool = ThreadPoolSingleton1.getInstance();
 		}
+	}
+	
+	public IMLog2IMLogInfo getLog2LogInfo() {
+		return log2logInfo;
+	}
+	
+	public void setLogConverter(IMLog2IMLogInfo log2logInfo) {
+		this.log2logInfo = log2logInfo;
 	}
 
 	public List<BaseCaseFinder> getBaseCaseFinders() {

@@ -48,8 +48,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		MultiSet<XEventClass> startActivities = logInfo.getStartActivities();
 		MultiSet<XEventClass> endActivities = logInfo.getEndActivities();
 		Graph<XEventClass> graph = logInfo.getDirectlyFollowsGraph();
-		Graph<XEventClass> transitiveGraph = logInfo
-				.getDirectlyFollowsTransitiveClosureGraph();
+		Graph<XEventClass> transitiveGraph = TransitiveClosure.transitiveClosure(XEventClass.class, graph);
 		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo
 				.getMinimumSelfDistancesBetween();
 		Probabilities satProbabilities = minerState.parameters.getSatProbabilities();
