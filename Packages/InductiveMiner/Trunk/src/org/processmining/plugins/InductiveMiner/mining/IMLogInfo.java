@@ -21,6 +21,16 @@ public class IMLogInfo {
 	protected final long numberOfEvents;
 	protected final long numberOfEpsilonTraces;
 	protected final long highestTraceCardinality;
+	
+	public IMLogInfo(IMLog log) {
+		dfg = null;
+		activities = null;
+		minimumSelfDistancesBetween = null;
+		minimumSelfDistances = null;
+		numberOfEvents = 0;
+		numberOfEpsilonTraces = 0;
+		highestTraceCardinality = 0;
+	}
 
 	public IMLogInfo(Dfg directlyFollowsGraph, MultiSet<XEventClass> activities,
 			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
