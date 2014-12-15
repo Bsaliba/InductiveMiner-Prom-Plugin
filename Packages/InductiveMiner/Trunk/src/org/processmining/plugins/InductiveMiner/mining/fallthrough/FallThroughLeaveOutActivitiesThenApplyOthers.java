@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Sets;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
@@ -30,6 +32,10 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 	 * If this works, then putting the left out activity in parallel is fitness-preserving
 	 */
 	
+	public FallThroughLeaveOutActivitiesThenApplyOthers() {
+		
+	}
+	
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		
 		if (logInfo.getActivities().toSet().size() < 3) {
@@ -37,6 +43,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		}
 		
 		//leave out an activity
+		DfgCutFinder dfgCutFinder = new DfgCutFinderSimple();
 		for (XEventClass leaveOutActivity: logInfo.getActivities()) {
 			
 			//in a typical overcomplicated java-way, create a cut (parallel, [{a}, Sigma\{a}])
@@ -48,21 +55,18 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			Cut cut = new Cut(Operator.parallel, partition);
 			
 			Miner.debug("  try cut " + cut, minerState);
-			
-			//split the log
-			LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
-			IMLog log1 = logSplitResult.sublogs.get(0);
-			IMLog log2 = logSplitResult.sublogs.get(1);
-			
-			//create logInfos
-			IMLogInfo logInfo2 = minerState.parameters.getLog2LogInfo().createLogInfo(log2);
-			
+
 			//see if a cut applies
-			Cut cut2 = Miner.findCut(log2, logInfo2, minerState);
+			//for performance reasons, only on the directly-follows graph
+			Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null);
 			if (cut2 != null && cut2.isValid()) {
-				//the cut we made is a valid one, construct the parallel construction and recurse
+				//the cut we made is a valid one; split the log, construct the parallel construction and recurse
 				
 				Miner.debug(" fall through: leave out activity " + leaveOutActivity, minerState);
+				
+				LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
+				IMLog log1 = logSplitResult.sublogs.get(0);
+				IMLog log2 = logSplitResult.sublogs.get(1);
 				
 				Block newNode = new AbstractBlock.And("");
 				Miner.addNode(tree, newNode);

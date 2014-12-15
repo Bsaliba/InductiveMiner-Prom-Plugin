@@ -41,6 +41,10 @@ public class IMLogInfo {
 		result.append("end activities: " + dfg.getEndActivities());
 		return result.toString();
 	}
+	
+	public Dfg getDfg() {
+		return dfg;
+	}
 
 	public MultiSet<XEventClass> getActivities() {
 		return activities;

@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.SimpleDfgBaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderCombination;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThroughFlower;
@@ -19,10 +19,10 @@ public class DfgMiningParametersIMinD extends DfgMiningParameters {
 				new SimpleDfgBaseCaseFinder()
 				)));
 
-		setDfgCutFinders(new ArrayList<DfgCutFinder>(Arrays.asList(
+		setDfgCutFinder(new DfgCutFinderCombination(
 				new DfgCutFinderSimple(),
 				new CutFinderIMin()
-				)));
+				));
 
 		setDfgFallThroughs(new ArrayList<DfgFallThrough>(Arrays.asList(
 				new DfgFallThroughFlower()
