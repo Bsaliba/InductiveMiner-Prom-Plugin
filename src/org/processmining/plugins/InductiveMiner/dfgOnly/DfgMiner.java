@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.DfgSplitter.DfgSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -137,12 +136,7 @@ public class DfgMiner {
 	}
 
 	public static Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		Cut c = null;
-		Iterator<DfgCutFinder> it = minerState.getParameters().getDfgCutFinders().iterator();
-		while (it.hasNext() && (c == null || !c.isValid())) {
-			c = it.next().findCut(dfg, minerState);
-		}
-		return c;
+		return minerState.getParameters().getDfgCutFinder().findCut(dfg, minerState);
 	}
 
 	public static Node findFallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {

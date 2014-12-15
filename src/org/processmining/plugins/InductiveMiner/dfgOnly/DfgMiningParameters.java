@@ -14,7 +14,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 public abstract class DfgMiningParameters {
 
 	private Iterable<DfgBaseCaseFinder> dfgBaseCaseFinders;
-	private Iterable<DfgCutFinder> dfgCutFinders;
+	private DfgCutFinder dfgCutFinder;
 	private DfgSplitter dfgSplitter;
 	private Iterable<DfgFallThrough> dfgFallThroughs;
 
@@ -46,12 +46,12 @@ public abstract class DfgMiningParameters {
 		this.dfgBaseCaseFinders = baseCaseFinders;
 	}
 
-	public Iterable<DfgCutFinder> getDfgCutFinders() {
-		return dfgCutFinders;
+	public DfgCutFinder getDfgCutFinder() {
+		return dfgCutFinder;
 	}
 
-	public void setDfgCutFinders(Iterable<DfgCutFinder> dfgCutFinders) {
-		this.dfgCutFinders = dfgCutFinders;
+	public void setDfgCutFinder(DfgCutFinder dfgCutFinder) {
+		this.dfgCutFinder = dfgCutFinder;
 	}
 
 	public DfgSplitter getDfgSplitter() {

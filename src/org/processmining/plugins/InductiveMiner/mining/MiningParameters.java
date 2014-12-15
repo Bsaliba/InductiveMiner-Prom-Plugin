@@ -22,13 +22,13 @@ public abstract class MiningParameters {
 	private float noiseThreshold;
 	private float incompleteThreshold;
 	private File fallThroughSaveLogFolderName;
-	
+
 	private boolean debug;
 	private boolean reduce;
 	private Probabilities satProbabilities;
 	private ExecutorService minerPool;
 	private ExecutorService satPool;
-	
+
 	private IMLog2IMLogInfo log2logInfo;
 	private List<BaseCaseFinder> baseCaseFinders;
 	private List<CutFinder> cutFinders;
@@ -36,15 +36,15 @@ public abstract class MiningParameters {
 	private List<FallThrough> fallThroughs;
 
 	protected MiningParameters() {
-		
+
 		classifier = getDefaultClassifier();
 		debug = false;
-		
+
 		fallThroughSaveLogFolderName = new File("D:\\output");
-		
+
 		setUseMultithreading(true);
 	}
-	
+
 	public static XEventClassifier getDefaultClassifier() {
 		//return new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 		return new XEventNameClassifier();
@@ -117,15 +117,15 @@ public abstract class MiningParameters {
 	public void setSatProbabilities(Probabilities satProbabilities) {
 		this.satProbabilities = satProbabilities;
 	}
-	
+
 	public ExecutorService getMinerPool() {
 		return this.minerPool;
 	}
-	
+
 	public ExecutorService getSatPool() {
 		return this.satPool;
 	}
-	
+
 	public void setUseMultithreading(boolean useMultithreading) {
 		if (!useMultithreading) {
 			minerPool = MoreExecutors.sameThreadExecutor();
@@ -135,11 +135,11 @@ public abstract class MiningParameters {
 			satPool = ThreadPoolSingleton1.getInstance();
 		}
 	}
-	
+
 	public IMLog2IMLogInfo getLog2LogInfo() {
 		return log2logInfo;
 	}
-	
+
 	public void setLogConverter(IMLog2IMLogInfo log2logInfo) {
 		this.log2logInfo = log2logInfo;
 	}
@@ -183,6 +183,5 @@ public abstract class MiningParameters {
 	public void setReduce(boolean reduce) {
 		this.reduce = reduce;
 	}
-
 
 }
