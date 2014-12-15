@@ -39,7 +39,6 @@
 	<classpathentry kind="lib" path="tests/libs-external/lib-cobertura/log4j-1.2.9.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/cobertura.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/junit-4.8.1.jar"/>
-	<classpathentry kind="lib" path="stdlib/EfficientStorage.jar"/>
 	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-export-2.1.1.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-graphics2d-2.1.1.jar"/>
