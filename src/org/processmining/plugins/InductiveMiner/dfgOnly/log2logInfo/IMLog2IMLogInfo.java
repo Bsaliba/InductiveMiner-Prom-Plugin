@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.dfgOnly.log2dfg;
+package org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;

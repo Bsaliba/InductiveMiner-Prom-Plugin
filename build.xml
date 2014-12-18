@@ -142,6 +142,7 @@
 							<dependency name="PNetReplayer"/>
 							<dependency name="Properties"/>
 							<dependency name="LpSolve"/>
+							<dependency name="Widgets"/>
 							<!--<dependency name="PNetAlignmentAnalysis"/>-->
 							<!--dependency name="Upstream Package 2 (CHANGE)"/>
 							<dependency name="Upstream Package 3 (CHANGE)"/-->
