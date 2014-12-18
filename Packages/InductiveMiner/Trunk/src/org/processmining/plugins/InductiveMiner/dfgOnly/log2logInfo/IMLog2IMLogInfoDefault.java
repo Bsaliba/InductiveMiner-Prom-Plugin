@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.dfgOnly.log2dfg;
+package org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo;
 
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
