@@ -118,7 +118,7 @@ public class MultiSet<X> implements Iterable<X> {
 	}
 	
 	public boolean contains(Object a) {
-		return cardinalities.containsKey(a);
+		return cardinalities.containsKey(a) && cardinalities.get(a) > 0;
 	}
 	
 	public long getCardinalityOf(Object e) {
