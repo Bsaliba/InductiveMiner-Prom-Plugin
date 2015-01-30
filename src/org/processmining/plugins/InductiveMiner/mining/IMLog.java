@@ -1,9 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
@@ -22,13 +20,6 @@ public class IMLog implements Iterable<IMTrace> {
 	/*
 	 * Memory-lightweight implementation of a filtering system.
 	 */
-
-	public long getCardinalityOf(Object e) {
-		return -1;
-	}
-	public Set<IMTrace> toSet() {
-		return new HashSet<>();
-	}
 
 	private final XLog xLog;
 	private final BitSet outTraces;
