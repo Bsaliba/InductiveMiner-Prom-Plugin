@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
@@ -44,7 +45,8 @@ public class UpToKSuccessor {
 			int pos = 0;
 			eventSeenAt = new THashMap<XEventClass, Integer>();
 
-			for (XEventClass currentEvent : trace) {
+			for (XEvent e : trace) {
+				XEventClass currentEvent = log.classify(e);
 
 				for (XEventClass seen : eventSeenAt.keySet()) {
 					kSuccessors.feedKSuccessor(toString(seen), toString(currentEvent), pos - eventSeenAt.get(seen));

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
@@ -34,7 +35,6 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		List<XEventClass> readTrace;
 
 		for (IMTrace trace : log) {
-			long cardinality = log.getCardinalityOf(trace);
 
 			toEventClass = null;
 			fromEventClass = null;
@@ -43,9 +43,9 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 			eventSeenAt = new THashMap<XEventClass, Integer>();
 			readTrace = new ArrayList<XEventClass>();
 
-			for (XEventClass ec : trace) {
-
-				activities.add(ec, cardinality);
+			for (XEvent e : trace) {
+				XEventClass ec = log.classify(e);
+				activities.add(ec);
 				dfg.addActivity(ec);
 
 				fromEventClass = toEventClass;
@@ -74,33 +74,31 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
 						//store the minimum self-distance activities
 						MultiSet<XEventClass> mb = minimumSelfDistancesBetween.get(toEventClass);
-						mb.addAll(readTrace.subList(eventSeenAt.get(toEventClass) + 1, traceSize), cardinality);
+						mb.addAll(readTrace.subList(eventSeenAt.get(toEventClass) + 1, traceSize));
 					}
 				}
 				eventSeenAt.put(toEventClass, traceSize);
 				{
 					if (fromEventClass != null) {
 						//add edge to directly-follows graph
-						dfg.addDirectlyFollowsEdge(fromEventClass, toEventClass, cardinality);
+						dfg.addDirectlyFollowsEdge(fromEventClass, toEventClass, 1);
 					} else {
 						//add edge to start activities
-						dfg.addStartActivity(toEventClass, cardinality);
+						dfg.addStartActivity(toEventClass, 1);
 					}
 				}
 
 				traceSize += 1;
 			}
 
-			numberOfEvents += trace.size() * cardinality;
-
-			highestTraceCardinality = Math.max(highestTraceCardinality, cardinality);
+			numberOfEvents += trace.size();
 
 			if (toEventClass != null) {
-				dfg.addEndActivity(toEventClass, cardinality);
+				dfg.addEndActivity(toEventClass, 1);
 			}
 
 			if (traceSize == 0) {
-				numberOfEpsilonTraces = numberOfEpsilonTraces + cardinality;
+				numberOfEpsilonTraces = numberOfEpsilonTraces + 1;
 			}
 		}
 
