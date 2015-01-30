@@ -1,5 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
+import java.util.Iterator;
+
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace;
@@ -21,15 +23,10 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 			if (logInfo.getNumberOfEpsilonTraces() < logInfo.getHighestTraceCardinality() * minerState.parameters.getNoiseThreshold()) {
 				//there are not enough empty traces, the empty traces are considered noise
 				
-				long numberOfEpsilonTraces = log.getCardinalityOf(new IMTrace());
+				Miner.debug(" base case: IMi empty traces filtered out", minerState);
 				
-				Miner.debug(" base case: IMi empty traces", minerState);
-				
-
 				//filter the empty traces from the log and recurse
-				log.remove(new IMTrace());
-				
-				Node newNode = Miner.mineNode(log, tree, minerState);
+				Node newNode = Miner.mineNode(removeEpsilonTraces(log), tree, minerState);
 				
 				return newNode;
 
@@ -48,15 +45,26 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				newNode.addChild(tau);
 
 				//filter empty traces
-				log.remove(new IMTrace());
+				IMLog sublog = removeEpsilonTraces(log);
 
 				//recurse
-				Node child = Miner.mineNode(log, tree, minerState);
+				Node child = Miner.mineNode(sublog, tree, minerState);
 				newNode.addChild(child);
 
 				return newNode;
 			}
 		}
 		return null;
+	}
+	
+	public static IMLog removeEpsilonTraces(IMLog log) {
+		IMLog sublog = new IMLog(log);
+		for (Iterator<IMTrace> it = sublog.iterator();it.hasNext();) {
+			IMTrace t = it.next();
+			if (t.isEmpty()) {
+				it.remove();
+			}
+		}
+		return sublog;
 	}
 }

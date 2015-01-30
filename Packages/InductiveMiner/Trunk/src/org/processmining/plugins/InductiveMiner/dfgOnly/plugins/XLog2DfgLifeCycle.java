@@ -18,7 +18,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class XLog2DfgLifeCycle {
-	@Plugin(name = "Convert log to lifecycle directly-follows graph", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
+	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Dfg log2Dfg(PluginContext context, XLog log) {
@@ -38,23 +38,19 @@ public class XLog2DfgLifeCycle {
 		Dfg dfg = new Dfg();
 		for (XTrace trace : log) {
 
-			System.out.println(trace);
-			
 			//directly-follows relation
 			if (!trace.isEmpty()) {
 				int front = 0;
 				int back = 0;
-				
+
 				MultiSet<XEventClass> openActivityOccurrencesAtFront = new MultiSet<XEventClass>();
 				if (isStart(trace.get(front), infoLifeCycle)) {
 					openActivityOccurrencesAtFront.add(getActivity(trace.get(front), infoActivity));
 				}
 
 				while (front < trace.size() - 1) {
-					System.out.println("front " + front + ", back " + back + ", open " + openActivityOccurrencesAtFront);
-					
 					XEvent nextFrontEvent = trace.get(front + 1);
-					
+
 					//see whether this event was opened before
 					if (isStart(nextFrontEvent, infoLifeCycle)) {
 						openActivityOccurrencesAtFront.add(getActivity(nextFrontEvent, infoActivity));
@@ -72,7 +68,7 @@ public class XLog2DfgLifeCycle {
 								XEventClass from = infoActivity.getEventClasses().getClassOf(trace.get(i));
 								dfg.addDirectlyFollowsEdge(from, to, 1);
 							}
-							
+
 							//progress back and front
 							front++;
 							back = front;
@@ -105,17 +101,20 @@ public class XLog2DfgLifeCycle {
 				boolean activityOccurrenceCompleted = false;
 				MultiSet<XEventClass> activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 				MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
+				System.out.println("trace");
 				for (XEvent event : trace) {
 					XEventClass activity = infoActivity.getEventClasses().getClassOf(event);
-					
+
 					if (isStart(event, infoLifeCycle)) {
+						System.out.println("start " + activity);
 						openActivityOccurrences.add(getActivity(event, infoActivity));
 						if (!activityOccurrenceCompleted) {
 							//no activity occurrence has been completed yet. Add to start events.
 							dfg.addStartActivity(activity, 1);
 						}
 						activityOccurrencesEndedSinceLastStart = new MultiSet<>();
-					} else {
+					} else if (isComplete(event, infoLifeCycle)) {
+						System.out.println("complete " + activity);
 						//complete event
 						if (openActivityOccurrences.contains(event)) {
 							//this activity occurrence was open; close it
@@ -123,18 +122,18 @@ public class XLog2DfgLifeCycle {
 							activityOccurrencesEndedSinceLastStart.add(activity);
 						} else {
 							//next front is non-started but complete
-							
+
 							if (!activityOccurrenceCompleted) {
 								//no activity occurrence has been completed yet. Add to start events.
 								dfg.addStartActivity(activity, 1);
 							}
 							activityOccurrenceCompleted = true;
-							
+
 							activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 							activityOccurrencesEndedSinceLastStart.add(activity);
 						}
 					}
-					
+
 					activityOccurrenceCompleted = activityOccurrenceCompleted || isComplete(event, infoLifeCycle);
 				}
 				dfg.getEndActivities().addAll(activityOccurrencesEndedSinceLastStart);
@@ -144,22 +143,21 @@ public class XLog2DfgLifeCycle {
 		return dfg;
 	}
 
-	
-	public static XEventClass getActivity(XEvent event, XLogInfo infoActivity)  {
+	public static XEventClass getActivity(XEvent event, XLogInfo infoActivity) {
 		return infoActivity.getEventClasses().getClassOf(event);
 	}
-	
+
 	public static boolean containsActivity(XEvent event, XLogInfo infoActivity, XTrace trace, int back, int front) {
 		return trace.subList(back, front).contains(getActivity(event, infoActivity));
 	}
 
 	public static boolean isStart(XEvent event, XLogInfo infoLifeCycle) {
 		XEventClass nextFrontLifeCycle = infoLifeCycle.getEventClasses().getClassOf(event);
-		return nextFrontLifeCycle.getId().equals("start");
+		return nextFrontLifeCycle.getId().equalsIgnoreCase("start");
 	}
-	
+
 	public static boolean isComplete(XEvent event, XLogInfo infoLifeCycle) {
 		XEventClass nextFrontLifeCycle = infoLifeCycle.getEventClasses().getClassOf(event);
-		return nextFrontLifeCycle.getId().equals("complete") || nextFrontLifeCycle.getId().equals("");
+		return nextFrontLifeCycle.getId().equalsIgnoreCase("complete") || nextFrontLifeCycle.getId().equalsIgnoreCase("");
 	}
 }

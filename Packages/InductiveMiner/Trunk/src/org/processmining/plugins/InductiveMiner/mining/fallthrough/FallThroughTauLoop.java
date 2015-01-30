@@ -1,6 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.model.XEvent;
+import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
+import org.deckfour.xes.model.impl.XAttributeMapImpl;
+import org.deckfour.xes.model.impl.XLogImpl;
+import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -20,12 +26,10 @@ public class FallThroughTauLoop implements FallThrough {
 		if (logInfo.getActivities().toSet().size() > 1) {
 
 			//try to find a tau loop
-			IMLog sublog = new IMLog();
-			long numberOfTimesTauTaken = 0;
+			XLog sublog = new XLogImpl(new XAttributeMapImpl());
 
 			for (IMTrace trace : log) {
-				numberOfTimesTauTaken += filterTrace(sublog, trace, log.getCardinalityOf(trace),
-						logInfo.getStartActivities());
+				filterTrace(log, sublog, trace, logInfo.getStartActivities());
 			}
 
 			if (sublog.size() > log.size()) {
@@ -35,7 +39,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.addNode(tree, loop);
 
 				{
-					Node body = Miner.mineNode(sublog, tree, minerState);
+					Node body = Miner.mineNode(new IMLog(sublog, minerState.parameters.getClassifier()), tree, minerState);
 					loop.addChild(body);
 				}
 
@@ -58,25 +62,21 @@ public class FallThroughTauLoop implements FallThrough {
 		return null;
 	}
 
-	public static long filterTrace(IMLog sublog, IMTrace trace, long cardinality, MultiSet<XEventClass> startActivities) {
+	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities) {
 		boolean first = true;
-		long numberOfTimesTauTaken = 0;
-		IMTrace partialTrace = new IMTrace();
-		for (XEventClass event : trace) {
+		XTrace partialTrace = new XTraceImpl(new XAttributeMapImpl());
+		for (XEvent event : trace) {
 
-			if (!first && startActivities.contains(event)) {
+			if (!first && startActivities.contains(log.classify(event))) {
 				//we discovered a transition body -> body
-				sublog.add(partialTrace, cardinality);
-				partialTrace = new IMTrace();
+				sublog.add(partialTrace);
+				partialTrace = new XTraceImpl(new XAttributeMapImpl());
 				first = true;
-
-				numberOfTimesTauTaken += cardinality;
 			}
 
 			partialTrace.add(event);
 			first = false;
 		}
-		sublog.add(partialTrace, cardinality);
-		return numberOfTimesTauTaken;
+		sublog.add(partialTrace);
 	}
 }

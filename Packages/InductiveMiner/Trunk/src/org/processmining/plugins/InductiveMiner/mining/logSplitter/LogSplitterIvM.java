@@ -1,24 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 
-import gnu.trove.map.hash.THashMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.MultiSet;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
-import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
-import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
-
-public class LogSplitterIvM implements LogSplitter {
-
+public class LogSplitterIvM extends LogSplitterIMi implements LogSplitter {
+/*
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		List<IMLog> result = new ArrayList<IMLog>();
 		MultiSet<XEventClass> noise = new MultiSet<XEventClass>();
@@ -124,5 +108,5 @@ public class LogSplitterIvM implements LogSplitter {
 		if (lastSigma != partition.iterator().next()) {
 			mapSigma2sublog.get(lastSigma).add(new IMTrace(), cardinality);
 		}
-	}
+	}*/
 }
