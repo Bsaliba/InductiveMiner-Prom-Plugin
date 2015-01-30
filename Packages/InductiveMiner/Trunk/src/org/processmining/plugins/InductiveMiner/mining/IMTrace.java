@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.util.BitSet;
 import java.util.Iterator;
 
+import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
@@ -62,5 +63,9 @@ public class IMTrace implements Iterable<XEvent> {
 			result.append(log.classify(e));
 		}
 		return result.toString();
+	}
+
+	public XAttributeMap getAttributes() {
+		return xTrace.getAttributes();
 	}
 }

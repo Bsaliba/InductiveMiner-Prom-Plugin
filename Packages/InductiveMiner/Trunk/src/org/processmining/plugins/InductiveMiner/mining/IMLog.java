@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XAttributeMap;
@@ -24,7 +25,10 @@ public class IMLog implements Iterable<IMTrace> {
 	private final XLog xLog;
 	private final BitSet outTraces;
 	private final BitSet[] outEvents;
-	private XLogInfo xLogInfo;
+	private final XLogInfo xLogInfo;
+	private final XLogInfo xLogInfoLifecycle;
+	
+	private final static XEventLifeTransClassifier lifecycleClassifier = new XEventLifeTransClassifier();
 
 	/**
 	 * Create an IMlog from an XLog.
@@ -39,6 +43,7 @@ public class IMLog implements Iterable<IMTrace> {
 			outEvents[i] = new BitSet();
 		}
 		xLogInfo = XLogInfoFactory.createLogInfo(xLog, classifier);
+		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifecycleClassifier);
 	}
 
 	/**
@@ -54,6 +59,7 @@ public class IMLog implements Iterable<IMTrace> {
 			outEvents[i] = (BitSet) log.outEvents[i].clone();
 		}
 		xLogInfo = log.xLogInfo;
+		xLogInfoLifecycle = log.xLogInfoLifecycle;
 	}
 
 	/**
@@ -61,8 +67,16 @@ public class IMLog implements Iterable<IMTrace> {
 	 * 
 	 * @return
 	 */
-	public XEventClass classify(XEvent e) {
-		return xLogInfo.getEventClasses().getClassOf(e);
+	public XEventClass classify(XEvent event) {
+		return xLogInfo.getEventClasses().getClassOf(event);
+	}
+	
+	public boolean isStart(XEvent event) {
+		return lifecycleClassifier.getClassIdentity(event).equals("start");
+	}
+	
+	public boolean isComplete(XEvent event) {
+		return !isStart(event);
 	}
 
 	/**
