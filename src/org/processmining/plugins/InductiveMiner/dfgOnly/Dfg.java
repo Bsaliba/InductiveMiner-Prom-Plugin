@@ -29,13 +29,11 @@ public class Dfg {
 		uncertainEndActivities = new MultiSet<>();
 	}
 
-	public Dfg(final Graph<XEventClass> directlyFollowsGraph,
-			final Graph<XEventClass> eventuallyFollowsGraph,
-			final Graph<XEventClass> parallelGraph,
-			final Graph<XEventClass> uncertainDirectlyFollowsGraph,
-			final Graph<XEventClass> uncertainEventuallyFollowsGraph,
-			final MultiSet<XEventClass> startActivities, final MultiSet<XEventClass> endActivities,
-			final MultiSet<XEventClass> uncertainStartActivities, final MultiSet<XEventClass> uncertainEndActivities) {
+	public Dfg(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> eventuallyFollowsGraph,
+			final Graph<XEventClass> parallelGraph, final Graph<XEventClass> uncertainDirectlyFollowsGraph,
+			final Graph<XEventClass> uncertainEventuallyFollowsGraph, final MultiSet<XEventClass> startActivities,
+			final MultiSet<XEventClass> endActivities, final MultiSet<XEventClass> uncertainStartActivities,
+			final MultiSet<XEventClass> uncertainEndActivities) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
 		this.parallelGraph = parallelGraph;
@@ -123,12 +121,38 @@ public class Dfg {
 		addActivity(target);
 		uncertainEventuallyFollowsGraph.addEdge(source, target, cardinality);
 	}
-	
-	public void addStartActivity(XEventClass activity, long cardinality)  {
+
+	public void addStartActivity(XEventClass activity, long cardinality) {
+		addActivity(activity);
 		startActivities.add(activity, cardinality);
 	}
-	
-	public void addEndActivity(XEventClass activity, long cardinality)  {
+
+	public void addEndActivity(XEventClass activity, long cardinality) {
+		addActivity(activity);
 		endActivities.add(activity, cardinality);
+	}
+
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (Integer edgeIndex : directlyFollowsGraph.getEdges()) {
+			result.append(directlyFollowsGraph.getEdgeSource(edgeIndex));
+			result.append("->");
+			result.append(directlyFollowsGraph.getEdgeTargetIndex(edgeIndex));
+			result.append(", ");
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Adds a directly-follows graph edge (in each direction) for each parallel
+	 * edge.
+	 */
+	public void collapseParallelIntoDirectly() {
+		for (Integer edgeIndex : parallelGraph.getEdges()) {
+			directlyFollowsGraph.addEdge(parallelGraph.getEdgeSource(edgeIndex),
+					parallelGraph.getEdgeTarget(edgeIndex), parallelGraph.getEdgeWeight(edgeIndex));
+			directlyFollowsGraph.addEdge(parallelGraph.getEdgeTarget(edgeIndex),
+					parallelGraph.getEdgeSource(edgeIndex), parallelGraph.getEdgeWeight(edgeIndex));
+		}
 	}
 }

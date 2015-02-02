@@ -72,7 +72,7 @@ public class IMLog implements Iterable<IMTrace> {
 	}
 	
 	public boolean isStart(XEvent event) {
-		return lifecycleClassifier.getClassIdentity(event).equals("start");
+		return lifecycleClassifier.getClassIdentity(event).equalsIgnoreCase("start");
 	}
 	
 	public boolean isComplete(XEvent event) {
