@@ -57,6 +57,57 @@ public class IMTrace implements Iterable<XEvent> {
 		};
 	}
 
+	/**
+	 * Returns a sublist. This is O(n) in the number of events in the trace.
+	 * 
+	 * @param from
+	 *            index at which the sub list starts. Inclusive.
+	 * @param to
+	 *            index at which the sub list ends. Exclusive.
+	 * @return
+	 */
+	public Iterable<XEvent> subList(final int from, final int to) {
+		return new Iterable<XEvent>() {
+
+			public Iterator<XEvent> iterator() {
+				Iterator<XEvent> it = new Iterator<XEvent>() {
+
+					int now = -1;
+					int next = outEvents.nextClearBit(0) < xTrace.size() ? outEvents.nextClearBit(0) : -1;
+					int counter = 0;
+
+					public boolean hasNext() {
+						return next != -1 && next < xTrace.size() && counter < to;
+					}
+
+					public void remove() {
+						outEvents.set(now);
+					}
+
+					public XEvent next() {
+						now = next;
+						next = outEvents.nextClearBit(now + 1);
+						counter++;
+						return xTrace.get(now);
+					}
+				};
+				for (int i = 0; i < from; i++) {
+					it.next();
+				}
+				return it;
+			}
+		};
+	}
+
+	@Deprecated
+	public XEvent get(int index) {
+		Iterator<XEvent> it = iterator();
+		for (int i = 0; i < index; i++) {
+			it.next();
+		}
+		return it.next();
+	}
+
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		for (XEvent e : this) {

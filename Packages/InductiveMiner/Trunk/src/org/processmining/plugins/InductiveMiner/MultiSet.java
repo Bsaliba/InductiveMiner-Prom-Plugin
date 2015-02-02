@@ -60,7 +60,7 @@ public class MultiSet<X> implements Iterable<X> {
 		return true;
 	}
 	
-	public boolean remove(X element, Long cardinality) {
+	public boolean remove(X element, long cardinality) {
 		assert(cardinality >= 0);
 		
 		Long oldCardinality = getCardinalityOf(element);
