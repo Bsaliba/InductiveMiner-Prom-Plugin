@@ -7,16 +7,27 @@ import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
+@Deprecated
 public class IMTrace implements Iterable<XEvent> {
+	
+	public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace wrap() {
+		return (org.processmining.plugins.InductiveMiner.mining.logs.IMTrace) this;
+	}
 
-	private final XTrace xTrace;
+	private final int XTraceIndex;
 	private final BitSet outEvents;
 	private final IMLog log;
 
-	public IMTrace(XTrace xTrace, BitSet outEvents, IMLog log) {
-		this.xTrace = xTrace;
+	public IMTrace(int XTraceIndex, BitSet outEvents, IMLog log) {
+		assert (XTraceIndex >= 0);
+
+		this.XTraceIndex = XTraceIndex;
 		this.outEvents = outEvents;
 		this.log = log;
+	}
+
+	private XTrace getXTrace() {
+		return log.getTraceWithIndex(XTraceIndex);
 	}
 
 	/**
@@ -25,36 +36,18 @@ public class IMTrace implements Iterable<XEvent> {
 	 */
 	public boolean isEmpty() {
 		int next = outEvents.nextClearBit(0);
-		return next == -1 || next >= xTrace.size();
+		return next == -1 || next >= getXTrace().size();
 	}
 
 	/**
 	 * @return The number of events in the trace.
 	 */
 	public int size() {
-		return xTrace.size() - outEvents.cardinality();
+		return getXTrace().size() - outEvents.cardinality();
 	}
 
-	public Iterator<XEvent> iterator() {
-		return new Iterator<XEvent>() {
-
-			int now = -1;
-			int next = outEvents.nextClearBit(0) < xTrace.size() ? outEvents.nextClearBit(0) : -1;
-
-			public boolean hasNext() {
-				return next != -1 && next < xTrace.size();
-			}
-
-			public void remove() {
-				outEvents.set(now);
-			}
-
-			public XEvent next() {
-				now = next;
-				next = outEvents.nextClearBit(now + 1);
-				return xTrace.get(now);
-			}
-		};
+	public IMEventIterator iterator() {
+		return new IMEventIterator(0, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -67,36 +60,7 @@ public class IMTrace implements Iterable<XEvent> {
 	 * @return
 	 */
 	public Iterable<XEvent> subList(final int from, final int to) {
-		return new Iterable<XEvent>() {
-
-			public Iterator<XEvent> iterator() {
-				Iterator<XEvent> it = new Iterator<XEvent>() {
-
-					int now = -1;
-					int next = outEvents.nextClearBit(0) < xTrace.size() ? outEvents.nextClearBit(0) : -1;
-					int counter = 0;
-
-					public boolean hasNext() {
-						return next != -1 && next < xTrace.size() && counter < to;
-					}
-
-					public void remove() {
-						outEvents.set(now);
-					}
-
-					public XEvent next() {
-						now = next;
-						next = outEvents.nextClearBit(now + 1);
-						counter++;
-						return xTrace.get(now);
-					}
-				};
-				for (int i = 0; i < from; i++) {
-					it.next();
-				}
-				return it;
-			}
-		};
+		return new IMEventIterable(from, to);
 	}
 
 	@Deprecated
@@ -117,6 +81,79 @@ public class IMTrace implements Iterable<XEvent> {
 	}
 
 	public XAttributeMap getAttributes() {
-		return xTrace.getAttributes();
+		return getXTrace().getAttributes();
+	}
+
+	public class IMEventIterable implements Iterable<XEvent> {
+		int from;
+		int to;
+
+		public IMEventIterable(int from, int to) {
+			this.from = from;
+			this.to = to;
+		}
+
+		public IMEventIterator iterator() {
+			return new IMEventIterator(from, to);
+		}
+	}
+
+	public class IMEventIterator implements Iterator<XEvent> {
+		int to;
+		int now;
+		int next;
+		int counter;
+
+		public IMEventIterator(int from, int to) {
+			now = -1;
+			this.to = Math.min(to, getXTrace().size());
+			next = outEvents.nextClearBit(0) < this.to ? outEvents.nextClearBit(0) : -1;
+			counter = 0;
+
+			//walk to from
+			for (int i = 0; i < from; i++) {
+				next();
+			}
+		}
+
+		public boolean hasNext() {
+			return next != -1 && next < getXTrace().size() && counter < to;
+		}
+
+		/**
+		 * Remove the current XEvent (= last given by next).
+		 */
+		public void remove() {
+			outEvents.set(now);
+		}
+
+		public XEvent next() {
+			now = next;
+			next = outEvents.nextClearBit(next + 1);
+			counter++;
+			return getXTrace().get(now);
+		}
+
+		/**
+		 * Split the trace such that the part before the current XEvent moves to
+		 * a new trace. This iterator will not be altered. The newly trace will
+		 * not be encountered by any trace iterator that was created before
+		 * calling split().
+		 * 
+		 * @return the newly created trace
+		 */
+		public IMTrace split() {
+			//copy this trace completely
+			IMTrace newTrace = log.copyTrace(XTraceIndex, outEvents);
+
+			//in the new trace, remove all events from now
+			newTrace.outEvents.set(now, getXTrace().size());
+
+			//in this trace, remove all events before now
+			outEvents.set(0, now);
+
+			return newTrace;
+		}
+
 	}
 }

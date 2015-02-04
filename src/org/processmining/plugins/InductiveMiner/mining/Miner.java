@@ -9,6 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -167,8 +168,8 @@ public class Miner {
 		return n;
 	}
 
-	public static LogSplitResult splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		LogSplitResult result = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
+	public static LogSplitResult splitLog(org.processmining.plugins.InductiveMiner.mining.IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+		LogSplitResult result = minerState.parameters.getLogSplitter().split(log.wrap(), logInfo, cut, minerState);
 
 		//merge the discarded events of this log splitting into the global discarded events list
 		minerState.discardedEvents.addAll(result.discardedEvents);

@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
 import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolMiner;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -20,6 +19,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class Exhaustive {
 

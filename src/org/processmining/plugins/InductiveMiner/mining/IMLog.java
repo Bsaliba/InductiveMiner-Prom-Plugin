@@ -1,7 +1,11 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
+import gnu.trove.list.array.TIntArrayList;
+
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
@@ -16,8 +20,14 @@ import org.deckfour.xes.model.impl.XAttributeMapImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 
-public class IMLog implements Iterable<IMTrace> {
 
+@Deprecated
+public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace> {
+
+	public org.processmining.plugins.InductiveMiner.mining.logs.IMLog wrap() {
+		return (org.processmining.plugins.InductiveMiner.mining.logs.IMLog) this;
+	}
+	
 	/*
 	 * Memory-lightweight implementation of a filtering system.
 	 */
@@ -25,6 +35,10 @@ public class IMLog implements Iterable<IMTrace> {
 	private final XLog xLog;
 	private final BitSet outTraces;
 	private final BitSet[] outEvents;
+	
+	private final TIntArrayList addedTraces;
+	private final List<BitSet> addedTracesOutEvents;
+	
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
 	
@@ -42,6 +56,10 @@ public class IMLog implements Iterable<IMTrace> {
 		for (int i = 0; i < xLog.size(); i++) {
 			outEvents[i] = new BitSet();
 		}
+		
+		addedTraces = new TIntArrayList();
+		addedTracesOutEvents = new ArrayList<>();
+		
 		xLogInfo = XLogInfoFactory.createLogInfo(xLog, classifier);
 		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifecycleClassifier);
 	}
@@ -58,6 +76,13 @@ public class IMLog implements Iterable<IMTrace> {
 		for (int i = 0; i < xLog.size(); i++) {
 			outEvents[i] = (BitSet) log.outEvents[i].clone();
 		}
+		
+		addedTraces = new TIntArrayList(log.addedTraces);
+		addedTracesOutEvents = new ArrayList<>(addedTraces.size());
+		for (int i = 0; i < addedTraces.size() ; i++) {
+			addedTracesOutEvents.add((BitSet) log.addedTracesOutEvents.get(i).clone());
+		}
+		
 		xLogInfo = log.xLogInfo;
 		xLogInfoLifecycle = log.xLogInfoLifecycle;
 	}
@@ -78,6 +103,10 @@ public class IMLog implements Iterable<IMTrace> {
 	public boolean isComplete(XEvent event) {
 		return !isStart(event);
 	}
+	
+	public XTrace getTraceWithIndex(int traceIndex) {
+		return xLog.get(traceIndex);
+	}
 
 	/**
 	 * Return the number of traces in the log
@@ -85,39 +114,93 @@ public class IMLog implements Iterable<IMTrace> {
 	 * @return
 	 */
 	public int size() {
-		return xLog.size() - outTraces.cardinality();
+		return (xLog.size() - outTraces.cardinality()) + addedTraces.size();
+	}
+	
+	/**
+	 * Copy a trace and return the copy.
+	 * @param index
+	 * @return
+	 */
+	public IMTrace copyTrace(int index, BitSet traceOutEvents) {
+		assert(index >= 0);
+		
+		addedTraces.add(index);
+		BitSet newOutEvents = (BitSet) traceOutEvents.clone();
+		addedTracesOutEvents.add(newOutEvents);
+		return new IMTrace(index, newOutEvents, this);
 	}
 
-	public Iterator<IMTrace> iterator() {
+	public Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace> iterator() {
 		final IMLog t = this;
-		return new Iterator<IMTrace>() {
+		return new Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace>() {
 
-			int now = -1;
-			int next = outTraces.nextClearBit(0) < xLog.size() ? outTraces.nextClearBit(0) : -1;
+			int next = init();
+			int now = next - 1;
+			
+			private int init() {
+				if (addedTraces.isEmpty()) {
+					//start with normal traces
+					return outTraces.nextClearBit(0) < xLog.size() ? outTraces.nextClearBit(0) : xLog.size();
+				} else {
+					//start with added traces
+					return -addedTraces.size();
+				}
+			}
 
 			public boolean hasNext() {
-				return next != -1 && next < xLog.size();
+				return next < xLog.size();
 			}
 
 			public void remove() {
-				outTraces.set(now);
+				if (now >= 0) {
+					//we are in the normal traces
+					outTraces.set(now);
+				} else {
+					//we are in the added traces
+					int x = -now - 1;
+					addedTraces.removeAt(x);
+					addedTracesOutEvents.remove(x);
+				}
 			}
 
-			public IMTrace next() {
+			public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace next() {
 				now = next;
-				next = outTraces.nextClearBit(now + 1);
-				return new IMTrace(xLog.get(now), outEvents[now], t);
+				if (next < -1) {
+					//we are in the added traces
+					next = next + 1;
+				} else {
+					//we are in the normal traces
+					next = outTraces.nextClearBit(next + 1);
+				}
+				
+				if (now < 0) {
+					//we are in the added traces
+					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
+				} else {
+					//we are in the normal traces
+					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace(now, outEvents[now], t);
+				}
 			}
 		};
+	}
+	
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (IMTrace trace : this) {
+			result.append(trace.toString());
+			result.append("\n");
+		}
+		return result.toString();
 	}
 
 	public XLog toXLog() {
 		XAttributeMap map = new XAttributeMapImpl();
 		XLog result = new XLogImpl(map);
-		int emptytraces = 0;
+//		int emptytraces = 0;
 		for (IMTrace trace : this) {
 			if (trace.isEmpty()) {
-				emptytraces += 1;
+//				emptytraces += 1;
 			} else {
 				XTrace xTrace = new XTraceImpl(map);
 				for (XEvent e : trace) {

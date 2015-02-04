@@ -2,10 +2,10 @@ package org.processmining.plugins.InductiveMiner.plugins;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.processtree.ProcessTree;
 
 public class IMProcessTree {
@@ -24,7 +24,7 @@ public class IMProcessTree {
 		return mineProcessTree(log, parameters);
 	}
 	
-	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
-		return Miner.mine(log, parameters);
+	public static ProcessTree mineProcessTree(org.processmining.plugins.InductiveMiner.mining.IMLog log, MiningParameters parameters) {
+		return Miner.mine(log.wrap(), parameters);
 	}
 }

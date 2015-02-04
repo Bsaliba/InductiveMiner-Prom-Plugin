@@ -16,12 +16,12 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinde
 import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.StronglyConnectedComponents;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 

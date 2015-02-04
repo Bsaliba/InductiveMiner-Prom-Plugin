@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
