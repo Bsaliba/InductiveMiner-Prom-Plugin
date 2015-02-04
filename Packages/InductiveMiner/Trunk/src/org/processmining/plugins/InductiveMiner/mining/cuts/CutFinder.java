@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts;
 
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public interface CutFinder {
 

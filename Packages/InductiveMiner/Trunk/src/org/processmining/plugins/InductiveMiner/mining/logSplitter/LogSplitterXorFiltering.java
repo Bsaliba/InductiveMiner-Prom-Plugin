@@ -13,11 +13,11 @@ import java.util.Set;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class LogSplitterXorFiltering implements LogSplitter {
 

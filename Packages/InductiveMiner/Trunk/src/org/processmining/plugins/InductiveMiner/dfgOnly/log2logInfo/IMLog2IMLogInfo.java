@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo;
 
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 
 public interface IMLog2IMLogInfo {
@@ -11,6 +10,6 @@ public interface IMLog2IMLogInfo {
 	 * @param log
 	 * @return the IMLogInfo
 	 */
-	public IMLogInfo createLogInfo(IMLog log);
+	public IMLogInfo createLogInfo(org.processmining.plugins.InductiveMiner.mining.IMLog log);
 
 }

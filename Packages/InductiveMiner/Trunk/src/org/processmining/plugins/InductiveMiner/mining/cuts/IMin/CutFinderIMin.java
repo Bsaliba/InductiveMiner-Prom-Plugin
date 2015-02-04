@@ -12,7 +12,6 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinde
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -22,6 +21,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveL
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveParallel;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveXor;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMin implements CutFinder, DfgCutFinder {
 

@@ -11,8 +11,8 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class Log2DfgLifeCycle {
 	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
@@ -125,12 +125,10 @@ public class Log2DfgLifeCycle {
 				boolean activityOccurrenceCompleted = false;
 				MultiSet<XEventClass> activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 				MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
-				System.out.println("trace");
 				for (XEvent event : trace) {
 					XEventClass activity = log.classify(event);
 
 					if (log.isStart(event)) {
-						System.out.println(" start " + activity);
 						openActivityOccurrences.add(activity);
 						if (!activityOccurrenceCompleted) {
 							//no activity occurrence has been completed yet. Add to start events.
@@ -138,7 +136,6 @@ public class Log2DfgLifeCycle {
 						}
 						activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 					} else if (log.isComplete(event)) {
-						System.out.println(" complete " + activity);
 						//complete event
 						if (openActivityOccurrences.contains(activity)) {
 							//this activity occurrence was open; close it

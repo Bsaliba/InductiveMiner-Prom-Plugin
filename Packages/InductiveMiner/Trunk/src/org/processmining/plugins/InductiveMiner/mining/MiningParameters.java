@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -21,7 +20,6 @@ public abstract class MiningParameters {
 	private XEventClassifier classifier;
 	private float noiseThreshold;
 	private float incompleteThreshold;
-	private File fallThroughSaveLogFolderName;
 
 	private boolean debug;
 	private boolean reduce;
@@ -39,8 +37,6 @@ public abstract class MiningParameters {
 
 		classifier = getDefaultClassifier();
 		debug = false;
-
-		fallThroughSaveLogFolderName = new File("D:\\output");
 
 		setUseMultithreading(true);
 	}
@@ -84,14 +80,6 @@ public abstract class MiningParameters {
 
 	public int hashCode() {
 		return classifier.hashCode();
-	}
-
-	public File getFallThroughSaveLogFolderName() {
-		return fallThroughSaveLogFolderName;
-	}
-
-	public void setFallThroughSaveLogFolderName(File outputFlowerLogFileName) {
-		this.fallThroughSaveLogFolderName = outputFlowerLogFileName;
 	}
 
 	public float getIncompleteThreshold() {
