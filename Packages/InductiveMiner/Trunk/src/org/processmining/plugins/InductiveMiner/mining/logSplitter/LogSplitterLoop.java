@@ -14,7 +14,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMTrace.IMEventIterator;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class LogSplitterLoop implements LogSplitter {
 
@@ -31,8 +31,8 @@ public class LogSplitterLoop implements LogSplitter {
 		boolean firstSigma = true;
 		for (Set<XEventClass> sigma : partition) {
 			IMLog2 sublog = new IMLog2(log);
-			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
-				IMTrace trace = itTrace.next();
+			for (Iterator<IMTrace2> itTrace = sublog.iterator(); itTrace.hasNext();) {
+				IMTrace2 trace = itTrace.next();
 				boolean lastIn = firstSigma;
 				boolean anyIn = false;
 				for (IMEventIterator itEvent = trace.iterator(); itEvent.hasNext();) {
@@ -40,7 +40,7 @@ public class LogSplitterLoop implements LogSplitter {
 					if (sigma.contains(log.classify(event))) {
 						if (!lastIn && (firstSigma || anyIn)) {
 							//this is the first activity of a new subtrace, so split
-							IMTrace newTrace = itEvent.split().wrap();
+							IMTrace2 newTrace = itEvent.split().wrap();
 							newTrace.toString();
 						}
 						lastIn = true;

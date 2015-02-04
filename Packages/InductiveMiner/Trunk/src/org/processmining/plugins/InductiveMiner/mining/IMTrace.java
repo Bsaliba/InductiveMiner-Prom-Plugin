@@ -10,8 +10,8 @@ import org.deckfour.xes.model.XTrace;
 @Deprecated
 public class IMTrace implements Iterable<XEvent> {
 	
-	public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace wrap() {
-		return (org.processmining.plugins.InductiveMiner.mining.logs.IMTrace) this;
+	public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2 wrap() {
+		return (org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2) this;
 	}
 
 	private final int XTraceIndex;

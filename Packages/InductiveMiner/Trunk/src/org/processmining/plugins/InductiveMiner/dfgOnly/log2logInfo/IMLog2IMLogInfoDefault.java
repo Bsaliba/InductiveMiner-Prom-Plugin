@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
@@ -34,7 +34,7 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		Map<XEventClass, Integer> eventSeenAt;
 		List<XEventClass> readTrace;
 
-		for (IMTrace trace : log) {
+		for (IMTrace2 trace : log) {
 
 			toEventClass = null;
 			fromEventClass = null;

@@ -11,7 +11,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
@@ -40,7 +40,7 @@ public class UpToKSuccessor {
 		//walk trough the log
 		Map<XEventClass, Integer> eventSeenAt;
 
-		for (IMTrace trace : log) {
+		for (IMTrace2 trace : log) {
 
 			int pos = 0;
 			eventSeenAt = new THashMap<XEventClass, Integer>();

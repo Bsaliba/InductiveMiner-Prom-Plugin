@@ -6,7 +6,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -59,8 +59,8 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 	
 	public static IMLog2 removeEpsilonTraces(IMLog2 log) {
 		IMLog2 sublog = new IMLog2(log);
-		for (Iterator<IMTrace> it = sublog.iterator();it.hasNext();) {
-			IMTrace t = it.next();
+		for (Iterator<IMTrace2> it = sublog.iterator();it.hasNext();) {
+			IMTrace2 t = it.next();
 			if (t.isEmpty()) {
 				it.remove();
 			}
