@@ -22,7 +22,7 @@ import org.deckfour.xes.model.impl.XTraceImpl;
 
 
 @Deprecated
-public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace> {
+public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2> {
 
 	public org.processmining.plugins.InductiveMiner.mining.logs.IMLog2 wrap() {
 		return (org.processmining.plugins.InductiveMiner.mining.logs.IMLog2) this;
@@ -131,9 +131,9 @@ public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.
 		return new IMTrace(index, newOutEvents, this);
 	}
 
-	public Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace> iterator() {
+	public Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2> iterator() {
 		final IMLog t = this;
-		return new Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace>() {
+		return new Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2>() {
 
 			int next = init();
 			int now = next - 1;
@@ -164,7 +164,7 @@ public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.
 				}
 			}
 
-			public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace next() {
+			public org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2 next() {
 				now = next;
 				if (next < -1) {
 					//we are in the added traces
@@ -176,10 +176,10 @@ public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.
 				
 				if (now < 0) {
 					//we are in the added traces
-					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
+					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
 				} else {
 					//we are in the normal traces
-					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace(now, outEvents[now], t);
+					return new org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2(now, outEvents[now], t);
 				}
 			}
 		};

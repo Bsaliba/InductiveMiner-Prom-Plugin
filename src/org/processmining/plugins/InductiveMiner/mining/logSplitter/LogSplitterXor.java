@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 /**
  * Splits the log by putting each event into its sigma. Empty traces are
@@ -32,8 +32,8 @@ public class LogSplitterXor implements LogSplitter {
 		List<IMLog2> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog2 sublog = new IMLog2(log);
-			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
-				IMTrace trace = itTrace.next();
+			for (Iterator<IMTrace2> itTrace = sublog.iterator(); itTrace.hasNext();) {
+				IMTrace2 trace = itTrace.next();
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {
 					XEventClass c = sublog.classify(it.next());
 					if (!sigma.contains(c)) {

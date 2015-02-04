@@ -12,7 +12,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class Log2DfgLifeCycle {
 	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
@@ -28,7 +28,7 @@ public class Log2DfgLifeCycle {
 
 		//read log
 		Dfg dfg = new Dfg();
-		for (IMTrace trace : log) {
+		for (IMTrace2 trace : log) {
 
 			//directly-follows relation
 			if (!trace.isEmpty()) {
@@ -164,7 +164,7 @@ public class Log2DfgLifeCycle {
 		return dfg;
 	}
 
-	private static boolean containsActivity(IMLog log, XEventClass eventClass, IMTrace trace, int back, int front) {
+	private static boolean containsActivity(IMLog log, XEventClass eventClass, IMTrace2 trace, int back, int front) {
 		for (XEvent e : trace.subList(back, front + 1)) {
 			if (log.classify(e).equals(eventClass)) {
 				return true;

@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class LogSplitterParallel implements LogSplitter {
 
@@ -25,7 +25,7 @@ public class LogSplitterParallel implements LogSplitter {
 		List<IMLog2> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog2 sublog = new IMLog2(log);
-			for (IMTrace trace : sublog) {
+			for (IMTrace2 trace : sublog) {
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {
 					XEventClass c = sublog.classify(it.next());
 					if (!sigma.contains(c)) {
