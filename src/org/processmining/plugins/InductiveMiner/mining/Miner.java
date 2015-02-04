@@ -9,7 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -24,7 +24,7 @@ public class Miner {
 	 * InductiveMiner.plugins folder
 	 */
 
-	public static ProcessTree mine(IMLog log, MiningParameters parameters) {
+	public static ProcessTree mine(IMLog2 log, MiningParameters parameters) {
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
 		MinerState minerState = new MinerState(parameters);
@@ -44,7 +44,7 @@ public class Miner {
 		return tree;
 	}
 
-	public static Node mineNode(IMLog log, ProcessTree tree, MinerState minerState) {
+	public static Node mineNode(IMLog2 log, ProcessTree tree, MinerState minerState) {
 
 		//construct basic information about log
 		IMLogInfo logInfo = minerState.parameters.getLog2LogInfo().createLogInfo(log);
@@ -76,17 +76,17 @@ public class Miner {
 
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
-				for (IMLog sublog : splitResult.sublogs) {
+				for (IMLog2 sublog : splitResult.sublogs) {
 					Node child = mineNode(sublog, tree, minerState);
 					newNode.addChild(child);
 				}
 			} else {
 				//loop needs special treatment:
 				//ProcessTree requires a ternary loop
-				Iterator<IMLog> it = splitResult.sublogs.iterator();
+				Iterator<IMLog2> it = splitResult.sublogs.iterator();
 
 				//mine body
-				IMLog firstSublog = it.next();
+				IMLog2 firstSublog = it.next();
 				{
 					Node firstChild = mineNode(firstSublog, tree, minerState);
 					newNode.addChild(firstChild);
@@ -102,7 +102,7 @@ public class Miner {
 					redoXor = newNode;
 				}
 				while (it.hasNext()) {
-					IMLog sublog = it.next();
+					IMLog2 sublog = it.next();
 					Node child = mineNode(sublog, tree, minerState);
 					redoXor.addChild(child);
 				}
@@ -141,7 +141,7 @@ public class Miner {
 		tree.addNode(node);
 	}
 
-	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public static Node findBaseCases(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		Node n = null;
 		Iterator<BaseCaseFinder> it = minerState.parameters.getBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
@@ -150,7 +150,7 @@ public class Miner {
 		return n;
 	}
 
-	public static Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+	public static Cut findCut(IMLog2 log, IMLogInfo logInfo, MinerState minerState) {
 		Cut c = null;
 		Iterator<CutFinder> it = minerState.parameters.getCutFinders().iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
@@ -159,7 +159,7 @@ public class Miner {
 		return c;
 	}
 
-	public static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public static Node findFallThrough(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		Node n = null;
 		Iterator<FallThrough> it = minerState.parameters.getFallThroughs().iterator();
 		while (n == null && it.hasNext()) {

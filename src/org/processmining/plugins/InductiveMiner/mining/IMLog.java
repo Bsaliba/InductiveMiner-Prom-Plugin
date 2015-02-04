@@ -24,8 +24,8 @@ import org.deckfour.xes.model.impl.XTraceImpl;
 @Deprecated
 public class IMLog implements Iterable<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace> {
 
-	public org.processmining.plugins.InductiveMiner.mining.logs.IMLog wrap() {
-		return (org.processmining.plugins.InductiveMiner.mining.logs.IMLog) this;
+	public org.processmining.plugins.InductiveMiner.mining.logs.IMLog2 wrap() {
+		return (org.processmining.plugins.InductiveMiner.mining.logs.IMLog2) this;
 	}
 	
 	/*
