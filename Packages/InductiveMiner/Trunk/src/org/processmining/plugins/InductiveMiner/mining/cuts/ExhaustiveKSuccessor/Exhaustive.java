@@ -19,18 +19,18 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class Exhaustive {
 
 	public class Result {
 		int distance;
 		public Cut cut;
-		public Collection<IMLog> sublogs;
+		public Collection<IMLog2> sublogs;
 	}
 
 	private UpToKSuccessorMatrix kSuccessor;
-	private IMLog log;
+	private IMLog2 log;
 	private IMLogInfo logInfo;
 	private MinerState minerState;
 	private ThreadPoolMiner pool;
@@ -39,7 +39,7 @@ public class Exhaustive {
 	private final LogSplitter logSplitter;
 	private final IMLog2IMLogInfo log2dfg;
 
-	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
+	public Exhaustive(IMLog2 log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.logInfo = logInfo;
@@ -142,9 +142,9 @@ public class Exhaustive {
 		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
-		Iterator<IMLog> it = result.sublogs.iterator();
-		IMLog log0 = it.next();
-		IMLog log1 = it.next();
+		Iterator<IMLog2> it = result.sublogs.iterator();
+		IMLog2 log0 = it.next();
+		IMLog2 log1 = it.next();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 
@@ -167,9 +167,9 @@ public class Exhaustive {
 		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
-		Iterator<IMLog> it = result.sublogs.iterator();
-		IMLog log0 = it.next();
-		IMLog log1 = it.next();
+		Iterator<IMLog2> it = result.sublogs.iterator();
+		IMLog2 log0 = it.next();
+		IMLog2 log1 = it.next();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 

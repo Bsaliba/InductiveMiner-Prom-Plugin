@@ -9,7 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class CutFinderIMi implements CutFinder {
 
@@ -17,7 +17,7 @@ public class CutFinderIMi implements CutFinder {
 
 	//	private static CutFinder cutFinderIMParallel = new CutFinderIMParallel();
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+	public Cut findCut(IMLog2 log, IMLogInfo logInfo, MinerState minerState) {
 		//filter logInfo
 		IMLogInfo logInfoFiltered = filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 

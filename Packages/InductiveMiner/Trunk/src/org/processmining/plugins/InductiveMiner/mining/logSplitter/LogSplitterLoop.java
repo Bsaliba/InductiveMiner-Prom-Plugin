@@ -13,24 +13,24 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.IMTrace.IMEventIterator;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class LogSplitterLoop implements LogSplitter {
 
-	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		return new LogSplitResult(split(log, cut.getPartition(), minerState), new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
+	public static List<IMLog2> split(IMLog2 log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
 //		System.out.println("==before==");
 //		System.out.println(log);
 //		System.out.println("--");
-		List<IMLog> result = new ArrayList<>();
+		List<IMLog2> result = new ArrayList<>();
 		boolean firstSigma = true;
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog2 sublog = new IMLog2(log);
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
 				IMTrace trace = itTrace.next();
 				boolean lastIn = firstSigma;

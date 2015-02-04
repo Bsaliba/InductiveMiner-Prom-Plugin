@@ -12,7 +12,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 /**
@@ -24,14 +24,14 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
  */
 public class LogSplitterXor implements LogSplitter {
 
-	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		return new LogSplitResult(split(log, cut.getPartition()), new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition) {
-		List<IMLog> result = new ArrayList<>();
+	public static List<IMLog2> split(IMLog2 log, Collection<Set<XEventClass>> partition) {
+		List<IMLog2> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog2 sublog = new IMLog2(log);
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
 				IMTrace trace = itTrace.next();
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {

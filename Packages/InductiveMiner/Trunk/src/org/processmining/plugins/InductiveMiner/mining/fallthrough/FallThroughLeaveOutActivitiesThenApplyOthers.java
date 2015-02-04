@@ -16,7 +16,7 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -36,7 +36,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		
 	}
 	
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		
 		if (logInfo.getActivities().toSet().size() < 3) {
 			return null;
@@ -65,8 +65,8 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 				Miner.debug(" fall through: leave out activity " + leaveOutActivity, minerState);
 				
 				LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
-				IMLog log1 = logSplitResult.sublogs.get(0);
-				IMLog log2 = logSplitResult.sublogs.get(1);
+				IMLog2 log1 = logSplitResult.sublogs.get(0);
+				IMLog2 log2 = logSplitResult.sublogs.get(1);
 				
 				Block newNode = new AbstractBlock.And("");
 				Miner.addNode(tree, newNode);
