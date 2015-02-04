@@ -12,5 +12,9 @@ public class IMLog extends org.processmining.plugins.InductiveMiner.mining.IMLog
 	public IMLog(XLog log, XEventClassifier classifier) {
 		super(log, classifier);
 	}
-	
+
+	public void bla() {
+		
+	}
 }
+
