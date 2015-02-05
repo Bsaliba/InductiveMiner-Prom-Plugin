@@ -10,11 +10,11 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.IMTrace.IMEventIterator;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2.IMEventIterator;
 
 public class LogSplitterLoop implements LogSplitter {
 
@@ -40,7 +40,7 @@ public class LogSplitterLoop implements LogSplitter {
 					if (sigma.contains(log.classify(event))) {
 						if (!lastIn && (firstSigma || anyIn)) {
 							//this is the first activity of a new subtrace, so split
-							IMTrace2 newTrace = itEvent.split().wrap();
+							IMTrace2 newTrace = itEvent.split();
 							newTrace.toString();
 						}
 						lastIn = true;
