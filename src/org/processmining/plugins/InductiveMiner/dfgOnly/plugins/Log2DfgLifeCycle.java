@@ -10,8 +10,8 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
-import org.processmining.plugins.InductiveMiner.mining.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class Log2DfgLifeCycle {
@@ -21,10 +21,10 @@ public class Log2DfgLifeCycle {
 	public Dfg log2Dfg(PluginContext context, XLog log) {
 		context.getFutureResult(0).setLabel(
 				"Directly-follows graph of " + XConceptExtension.instance().extractName(log));
-		return log2Dfg(new IMLog(log, MiningParameters.getDefaultClassifier()));
+		return log2Dfg(new IMLog2(log, MiningParameters.getDefaultClassifier()));
 	}
 
-	public static Dfg log2Dfg(IMLog log) {
+	public static Dfg log2Dfg(IMLog2 log) {
 
 		//read log
 		Dfg dfg = new Dfg();
@@ -164,7 +164,7 @@ public class Log2DfgLifeCycle {
 		return dfg;
 	}
 
-	private static boolean containsActivity(IMLog log, XEventClass eventClass, IMTrace2 trace, int back, int front) {
+	private static boolean containsActivity(IMLog2 log, XEventClass eventClass, IMTrace2 trace, int back, int front) {
 		for (XEvent e : trace.subList(back, front + 1)) {
 			if (log.classify(e).equals(eventClass)) {
 				return true;
