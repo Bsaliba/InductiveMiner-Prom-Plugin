@@ -6,8 +6,8 @@ import org.deckfour.xes.model.XLog;
 @Deprecated
 public class IMLog {
 
-	public IMLog(XLog xLog, XEventClassifier classifier) throws Exception {
-		throw new Exception("This class has been deprecated and is removed.");
+	public IMLog(XLog xLog, XEventClassifier classifier) {
+		throw new RuntimeException("This class has been deprecated and is removed.");
 	}
 	
 }
