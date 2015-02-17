@@ -68,7 +68,9 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				String[] row = reader.readNext();
 				for (int a2 = 0; a2 < sActivities.length; a2++) {
 					long cardinality = Long.valueOf(row[a2]);
-					dfg.addDirectlyFollowsEdge(activities[a1], activities[a2], cardinality);
+					if (cardinality > 0) {
+						dfg.addDirectlyFollowsEdge(activities[a1], activities[a2], cardinality);
+					}
 				}
 			}
 		} catch (Exception e) {

@@ -1,13 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 
-import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -28,10 +27,16 @@ public class LogSplitterXorFiltering implements LogSplitter {
 	public static LogSplitResult split(IMLog2 log, Collection<Set<XEventClass>> partition) {
 
 		//map activities to sigmas
-		Map<XEventClass, Set<XEventClass>> mapActivity2sigma = new THashMap<XEventClass, Set<XEventClass>>();
-		for (Set<XEventClass> sigma : partition) {
-			for (XEventClass activity : sigma) {
-				mapActivity2sigma.put(activity, sigma);
+		TObjectIntHashMap<XEventClass> eventclass2sigmaIndex = new TObjectIntHashMap<>();
+		TIntObjectHashMap<Set<XEventClass>> sigmaIndex2sigma = new TIntObjectHashMap<>();
+		{
+			int p = 0;
+			for (Set<XEventClass> sigma : partition) {
+				sigmaIndex2sigma.put(p, sigma);
+				for (XEventClass activity : sigma) {
+					eventclass2sigmaIndex.put(activity, p);
+				}
+				p++;
 			}
 		}
 		
@@ -44,20 +49,16 @@ public class LogSplitterXorFiltering implements LogSplitter {
 				IMTrace2 trace = it.next();
 
 				//walk through the events and count how many go in each sigma
-				TObjectIntHashMap<Set<XEventClass>> eventCounter = new TObjectIntHashMap<Set<XEventClass>>();
-				for (Set<XEventClass> sigma2 : partition) {
-					eventCounter.put(sigma2, 0);
-				}
+				int[] sigmaEventCounters = new int[partition.size()];
 				int maxCounter = 0;
 				Set<XEventClass> maxSigma = null;
 				for (XEvent event : trace) {
-					Set<XEventClass> sigma2 = mapActivity2sigma.get(log.classify(event));
-					int newCounter = eventCounter.get(sigma2) + 1;
-					if (newCounter > maxCounter) {
-						maxCounter = newCounter;
-						maxSigma = sigma2;
+					int sigmaIndex = eventclass2sigmaIndex.get(log.classify(event));
+					sigmaEventCounters[sigmaIndex]++;
+					if (sigmaEventCounters[sigmaIndex] > maxCounter) {
+						maxCounter = sigmaEventCounters[sigmaIndex];
+						maxSigma = sigmaIndex2sigma.get(sigmaIndex);
 					}
-					eventCounter.put(sigma2, newCounter);
 				}
 
 				//determine whether this trace should go in this sublog
@@ -75,7 +76,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 					for (Iterator<XEvent> it2 = trace.iterator(); it2.hasNext();) {
 						XEventClass c = sublog.classify(it2.next());
 						if (!sigma.contains(c)) {
-							it.remove();
+							it2.remove();
 						} else {
 							noise.add(c);
 						}
@@ -84,7 +85,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 			}
 			result.add(sublog);
 		}
-		
+
 		return new LogSplitResult(result, noise);
 	}
 }
