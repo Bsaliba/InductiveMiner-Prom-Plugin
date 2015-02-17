@@ -24,20 +24,24 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 	private static final int BUFFER_SIZE = 8192 * 4;
 	private static final char SEPARATOR = ',';
 	private static final String CHARSET = Charset.defaultCharset().name();
-	
+
 	protected Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
 			throws Exception {
 
-		CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(input, CHARSET), BUFFER_SIZE), SEPARATOR,
-				CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, 0, false, false, true);
-		Dfg dfg = new Dfg();
-		
+		CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(input, CHARSET), BUFFER_SIZE),
+				SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, 0, false, false, true);
+
+		Dfg dfg;
 		try {
 			//add activities
 			String[] sActivities = reader.readNext();
 			XEventClass[] activities = new XEventClass[sActivities.length];
 			for (int a = 0; a < sActivities.length; a++) {
 				activities[a] = new XEventClass(sActivities[a], a);
+			}
+
+			dfg = new Dfg(sActivities.length);
+			for (int a = 0; a < sActivities.length; a++) {
 				dfg.addActivity(activities[a]);
 			}
 
@@ -68,8 +72,8 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				}
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Invalid directly-follows graph file",
-					"Invalid file", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Invalid directly-follows graph file", "Invalid file",
+					JOptionPane.ERROR_MESSAGE);
 			context.getFutureResult(0).cancel(false);
 			return null;
 		} finally {

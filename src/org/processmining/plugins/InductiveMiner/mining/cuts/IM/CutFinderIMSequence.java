@@ -15,6 +15,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.graphs.StronglyConnectedComponents;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -38,7 +39,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
 		//condense the strongly connected components
-		Graph<Set<XEventClass>> condensedGraph1 = new Graph<Set<XEventClass>>(Set.class);
+		Graph<Set<XEventClass>> condensedGraph1 = GraphFactory.create(Set.class, SCCs.size());
 		//add vertices (= components)
 		for (Set<XEventClass> SCC : SCCs) {
 			condensedGraph1.addVertex(SCC);
@@ -60,7 +61,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		//debug("nodes in condensed graph 1 " + condensedGraph1.vertexSet().toString());
 
 		//condense the pairwise unreachable nodes
-		Graph<Set<XEventClass>> xorGraph = new Graph<Set<XEventClass>>(Set.class);
+		Graph<Set<XEventClass>> xorGraph = GraphFactory.create(Set.class, condensedGraph1.getNumberOfVertices());
 		xorGraph.addVertices(condensedGraph1.getVertices());
 
 		CutFinderIMSequenceReachability<Set<XEventClass>> scr1 = new CutFinderIMSequenceReachability<>(condensedGraph1);
@@ -86,7 +87,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
-		Graph<Set<XEventClass>> condensedGraph2 = new Graph<Set<XEventClass>>(Set.class);
+		Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class,  xorCondensedNodes.size());
 		for (Set<Set<XEventClass>> node : xorCondensedNodes) {
 
 			//we need to flatten this s to get a new list of nodes

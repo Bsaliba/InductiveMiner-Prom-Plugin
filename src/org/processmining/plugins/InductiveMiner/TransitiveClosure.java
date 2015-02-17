@@ -6,6 +6,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 
 public class TransitiveClosure {
 	/*
@@ -55,7 +56,7 @@ public class TransitiveClosure {
 		}
 
 		//extract a graph from the distances
-		Graph<V> transitiveClosure = new Graph<>(clazz);
+		Graph<V> transitiveClosure = GraphFactory.create(clazz, countNodes);
 		transitiveClosure.addVertices(index2node.valueCollection());
 		for (int i = 0; i < countNodes; i++) {
 			for (int j = 0; j < countNodes; j++) {

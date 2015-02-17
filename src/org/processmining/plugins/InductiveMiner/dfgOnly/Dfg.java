@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.dfgOnly;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 
 public class Dfg {
 	private final Graph<XEventClass> directlyFollowsGraph;
@@ -17,11 +18,15 @@ public class Dfg {
 	private final MultiSet<XEventClass> uncertainEndActivities;
 
 	public Dfg() {
-		directlyFollowsGraph = new Graph<XEventClass>(XEventClass.class);
-		eventuallyFollowsGraph = new Graph<XEventClass>(XEventClass.class);
-		parallelGraph = new Graph<XEventClass>(XEventClass.class);
-		uncertainDirectlyFollowsGraph = new Graph<XEventClass>(XEventClass.class);
-		uncertainEventuallyFollowsGraph = new Graph<XEventClass>(XEventClass.class);
+		this(1);
+	}
+	
+	public Dfg(int initialSize) {
+		directlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
+		eventuallyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
+		parallelGraph = GraphFactory.create(XEventClass.class, initialSize);
+		uncertainDirectlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
+		uncertainEventuallyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 
 		startActivities = new MultiSet<>();
 		endActivities = new MultiSet<>();
