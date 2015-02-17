@@ -35,6 +35,8 @@ public class CutFinderIMSequenceReachability<V> {
 		if (!reachableTo.containsKey(from)) {
 			Set<V> reached = new THashSet<V>();
 			
+			reachableTo.put(from, reached);
+			
 			for (int edge : condensedGraph.getOutgoingEdgesOf(from)) {
 				V target = condensedGraph.getEdgeTarget(edge);
 				reached.add(target);
@@ -42,8 +44,6 @@ public class CutFinderIMSequenceReachability<V> {
 				//recurse
 				reached.addAll(findReachableTo(target));
 			}
-			
-			reachableTo.put(from, reached);
 		}
 		return reachableTo.get(from);
 	}
@@ -52,6 +52,8 @@ public class CutFinderIMSequenceReachability<V> {
 		if (!reachableFrom.containsKey(to)) {
 			Set<V> reached = new HashSet<V>();
 			
+			reachableFrom.put(to, reached);
+			
 			for (int edge : condensedGraph.getIncomingEdgesOf(to)) {
 				V target = condensedGraph.getEdgeSource(edge);
 				reached.add(target);
@@ -59,8 +61,6 @@ public class CutFinderIMSequenceReachability<V> {
 				//recurse
 				reached.addAll(findReachableFrom(target));
 			}
-			
-			reachableFrom.put(to, reached);
 		}
 		return reachableFrom.get(to);
 	}

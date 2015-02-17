@@ -5,6 +5,7 @@ import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,8 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	private final TIntArrayList sources;
 	private final TIntArrayList targets;
 	private final TLongArrayList weights;
+	
+	private final Class<?> clazz;
 
 	public GraphImplLinearEdge(Class<?> clazz) {
 		v2index = new TObjectIntHashMap<V>();
@@ -25,6 +28,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		sources = new TIntArrayList();
 		targets = new TIntArrayList();
 		weights = new TLongArrayList();
+		this.clazz = clazz;
 	}
 
 	public void addVertex(V x) {
@@ -48,15 +52,37 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public void addEdge(int source, int target, long weight) {
-		for (int e = 0; e < sources.size(); e++) {
-			if (sources.get(e) == source && targets.get(e) == target) {
-				weights.set(e, weights.get(e) + weight);
-				return;
+		
+		//idea: keep the sources sorted
+		int from = sources.binarySearch(source);
+		if (from >= 0) {
+			//the source is already present
+			for (int e = from; e < sources.size(); e++) {
+				if (sources.get(e) != source) {
+					break;
+				}
+				if (targets.get(e) == target) {
+					weights.set(e, weights.get(e) + weight);
+					return;
+				}
 			}
+			//binary search might end up in the middle; walk back as well
+			for (int e = from; e >= 0 ; e--) {
+				if (sources.get(e) != source) {
+					break;
+				}
+				if (targets.get(e) == target) {
+					weights.set(e, weights.get(e) + weight);
+					return;
+				}
+			}
+		} else {
+			from = -from - 1;
 		}
-		sources.add(source);
-		targets.add(target);
-		weights.add(weight);
+		
+		sources.insert(from, source);
+		targets.insert(from, target);
+		weights.insert(from, weight);
 	}
 
 	public void addEdge(V source, V target, long weight) {
@@ -69,7 +95,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 
 	public V[] getVertices() {
 		@SuppressWarnings("unchecked")
-		V[] result = (V[]) new Object[index2v.size()];
+		V[] result = (V[]) Array.newInstance(clazz, index2v.size());
 		return index2v.toArray(result);
 	}
 
@@ -87,7 +113,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 
 	public Iterable<Integer> getEdges() {
 		List<Integer> ints = new ArrayList<Integer>();
-		for (int i = 0; i < index2v.size(); i++) {
+		for (int i = 0; i < sources.size(); i++) {
 			ints.add(i);
 		}
 		return ints;
@@ -127,8 +153,15 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public long getEdgeWeight(int source, int target) {
-		for (int e = 0; e < sources.size(); e++) {
-			if (sources.get(e) == source && targets.get(e) == target) {
+		int from = sources.binarySearch(source);
+		if (from < 0) {
+			return 0;
+		}
+		for (int e = from; e < sources.size(); e++) {
+			if (sources.get(e) != source) {
+				return 0;
+			}
+			if (targets.get(e) == target) {
 				return weights.get(e);
 			}
 		}
@@ -147,9 +180,9 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 				result.add(e);
 			}
 		}
-		
+
 		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size();i++) {
+		for (int i = 0; i < result.size(); i++) {
 			result2[i] = result.get(i);
 		}
 		return result2;
@@ -158,38 +191,40 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	public int[] getOutgoingEdgesOf(V v) {
 		TIntArrayList result = new TIntArrayList();
 		int source = v2index.get(v);
-		for (int e = 0; e < sources.size(); e++) {
-			if (sources.get(e) == source) {
-				result.add(e);
+		
+		int from = sources.binarySearch(source);
+		if (from >= 0) {
+			for (int e = from; e < sources.size(); e++) {
+				if (sources.get(e) == source) {
+					result.add(e);
+				} else {
+					break;
+				}
 			}
 		}
-		
+
 		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size();i++) {
+		for (int i = 0; i < result.size(); i++) {
 			result2[i] = result.get(i);
 		}
 		return result2;
 	}
 
 	public int[] getEdgesOf(V v) {
-		return getEdgesOf(v2index.get(v)); 
+		return getEdgesOf(v2index.get(v));
 	}
 
 	public int[] getEdgesOf(int indexOfV) {
 		TIntArrayList result = new TIntArrayList();
+		//no point in binary search here
 		for (int e = 0; e < sources.size(); e++) {
-			if (targets.get(e) == indexOfV) {
+			if (targets.get(e) == indexOfV || sources.get(e) == indexOfV) {
 				result.add(e);
 			}
 		}
-		for (int e = 0; e < sources.size(); e++) {
-			if (sources.get(e) == indexOfV) {
-				result.add(e);
-			}
-		}
-		
+
 		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size();i++) {
+		for (int i = 0; i < result.size(); i++) {
 			result2[i] = result.get(i);
 		}
 		return result2;
@@ -197,9 +232,18 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 
 	public long getWeightOfHeaviestEdge() {
 		long max = 0;
-		for (int e = 0; e < weights.size();e++) {
+		for (int e = 0; e < weights.size(); e++) {
 			max = Math.max(max, weights.get(e));
 		}
 		return max;
+	}
+	
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < sources.size();i++) {
+			result.append(sources.get(i) + "->" + targets.get(i) + "x" + weights.get(i));
+			result.append(", ");
+		}
+		return result.toString();
 	}
 }
