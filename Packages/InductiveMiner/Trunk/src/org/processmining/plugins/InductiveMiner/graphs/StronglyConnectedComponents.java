@@ -65,7 +65,7 @@ public class StronglyConnectedComponents<X> {
 		int min = low[v];
 		stack.push(v);
 		for (int w = 0; w < G.getNumberOfVertices(); w++) {
-			if (w != v && G.getEdgesArray()[w][v] > 0) {
+			if (w != v && G.getEdgeWeight(w, v) > 0) {
 				if (!marked[w])
 					dfs(G, w);
 				if (low[w] < min)

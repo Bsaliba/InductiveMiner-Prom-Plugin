@@ -4,6 +4,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -72,7 +73,7 @@ public class CutFinderIMi implements CutFinder {
 	public static Graph<XEventClass> filterGraph(Graph<XEventClass> graph, MultiSet<XEventClass> endActivities,
 			float threshold) {
 		//filter directly-follows graph
-		Graph<XEventClass> filtered = new Graph<>(XEventClass.class);
+		Graph<XEventClass> filtered = GraphFactory.create(XEventClass.class, graph.getNumberOfVertices());
 
 		//add nodes
 		filtered.addVertices(graph.getVertices());

@@ -14,6 +14,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
+import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -42,7 +43,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		}
 
 		//construct the negated graph
-		Graph<XEventClass> negatedGraph = new Graph<>(XEventClass.class);
+		Graph<XEventClass> negatedGraph = GraphFactory.create(XEventClass.class, dfg.getNumberOfVertices());
 
 		//add the vertices
 		negatedGraph.addVertices(dfg.getVertices());

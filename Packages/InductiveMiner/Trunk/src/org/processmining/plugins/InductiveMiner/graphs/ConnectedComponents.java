@@ -31,17 +31,8 @@ public class ConnectedComponents<V> {
 		for (int v = 0; v < G.getNumberOfVertices(); v++) {
 			int component = id[v];
 			components[component].add(G.getVertexOfIndex(v));
-			//	        	components[component] = Arrays.copyOf(components[component], components[component].length + 1);
-			//	        	components[component][components[component].length - 1] = G.getVertexOfIndex(v);
 		}
 
-		// print results
-		//	        for (int i = 0; i < count; i++) {
-		//	            for (X v : components[i]) {
-		//	            	System.out.print(v + " ");
-		//	            }
-		//	            System.out.println();
-		//	        }
 		return new HashSet<Set<V>>(Arrays.asList(components));
 	}
 
@@ -63,7 +54,7 @@ public class ConnectedComponents<V> {
 		id[v] = count;
 		size[count]++;
 		for (int w = 0; w < G.getNumberOfVertices(); w++) {
-			if (w != v && (G.getEdgesArray()[w][v] > 0 || G.getEdgesArray()[v][w] > 0)) {
+			if (w != v && (G.getEdgeWeight(w, v) > 0 || G.getEdgeWeight(v, w) > 0)) {
 				if (!marked[w]) {
 					dfs(G, w);
 				}
