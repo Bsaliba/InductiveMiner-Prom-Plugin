@@ -38,7 +38,7 @@ public class TransitiveClosure {
 		}
 
 		{
-			for (int e : graph.getEdges()) {
+			for (long e : graph.getEdges()) {
 				int u = node2index.get(graph.getEdgeSource(e));
 				int v = node2index.get(graph.getEdgeTarget(e));
 				dist[u][v] = true;

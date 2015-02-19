@@ -22,7 +22,7 @@ public class Dfg {
 	}
 	
 	public Dfg(int initialSize) {
-		directlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
+		directlyFollowsGraph = GraphFactory.createTimeOptimised(XEventClass.class, initialSize);
 		eventuallyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 		parallelGraph = GraphFactory.create(XEventClass.class, initialSize);
 		uncertainDirectlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
@@ -139,7 +139,7 @@ public class Dfg {
 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		for (Integer edgeIndex : directlyFollowsGraph.getEdges()) {
+		for (long edgeIndex : directlyFollowsGraph.getEdges()) {
 			result.append(directlyFollowsGraph.getEdgeSource(edgeIndex));
 			result.append("->");
 			result.append(directlyFollowsGraph.getEdgeTargetIndex(edgeIndex));
@@ -153,7 +153,7 @@ public class Dfg {
 	 * edge.
 	 */
 	public void collapseParallelIntoDirectly() {
-		for (Integer edgeIndex : parallelGraph.getEdges()) {
+		for (long edgeIndex : parallelGraph.getEdges()) {
 			directlyFollowsGraph.addEdge(parallelGraph.getEdgeSource(edgeIndex),
 					parallelGraph.getEdgeTarget(edgeIndex), parallelGraph.getEdgeWeight(edgeIndex));
 			directlyFollowsGraph.addEdge(parallelGraph.getEdgeTarget(edgeIndex),

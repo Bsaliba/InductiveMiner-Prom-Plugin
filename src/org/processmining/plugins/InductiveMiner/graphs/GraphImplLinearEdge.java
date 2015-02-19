@@ -8,7 +8,6 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class GraphImplLinearEdge<V> implements Graph<V> {
 
@@ -111,12 +110,12 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		return index2v.size();
 	}
 
-	public Iterable<Integer> getEdges() {
-		List<Integer> ints = new ArrayList<Integer>();
+	public long[] getEdges() {
+		long[] result = new long[sources.size()];
 		for (int i = 0; i < sources.size(); i++) {
-			ints.add(i);
+			result[i] = i;
 		}
-		return ints;
+		return result;
 	}
 
 	public boolean containsEdge(V source, V target) {
@@ -124,32 +123,47 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public boolean containsEdge(int source, int target) {
-		for (int e = 0; e < sources.size(); e++) {
-			if (sources.get(e) == source && targets.get(e) == target) {
+		int from = sources.binarySearch(source);
+		if (from < 0) {
+			return false;
+		}
+		for (int e = from; e < sources.size(); e++) {
+			if (sources.get(e) != source) {
+				break;
+			}
+			if (targets.get(e) == target) {
+				return true;
+			}
+		}
+		for (int e = from; e >= 0; e--) {
+			if (sources.get(e) != source) {
+				break;
+			}
+			if (targets.get(e) == target) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public V getEdgeSource(int edgeIndex) {
-		return index2v.get(sources.get(edgeIndex));
+	public V getEdgeSource(long edgeIndex) {
+		return index2v.get(sources.get((int) edgeIndex));
 	}
 
-	public int getEdgeSourceIndex(int edgeIndex) {
-		return sources.get(edgeIndex);
+	public int getEdgeSourceIndex(long edgeIndex) {
+		return sources.get((int) edgeIndex);
 	}
 
-	public V getEdgeTarget(int edgeIndex) {
-		return index2v.get(targets.get(edgeIndex));
+	public V getEdgeTarget(long edgeIndex) {
+		return index2v.get(targets.get((int) edgeIndex));
 	}
 
-	public int getEdgeTargetIndex(int edgeIndex) {
-		return targets.get(edgeIndex);
+	public int getEdgeTargetIndex(long edgeIndex) {
+		return targets.get((int) edgeIndex);
 	}
 
-	public long getEdgeWeight(int edgeIndex) {
-		return weights.get(edgeIndex);
+	public long getEdgeWeight(long edgeIndex) {
+		return weights.get((int) edgeIndex);
 	}
 
 	public long getEdgeWeight(int source, int target) {
@@ -245,5 +259,9 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 			result.append(", ");
 		}
 		return result.toString();
+	}
+
+	public int getIndexOfVertex(V v) {
+		return v2index.get(v);
 	}
 }

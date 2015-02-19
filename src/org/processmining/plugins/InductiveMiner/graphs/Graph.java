@@ -34,7 +34,7 @@ public interface Graph<V> {
 	 * 
 	 * @return
 	 */
-	public Iterable<Integer> getEdges() ;
+	public long[] getEdges() ;
 
 	/**
 	 * Returns whether the graph contains an edge between source and target.
@@ -56,9 +56,9 @@ public interface Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public V getEdgeSource(int edgeIndex);
+	public V getEdgeSource(long edgeIndex);
 
-	public int getEdgeSourceIndex(int edgeIndex);
+	public int getEdgeSourceIndex(long edgeIndex);
 
 	/**
 	 * Returns the vertex the edgeIndex points to.
@@ -66,7 +66,7 @@ public interface Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public V getEdgeTarget(int edgeIndex);
+	public V getEdgeTarget(long edgeIndex);
 
 	/**
 	 * Returns the index of the vertex the edgeIndex points to.
@@ -74,7 +74,7 @@ public interface Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public int getEdgeTargetIndex(int edgeIndex);
+	public int getEdgeTargetIndex(long edgeIndex);
 
 	/**
 	 * Returns the weight of an edge.
@@ -82,7 +82,7 @@ public interface Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public long getEdgeWeight(int edgeIndex);
+	public long getEdgeWeight(long edgeIndex);
 	
 	/**
 	 * Returns the weight of an edge between source and target
@@ -136,4 +136,11 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public long getWeightOfHeaviestEdge();
+
+	/**
+	 * 
+	 * @param e
+	 * @return the index of the given vertex
+	 */
+	public int getIndexOfVertex(V v);
 }

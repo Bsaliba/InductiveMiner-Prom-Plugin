@@ -37,7 +37,7 @@ public class FallThroughDirectlyFollowsGraph implements FallThrough {
 		List<Triple<MaybeString, MaybeString, Long>> edges = new ArrayList<Triple<MaybeString, MaybeString, Long>>();
 		Graph<XEventClass> graph = filteredLogInfo
 				.getDirectlyFollowsGraph();
-		for (int edge : graph.getEdges()) {
+		for (long edge : graph.getEdges()) {
 			edges.add(new Triple<MaybeString, MaybeString, Long>(new MaybeString(graph.getEdgeSource(edge).toString()),
 					new MaybeString(graph.getEdgeTarget(edge).toString()), graph.getEdgeWeight(edge)));
 		}

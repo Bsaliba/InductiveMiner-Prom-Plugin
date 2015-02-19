@@ -33,7 +33,7 @@ public class SimpleDfgSplitter implements DfgSplitter {
 			//walk through the edges
 			{
 				//directly-follows graph
-				for (int edge : dfg.getDirectlyFollowsGraph().getEdges()) {
+				for (long edge : dfg.getDirectlyFollowsGraph().getEdges()) {
 					int cardinality = (int) dfg.getDirectlyFollowsGraph().getEdgeWeight(edge);
 					XEventClass source = dfg.getDirectlyFollowsGraph().getEdgeSource(edge);
 					XEventClass target = dfg.getDirectlyFollowsGraph().getEdgeTarget(edge);
