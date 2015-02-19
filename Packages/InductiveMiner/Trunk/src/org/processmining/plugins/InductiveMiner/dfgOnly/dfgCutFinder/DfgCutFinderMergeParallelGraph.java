@@ -13,7 +13,7 @@ public class DfgCutFinderMergeParallelGraph implements DfgCutFinder {
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
 		
 		//add edges from parallel graph
-		for (int e : dfg.getParallelGraph().getEdges()) {
+		for (long e : dfg.getParallelGraph().getEdges()) {
 			long weight = dfg.getParallelGraph().getEdgeWeight(e);
 			XEventClass a1 = dfg.getParallelGraph().getEdgeSource(e);
 			XEventClass a2 = dfg.getParallelGraph().getEdgeTarget(e);

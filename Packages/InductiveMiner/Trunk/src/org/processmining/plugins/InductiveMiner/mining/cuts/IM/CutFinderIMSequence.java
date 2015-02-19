@@ -45,7 +45,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			condensedGraph1.addVertex(SCC);
 		}
 		//add edges
-		for (int edge : graph.getEdges()) {
+		for (long edge : graph.getEdges()) {
 			//find the connected components belonging to these nodes
 			XEventClass u = graph.getEdgeSource(edge);
 			Set<XEventClass> SCCu = Sets.findComponentWith(SCCs, u);
@@ -97,7 +97,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		//debug("sccs na xormerge " + condensedGraph2.vertexSet().toString());
 
 		//add the edges
-		for (int edge : condensedGraph1.getEdges()) {
+		for (long edge : condensedGraph1.getEdges()) {
 			//find the condensed node belonging to this activity
 			Set<XEventClass> u = condensedGraph1.getEdgeSource(edge);
 			Set<XEventClass> SCCu = Sets.findComponentWith(ArrayUtilities.toSet(condensedGraph2.getVertices()), u

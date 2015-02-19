@@ -1,11 +1,13 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.plugins;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.contexts.uitopia.annotations.UIImportPlugin;
@@ -27,7 +29,29 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 
 	protected Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
 			throws Exception {
+//		Dfg dfg1 = readCSV(input);
+//
+//		if (dfg1 != null) {
+//			return dfg1;
+//		}
 
+		Dfg dfg2 = readFile(input);
+
+		if (dfg2 != null) {
+			return dfg2;
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				JOptionPane.showMessageDialog(null, "Invalid directly-follows graph file", "Invalid file",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		context.getFutureResult(0).cancel(false);
+		return null;
+	}
+
+	public static Dfg readCSV(InputStream input) throws IOException {
 		CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(input, CHARSET), BUFFER_SIZE),
 				SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, 0, false, false, true);
 
@@ -74,12 +98,64 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				}
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Invalid directly-follows graph file", "Invalid file",
-					JOptionPane.ERROR_MESSAGE);
-			context.getFutureResult(0).cancel(false);
 			return null;
 		} finally {
 			reader.close();
+		}
+
+		return dfg;
+	}
+
+	public static Dfg readFile(InputStream input) throws IOException {
+		BufferedReader r = new BufferedReader(new InputStreamReader(input, CHARSET), BUFFER_SIZE);
+
+		Dfg dfg = new Dfg();
+
+		//read activity names
+		int nrOfActivities = Integer.parseInt(r.readLine());
+		for (int i = 0; i < nrOfActivities; i++) {
+			String actName = r.readLine();
+			dfg.addActivity(new XEventClass(actName, i));
+		}
+
+		//read start activities
+		{
+			int nrOfStartActivities = Integer.parseInt(r.readLine());
+			for (int i = 0; i < nrOfStartActivities; i++) {
+				String line = r.readLine();
+				int xAt = line.indexOf('x');
+				int activityIndex = Integer.parseInt(line.substring(0, xAt));
+				long cardinality = Long.parseLong(line.substring(xAt + 1, line.length()));
+
+				dfg.addStartActivity(dfg.getDirectlyFollowsGraph().getVertexOfIndex(activityIndex), cardinality);
+			}
+		}
+
+		//read end activities
+		{
+			int nrOfEndActivities = Integer.parseInt(r.readLine());
+			for (int i = 0; i < nrOfEndActivities; i++) {
+				String line = r.readLine();
+				int xAt = line.indexOf('x');
+				int activityIndex = Integer.parseInt(line.substring(0, xAt));
+				long cardinality = Long.parseLong(line.substring(xAt + 1, line.length()));
+
+				dfg.addEndActivity(dfg.getDirectlyFollowsGraph().getVertexOfIndex(activityIndex), cardinality);
+			}
+		}
+		
+		//read edges
+		{
+			String line;
+			while ((line = r.readLine()) != null) {
+				int eAt = line.indexOf('>');
+				int xAt = line.indexOf('x');
+				int source = Integer.parseInt(line.substring(0, eAt));
+				int target = Integer.parseInt(line.substring(eAt + 1, xAt));
+				long cardinality = Long.parseLong(line.substring(xAt+1, line.length()));
+				
+				dfg.getDirectlyFollowsGraph().addEdge(source, target, cardinality);
+			}
 		}
 
 		return dfg;
