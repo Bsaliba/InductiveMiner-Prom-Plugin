@@ -82,12 +82,12 @@ public class CutFinderIMi implements CutFinder {
 		for (XEventClass activity : graph.getVertices()) {
 			//find the maximum outgoing weight of this node
 			long maxWeightOut = endActivities.getCardinalityOf(activity);
-			for (int edge : graph.getOutgoingEdgesOf(activity)) {
+			for (long edge : graph.getOutgoingEdgesOf(activity)) {
 				maxWeightOut = Math.max(maxWeightOut, (int) graph.getEdgeWeight(edge));
 			}
 
 			//add all edges that are strong enough
-			for (int edge : graph.getOutgoingEdgesOf(activity)) {
+			for (long edge : graph.getOutgoingEdgesOf(activity)) {
 				if (graph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
 					XEventClass from = graph.getEdgeSource(edge);
 					XEventClass to = graph.getEdgeTarget(edge);

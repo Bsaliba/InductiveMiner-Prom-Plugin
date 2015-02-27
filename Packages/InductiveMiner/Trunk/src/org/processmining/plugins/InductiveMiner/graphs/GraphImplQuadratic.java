@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.collections15.IteratorUtils;
+
 public class GraphImplQuadratic<V> implements Graph<V> {
 	private int vertices; //number of vertices
 	private long[][] edges; //matrix of weights of edges
@@ -68,6 +70,10 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public V getVertexOfIndex(int index) {
 		return index2x[index];
 	}
+	
+	public int getIndexOfVertex(V v) {
+		return v2index.get(v);
+	}
 
 	public V[] getVertices() {
 		return index2x;
@@ -91,9 +97,9 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * 
 	 * @return
 	 */
-	public Iterable<Integer> getEdges() {
-		return new Iterable<Integer>() {
-			public Iterator<Integer> iterator() {
+	public Iterable<Long> getEdges() {
+		return new Iterable<Long>() {
+			public Iterator<Long> iterator() {
 				return new EdgeIterator();
 			}
 		};
@@ -123,12 +129,12 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public V getEdgeSource(int edgeIndex) {
+	public V getEdgeSource(long edgeIndex) {
 		return index2x[getEdgeSourceIndex(edgeIndex)];
 	}
 
-	public int getEdgeSourceIndex(int edgeIndex) {
-		return edgeIndex / vertices;
+	public int getEdgeSourceIndex(long edgeIndex) {
+		return (int) (edgeIndex / vertices);
 	}
 
 	/**
@@ -137,12 +143,12 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public V getEdgeTarget(int edgeIndex) {
+	public V getEdgeTarget(long edgeIndex) {
 		return index2x[getEdgeTargetIndex(edgeIndex)];
 	}
 
-	public int getEdgeTargetIndex(int edgeIndex) {
-		return edgeIndex % vertices;
+	public int getEdgeTargetIndex(long edgeIndex) {
+		return (int) (edgeIndex % vertices);
 	}
 
 	/**
@@ -151,10 +157,10 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param edgeIndex
 	 * @return
 	 */
-	public long getEdgeWeight(int edgeIndex) {
+	public long getEdgeWeight(long edgeIndex) {
 		return edges[getEdgeSourceIndex(edgeIndex)][getEdgeTargetIndex(edgeIndex)];
 	}
-	
+
 	public long getEdgeWeight(int source, int target) {
 		return edges[source][target];
 	}
@@ -177,23 +183,8 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getIncomingEdgesOf(V v) {
-		int column = v2index.get(v);
-		int count = 0;
-		for (int row = 0; row < vertices; row++) {
-			if (edges[row][column] > 0) {
-				count++;
-			}
-		}
-		int[] result = new int[count];
-		count = 0;
-		for (int row = 0; row < vertices; row++) {
-			if (edges[row][column] > 0) {
-				result[count] = row * vertices + column;
-				count++;
-			}
-		}
-		return result;
+	public Iterable<Long> getIncomingEdgesOf(V v) {
+		return new EdgeIterableIncoming(v2index.get(v));
 	}
 
 	/**
@@ -203,23 +194,8 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getOutgoingEdgesOf(V v) {
-		int row = v2index.get(v);
-		int count = 0;
-		for (int column = 0; column < vertices; column++) {
-			if (edges[row][column] > 0) {
-				count++;
-			}
-		}
-		int[] result = new int[count];
-		count = 0;
-		for (int column = 0; column < vertices; column++) {
-			if (edges[row][column] > 0) {
-				result[count] = row * vertices + column;
-				count++;
-			}
-		}
-		return result;
+	public Iterable<Long> getOutgoingEdgesOf(V v) {
+		return new EdgeIterableOutgoing(v2index.get(v));
 	}
 
 	/**
@@ -229,39 +205,45 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getEdgesOf(V v) {
+	public Iterable<Long> getEdgesOf(V v) {
 		return getEdgesOf(v2index.get(v));
 	}
 
-	public int[] getEdgesOf(int indexOfV) {
-		//first count every edge, count a self-edge only in the row-run
-		int count = 0;
-		for (int column = 0; column < vertices; column++) {
-			if (column != indexOfV && edges[indexOfV][column] > 0) {
-				count++;
-			}
-		}
-		for (int row = 0; row < vertices; row++) {
-			if (edges[row][indexOfV] > 0) {
-				count++;
-			}
-		}
+	public Iterable<Long> getEdgesOf(final int indexOfV) {
+		return new Iterable<Long>() {
 
-		int[] result = new int[count];
-		count = 0;
-		for (int column = 0; column < vertices; column++) {
-			if (column != indexOfV && edges[indexOfV][column] > 0) {
-				result[count] = indexOfV * vertices + column;
-				count++;
+			public Iterator<Long> iterator() {
+
+				//first count every edge, count a self-edge only in the row-run
+				int count = 0;
+				for (int column = 0; column < vertices; column++) {
+					if (column != indexOfV && edges[indexOfV][column] > 0) {
+						count++;
+					}
+				}
+				for (int row = 0; row < vertices; row++) {
+					if (edges[row][indexOfV] > 0) {
+						count++;
+					}
+				}
+
+				long[] result = new long[count];
+				count = 0;
+				for (int column = 0; column < vertices; column++) {
+					if (column != indexOfV && edges[indexOfV][column] > 0) {
+						result[count] = indexOfV * vertices + column;
+						count++;
+					}
+				}
+				for (int row = 0; row < vertices; row++) {
+					if (edges[row][indexOfV] > 0) {
+						result[count] = row * vertices + indexOfV;
+						count++;
+					}
+				}
+				return IteratorUtils.arrayIterator(result);
 			}
-		}
-		for (int row = 0; row < vertices; row++) {
-			if (edges[row][indexOfV] > 0) {
-				result[count] = row * vertices + indexOfV;
-				count++;
-			}
-		}
-		return result;
+		};
 	}
 
 	/**
@@ -301,7 +283,75 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 		index2x = Arrays.copyOf(index2x, size);
 	}
 
-	public class EdgeIterator implements Iterator<Integer> {
+	private final class EdgeIterableOutgoing extends EdgeIterable {
+		private final int row;
+		int actual;
+		boolean hasNext;
+
+		private EdgeIterableOutgoing(int row) {
+			this.row = row;
+			for (int e = 0; e < vertices ; e++) {
+				if (edges[row][e] > 0) {
+					actual = e;
+					hasNext = true;
+					return;
+				}
+			}
+			hasNext = false;
+		}
+
+		protected long next() {
+			int value = actual;
+			for (int e = actual + 1; e < vertices ; e++) {
+				if (edges[row][e] > 0) {
+					actual = e;
+					return value;
+				}
+			}
+			hasNext = false;
+			return value;
+		}
+
+		protected boolean hasNext() {
+			return hasNext;
+		}
+	}
+	
+	private final class EdgeIterableIncoming extends EdgeIterable {
+		private final int column;
+		int actual;
+		boolean hasNext;
+
+		private EdgeIterableIncoming(int column) {
+			this.column = column;
+			for (int e = 0; e < vertices ; e++) {
+				if (edges[e][column] > 0) {
+					actual = e;
+					hasNext = true;
+					return;
+				}
+			}
+			hasNext = false;
+		}
+
+		protected long next() {
+			int value = actual;
+			for (int e = actual + 1; e < vertices ; e++) {
+				if (edges[e][column] > 0) {
+					actual = e;
+					return value;
+				}
+			}
+			hasNext = false;
+			return value;
+		}
+
+		protected boolean hasNext() {
+			return hasNext;
+		}
+	}
+
+	public class EdgeIterator implements Iterator<Long> {
 		int currentIndex = 0;
 		int nextIndex = 0;
 
@@ -321,17 +371,17 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 			edges[getEdgeSourceIndex(currentIndex)][getEdgeTargetIndex(currentIndex)] = 0;
 		}
 
-		public Integer next() {
+		public Long next() {
 			currentIndex = nextIndex;
 			nextIndex++;
 			while (nextIndex < vertices * vertices && edges[nextIndex / vertices][nextIndex % vertices] <= 0) {
 				nextIndex++;
 			}
-			return currentIndex;
+			return (long) currentIndex;
 		}
 
 		public boolean hasNext() {
 			return nextIndex < vertices * vertices;
 		}
-	};
+	}
 }

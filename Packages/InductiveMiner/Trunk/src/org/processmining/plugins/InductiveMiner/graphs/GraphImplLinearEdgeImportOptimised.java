@@ -8,6 +8,9 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.collections15.IteratorUtils;
 
 public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 
@@ -81,8 +84,13 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 		return index2v.size();
 	}
 
-	public long[] getEdges() {
-		return edges.keys();
+	public Iterable<Long> getEdges() {
+		return new Iterable<Long>() {
+			public Iterator<Long> iterator() {
+				return IteratorUtils.arrayIterator(edges.keys());
+			}
+		};
+		
 	}
 
 	public boolean containsEdge(V source, V target) {
@@ -121,19 +129,19 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 		return getEdgeWeight(v2index.get(source), v2index.get(target));
 	}
 
-	public int[] getIncomingEdgesOf(V v) {
+	public Iterable<Long> getIncomingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
 	}
 
-	public int[] getOutgoingEdgesOf(V v) {
+	public Iterable<Long> getOutgoingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
 	}
 
-	public int[] getEdgesOf(V v) {
+	public Iterable<Long> getEdgesOf(V v) {
 		return getEdgesOf(v2index.get(v));
 	}
 
-	public int[] getEdgesOf(int indexOfV) {
+	public Iterable<Long> getEdgesOf(int indexOfV) {
 		throw new RuntimeException("not implemented");
 	}
 

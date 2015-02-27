@@ -17,7 +17,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	private final TIntArrayList sources;
 	private final TIntArrayList targets;
 	private final TLongArrayList weights;
-	
+
 	private final Class<?> clazz;
 
 	public GraphImplLinearEdge(Class<?> clazz) {
@@ -51,7 +51,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public void addEdge(int source, int target, long weight) {
-		
+
 		//idea: keep the sources sorted
 		int from = sources.binarySearch(source);
 		if (from >= 0) {
@@ -66,7 +66,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 				}
 			}
 			//binary search might end up in the middle; walk back as well
-			for (int e = from; e >= 0 ; e--) {
+			for (int e = from; e >= 0; e--) {
 				if (sources.get(e) != source) {
 					break;
 				}
@@ -78,7 +78,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		} else {
 			from = -from - 1;
 		}
-		
+
 		sources.insert(from, source);
 		targets.insert(from, target);
 		weights.insert(from, weight);
@@ -110,12 +110,20 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		return index2v.size();
 	}
 
-	public long[] getEdges() {
-		long[] result = new long[sources.size()];
-		for (int i = 0; i < sources.size(); i++) {
-			result[i] = i;
-		}
-		return result;
+	public Iterable<Long> getEdges() {
+		return new EdgeIterable() {
+			long actual = 0;
+
+			public boolean hasNext() {
+				return actual != sources.size();
+			}
+
+			public long next() {
+				long value = actual;
+				actual++;
+				return value;
+			}
+		};
 	}
 
 	public boolean containsEdge(V source, V target) {
@@ -186,62 +194,20 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		return getEdgeWeight(v2index.get(source), v2index.get(target));
 	}
 
-	public int[] getIncomingEdgesOf(V v) {
-		TIntArrayList result = new TIntArrayList();
-		int target = v2index.get(v);
-		for (int e = 0; e < sources.size(); e++) {
-			if (targets.get(e) == target) {
-				result.add(e);
-			}
-		}
-
-		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size(); i++) {
-			result2[i] = result.get(i);
-		}
-		return result2;
+	public Iterable<Long> getIncomingEdgesOf(V v) {
+		return new EdgeIterableIncoming(v2index.get(v));
 	}
 
-	public int[] getOutgoingEdgesOf(V v) {
-		TIntArrayList result = new TIntArrayList();
-		int source = v2index.get(v);
-		
-		int from = sources.binarySearch(source);
-		if (from >= 0) {
-			for (int e = from; e < sources.size(); e++) {
-				if (sources.get(e) == source) {
-					result.add(e);
-				} else {
-					break;
-				}
-			}
-		}
-
-		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size(); i++) {
-			result2[i] = result.get(i);
-		}
-		return result2;
+	public Iterable<Long> getOutgoingEdgesOf(V v) {
+		return new EdgeIterableOutgoing(v2index.get(v));
 	}
 
-	public int[] getEdgesOf(V v) {
+	public Iterable<Long> getEdgesOf(V v) {
 		return getEdgesOf(v2index.get(v));
 	}
 
-	public int[] getEdgesOf(int indexOfV) {
-		TIntArrayList result = new TIntArrayList();
-		//no point in binary search here
-		for (int e = 0; e < sources.size(); e++) {
-			if (targets.get(e) == indexOfV || sources.get(e) == indexOfV) {
-				result.add(e);
-			}
-		}
-
-		int[] result2 = new int[result.size()];
-		for (int i = 0; i < result.size(); i++) {
-			result2[i] = result.get(i);
-		}
-		return result2;
+	public Iterable<Long> getEdgesOf(int indexOfV) {
+		return new EdgeIterableBoth(indexOfV);
 	}
 
 	public long getWeightOfHeaviestEdge() {
@@ -251,10 +217,10 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		}
 		return max;
 	}
-	
+
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < sources.size();i++) {
+		for (int i = 0; i < sources.size(); i++) {
 			result.append(sources.get(i) + "->" + targets.get(i) + "x" + weights.get(i));
 			result.append(", ");
 		}
@@ -263,5 +229,96 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 
 	public int getIndexOfVertex(V v) {
 		return v2index.get(v);
+	}
+	
+	private final class EdgeIterableIncoming extends EdgeIterable {
+		private final int target;
+		int actual = 0;
+		boolean hasNext;
+
+		private EdgeIterableIncoming(int target) {
+			this.target = target;
+			int from = 0;
+			while (from < targets.size() && targets.get(from) != target) {
+				from++;
+			}
+			hasNext = from < targets.size();
+			actual = from;
+		}
+
+		protected boolean hasNext() {
+			return hasNext;
+		}
+
+		protected long next() {
+			int value = actual;
+			for (int e = actual + 1; e < targets.size() ; e++) {
+				if (targets.get(e) == target) {
+					actual = e;
+					return value;
+				}
+			}
+			hasNext = false;
+			return value;
+		}
+	}
+
+	private final class EdgeIterableOutgoing extends EdgeIterable {
+		private final int source;
+		int actual = 0;
+
+		private EdgeIterableOutgoing(int source) {
+			this.source = source;
+			int from = sources.binarySearch(source);
+			if (from < 0) {
+				return;
+			}
+			while (from >= 0 && sources.get(from) == source) {
+				from--;
+			}
+			actual = from + 1;
+		}
+
+		protected boolean hasNext() {
+			return actual < sources.size() && sources.get(actual) == source;
+		}
+
+		protected long next() {
+			int value = actual;
+			actual++;
+			return value;
+		}
+	}
+	
+	private final class EdgeIterableBoth extends EdgeIterable {
+		private final int vertexIndex;
+		int actual = 0;
+		boolean hasNext;
+
+		private EdgeIterableBoth(int vertexIndex) {
+			this.vertexIndex = vertexIndex;
+			int from = 0;
+			while (from < targets.size() && targets.get(from) != vertexIndex && sources.get(from) != vertexIndex) {
+				from++;
+			}
+			hasNext = from < targets.size();
+			actual = from;
+		}
+
+		protected boolean hasNext() {
+			return hasNext;
+		}
+
+		protected long next() {
+			int value = actual;
+			for (int e = actual + 1; e < targets.size() ; e++) {
+				if (targets.get(e) == vertexIndex || sources.get(e) == vertexIndex) {
+					actual = e;
+					return value;
+				}
+			}
+			hasNext = false;
+			return value;
+		}
 	}
 }
