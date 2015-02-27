@@ -58,7 +58,7 @@ public abstract class Probabilities {
 		//count how often each activity occurs
 		Graph<XEventClass> graph = info.getGraph();
 		double sum = 0;
-		for (int edge : graph.getOutgoingEdgesOf(a)) {
+		for (long edge : graph.getOutgoingEdgesOf(a)) {
 			sum += graph.getEdgeWeight(edge);
 		}
 		sum += info.getEndActivities().getCardinalityOf(a);

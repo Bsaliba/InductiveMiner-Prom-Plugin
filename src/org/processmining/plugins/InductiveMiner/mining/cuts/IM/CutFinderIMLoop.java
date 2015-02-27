@@ -61,7 +61,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (int edge : graph.getIncomingEdgesOf(node)) {
+			for (long edge : graph.getIncomingEdgesOf(node)) {
 				if (cc != connectedComponents.get(graph.getEdgeSource(edge))) {
 					//this is a start activity
 					Set<XEventClass> start = subStartActivities.get(cc);
@@ -78,7 +78,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 		for (XEventClass node : graph.getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (int edge : graph.getOutgoingEdgesOf(node)) {
+			for (long edge : graph.getOutgoingEdgesOf(node)) {
 				if (cc != connectedComponents.get(graph.getEdgeTarget(edge))) {
 					//this is an end activity
 					Set<XEventClass> end = subEndActivities.get(cc);
@@ -99,7 +99,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
 		for (XEventClass startActivity : startActivities.toSet()) {
 			if (!endActivities.contains(startActivity)) {
-				for (int edge : graph.getOutgoingEdgesOf(startActivity)) {
+				for (long edge : graph.getOutgoingEdgesOf(startActivity)) {
 					candidates[connectedComponents.get(graph.getEdgeTarget(edge))] = false;
 				}
 			}
@@ -108,7 +108,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		//exclude all candidates that can reach an end activity (which is not a start activity)
 		for (XEventClass endActivity : endActivities.toSet()) {
 			if (!startActivities.contains(endActivity)) {
-				for (int edge : graph.getIncomingEdgesOf(endActivity)) {
+				for (long edge : graph.getIncomingEdgesOf(endActivity)) {
 					candidates[connectedComponents.get(graph.getEdgeSource(edge))] = false;
 				}
 			}
@@ -178,7 +178,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 			XEventClass node, Map<XEventClass, Integer> connectedComponents, Integer connectedComponent) {
 		if (!connectedComponents.containsKey(node)) {
 			connectedComponents.put(node, connectedComponent);
-			for (int edge : graph.getEdgesOf(node)) {
+			for (long edge : graph.getEdgesOf(node)) {
 				labelConnectedComponents(graph, graph.getEdgeSource(edge), connectedComponents, connectedComponent);
 				labelConnectedComponents(graph, graph.getEdgeTarget(edge), connectedComponents, connectedComponent);
 			}

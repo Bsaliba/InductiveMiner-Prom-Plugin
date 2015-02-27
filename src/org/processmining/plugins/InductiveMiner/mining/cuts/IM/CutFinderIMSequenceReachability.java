@@ -3,7 +3,6 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +36,7 @@ public class CutFinderIMSequenceReachability<V> {
 			
 			reachableTo.put(from, reached);
 			
-			for (int edge : condensedGraph.getOutgoingEdgesOf(from)) {
+			for (long edge : condensedGraph.getOutgoingEdgesOf(from)) {
 				V target = condensedGraph.getEdgeTarget(edge);
 				reached.add(target);
 				
@@ -50,11 +49,11 @@ public class CutFinderIMSequenceReachability<V> {
 	
 	private Set<V> findReachableFrom(V to) {
 		if (!reachableFrom.containsKey(to)) {
-			Set<V> reached = new HashSet<V>();
+			Set<V> reached = new THashSet<V>();
 			
 			reachableFrom.put(to, reached);
 			
-			for (int edge : condensedGraph.getIncomingEdgesOf(to)) {
+			for (long edge : condensedGraph.getIncomingEdgesOf(to)) {
 				V target = condensedGraph.getEdgeSource(edge);
 				reached.add(target);
 				

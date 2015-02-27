@@ -30,11 +30,11 @@ public interface Graph<V> {
 
 	/**
 	 * Gives an iterable that iterates over all edges that have a weight > 0;
-	 * The edges that returns are indices.
+	 * The edges that are returned are indices.
 	 * 
 	 * @return
 	 */
-	public long[] getEdges() ;
+	public Iterable<Long> getEdges() ;
 
 	/**
 	 * Returns whether the graph contains an edge between source and target.
@@ -108,7 +108,7 @@ public interface Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getIncomingEdgesOf(V v);
+	public Iterable<Long> getIncomingEdgesOf(V v);
 
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the
@@ -117,7 +117,7 @@ public interface Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getOutgoingEdgesOf(V v);
+	public Iterable<Long> getOutgoingEdgesOf(V v);
 
 	/**
 	 * Return an array of edgeIndex containing all edges of which v is a source
@@ -126,9 +126,9 @@ public interface Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public int[] getEdgesOf(V v) ;
+	public Iterable<Long> getEdgesOf(V v) ;
 
-	public int[] getEdgesOf(int indexOfV) ;
+	public Iterable<Long> getEdgesOf(int indexOfV) ;
 
 	/**
 	 * Returns the weight of the edge with the highest weight.
