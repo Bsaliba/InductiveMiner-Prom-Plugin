@@ -16,7 +16,7 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIM
 public class MiningParametersIM extends MiningParameters {
 	
 	/*
-	 * No other parameter, except mentioned in this file, has influence on mined model
+	 * No other parameter, except mentioned in this file, has influence on the mined model
 	 */
 	
 	public MiningParametersIM() {
@@ -38,6 +38,6 @@ public class MiningParametersIM extends MiningParameters {
 				new FallThroughFlower()
 				)));
 		
-		setReduce(false);
+		setReduce(true);
 	}
 }

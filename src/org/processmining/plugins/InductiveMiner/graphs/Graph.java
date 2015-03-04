@@ -118,6 +118,7 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public Iterable<Long> getOutgoingEdgesOf(V v);
+	public Iterable<Long> getOutgoingEdgesOf(int v);
 
 	/**
 	 * Return an array of edgeIndex containing all edges of which v is a source
