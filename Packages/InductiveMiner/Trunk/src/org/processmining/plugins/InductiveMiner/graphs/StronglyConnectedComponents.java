@@ -1,9 +1,11 @@
 package org.processmining.plugins.InductiveMiner.graphs;
 
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.stack.TIntStack;
+import gnu.trove.stack.array.TIntArrayStack;
+
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 public class StronglyConnectedComponents<X> {
 
@@ -12,7 +14,7 @@ public class StronglyConnectedComponents<X> {
 	private int[] low; // low[v] = low number of v
 	private int pre; // preorder number counter
 	private int count; // number of strongly-connected components
-	private Stack<Integer> stack;
+	private TIntStack stack;
 	
 	/**
 	 * Get the strongly connected components within G.
@@ -29,33 +31,24 @@ public class StronglyConnectedComponents<X> {
         @SuppressWarnings("unchecked")
 		Set<X>[] components = new Set[count];
         for (int i = 0 ; i < count ; i++) {
-        	components[i] = new HashSet<>();
+        	components[i] = new THashSet<>();
         }
         for (int v = 0; v < G.getNumberOfVertices(); v++) {
         	int component = id[v];
         	components[component].add(G.getVertexOfIndex(v));
-//        	components[component] = Arrays.copyOf(components[component], components[component].length + 1);
-//        	components[component][components[component].length - 1] = G.getVertexOfIndex(v);
         }
-
-        // print results
-//        for (int i = 0; i < count; i++) {
-//            for (X v : components[i]) {
-//            	System.out.print(v + " ");
-//            }
-//            System.out.println();
-//        }
-        return new HashSet<Set<X>>(Arrays.asList(components));
+        return new THashSet<Set<X>>(Arrays.asList(components));
 	}
 
 	private StronglyConnectedComponents(Graph<X> G) {
 		marked = new boolean[G.getNumberOfVertices()];
-		stack = new Stack<Integer>();
+		stack = new TIntArrayStack();
 		id = new int[G.getNumberOfVertices()];
 		low = new int[G.getNumberOfVertices()];
 		for (int v = 0; v < G.getNumberOfVertices(); v++) {
-			if (!marked[v])
+			if (!marked[v]) {
 				dfs(G, v);
+			}
 		}
 	}
 
@@ -64,12 +57,13 @@ public class StronglyConnectedComponents<X> {
 		low[v] = pre++;
 		int min = low[v];
 		stack.push(v);
-		for (int w = 0; w < G.getNumberOfVertices(); w++) {
-			if (w != v && G.getEdgeWeight(w, v) > 0) {
-				if (!marked[w])
-					dfs(G, w);
-				if (low[w] < min)
-					min = low[w];
+		for (long edge : G.getOutgoingEdgesOf(v)) {
+			int w = G.getEdgeTargetIndex(edge);
+			if (!marked[w]) {
+				dfs(G, w);
+			}
+			if (low[w] < min) {
+				min = low[w];
 			}
 		}
 		if (min < low[v]) {

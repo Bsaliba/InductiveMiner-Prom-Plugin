@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.graphs;
 
-import org.deckfour.xes.classification.XEventClass;
 
 public class GraphFactory {
 	
@@ -8,7 +7,7 @@ public class GraphFactory {
 		return new GraphImplLinearEdge<V>(clazz);
 	}
 
-	public static Graph<XEventClass> createTimeOptimised(Class<XEventClass> clazz, int initialSize) {
-		return new GraphImplLinearEdgeImportOptimised<XEventClass>(clazz);
-	}
+//	public static Graph<XEventClass> createTimeOptimised(Class<XEventClass> clazz, int initialSize) {
+//		return new GraphImplLinearEdgeImportOptimised<XEventClass>(clazz);
+//	}
 }
