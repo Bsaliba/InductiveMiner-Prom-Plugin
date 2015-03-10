@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.Classifiers;
 import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
@@ -258,8 +259,10 @@ public class IMMiningDialog extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				Variant variant = (Variant) variantCombobox.getSelectedItem();
 				float noise = p.parameters.getNoiseThreshold();
+				XEventClassifier classifier = p.parameters.getClassifier();
 				p.parameters = variant.getMiningParameters();
 				p.parameters.setNoiseThreshold(noise);
+				p.parameters.setClassifier(classifier);
 				if (variant.hasNoise()) {
 					noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
 				} else {
