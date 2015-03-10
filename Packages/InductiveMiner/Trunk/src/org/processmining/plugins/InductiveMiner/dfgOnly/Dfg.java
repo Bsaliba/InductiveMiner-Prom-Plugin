@@ -54,7 +54,7 @@ public class Dfg {
 	public void addActivity(XEventClass activity) {
 		directlyFollowsGraph.addVertex(activity);
 //		eventuallyFollowsGraph.addVertex(activity);
-//		parallelGraph.addVertex(activity);
+		parallelGraph.addVertex(activity);
 //		uncertainDirectlyFollowsGraph.addVertex(activity);
 //		uncertainEventuallyFollowsGraph.addVertex(activity);
 	}
