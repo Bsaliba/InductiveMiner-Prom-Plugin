@@ -43,7 +43,7 @@ public class IMLog2 implements Iterable<IMTrace2> {
 	 * 
 	 * @param xLog
 	 */
-	public IMLog2(XLog xLog, XEventClassifier classifier) {
+	public IMLog2(XLog xLog, XEventClassifier activityClassifier) {
 		this.xLog = xLog;
 		outTraces = new BitSet(xLog.size());
 		outEvents = new BitSet[xLog.size()];
@@ -54,7 +54,7 @@ public class IMLog2 implements Iterable<IMTrace2> {
 		addedTraces = new TIntArrayList();
 		addedTracesOutEvents = new ArrayList<>();
 		
-		xLogInfo = XLogInfoFactory.createLogInfo(xLog, classifier);
+		xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
 		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifecycleClassifier);
 	}
 

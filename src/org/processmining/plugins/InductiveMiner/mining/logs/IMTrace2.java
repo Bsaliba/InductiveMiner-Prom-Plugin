@@ -71,6 +71,8 @@ public class IMTrace2 implements Iterable<XEvent> {
 		StringBuilder result = new StringBuilder();
 		for (XEvent e : this) {
 			result.append(log.classify(e));
+			result.append(log.isStart(e) ? "s" : "c");
+			result.append(",");
 		}
 		return result.toString();
 	}
