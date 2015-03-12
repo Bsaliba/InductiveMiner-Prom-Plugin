@@ -100,6 +100,16 @@ public class IMTrace2 implements Iterable<XEvent> {
 		int now;
 		int next;
 		int counter;
+		
+		@Override
+		public IMEventIterator clone() {
+			IMEventIterator result = new IMEventIterator(0, to);
+			result.to = to;
+			result.now = now;
+			result.next = next;
+			result.counter = counter;
+			return result;
+		}
 
 		public IMEventIterator(int from, int to) {
 			now = -1;
@@ -109,7 +119,7 @@ public class IMTrace2 implements Iterable<XEvent> {
 
 			//walk to from
 			for (int i = 0; i < from; i++) {
-				next();
+				progress();
 			}
 		}
 
@@ -123,12 +133,16 @@ public class IMTrace2 implements Iterable<XEvent> {
 		public void remove() {
 			outEvents.set(now);
 		}
-
+		
 		public XEvent next() {
+			progress();
+			return getXTrace().get(now);
+		}
+
+		private void progress() {
 			now = next;
 			next = outEvents.nextClearBit(next + 1);
 			counter++;
-			return getXTrace().get(now);
 		}
 
 		/**
@@ -150,6 +164,25 @@ public class IMTrace2 implements Iterable<XEvent> {
 			outEvents.set(0, now);
 
 			return newTrace;
+		}
+		
+		/**
+		 * Return a new iterable that iterates from the current position (including) to the given iterator (exclusive)
+		 * @param it
+		 * @return
+		 */
+		public Iterable<XEvent> getUntil(IMEventIterator it) {
+			final int startAt = now;
+			final int to = it.counter - 1;
+			final int newCounter = counter - 1;
+			return new Iterable<XEvent>() {
+				public Iterator<XEvent> iterator() {
+					IMEventIterator result = new IMEventIterator(0, to);
+					result.next = startAt;
+					result.counter = newCounter;
+					return result;
+				}
+			};
 		}
 
 	}
