@@ -25,7 +25,6 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
 		long numberOfEvents = 0;
 		long numberOfEpsilonTraces = 0;
-		long highestTraceCardinality = 0;
 
 		XEventClass fromEventClass;
 		XEventClass toEventClass;
@@ -103,6 +102,6 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		}
 
 		return new IMLogInfo(dfg, activities, minimumSelfDistancesBetween, minimumSelfDistances,
-				numberOfEvents, numberOfEpsilonTraces, highestTraceCardinality);
+				numberOfEvents, numberOfEpsilonTraces);
 	}
 }

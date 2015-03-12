@@ -96,6 +96,7 @@ public class IMTrace2 implements Iterable<XEvent> {
 	}
 
 	public class IMEventIterator implements Iterator<XEvent> {
+		int from;
 		int to;
 		int now;
 		int next;
@@ -104,6 +105,7 @@ public class IMTrace2 implements Iterable<XEvent> {
 		@Override
 		public IMEventIterator clone() {
 			IMEventIterator result = new IMEventIterator(0, to);
+			result.from = from;
 			result.to = to;
 			result.now = now;
 			result.next = next;
@@ -185,6 +187,17 @@ public class IMTrace2 implements Iterable<XEvent> {
 			};
 		}
 
+		public boolean hasPrevious() {
+			int previous = outEvents.previousClearBit(now - 1);
+			return previous >= 0 && counter >= from;
+		}
+		
+		public XEvent previous() {
+			next = now;
+			now = outEvents.previousClearBit(now - 1);
+			counter--;
+			return getXTrace().get(now);
+		}
 	}
 	
 }

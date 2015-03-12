@@ -1,5 +1,8 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
+import java.util.Iterator;
+
+import org.apache.commons.collections15.iterators.ArrayIterator;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
@@ -61,6 +64,15 @@ public class Dfg {
 
 	public Graph<XEventClass> getDirectlyFollowsGraph() {
 		return directlyFollowsGraph;
+	}
+	
+	public Iterable<XEventClass> getActivities() {
+		return new Iterable<XEventClass>() {
+			public Iterator<XEventClass> iterator() {
+				return new ArrayIterator<XEventClass>(directlyFollowsGraph.getVertices());
+			}
+		};
+		
 	}
 
 	public Graph<XEventClass> getEventuallyFollowsGraph() {
