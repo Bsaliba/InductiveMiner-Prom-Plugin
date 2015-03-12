@@ -58,8 +58,7 @@ public class CutFinderIMi implements CutFinder {
 				filteredEndActivities, null, null);
 
 		return new IMLogInfo(dfg, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
-				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-				logInfo.getHighestTraceCardinality());
+				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces());
 	}
 
 	/**

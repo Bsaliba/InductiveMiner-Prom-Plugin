@@ -20,19 +20,16 @@ public class IMLogInfo {
 	
 	protected final long numberOfEvents;
 	protected final long numberOfEpsilonTraces;
-	protected final long highestTraceCardinality;
 
 	public IMLogInfo(Dfg directlyFollowsGraph, MultiSet<XEventClass> activities,
 			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
-			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces,
-			long highestTraceCardinality) {
+			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces) {
 		this.dfg = directlyFollowsGraph;
 		this.activities = activities;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
 		this.minimumSelfDistances = minimumSelfDistances;
 		this.numberOfEvents = numberOfEvents;
 		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
-		this.highestTraceCardinality = highestTraceCardinality;
 	}
 
 	public String toString() {
@@ -103,9 +100,9 @@ public class IMLogInfo {
 	 * 
 	 * @return
 	 */
-	public long getHighestTraceCardinality() {
-		return highestTraceCardinality;
-	}
+//	public long getHighestTraceCardinality() {
+//		return highestTraceCardinality;
+//	}
 
 	/**
 	 * Gives the number of times the directed edge that occurs the most occurs
