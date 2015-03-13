@@ -143,13 +143,11 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		while (itCurrent.hasNext()) {
 			XEvent event = itCurrent.next();
 			XEventClass activity = log.classify(event);
-			System.out.println("read " + activity);
 
 			//this is a start event if the log says so, or if we see a complete without corresponding preceding start event. 
 			boolean isStartEvent = log.isStart(event) || !openActivityInstances.contains(activity);
 			boolean isCompleteEvent = log.isComplete(event);
 			isStart[i] = isStartEvent;
-			System.out.println(" start " + isStartEvent + ", complete " + isCompleteEvent);
 
 			if (isStartEvent) {
 				//this is a start event, which means that it could have predecessors
