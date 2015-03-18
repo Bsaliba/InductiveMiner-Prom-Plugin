@@ -9,6 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
@@ -83,10 +84,10 @@ public class Miner {
 			} else {
 				//loop needs special treatment:
 				//ProcessTree requires a ternary loop
-				Iterator<IMLog2> it = splitResult.sublogs.iterator();
+				Iterator<IMLog> it = splitResult.sublogs.iterator();
 
 				//mine body
-				IMLog2 firstSublog = it.next();
+				IMLog firstSublog = it.next();
 				{
 					Node firstChild = mineNode(firstSublog, tree, minerState);
 					newNode.addChild(firstChild);

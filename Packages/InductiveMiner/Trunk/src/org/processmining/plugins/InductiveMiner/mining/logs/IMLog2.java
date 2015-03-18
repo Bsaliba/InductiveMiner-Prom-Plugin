@@ -20,7 +20,7 @@ import org.deckfour.xes.model.impl.XAttributeMapImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 
-public class IMLog2 implements Iterable<IMTrace2> {
+public class IMLog2 implements Iterable<IMTrace> {
 	
 	/*
 	 * Memory-lightweight implementation of a filtering system.
@@ -116,18 +116,18 @@ public class IMLog2 implements Iterable<IMTrace2> {
 	 * @param index
 	 * @return
 	 */
-	public IMTrace2 copyTrace(int index, BitSet traceOutEvents) {
+	public IMTrace copyTrace(int index, BitSet traceOutEvents) {
 		assert(index >= 0);
 		
 		addedTraces.add(index);
 		BitSet newOutEvents = (BitSet) traceOutEvents.clone();
 		addedTracesOutEvents.add(newOutEvents);
-		return new IMTrace2(index, newOutEvents, this);
+		return new IMTrace(index, newOutEvents, this);
 	}
 
-	public Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2> iterator() {
+	public Iterator<IMTrace> iterator() {
 		final IMLog2 t = this;
-		return new Iterator<org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2>() {
+		return new Iterator<IMTrace>() {
 
 			int next = init();
 			int now = next - 1;
@@ -158,7 +158,7 @@ public class IMLog2 implements Iterable<IMTrace2> {
 				}
 			}
 
-			public IMTrace2 next() {
+			public IMTrace next() {
 				now = next;
 				if (next < -1) {
 					//we are in the added traces
@@ -170,10 +170,10 @@ public class IMLog2 implements Iterable<IMTrace2> {
 				
 				if (now < 0) {
 					//we are in the added traces
-					return new IMTrace2(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
+					return new IMTrace(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
 				} else {
 					//we are in the normal traces
-					return new IMTrace2(now, outEvents[now], t);
+					return new IMTrace(now, outEvents[now], t);
 				}
 			}
 		};

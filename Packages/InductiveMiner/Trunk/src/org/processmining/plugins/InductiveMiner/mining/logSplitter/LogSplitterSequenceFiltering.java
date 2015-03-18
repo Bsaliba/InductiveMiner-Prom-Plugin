@@ -17,8 +17,9 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class LogSplitterSequenceFiltering implements LogSplitter {
 
@@ -29,13 +30,13 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 	public static LogSplitResult split(IMLog2 log, Collection<Set<XEventClass>> partition) {
 
 		//initialise
-		List<IMLog2> result = new ArrayList<>();
+		List<IMLog> result = new ArrayList<>();
 		Map<Set<XEventClass>, IMLog2> mapSigma2Sublog = new THashMap<>();
 
 		Map<XEventClass, Set<XEventClass>> mapActivity2sigma = new THashMap<>();
-		Map<Set<XEventClass>, Iterator<IMTrace2>> mapSigma2TraceIterator = new THashMap<>();
+		Map<Set<XEventClass>, Iterator<IMTrace>> mapSigma2TraceIterator = new THashMap<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog2 sublog = new IMLog2(log);
+			IMLog sublog = new IMLog(log);
 			result.add(sublog);
 			mapSigma2Sublog.put(sigma, sublog);
 			mapSigma2TraceIterator.put(sigma, sublog.iterator());
@@ -46,15 +47,15 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 		MultiSet<XEventClass> noise = new MultiSet<>();
 
 		//walk through the traces (in all sublogs and the original log)
-		for (IMTrace2 trace : log) {
-			Map<Set<XEventClass>, IMTrace2> subtraces = progress(mapSigma2TraceIterator);
+		for (IMTrace trace : log) {
+			Map<Set<XEventClass>, IMTrace> subtraces = progress(mapSigma2TraceIterator);
 			Set<XEventClass> ignore = new THashSet<>();
 
 			//for each trace, fit each sigma
 			int atPosition = 0; //we start before the first event
 			for (Iterator<Set<XEventClass>> itSigma = partition.iterator(); itSigma.hasNext();) {
 				Set<XEventClass> sigma = itSigma.next();
-				IMTrace2 subtrace = subtraces.get(sigma);
+				IMTrace subtrace = subtraces.get(sigma);
 				Iterator<XEvent> it = subtrace.iterator();
 
 				//remove all events before atPosition
@@ -102,16 +103,16 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 	 * @param mapSigma2Trace
 	 * @return
 	 */
-	private static Map<Set<XEventClass>, IMTrace2> progress(
-			Map<Set<XEventClass>, Iterator<IMTrace2>> mapSigma2TraceIterator) {
-		Map<Set<XEventClass>, IMTrace2> result = new THashMap<>();
-		for (Entry<Set<XEventClass>, Iterator<IMTrace2>> e : mapSigma2TraceIterator.entrySet()) {
+	private static Map<Set<XEventClass>, IMTrace> progress(
+			Map<Set<XEventClass>, Iterator<IMTrace>> mapSigma2TraceIterator) {
+		Map<Set<XEventClass>, IMTrace> result = new THashMap<>();
+		for (Entry<Set<XEventClass>, Iterator<IMTrace>> e : mapSigma2TraceIterator.entrySet()) {
 			result.put(e.getKey(), e.getValue().next());
 		}
 		return result;
 	}
 
-	private static int findOptimalSplit(IMLog2 log, IMTrace2 trace, Set<XEventClass> sigma, int startPosition,
+	private static int findOptimalSplit(IMLog2 log, IMTrace trace, Set<XEventClass> sigma, int startPosition,
 			Set<XEventClass> ignore) {
 		int positionLeastCost = 0;
 		int leastCost = 0;
