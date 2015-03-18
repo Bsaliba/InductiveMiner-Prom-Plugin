@@ -3,7 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.logSplitter;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class LogSplitterCombination implements LogSplitter {
 
@@ -19,7 +19,7 @@ public class LogSplitterCombination implements LogSplitter {
 		this.loop = loop;
 	}
 
-	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		switch (cut.getOperator()) {
 			case xor :
 				return xor.split(log, logInfo, cut, minerState);

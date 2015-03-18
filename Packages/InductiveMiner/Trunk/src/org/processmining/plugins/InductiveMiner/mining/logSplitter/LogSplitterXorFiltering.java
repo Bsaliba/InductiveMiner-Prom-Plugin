@@ -16,17 +16,15 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 
 public class LogSplitterXorFiltering implements LogSplitter {
 
-	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		return split(log, cut.getPartition());
 	}
 
-	public static LogSplitResult split(IMLog2 log, Collection<Set<XEventClass>> partition) {
+	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition) {
 
 		//map activities to sigmas
 		TObjectIntHashMap<XEventClass> eventclass2sigmaIndex = new TObjectIntHashMap<>();
@@ -48,7 +46,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
 			for (Iterator<IMTrace> it = sublog.iterator(); it.hasNext();) {
-				IMTrace2 trace = it.next();
+				IMTrace trace = it.next();
 
 				//walk through the events and count how many go in each sigma
 				int[] sigmaEventCounters = new int[partition.size()];

@@ -13,17 +13,16 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2.IMEventIterator;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 
 public class LogSplitterLoop implements LogSplitter {
 
-	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		return new LogSplitResult(split(log, cut.getPartition(), minerState), new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog> split(IMLog2 log, Collection<Set<XEventClass>> partition, MinerState minerState) {
+	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
 //		System.out.println("==before==");
 //		System.out.println(log);

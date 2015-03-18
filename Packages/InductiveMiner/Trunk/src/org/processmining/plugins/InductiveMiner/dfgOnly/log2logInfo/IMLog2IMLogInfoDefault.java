@@ -12,12 +12,12 @@ import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
-	public IMLogInfo createLogInfo(IMLog2 log) {
+	public IMLogInfo createLogInfo(IMLog log) {
 		//initialise, read the log
 		Dfg dfg = new Dfg();
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
@@ -33,7 +33,7 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		Map<XEventClass, Integer> eventSeenAt;
 		List<XEventClass> readTrace;
 
-		for (IMTrace2 trace : log) {
+		for (IMTrace trace : log) {
 
 			toEventClass = null;
 			fromEventClass = null;

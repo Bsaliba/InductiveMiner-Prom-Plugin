@@ -18,20 +18,19 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 public class LogSplitterSequenceFiltering implements LogSplitter {
 
-	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		return split(log, cut.getPartition());
 	}
 
-	public static LogSplitResult split(IMLog2 log, Collection<Set<XEventClass>> partition) {
+	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition) {
 
 		//initialise
 		List<IMLog> result = new ArrayList<>();
-		Map<Set<XEventClass>, IMLog2> mapSigma2Sublog = new THashMap<>();
+		Map<Set<XEventClass>, IMLog> mapSigma2Sublog = new THashMap<>();
 
 		Map<XEventClass, Set<XEventClass>> mapActivity2sigma = new THashMap<>();
 		Map<Set<XEventClass>, Iterator<IMTrace>> mapSigma2TraceIterator = new THashMap<>();
@@ -112,7 +111,7 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 		return result;
 	}
 
-	private static int findOptimalSplit(IMLog2 log, IMTrace trace, Set<XEventClass> sigma, int startPosition,
+	private static int findOptimalSplit(IMLog log, IMTrace trace, Set<XEventClass> sigma, int startPosition,
 			Set<XEventClass> ignore) {
 		int positionLeastCost = 0;
 		int leastCost = 0;
