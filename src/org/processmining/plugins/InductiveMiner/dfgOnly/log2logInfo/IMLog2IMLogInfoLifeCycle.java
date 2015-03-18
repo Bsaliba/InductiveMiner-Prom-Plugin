@@ -8,9 +8,9 @@ import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2.IMEventIterator;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 
 public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
@@ -20,7 +20,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
 	}
 	
-	public IMLogInfo createLogInfo(IMLog2 log) {
+	public IMLogInfo createLogInfo(IMLog log) {
 		Count count = new Count();
 		Dfg dfg = log2Dfg(log, count);
 		
@@ -31,9 +31,9 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				count.numberOfEvents, count.numberOfEpsilonTraces);
 	}
 	
-	public static Dfg log2Dfg(IMLog2 log, Count count) {
+	public static Dfg log2Dfg(IMLog log, Count count) {
 		Dfg dfg = new Dfg();
-		for (IMTrace2 trace : log) {
+		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, count);
 			
 			if (trace.isEmpty()) {
@@ -51,15 +51,15 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 	 * @param log
 	 * @return
 	 */
-	public static Dfg log2Dfg(IMLog2 log) {
+	public static Dfg log2Dfg(IMLog log) {
 		Dfg dfg = new Dfg();
-		for (IMTrace2 trace : log) {
+		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, null);
 		}
 		return dfg;
 	}
 
-	private static void processTrace(IMLog2 log, Dfg dfg, IMTrace2 trace, Count count) {
+	private static void processTrace(IMLog log, Dfg dfg, IMTrace trace, Count count) {
 		if (trace.isEmpty()) {
 			return;
 		}
@@ -74,7 +74,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		processStartEnd(log, dfg, trace);
 	}
 
-	private static void processStartEnd(IMLog2 log, Dfg dfg, IMTrace2 trace) {
+	private static void processStartEnd(IMLog log, Dfg dfg, IMTrace trace) {
 		boolean activityOccurrenceCompleted = false;
 		MultiSet<XEventClass> activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 		MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
@@ -113,7 +113,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		dfg.getEndActivities().addAll(activityOccurrencesEndedSinceLastStart);
 	}
 
-	private static void processParallel(IMLog2 log, Dfg dfg, IMTrace2 trace) {
+	private static void processParallel(IMLog log, Dfg dfg, IMTrace trace) {
 		MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
 		for (XEvent event : trace) {
 			XEventClass eventClass = log.classify(event);
@@ -133,7 +133,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		}
 	}
 
-	private static void processDirectlyFollows(IMLog2 log, Dfg dfg, IMTrace2 trace, Count count) {
+	private static void processDirectlyFollows(IMLog log, Dfg dfg, IMTrace trace, Count count) {
 		IMEventIterator itCurrent = trace.iterator();
 		MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
 
@@ -171,7 +171,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		}
 	}
 	
-	private static void walkBack(IMEventIterator it, boolean[] isStart, IMLog2 log, int i, Dfg dfg, XEventClass target) {
+	private static void walkBack(IMEventIterator it, boolean[] isStart, IMLog log, int i, Dfg dfg, XEventClass target) {
 		it = it.clone();
 		MultiSet<XEventClass> completes = new MultiSet<>();
 		while (it.hasPrevious()) {

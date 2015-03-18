@@ -21,7 +21,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveL
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveParallel;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveXor;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMin implements CutFinder, DfgCutFinder {
 
@@ -41,7 +41,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		return findCut(info, threshold);
 	}
 
-	public Cut findCut(IMLog2 log, IMLogInfo logInfo, MinerState minerState) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		float threshold = minerState.parameters.getIncompleteThreshold();
 		JobList jobList = new JobListConcurrent(minerState.parameters.getSatPool());
 

@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public interface CutFinder {
 
@@ -16,6 +16,6 @@ public interface CutFinder {
 	 * @param minerState
 	 * @return
 	 */
-	public Cut findCut(IMLog2 log, IMLogInfo logInfo, MinerState minerState);
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState);
 
 }

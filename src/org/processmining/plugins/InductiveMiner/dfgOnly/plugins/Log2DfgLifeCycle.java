@@ -10,7 +10,6 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class Log2DfgLifeCycle {
 	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
@@ -22,7 +21,7 @@ public class Log2DfgLifeCycle {
 		return IMLog2IMLogInfoLifeCycle.log2Dfg(new IMLog(log, MiningParameters.getDefaultClassifier()));
 	}
 
-	public static Dfg log2Dfg(IMLog2 log) {
+	public static Dfg log2Dfg(IMLog log) {
 		return IMLog2IMLogInfoLifeCycle.log2Dfg(log);
 	}
 

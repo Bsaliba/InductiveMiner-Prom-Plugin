@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
@@ -21,5 +21,5 @@ public interface BaseCaseFinder {
 	 * @param minerState
 	 * @return
 	 */
-	public Node findBaseCases(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState);
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState);
 }

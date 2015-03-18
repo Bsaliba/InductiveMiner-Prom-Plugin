@@ -12,8 +12,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -22,14 +21,14 @@ import org.processmining.processtree.impl.AbstractTask.Automatic;
 
 public class FallThroughTauLoop implements FallThrough {
 
-	public Node fallThrough(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		if (logInfo.getActivities().toSet().size() > 1) {
 
 			//try to find a tau loop
 			XLog sublog = new XLogImpl(new XAttributeMapImpl());
 
-			for (IMTrace2 trace : log) {
+			for (IMTrace trace : log) {
 				filterTrace(log, sublog, trace, logInfo.getStartActivities());
 			}
 
@@ -63,7 +62,7 @@ public class FallThroughTauLoop implements FallThrough {
 		return null;
 	}
 
-	public static void filterTrace(IMLog2 log, XLog sublog, IMTrace2 trace, MultiSet<XEventClass> startActivities) {
+	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities) {
 		boolean first = true;
 		XTrace partialTrace = new XTraceImpl(new XAttributeMapImpl());
 		for (XEvent event : trace) {

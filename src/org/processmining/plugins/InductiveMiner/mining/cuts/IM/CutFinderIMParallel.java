@@ -20,11 +20,11 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(IMLog2 log, IMLogInfo logInfo, MinerState minerState) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
 				null);
 	}

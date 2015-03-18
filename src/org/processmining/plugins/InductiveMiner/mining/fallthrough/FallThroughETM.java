@@ -2,13 +2,13 @@ package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
 public class FallThroughETM implements FallThrough {
 	
-	public Node fallThrough(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		/*
 		private static PluginContext context = new CLIPluginContext(new CLIContext(), "");
 		ETMParam etmParameters = ETMParamFactory.buildStandardParam(log.toXLog(), context);

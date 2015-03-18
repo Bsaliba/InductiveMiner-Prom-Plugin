@@ -6,9 +6,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -17,7 +15,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog2 log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 		//this clause is not proven in the paper
 		if (logInfo.getNumberOfEpsilonTraces() != 0) {
 			//the log contains empty traces
@@ -47,7 +45,7 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 				newNode.addChild(tau);
 
 				//filter empty traces
-				IMLog2 sublog = removeEpsilonTraces(log);
+				IMLog sublog = removeEpsilonTraces(log);
 
 				//recurse
 				Node child = Miner.mineNode(sublog, tree, minerState);
@@ -59,10 +57,10 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 		return null;
 	}
 	
-	public static IMLog removeEpsilonTraces(IMLog2 log) {
+	public static IMLog removeEpsilonTraces(IMLog log) {
 		IMLog sublog = new IMLog(log);
 		for (Iterator<IMTrace> it = sublog.iterator();it.hasNext();) {
-			IMTrace2 t = it.next();
+			IMTrace t = it.next();
 			if (t.isEmpty()) {
 				it.remove();
 			}

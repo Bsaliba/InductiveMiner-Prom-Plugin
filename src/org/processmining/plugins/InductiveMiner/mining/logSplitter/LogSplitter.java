@@ -8,7 +8,6 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public interface LogSplitter {
 	
@@ -31,5 +30,5 @@ public interface LogSplitter {
 	 * @param minerState
 	 * @return
 	 */
-	public LogSplitResult split(IMLog2 log, IMLogInfo logInfo, Cut cut, MinerState minerState);
+	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState);
 }

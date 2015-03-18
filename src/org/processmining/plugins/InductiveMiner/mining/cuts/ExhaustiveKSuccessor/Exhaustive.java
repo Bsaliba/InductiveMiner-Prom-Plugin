@@ -20,7 +20,6 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class Exhaustive {
 
@@ -31,7 +30,7 @@ public class Exhaustive {
 	}
 
 	private UpToKSuccessorMatrix kSuccessor;
-	private IMLog2 log;
+	private IMLog log;
 	private IMLogInfo logInfo;
 	private MinerState minerState;
 	private ThreadPoolMiner pool;
@@ -40,7 +39,7 @@ public class Exhaustive {
 	private final LogSplitter logSplitter;
 	private final IMLog2IMLogInfo log2dfg;
 
-	public Exhaustive(IMLog2 log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
+	public Exhaustive(IMLog log, IMLogInfo logInfo, UpToKSuccessorMatrix kSuccessor, MinerState minerState) {
 		this.kSuccessor = kSuccessor;
 		this.log = log;
 		this.logInfo = logInfo;
