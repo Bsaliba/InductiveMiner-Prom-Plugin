@@ -9,6 +9,7 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class Log2DfgLifeCycle {
@@ -18,7 +19,7 @@ public class Log2DfgLifeCycle {
 	public Dfg log2Dfg(PluginContext context, XLog log) {
 		context.getFutureResult(0).setLabel(
 				"Directly-follows graph of " + XConceptExtension.instance().extractName(log));
-		return IMLog2IMLogInfoLifeCycle.log2Dfg(new IMLog2(log, MiningParameters.getDefaultClassifier()));
+		return IMLog2IMLogInfoLifeCycle.log2Dfg(new IMLog(log, MiningParameters.getDefaultClassifier()));
 	}
 
 	public static Dfg log2Dfg(IMLog2 log) {

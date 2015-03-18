@@ -7,14 +7,15 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public interface LogSplitter {
 	
 	public class LogSplitResult {
-		public List<IMLog2> sublogs;
+		public List<IMLog> sublogs;
 		public MultiSet<XEventClass> discardedEvents;
-		public LogSplitResult(List<IMLog2> sublogs, MultiSet<XEventClass> noise) {
+		public LogSplitResult(List<IMLog> sublogs, MultiSet<XEventClass> noise) {
 			this.sublogs = sublogs;
 			this.discardedEvents = noise;
 		}

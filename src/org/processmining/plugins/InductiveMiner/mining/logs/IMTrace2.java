@@ -155,9 +155,9 @@ public class IMTrace2 implements Iterable<XEvent> {
 		 * 
 		 * @return the newly created trace
 		 */
-		public IMTrace2 split() {
+		public IMTrace split() {
 			//copy this trace completely
-			IMTrace2 newTrace = log.copyTrace(XTraceIndex, outEvents);
+			IMTrace newTrace = log.copyTrace(XTraceIndex, outEvents);
 
 			//in the new trace, remove all events from now
 			newTrace.outEvents.set(now, getXTrace().size());

@@ -12,8 +12,9 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 /**
  * Splits the log by putting each event into its sigma. Empty traces are
@@ -28,12 +29,12 @@ public class LogSplitterXor implements LogSplitter {
 		return new LogSplitResult(split(log, cut.getPartition()), new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog2> split(IMLog2 log, Collection<Set<XEventClass>> partition) {
-		List<IMLog2> result = new ArrayList<>();
+	public static List<IMLog> split(IMLog2 log, Collection<Set<XEventClass>> partition) {
+		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog2 sublog = new IMLog2(log);
-			for (Iterator<IMTrace2> itTrace = sublog.iterator(); itTrace.hasNext();) {
-				IMTrace2 trace = itTrace.next();
+			IMLog sublog = new IMLog(log);
+			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
+				IMTrace trace = itTrace.next();
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {
 					XEventClass c = sublog.classify(it.next());
 					if (!sigma.contains(c)) {

@@ -19,6 +19,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
 
 public class Exhaustive {
@@ -26,7 +27,7 @@ public class Exhaustive {
 	public class Result {
 		int distance;
 		public Cut cut;
-		public Collection<IMLog2> sublogs;
+		public Collection<IMLog> sublogs;
 	}
 
 	private UpToKSuccessorMatrix kSuccessor;
@@ -142,9 +143,9 @@ public class Exhaustive {
 		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
-		Iterator<IMLog2> it = result.sublogs.iterator();
-		IMLog2 log0 = it.next();
-		IMLog2 log1 = it.next();
+		Iterator<IMLog> it = result.sublogs.iterator();
+		IMLog log0 = it.next();
+		IMLog log1 = it.next();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 
@@ -167,9 +168,9 @@ public class Exhaustive {
 		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations
-		Iterator<IMLog2> it = result.sublogs.iterator();
-		IMLog2 log0 = it.next();
-		IMLog2 log1 = it.next();
+		Iterator<IMLog> it = result.sublogs.iterator();
+		IMLog log0 = it.next();
+		IMLog log1 = it.next();
 		UpToKSuccessorMatrix successor0 = UpToKSuccessor.fromLog(log0, log2dfg.createLogInfo(log0));
 		UpToKSuccessorMatrix successor1 = UpToKSuccessor.fromLog(log1, log2dfg.createLogInfo(log1));
 

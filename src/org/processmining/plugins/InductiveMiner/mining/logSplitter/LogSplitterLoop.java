@@ -12,8 +12,9 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog2;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace2.IMEventIterator;
 
 public class LogSplitterLoop implements LogSplitter {
@@ -22,17 +23,17 @@ public class LogSplitterLoop implements LogSplitter {
 		return new LogSplitResult(split(log, cut.getPartition(), minerState), new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog2> split(IMLog2 log, Collection<Set<XEventClass>> partition, MinerState minerState) {
+	public static List<IMLog> split(IMLog2 log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
 //		System.out.println("==before==");
 //		System.out.println(log);
 //		System.out.println("--");
-		List<IMLog2> result = new ArrayList<>();
+		List<IMLog> result = new ArrayList<>();
 		boolean firstSigma = true;
 		for (Set<XEventClass> sigma : partition) {
-			IMLog2 sublog = new IMLog2(log);
-			for (Iterator<IMTrace2> itTrace = sublog.iterator(); itTrace.hasNext();) {
-				IMTrace2 trace = itTrace.next();
+			IMLog sublog = new IMLog(log);
+			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
+				IMTrace trace = itTrace.next();
 				boolean lastIn = firstSigma;
 				boolean anyIn = false;
 				for (IMEventIterator itEvent = trace.iterator(); itEvent.hasNext();) {
@@ -40,7 +41,7 @@ public class LogSplitterLoop implements LogSplitter {
 					if (sigma.contains(log.classify(event))) {
 						if (!lastIn && (firstSigma || anyIn)) {
 							//this is the first activity of a new subtrace, so split
-							IMTrace2 newTrace = itEvent.split();
+							IMTrace newTrace = itEvent.split();
 							newTrace.toString();
 						}
 						lastIn = true;
