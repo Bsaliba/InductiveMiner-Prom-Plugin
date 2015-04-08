@@ -39,7 +39,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.addNode(tree, loop);
 
 				{
-					Node body = Miner.mineNode(new IMLog(sublog, minerState.parameters.getClassifier()), tree, minerState);
+					Node body = Miner.mineNode(new IMLog(sublog, log.getClassifier()), tree, minerState);
 					loop.addChild(body);
 				}
 
