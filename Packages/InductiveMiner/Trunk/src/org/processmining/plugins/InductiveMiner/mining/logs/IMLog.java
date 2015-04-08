@@ -33,6 +33,7 @@ public class IMLog implements Iterable<IMTrace> {
 	private final TIntArrayList addedTraces;
 	private final List<BitSet> addedTracesOutEvents;
 	
+	private final XEventClassifier activityClassifier;
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
 	
@@ -54,6 +55,7 @@ public class IMLog implements Iterable<IMTrace> {
 		addedTraces = new TIntArrayList();
 		addedTracesOutEvents = new ArrayList<>();
 		
+		this.activityClassifier = activityClassifier;
 		xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
 		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifecycleClassifier);
 	}
@@ -77,6 +79,7 @@ public class IMLog implements Iterable<IMTrace> {
 			addedTracesOutEvents.add((BitSet) log.addedTracesOutEvents.get(i).clone());
 		}
 		
+		activityClassifier = log.activityClassifier;
 		xLogInfo = log.xLogInfo;
 		xLogInfoLifecycle = log.xLogInfoLifecycle;
 	}
@@ -88,6 +91,10 @@ public class IMLog implements Iterable<IMTrace> {
 	 */
 	public XEventClass classify(XEvent event) {
 		return xLogInfo.getEventClasses().getClassOf(event);
+	}
+	
+	public XEventClassifier getClassifier() {
+		return activityClassifier;
 	}
 	
 	public boolean isStart(XEvent event) {
