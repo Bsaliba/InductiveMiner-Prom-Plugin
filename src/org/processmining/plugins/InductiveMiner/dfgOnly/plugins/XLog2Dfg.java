@@ -17,7 +17,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 
 public class XLog2Dfg {
 	@Plugin(name = "Convert log to directly-follows graph", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = {
-	"Log" }, userAccessible = true)
+	"Log" }, userAccessible = true, help="Convert a log into a directly-follows graph.")
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Dfg log2Dfg(PluginContext context, XLog log) {
