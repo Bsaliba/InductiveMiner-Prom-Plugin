@@ -12,7 +12,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class Log2DfgLifeCycle {
-	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true)
+	@Plugin(name = "Convert log to directly-follows graph using lifecycle", returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class }, parameterLabels = { "Log" }, userAccessible = true, help = "Convert a log into a directly-follows graph, while accounting for life cycle transitions, i.e. start and complete events are used to denote the duration of tasks, making parallelism easily detectable.")
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Dfg log2Dfg(PluginContext context, XLog log) {
