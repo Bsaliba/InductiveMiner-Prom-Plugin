@@ -12,7 +12,6 @@
 	<classpathentry kind="lib" path="stdlib/flanagan.jar"/>
 	<classpathentry kind="lib" path="stdlib/jargs.jar"/>
 	<classpathentry kind="lib" path="stdlib/jcommon-1.0.16.jar"/>
-	<classpathentry kind="lib" path="stdlib/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="lib" path="stdlib/jlfgr-1_0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-algorithms-2.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-api-2.0.jar"/>
@@ -66,8 +65,8 @@
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jbpt-0.2.393.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/trove-3.0.3.jar"/>
 	<classpathentry kind="lib" path="packagelib/lib-LpSolve/lpsolve55j.jar"/>
-	<classpathentry kind="lib" path="lib/opencsv-2.4-patched.jar"/>
 	<classpathentry kind="lib" path="packagelib/Log.jar"/>
 	<classpathentry kind="lib" path="packagelib/Widgets.jar"/>
+	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/opencsv-2.4-patched.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
