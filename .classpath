@@ -38,7 +38,6 @@
 	<classpathentry kind="lib" path="tests/libs-external/lib-cobertura/log4j-1.2.9.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/cobertura.jar"/>
 	<classpathentry kind="lib" path="tests/libs-external/junit-4.8.1.jar"/>
-	<classpathentry kind="lib" path="packagelib/PetriNets.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-export-2.1.1.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-graphics2d-2.1.1.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-graphicsio-2.1.1.jar"/>
@@ -53,20 +52,8 @@
 	<classpathentry kind="lib" path="stdlib/freehep-swing-2.0.3.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-util-2.0.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/freehep-xml-2.1.1.jar"/>
-	<classpathentry kind="lib" path="packagelib/PNetReplayer.jar"/>
-	<classpathentry kind="lib" path="packagelib/Properties.jar"/>
 	<classpathentry kind="lib" path="stdlib/guava-16.0.1.jar"/>
-	<classpathentry kind="lib" path="packagelib/ProcessTree.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-math-3.1.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/javailp-1.2a.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/trove-3.0.3.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-LpSolve/lpsolve55j.jar"/>
-	<classpathentry kind="lib" path="packagelib/Log.jar"/>
-	<classpathentry kind="lib" path="packagelib/Widgets.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-ApacheUtils/opencsv-2.4-patched.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-BasicUtils/jbpt-0.2.429.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES-2.0.jar"/>
-	<classpathentry kind="lib" path="packagelib/lib-Log/OpenXES-XStream-2.0.jar"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=InductiveMiner&amp;ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=ivysettings.xml&amp;loadSettingsOnDemand=false&amp;ivyUserDir=&amp;propertyFiles="/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
