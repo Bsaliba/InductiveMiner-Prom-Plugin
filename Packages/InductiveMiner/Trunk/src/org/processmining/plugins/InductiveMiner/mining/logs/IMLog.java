@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XAttributeMap;
@@ -37,7 +36,7 @@ public class IMLog implements Iterable<IMTrace> {
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
 	
-	private final static XEventLifeTransClassifier lifecycleClassifier = new XEventLifeTransClassifier();
+	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
 
 	/**
 	 * Create an IMlog from an XLog.
@@ -57,7 +56,7 @@ public class IMLog implements Iterable<IMTrace> {
 		
 		this.activityClassifier = activityClassifier;
 		xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
-		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifecycleClassifier);
+		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifeCycleClassifier);
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class IMLog implements Iterable<IMTrace> {
 	}
 	
 	public boolean isStart(XEvent event) {
-		return lifecycleClassifier.getClassIdentity(event).equalsIgnoreCase("start");
+		return lifeCycleClassifier.getClassIdentity(event).equalsIgnoreCase("start");
 	}
 	
 	public boolean isComplete(XEvent event) {
