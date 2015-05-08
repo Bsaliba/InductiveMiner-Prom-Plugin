@@ -128,7 +128,7 @@ public abstract class MiningParameters {
 		return log2logInfo;
 	}
 
-	public void setLogConverter(IMLog2IMLogInfo log2logInfo) {
+	public void setLog2LogInfo(IMLog2IMLogInfo log2logInfo) {
 		this.log2logInfo = log2logInfo;
 	}
 

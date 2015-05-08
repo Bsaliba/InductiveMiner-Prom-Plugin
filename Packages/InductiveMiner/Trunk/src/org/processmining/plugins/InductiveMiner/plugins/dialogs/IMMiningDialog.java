@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +20,9 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.Classifiers;
 import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
@@ -104,7 +108,7 @@ public class IMMiningDialog extends JPanel {
 			return false;
 		}
 	}
-	
+
 	public class VariantIMEKS extends Variant {
 		public String toString() {
 			return "Inductive Miner - exhaustive K-successor";
@@ -142,7 +146,8 @@ public class IMMiningDialog extends JPanel {
 			add(variantLabel, cVariantLabel);
 		}
 
-		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(), new VariantIMEKS() });
+		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
+				new VariantIMEKS() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
@@ -153,9 +158,9 @@ public class IMMiningDialog extends JPanel {
 			add(variantCombobox, cVariantCombobox);
 			variantCombobox.setSelectedIndex(1);
 		}
-		
+
 		gridy++;
-		
+
 		{
 			JLabel spacer = factory.createLabel(" ");
 			GridBagConstraints cSpacer = new GridBagConstraints();
@@ -208,9 +213,9 @@ public class IMMiningDialog extends JPanel {
 			cNoiseExplanation.anchor = GridBagConstraints.WEST;
 			add(noiseExplanation, cNoiseExplanation);
 		}
-		
+
 		gridy++;
-		
+
 		//spacer
 		{
 			JLabel spacer = factory.createLabel(" ");
@@ -220,9 +225,45 @@ public class IMMiningDialog extends JPanel {
 			cSpacer.anchor = GridBagConstraints.WEST;
 			add(spacer, cSpacer);
 		}
-		
+
 		gridy++;
-		
+
+		//life cycle
+		{
+			final JLabel lifeCycleLabel = factory.createLabel("Use life cycle transitions");
+			GridBagConstraints cLifeCycleLabel = new GridBagConstraints();
+			cLifeCycleLabel.gridx = 0;
+			cLifeCycleLabel.gridy = gridy;
+			cLifeCycleLabel.weightx = 0.4;
+			cLifeCycleLabel.anchor = GridBagConstraints.NORTHWEST;
+			add(lifeCycleLabel, cLifeCycleLabel);
+		}
+
+		final JCheckBox lifeCycle = factory.createCheckBox("", true);
+		{
+			GridBagConstraints cLifeCycle = new GridBagConstraints();
+			cLifeCycle.gridx = 1;
+			cLifeCycle.gridy = gridy;
+			cLifeCycle.anchor = GridBagConstraints.NORTH;
+			cLifeCycle.fill = GridBagConstraints.HORIZONTAL;
+			cLifeCycle.weightx = 0.6;
+			add(lifeCycle, cLifeCycle);
+		}
+
+		gridy++;
+
+		//spacer
+		{
+			JLabel spacer = factory.createLabel(" ");
+			GridBagConstraints cSpacer = new GridBagConstraints();
+			cSpacer.gridx = 0;
+			cSpacer.gridy = gridy;
+			cSpacer.anchor = GridBagConstraints.WEST;
+			add(spacer, cSpacer);
+		}
+
+		gridy++;
+
 		//classifiers
 		{
 			final JLabel classifierLabel = factory.createLabel("Event classifier");
@@ -233,7 +274,7 @@ public class IMMiningDialog extends JPanel {
 			cClassifierLabel.anchor = GridBagConstraints.NORTHWEST;
 			add(classifierLabel, cClassifierLabel);
 		}
-		
+
 		final JComboBox<ClassifierWrapper> classifiers = factory.createComboBox(Classifiers.getClassifiers(log));
 		{
 			GridBagConstraints cClassifiers = new GridBagConstraints();
@@ -244,7 +285,7 @@ public class IMMiningDialog extends JPanel {
 			cClassifiers.weightx = 0.6;
 			add(classifiers, cClassifiers);
 		}
-		
+
 		gridy++;
 
 		{
@@ -259,9 +300,11 @@ public class IMMiningDialog extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				Variant variant = (Variant) variantCombobox.getSelectedItem();
 				float noise = p.parameters.getNoiseThreshold();
+				IMLog2IMLogInfo log2logInfo = p.parameters.getLog2LogInfo();
 				XEventClassifier classifier = p.parameters.getClassifier();
 				p.parameters = variant.getMiningParameters();
 				p.parameters.setNoiseThreshold(noise);
+				p.parameters.setLog2LogInfo(log2logInfo);
 				p.parameters.setClassifier(classifier);
 				if (variant.hasNoise()) {
 					noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
@@ -284,7 +327,17 @@ public class IMMiningDialog extends JPanel {
 				noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
 			}
 		});
-		
+
+		lifeCycle.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				if (lifeCycle.isSelected()) {
+					p.parameters.setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
+				} else {
+					p.parameters.setLog2LogInfo(new IMLog2IMLogInfoDefault());
+				}
+			}
+		});
+
 		classifiers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				p.parameters.setClassifier(((ClassifierWrapper) classifiers.getSelectedItem()).classifier);

@@ -24,6 +24,8 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		Count count = new Count();
 		Dfg dfg = log2Dfg(log, count);
 		
+		dfg.collapseParallelIntoDirectly();
+		
 		TObjectIntHashMap<XEventClass> minimumSelfDistances = new TObjectIntHashMap<>();
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
 		

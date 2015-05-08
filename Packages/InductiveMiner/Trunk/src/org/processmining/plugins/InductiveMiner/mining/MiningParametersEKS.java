@@ -3,7 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
@@ -24,7 +24,7 @@ public class MiningParametersEKS extends MiningParameters {
 	
 	public MiningParametersEKS() {
 		
-		setLogConverter(new IMLog2IMLogInfoDefault());
+		setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIMiEmptyLog(),
