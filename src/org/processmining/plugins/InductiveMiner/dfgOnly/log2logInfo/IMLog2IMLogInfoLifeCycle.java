@@ -16,37 +16,43 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
 	private class Count {
 		long numberOfEvents = 0;
+		long numberOfActivityInstances = 0;
 		long numberOfEpsilonTraces = 0;
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
 	}
-	
+
 	public IMLogInfo createLogInfo(IMLog log) {
 		Count count = new Count();
 		Dfg dfg = log2Dfg(log, count);
-		
+
 		dfg.collapseParallelIntoDirectly();
-		
+
 		TObjectIntHashMap<XEventClass> minimumSelfDistances = new TObjectIntHashMap<>();
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
-		
+
 		return new IMLogInfo(dfg, count.activities, minimumSelfDistancesBetween, minimumSelfDistances,
-				count.numberOfEvents, count.numberOfEpsilonTraces);
+				count.numberOfEvents, count.numberOfActivityInstances, count.numberOfEpsilonTraces);
 	}
-	
+
 	public static Dfg log2Dfg(IMLog log, Count count) {
 		Dfg dfg = new Dfg();
 		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, count);
-			
+
 			if (trace.isEmpty()) {
 				count.numberOfEpsilonTraces++;
 			} else {
+				for (XEvent e : trace) {
+					if (log.isComplete(e)) {
+						count.numberOfActivityInstances += 1;
+					}
+				}
 				count.numberOfEvents += trace.size();
 			}
 		}
 		return dfg;
 	}
-	
+
 	/**
 	 * Get a directly-follows graph from a log.
 	 * 
@@ -140,7 +146,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
 
 		boolean isStart[] = new boolean[trace.size()];
-		
+
 		int i = 0;
 		while (itCurrent.hasNext()) {
 			XEvent event = itCurrent.next();
@@ -172,7 +178,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			i++;
 		}
 	}
-	
+
 	private static void walkBack(IMEventIterator it, boolean[] isStart, IMLog log, int i, Dfg dfg, XEventClass target) {
 		it = it.clone();
 		MultiSet<XEventClass> completes = new MultiSet<>();
@@ -180,7 +186,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			i--;
 			XEvent event = it.previous();
 			XEventClass activity = log.classify(event);
-			
+
 			if (log.isComplete(event)) {
 				completes.add(activity);
 				dfg.addDirectlyFollowsEdge(activity, target, 1);
