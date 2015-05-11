@@ -20,7 +20,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
 			//calculate the event-per-trace size of the log
 			double p = log.size()
-					/ ((logInfo.getNumberOfEvents() + log.size()) * 1.0);
+					/ ((logInfo.getNumberOfActivityInstances() + log.size()) * 1.0);
 
 			if (0.5 - minerState.parameters.getNoiseThreshold() <= p
 					&& p <= 0.5 + minerState.parameters.getNoiseThreshold()) {

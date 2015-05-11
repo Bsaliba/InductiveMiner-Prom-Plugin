@@ -17,18 +17,21 @@ public class IMLogInfo {
 
 	protected final Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
 	protected final TObjectIntHashMap<XEventClass> minimumSelfDistances;
-	
+
 	protected final long numberOfEvents;
+	protected final long numberOfActivityInstances;
 	protected final long numberOfEpsilonTraces;
 
 	public IMLogInfo(Dfg directlyFollowsGraph, MultiSet<XEventClass> activities,
 			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
-			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfEpsilonTraces) {
+			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfActivityInstances,
+			long numberOfEpsilonTraces) {
 		this.dfg = directlyFollowsGraph;
 		this.activities = activities;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
 		this.minimumSelfDistances = minimumSelfDistances;
 		this.numberOfEvents = numberOfEvents;
+		this.numberOfActivityInstances = numberOfActivityInstances;
 		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
 	}
 
@@ -38,7 +41,7 @@ public class IMLogInfo {
 		result.append("end activities: " + dfg.getEndActivities());
 		return result.toString();
 	}
-	
+
 	public Dfg getDfg() {
 		return dfg;
 	}
@@ -85,6 +88,10 @@ public class IMLogInfo {
 		return numberOfEvents;
 	}
 
+	public long getNumberOfActivityInstances() {
+		return numberOfActivityInstances;
+	}
+
 	/**
 	 * Gives the number of empty traces in the log.
 	 * 
@@ -100,9 +107,9 @@ public class IMLogInfo {
 	 * 
 	 * @return
 	 */
-//	public long getHighestTraceCardinality() {
-//		return highestTraceCardinality;
-//	}
+	//	public long getHighestTraceCardinality() {
+	//		return highestTraceCardinality;
+	//	}
 
 	/**
 	 * Gives the number of times the directed edge that occurs the most occurs
