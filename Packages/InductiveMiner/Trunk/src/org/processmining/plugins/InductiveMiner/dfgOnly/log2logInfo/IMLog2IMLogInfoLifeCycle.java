@@ -100,7 +100,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				//complete event
 				if (openActivityOccurrences.contains(activity)) {
 					//this activity occurrence was open; close it
-					openActivityOccurrences.add(activity, -1);
+					openActivityOccurrences.remove(activity, 1);
 					activityOccurrencesEndedSinceLastStart.add(activity);
 				} else {
 					//next front is non-started but complete

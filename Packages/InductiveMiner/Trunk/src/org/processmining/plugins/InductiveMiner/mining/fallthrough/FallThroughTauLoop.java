@@ -65,13 +65,29 @@ public class FallThroughTauLoop implements FallThrough {
 	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities) {
 		boolean first = true;
 		XTrace partialTrace = new XTraceImpl(new XAttributeMapImpl());
+
+		MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
+
 		for (XEvent event : trace) {
 
-			if (!first && startActivities.contains(log.classify(event))) {
+			XEventClass activity = log.classify(event);
+			
+			if (!first && startActivities.contains(activity)) {
 				//we discovered a transition body -> body
-				sublog.add(partialTrace);
-				partialTrace = new XTraceImpl(new XAttributeMapImpl());
-				first = true;
+				//check whether there are no open activity instances
+				if (openActivityInstances.size() == 0) {
+					sublog.add(partialTrace);
+					partialTrace = new XTraceImpl(new XAttributeMapImpl());
+					first = true;
+				}
+			}
+			
+			if (log.isComplete(event)) {
+				if (openActivityInstances.getCardinalityOf(activity) > 0) {
+					openActivityInstances.remove(activity, 1);
+				}
+			} else if (log.isStart(event)) {
+				openActivityInstances.add(log.classify(event));
 			}
 
 			partialTrace.add(event);

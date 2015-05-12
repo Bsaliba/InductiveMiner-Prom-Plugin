@@ -136,6 +136,13 @@ public class IMTrace implements Iterable<XEvent> {
 			outEvents.set(now);
 		}
 		
+		public void removeAll() {
+			while (hasNext()) {
+				next();
+				remove();
+			}
+		}
+		
 		public XEvent next() {
 			progress();
 			return getXTrace().get(now);
@@ -178,7 +185,7 @@ public class IMTrace implements Iterable<XEvent> {
 			final int to = it.counter - 1;
 			final int newCounter = counter - 1;
 			return new Iterable<XEvent>() {
-				public Iterator<XEvent> iterator() {
+				public IMEventIterator iterator() {
 					IMEventIterator result = new IMEventIterator(0, to);
 					result.next = startAt;
 					result.counter = newCounter;

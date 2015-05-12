@@ -15,6 +15,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
 public class LogSplitterLoop implements LogSplitter {
 
@@ -24,40 +25,77 @@ public class LogSplitterLoop implements LogSplitter {
 
 	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
-//		System.out.println("==before==");
-//		System.out.println(log);
-//		System.out.println("--");
+		//		System.out.println("==before==");
+		//		System.out.println(log);
+		//		System.out.println("--");
 		List<IMLog> result = new ArrayList<>();
 		boolean firstSigma = true;
+		//walk through the partition
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
+			System.out.println("sigma " + sigma);
+
+			//walk through traces
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
 				IMTrace trace = itTrace.next();
-				boolean lastIn = firstSigma;
-				boolean anyIn = false;
+
+				System.out.println(" trace " + trace);
+				boolean lastIn = firstSigma; //whether the last seen event was in sigma
+				boolean anyIn = false; //whether there is any event in this subtrace
+				MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
+
+				//walk through the events
 				for (IMEventIterator itEvent = trace.iterator(); itEvent.hasNext();) {
 					XEvent event = itEvent.next();
+					XEventClass eventClass = log.classify(event);
+					Transition transition = log.getLifeCycle(event);
+
+					//keep track of open activity instances (by consistency assumption, should work out)
+					switch (transition) {
+						case start :
+							openActivityInstances.add(eventClass);
+							break;
+						case complete :
+							openActivityInstances.remove(eventClass, 1);
+							break;
+						case other :
+							break;
+					}
+
 					if (sigma.contains(log.classify(event))) {
+						//event of the sigma under consideration
+
 						if (!lastIn && (firstSigma || anyIn)) {
-							//this is the first activity of a new subtrace, so split
+							//this is the first activity of a new subtrace, so the part up till now is a completed subtrace
+
 							IMTrace newTrace = itEvent.split();
-							newTrace.toString();
+							System.out.println("   split trace " + newTrace + " | " + trace);
 						}
 						lastIn = true;
 						anyIn = true;
+
 					} else {
-						lastIn = false;
+						//event of another sigma
+
+						//remove
 						itEvent.remove();
+
+						//the last seen event was not in sigma
+						if (openActivityInstances.isEmpty()) {
+							//if there are no activity instances open, we can split the trace further ahead
+							lastIn = false;
+						}
 					}
 				}
+
 				if (!firstSigma && !anyIn) {
 					itTrace.remove();
 				}
 			}
 			firstSigma = false;
-//			System.out.println("--");
-//			System.out.println(sublog);
-//			System.out.println("--");
+			System.out.println("--");
+			System.out.println(sublog);
+			System.out.println("--");
 			result.add(sublog);
 		}
 

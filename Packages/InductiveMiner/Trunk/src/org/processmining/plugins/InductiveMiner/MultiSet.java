@@ -50,6 +50,8 @@ public class MultiSet<X> implements Iterable<X> {
 	}
 	
 	public boolean add(X element, long cardinality) {
+		assert(cardinality >= 0);
+		
 		if (!cardinalities.containsKey(element)) {
 			cardinalities.put(element, cardinality);
 		} else {
@@ -76,7 +78,10 @@ public class MultiSet<X> implements Iterable<X> {
 	}
 	
 	public boolean remove(X element) {
-		return remove(element, getCardinalityOf(element));
+		long oldCardinality = getCardinalityOf(element);
+		cardinalities.remove(element);
+		size -= oldCardinality;
+		return true;
 	}
 	
 	public boolean addAll(Collection<X> collection) {
@@ -107,6 +112,10 @@ public class MultiSet<X> implements Iterable<X> {
 	
 	public long size() {
 		return size;
+	}
+	
+	public boolean isEmpty() {
+		return size == 0;
 	}
 	
 	public int setSize() {
