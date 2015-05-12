@@ -18,6 +18,7 @@ import org.deckfour.xes.model.XTrace;
 import org.deckfour.xes.model.impl.XAttributeMapImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
 public class IMLog implements Iterable<IMTrace> {
 	
@@ -36,6 +37,7 @@ public class IMLog implements Iterable<IMTrace> {
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
 	
+	@Deprecated
 	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
 
 	/**
@@ -96,12 +98,18 @@ public class IMLog implements Iterable<IMTrace> {
 		return activityClassifier;
 	}
 	
+	@Deprecated
 	public boolean isStart(XEvent event) {
 		return lifeCycleClassifier.getClassIdentity(event).equalsIgnoreCase("start");
 	}
 	
+	@Deprecated
 	public boolean isComplete(XEvent event) {
 		return !isStart(event);
+	}
+	
+	public Transition getLifeCycle(XEvent event) {
+		return LifeCycles.getLifeCycleTransition(event);
 	}
 	
 	public XTrace getTraceWithIndex(int traceIndex) {

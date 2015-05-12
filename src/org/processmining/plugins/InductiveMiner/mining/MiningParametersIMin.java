@@ -42,5 +42,7 @@ public class MiningParametersIMin extends MiningParameters {
 		setIncompleteThreshold(0);
 		setSatProbabilities(new ProbabilitiesEstimatedZ());
 		setReduce(true);
+		
+		setDebug(true);
 	}
 }

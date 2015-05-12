@@ -33,7 +33,7 @@ public class Miner {
 		root.setProcessTree(tree);
 		tree.setRoot(root);
 
-		debug(tree.getRoot(), minerState);
+		debug("discovered tree " + tree.getRoot(), minerState);
 
 		//reduce if necessary
 		if (parameters.isReduce()) {
@@ -51,8 +51,7 @@ public class Miner {
 
 		//output information about the log
 		debug("\nMine epsilon=" + logInfo.getNumberOfEpsilonTraces() + ", " + logInfo.getActivities(), minerState);
-		//debug(log, parameters);
-		//debug(logInfo, parameters);
+		//debug(log, minerState);
 
 		//find base cases
 		Node baseCase = findBaseCases(log, logInfo, tree, minerState);

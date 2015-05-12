@@ -18,8 +18,28 @@ import org.deckfour.xes.model.impl.XTraceImpl;
 
 public class LifeCycles {
 
+	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
+	
+	public static enum Transition {
+		start,
+		complete,
+		other
+	}
+	
+	private static int tracesRemoved = 0;
 	private static int eventsRemoved = 0;
 	private static int eventsAdded = 0;
+	
+	public static Transition getLifeCycleTransition(XEvent event) {
+		switch (lifeCycleClassifier.getClassIdentity(event).toLowerCase()) {
+			case "complete":
+				return Transition.complete;
+			case "start":
+				return Transition.start;
+			default:
+				return Transition.other;
+		}
+	}
 
 	public static XLog preProcessLog(XLog log, XEventClassifier classifier) {
 		XLog result = XFactoryRegistry.instance().currentDefault().createLog(log.getAttributes());
@@ -28,13 +48,26 @@ public class LifeCycles {
 		eventsAdded = 0;
 
 		for (XTrace trace : log) {
-			result.add(preProcessTrace(trace, classifier));
+			XTrace newTrace = preProcessTraceByAddingCompleteEvents(trace, classifier);
+			if (newTrace != null) {
+				result.add(newTrace);
+			}
 		}
 
+		System.out.println("traces removed " + tracesRemoved);
 		System.out.println("events added " + eventsAdded);
 		System.out.println("events removed " + eventsRemoved);
 
 		return result;
+	}
+
+	public static XTrace preProcessTraceByRemovingTraces(XTrace trace, XEventClassifier classifier) {
+		Map<String, TIntArrayList> unmatchedStartEvents = getUnmatchedStartEvents(trace, classifier);
+		if (unmatchedStartEvents.isEmpty()) {
+			return trace;
+		}
+		tracesRemoved++;
+		return null;
 	}
 
 	/**
@@ -42,7 +75,7 @@ public class LifeCycles {
 	 * @param trace
 	 * @return a copy of the input trace, such that it is consistent.
 	 */
-	private static XTrace preProcessTrace(XTrace trace, XEventClassifier classifier) {
+	public static XTrace preProcessTraceByAddingCompleteEvents(XTrace trace, XEventClassifier classifier) {
 		Map<String, TIntArrayList> unmatchedStartEvents = getUnmatchedStartEvents(trace, classifier);
 
 		//repair the trace
@@ -130,10 +163,12 @@ public class LifeCycles {
 		return unmatchedStartEvents;
 	}
 
+	@Deprecated
 	public static boolean isStart(XEvent event) {
 		return IMLog.lifeCycleClassifier.getClassIdentity(event).equals("start");
 	}
 
+	@Deprecated
 	public static boolean isComplete(XEvent event) {
 		return IMLog.lifeCycleClassifier.getClassIdentity(event).equals("complete");
 	}
