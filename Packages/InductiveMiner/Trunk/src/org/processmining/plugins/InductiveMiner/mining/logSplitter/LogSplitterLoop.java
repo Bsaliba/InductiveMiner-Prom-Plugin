@@ -33,13 +33,13 @@ public class LogSplitterLoop implements LogSplitter {
 		//walk through the partition
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
-			System.out.println("sigma " + sigma);
+//			System.out.println("sigma " + sigma);
 
 			//walk through traces
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
 				IMTrace trace = itTrace.next();
 
-				System.out.println(" trace " + trace);
+//				System.out.println(" trace " + trace);
 				boolean lastIn = firstSigma; //whether the last seen event was in sigma
 				boolean anyIn = false; //whether there is any event in this subtrace
 				MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
@@ -69,7 +69,7 @@ public class LogSplitterLoop implements LogSplitter {
 							//this is the first activity of a new subtrace, so the part up till now is a completed subtrace
 
 							IMTrace newTrace = itEvent.split();
-							System.out.println("   split trace " + newTrace + " | " + trace);
+//							System.out.println("   split trace " + newTrace + " | " + trace);
 						}
 						lastIn = true;
 						anyIn = true;
@@ -93,9 +93,9 @@ public class LogSplitterLoop implements LogSplitter {
 				}
 			}
 			firstSigma = false;
-			System.out.println("--");
-			System.out.println(sublog);
-			System.out.println("--");
+//			System.out.println("--");
+//			System.out.println(sublog);
+//			System.out.println("--");
 			result.add(sublog);
 		}
 
