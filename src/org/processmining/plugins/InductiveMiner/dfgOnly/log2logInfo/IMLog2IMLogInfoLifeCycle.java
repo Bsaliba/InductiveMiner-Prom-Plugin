@@ -11,6 +11,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
 public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
@@ -43,7 +44,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				count.numberOfEpsilonTraces++;
 			} else {
 				for (XEvent e : trace) {
-					if (log.isComplete(e)) {
+					if (log.getLifeCycle(e) == Transition.complete) {
 						count.numberOfActivityInstances += 1;
 					}
 				}
@@ -89,14 +90,15 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		for (XEvent event : trace) {
 			XEventClass activity = log.classify(event);
 
-			if (log.isStart(event)) {
+			if (log.getLifeCycle(event) == Transition.start) {
+				//start event
 				openActivityOccurrences.add(activity);
 				if (!activityOccurrenceCompleted) {
 					//no activity occurrence has been completed yet. Add to start events.
 					dfg.addStartActivity(activity, 1);
 				}
 				activityOccurrencesEndedSinceLastStart = new MultiSet<>();
-			} else if (log.isComplete(event)) {
+			} else if (log.getLifeCycle(event) == Transition.complete) {
 				//complete event
 				if (openActivityOccurrences.contains(activity)) {
 					//this activity occurrence was open; close it
@@ -116,7 +118,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				}
 			}
 
-			activityOccurrenceCompleted = activityOccurrenceCompleted || log.isComplete(event);
+			activityOccurrenceCompleted = activityOccurrenceCompleted || log.getLifeCycle(event) == Transition.complete;
 		}
 		dfg.getEndActivities().addAll(activityOccurrencesEndedSinceLastStart);
 	}
@@ -126,11 +128,11 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		for (XEvent event : trace) {
 			XEventClass eventClass = log.classify(event);
 
-			if (log.isStart(event)) {
+			if (log.getLifeCycle(event) == Transition.start) {
 				//this is a start event
 				openActivityOccurrences.add(eventClass);
-			} else {
-				//this is an end event
+			} else if (log.getLifeCycle(event) == Transition.complete) {
+				//this is a completion event
 				openActivityOccurrences.remove(eventClass, 1);
 
 				//this activity occurrence is parallel to all open activity occurrences
@@ -153,8 +155,8 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			XEventClass activity = log.classify(event);
 
 			//this is a start event if the log says so, or if we see a complete without corresponding preceding start event. 
-			boolean isStartEvent = log.isStart(event) || !openActivityInstances.contains(activity);
-			boolean isCompleteEvent = log.isComplete(event);
+			boolean isStartEvent = log.getLifeCycle(event) == Transition.start || !openActivityInstances.contains(activity);
+			boolean isCompleteEvent = log.getLifeCycle(event) == Transition.complete;
 			isStart[i] = isStartEvent;
 
 			if (isStartEvent) {
@@ -187,7 +189,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			XEvent event = it.previous();
 			XEventClass activity = log.classify(event);
 
-			if (log.isComplete(event)) {
+			if (log.getLifeCycle(event) == Transition.complete) {
 				completes.add(activity);
 				dfg.addDirectlyFollowsEdge(activity, target, 1);
 			}

@@ -13,6 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -82,11 +83,11 @@ public class FallThroughTauLoop implements FallThrough {
 				}
 			}
 			
-			if (log.isComplete(event)) {
+			if (log.getLifeCycle(event) == Transition.complete) {
 				if (openActivityInstances.getCardinalityOf(activity) > 0) {
 					openActivityInstances.remove(activity, 1);
 				}
-			} else if (log.isStart(event)) {
+			} else if (log.getLifeCycle(event) == Transition.start) {
 				openActivityInstances.add(log.classify(event));
 			}
 
