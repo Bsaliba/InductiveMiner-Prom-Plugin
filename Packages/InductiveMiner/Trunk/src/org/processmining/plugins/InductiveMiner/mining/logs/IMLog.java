@@ -99,13 +99,13 @@ public class IMLog implements Iterable<IMTrace> {
 	}
 	
 	@Deprecated
-	public boolean isStart(XEvent event) {
+	public boolean isStart2(XEvent event) {
 		return lifeCycleClassifier.getClassIdentity(event).equalsIgnoreCase("start");
 	}
 	
 	@Deprecated
-	public boolean isComplete(XEvent event) {
-		return !isStart(event);
+	public boolean isComplete2(XEvent event) {
+		return !isStart2(event);
 	}
 	
 	public Transition getLifeCycle(XEvent event) {

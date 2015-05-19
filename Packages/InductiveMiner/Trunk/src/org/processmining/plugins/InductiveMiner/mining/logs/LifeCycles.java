@@ -31,7 +31,11 @@ public class LifeCycles {
 	private static int eventsAdded = 0;
 	
 	public static Transition getLifeCycleTransition(XEvent event) {
-		switch (lifeCycleClassifier.getClassIdentity(event).toLowerCase()) {
+		return getLifeCycleTransition(lifeCycleClassifier.getClassIdentity(event));
+	}
+	
+	public static Transition getLifeCycleTransition(String lifeCycleTransition) {
+		switch (lifeCycleTransition) {
 			case "complete":
 				return Transition.complete;
 			case "start":
