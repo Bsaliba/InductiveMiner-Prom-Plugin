@@ -7,7 +7,7 @@ import org.deckfour.xes.classification.XEventClass;
 
 public class Cut {
 	public enum Operator {
-		xor, sequence, parallel, loop
+		xor, sequence, parallel, loop, interleaved
 	}
 
 	private Collection<Set<XEventClass>> partition = null;

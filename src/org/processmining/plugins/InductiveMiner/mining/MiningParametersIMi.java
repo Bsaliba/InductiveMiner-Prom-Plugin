@@ -3,7 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
@@ -17,6 +17,7 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFl
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughLeaveOutActivitiesThenApplyOthers;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterInterleaving;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterParallel;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSequenceFiltering;
@@ -30,7 +31,7 @@ public class MiningParametersIMi extends MiningParameters {
 	
 	public MiningParametersIMi() {
 	
-		setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
+		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIMiEmptyLog(),
@@ -48,7 +49,8 @@ public class MiningParametersIMi extends MiningParameters {
 				new LogSplitterXorFiltering(), 
 				new LogSplitterSequenceFiltering(), 
 				new LogSplitterParallel(), 
-				new LogSplitterLoop()));
+				new LogSplitterLoop(),
+				new LogSplitterInterleaving()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughLeaveOutActivitiesThenApplyOthers(),

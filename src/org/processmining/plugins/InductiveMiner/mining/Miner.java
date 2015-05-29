@@ -123,16 +123,19 @@ public class Miner {
 	}
 
 	private static Block newNode(Operator operator) {
-		if (operator == Operator.xor) {
-			return new AbstractBlock.Xor("");
-		} else if (operator == Operator.sequence) {
-			return new AbstractBlock.Seq("");
-		} else if (operator == Operator.parallel) {
-			return new AbstractBlock.And("");
-		} else if (operator == Operator.loop) {
-			return new AbstractBlock.XorLoop("");
+		switch (operator) {
+			case loop :
+				return new AbstractBlock.XorLoop("");
+			case parallel :
+				return new AbstractBlock.And("");
+			case sequence :
+				return new AbstractBlock.Seq("");
+			case xor :
+			case interleaved :
+				return new AbstractBlock.Xor("");
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	public static void addNode(ProcessTree tree, Node node) {

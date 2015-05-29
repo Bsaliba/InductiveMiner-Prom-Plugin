@@ -61,6 +61,10 @@ public class IMLogInfo {
 	public MultiSet<XEventClass> getEndActivities() {
 		return dfg.getEndActivities();
 	}
+	
+	public Graph<XEventClass> getConcurrencyGraph() {
+		return dfg.getConcurrencyGraph();
+	}
 
 	public Map<XEventClass, MultiSet<XEventClass>> getMinimumSelfDistancesBetween() {
 		return minimumSelfDistancesBetween;
