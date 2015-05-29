@@ -16,7 +16,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0
-				&& logInfo.getNumberOfEvents() == log.size()) {
+				&& logInfo.getNumberOfActivityInstances() == log.size()) {
 			//single activity
 			
 			Miner.debug(" base case: IM single activity", minerState);

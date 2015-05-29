@@ -80,7 +80,7 @@ public class Dfg {
 		return null;
 	}
 
-	public Graph<XEventClass> getParallelGraph() {
+	public Graph<XEventClass> getConcurrencyGraph() {
 		return parallelGraph;
 	}
 

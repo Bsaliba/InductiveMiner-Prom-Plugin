@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,12 +19,10 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.Classifiers;
 import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMcl;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 
@@ -127,6 +124,25 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
+	public class VariantIMlc extends Variant {
+
+		public String toString() {
+			return "Inductive Miner - life cycle";
+		}
+
+		public boolean hasNoise() {
+			return false;
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return false;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMcl();
+		}
+	}
+
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMi();
 		SlickerFactory factory = SlickerFactory.instance();
@@ -146,8 +162,8 @@ public class IMMiningDialog extends JPanel {
 			add(variantLabel, cVariantLabel);
 		}
 
-		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
-				new VariantIMEKS() });
+		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(),
+				new VariantIMin(), new VariantIMEKS(), new VariantIMlc() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
@@ -228,30 +244,6 @@ public class IMMiningDialog extends JPanel {
 
 		gridy++;
 
-		//life cycle
-		{
-			final JLabel lifeCycleLabel = factory.createLabel("Use life cycle transitions");
-			GridBagConstraints cLifeCycleLabel = new GridBagConstraints();
-			cLifeCycleLabel.gridx = 0;
-			cLifeCycleLabel.gridy = gridy;
-			cLifeCycleLabel.weightx = 0.4;
-			cLifeCycleLabel.anchor = GridBagConstraints.NORTHWEST;
-			add(lifeCycleLabel, cLifeCycleLabel);
-		}
-
-		final JCheckBox lifeCycle = factory.createCheckBox("", true);
-		{
-			GridBagConstraints cLifeCycle = new GridBagConstraints();
-			cLifeCycle.gridx = 1;
-			cLifeCycle.gridy = gridy;
-			cLifeCycle.anchor = GridBagConstraints.NORTH;
-			cLifeCycle.fill = GridBagConstraints.HORIZONTAL;
-			cLifeCycle.weightx = 0.6;
-			add(lifeCycle, cLifeCycle);
-		}
-
-		gridy++;
-
 		//spacer
 		{
 			JLabel spacer = factory.createLabel(" ");
@@ -300,11 +292,9 @@ public class IMMiningDialog extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				Variant variant = (Variant) variantCombobox.getSelectedItem();
 				float noise = p.parameters.getNoiseThreshold();
-				IMLog2IMLogInfo log2logInfo = p.parameters.getLog2LogInfo();
 				XEventClassifier classifier = p.parameters.getClassifier();
 				p.parameters = variant.getMiningParameters();
 				p.parameters.setNoiseThreshold(noise);
-				p.parameters.setLog2LogInfo(log2logInfo);
 				p.parameters.setClassifier(classifier);
 				if (variant.hasNoise()) {
 					noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
@@ -325,16 +315,6 @@ public class IMMiningDialog extends JPanel {
 			public void stateChanged(ChangeEvent arg0) {
 				p.parameters.setNoiseThreshold((float) (noiseSlider.getValue() / 1000.0));
 				noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
-			}
-		});
-
-		lifeCycle.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				if (lifeCycle.isSelected()) {
-					p.parameters.setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
-				} else {
-					p.parameters.setLog2LogInfo(new IMLog2IMLogInfoDefault());
-				}
 			}
 		});
 
