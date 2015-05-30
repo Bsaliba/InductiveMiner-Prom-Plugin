@@ -15,13 +15,13 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFl
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 
-public class MiningParametersIMcl extends MiningParameters {
+public class MiningParametersIMlc extends MiningParameters {
 	
 	/*
 	 * No other parameter, except mentioned in this file, has influence on the mined model
 	 */
 	
-	public MiningParametersIMcl() {
+	public MiningParametersIMlc() {
 
 		setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
 		
