@@ -8,6 +8,7 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
@@ -30,6 +31,7 @@ public class MiningParametersIMcl extends MiningParameters {
 		
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMlcInterleaved(),
+				new CutFinderIMlcConcurrent(),
 				new CutFinderIM()
 				)));
 		

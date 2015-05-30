@@ -79,6 +79,18 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		//compute the connected components of the negated graph
 		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(negatedGraph);
 
+		List<Set<XEventClass>> connectedComponents2 = ensureStartEndInEach(startActivities, endActivities,
+				connectedComponents);
+		
+		if (connectedComponents2 == null) {
+			return null;
+		} else {
+			return new Cut(Operator.parallel, connectedComponents2);
+		}
+	}
+
+	public static List<Set<XEventClass>> ensureStartEndInEach(MultiSet<XEventClass> startActivities,
+			MultiSet<XEventClass> endActivities, Set<Set<XEventClass>> connectedComponents) {
 		//not all connected components are guaranteed to have start and end activities. Merge those that do not.
 		List<Set<XEventClass>> ccsWithStartEnd = new ArrayList<Set<XEventClass>>();
 		List<Set<XEventClass>> ccsWithStart = new ArrayList<Set<XEventClass>>();
@@ -146,8 +158,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 			set.addAll(cc);
 			connectedComponents2.set(0, set);
 		}
-
-		return new Cut(Operator.parallel, connectedComponents2);
+		return connectedComponents2;
 	}
 
 }
