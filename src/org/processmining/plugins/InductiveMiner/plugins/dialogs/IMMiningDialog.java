@@ -22,7 +22,7 @@ import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMcl;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 
@@ -139,7 +139,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMcl();
+			return new MiningParametersIMlc();
 		}
 	}
 
