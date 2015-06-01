@@ -10,6 +10,7 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
+import org.processmining.plugins.InductiveMiner.mining.operators.Interleaved;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Seq;
@@ -146,7 +147,7 @@ public class ReduceTree {
 			int i = 0;
 			boolean changed = false;
 			for (Node child : ((Block) node).getChildren()) {
-				if (child instanceof And) {
+				if (child instanceof And && !(child instanceof Interleaved)) {
 					changed = true;
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
 
