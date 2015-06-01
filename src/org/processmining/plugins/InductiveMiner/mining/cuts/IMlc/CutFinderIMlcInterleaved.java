@@ -58,15 +58,11 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 			}
 			i++;
 		}
-		
-		System.out.println(clusters);
 
 		//merge clusters that have at least one concurrent connection
 		for (long edge : concurrencyGraph.getEdges()) {
 			mergeClusters(clusters, concurrencyGraph.getEdgeSource(edge), concurrencyGraph.getEdgeTarget(edge));
 		}
-		
-		System.out.println(clusters);
 
 		//merge all clusters that are not fully connected, i.e. xor and sequence clusters
 		Graph<Long> clusterGraph = GraphFactory.create(Long.class, i);
@@ -85,8 +81,6 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 				}
 			}
 		}
-		
-		System.out.println(clusters);
 
 		Collection<Set<XEventClass>> partition = getPartition(clusters);
 

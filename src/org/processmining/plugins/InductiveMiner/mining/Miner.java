@@ -10,7 +10,10 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.operators.Interleaved;
+import org.processmining.plugins.InductiveMiner.mining.operators.InterleavedXor;
 import org.processmining.processtree.Block;
+import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
@@ -114,12 +117,36 @@ public class Miner {
 				}
 			}
 
+			//get rid of the interleaving
+			if (cut.getOperator() == Operator.interleaved) {
+				newNode = removeInterleaved(newNode);
+			}
+			
 			return newNode;
 
 		} else {
 			//cut is not valid; fall through
 			return findFallThrough(log, logInfo, tree, minerState);
 		}
+	}
+
+	private static Block removeInterleaved(Block node) {
+		//check whether all children are sequences
+		for (Node child : node.getChildren()) {
+			if (!(child instanceof Seq)) {
+				return node;
+			}
+		}
+		
+		//for now, just pick the first children
+		Block newNode = new Interleaved("");
+		addNode(node.getProcessTree(), newNode);
+		
+		for (Node grandChild : ((Block) node.getChildren().get(0)).getChildren()) {
+			newNode.addChild(grandChild);
+		}
+		
+		return newNode;
 	}
 
 	private static Block newNode(Operator operator) {
@@ -131,8 +158,9 @@ public class Miner {
 			case sequence :
 				return new AbstractBlock.Seq("");
 			case xor :
-			case interleaved :
 				return new AbstractBlock.Xor("");
+			case interleaved :
+				return new InterleavedXor("");
 			default:
 				return null;
 		}
