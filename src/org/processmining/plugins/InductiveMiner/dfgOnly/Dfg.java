@@ -11,7 +11,7 @@ import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 public class Dfg {
 	private final Graph<XEventClass> directlyFollowsGraph;
 //	private final Graph<XEventClass> eventuallyFollowsGraph;
-	private final Graph<XEventClass> parallelGraph;
+	private final Graph<XEventClass> concurrencyGraph;
 //	private final Graph<XEventClass> uncertainDirectlyFollowsGraph;
 //	private final Graph<XEventClass> uncertainEventuallyFollowsGraph;
 
@@ -27,7 +27,7 @@ public class Dfg {
 	public Dfg(int initialSize) {
 		directlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 //		eventuallyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
-		parallelGraph = GraphFactory.create(XEventClass.class, initialSize);
+		concurrencyGraph = GraphFactory.create(XEventClass.class, initialSize);
 //		uncertainDirectlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 //		uncertainEventuallyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 
@@ -38,13 +38,13 @@ public class Dfg {
 	}
 
 	public Dfg(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> eventuallyFollowsGraph,
-			final Graph<XEventClass> parallelGraph, final Graph<XEventClass> uncertainDirectlyFollowsGraph,
+			final Graph<XEventClass> concurrencyGraph, final Graph<XEventClass> uncertainDirectlyFollowsGraph,
 			final Graph<XEventClass> uncertainEventuallyFollowsGraph, final MultiSet<XEventClass> startActivities,
 			final MultiSet<XEventClass> endActivities, final MultiSet<XEventClass> uncertainStartActivities,
 			final MultiSet<XEventClass> uncertainEndActivities) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 //		this.eventuallyFollowsGraph = eventuallyFollowsGraph;
-		this.parallelGraph = parallelGraph;
+		this.concurrencyGraph = concurrencyGraph;
 //		this.uncertainDirectlyFollowsGraph = uncertainDirectlyFollowsGraph;
 //		this.uncertainEventuallyFollowsGraph = uncertainEventuallyFollowsGraph;
 
@@ -57,7 +57,7 @@ public class Dfg {
 	public void addActivity(XEventClass activity) {
 		directlyFollowsGraph.addVertex(activity);
 //		eventuallyFollowsGraph.addVertex(activity);
-		parallelGraph.addVertex(activity);
+		concurrencyGraph.addVertex(activity);
 //		uncertainDirectlyFollowsGraph.addVertex(activity);
 //		uncertainEventuallyFollowsGraph.addVertex(activity);
 	}
@@ -81,7 +81,7 @@ public class Dfg {
 	}
 
 	public Graph<XEventClass> getConcurrencyGraph() {
-		return parallelGraph;
+		return concurrencyGraph;
 	}
 
 	public Graph<XEventClass> getUncertainDirectlyFollowsGraph() {
@@ -127,7 +127,7 @@ public class Dfg {
 	public void addParallelEdge(final XEventClass a, final XEventClass b, final long cardinality) {
 		addActivity(a);
 		addActivity(b);
-		parallelGraph.addEdge(a, b, cardinality);
+		concurrencyGraph.addEdge(a, b, cardinality);
 	}
 
 //	public void addUncertainDirectlyFollowsEdge(final XEventClass source, final XEventClass target,
@@ -170,11 +170,11 @@ public class Dfg {
 	 * edge.
 	 */
 	public void collapseParallelIntoDirectly() {
-		for (long edgeIndex : parallelGraph.getEdges()) {
-			directlyFollowsGraph.addEdge(parallelGraph.getEdgeSource(edgeIndex),
-					parallelGraph.getEdgeTarget(edgeIndex), parallelGraph.getEdgeWeight(edgeIndex));
-			directlyFollowsGraph.addEdge(parallelGraph.getEdgeTarget(edgeIndex),
-					parallelGraph.getEdgeSource(edgeIndex), parallelGraph.getEdgeWeight(edgeIndex));
+		for (long edgeIndex : concurrencyGraph.getEdges()) {
+			directlyFollowsGraph.addEdge(concurrencyGraph.getEdgeSource(edgeIndex),
+					concurrencyGraph.getEdgeTarget(edgeIndex), concurrencyGraph.getEdgeWeight(edgeIndex));
+			directlyFollowsGraph.addEdge(concurrencyGraph.getEdgeTarget(edgeIndex),
+					concurrencyGraph.getEdgeSource(edgeIndex), concurrencyGraph.getEdgeWeight(edgeIndex));
 		}
 	}
 }
