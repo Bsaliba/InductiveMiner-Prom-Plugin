@@ -7,8 +7,6 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogI
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMilc.CutFinderIMilc;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlc;
@@ -34,8 +32,6 @@ public class MiningParametersIMilc extends MiningParameters {
 		setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIMiEmptyLog(),
-				new BaseCaseFinderIMiEmptyTrace(),
 				new BaseCaseFinderIMi(),
 				new BaseCaseFinderIM()
 				)));

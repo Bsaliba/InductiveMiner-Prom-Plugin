@@ -11,7 +11,7 @@ import org.processmining.processtree.impl.AbstractTask;
 public class BaseCaseFinderIMiEmptyLog implements BaseCaseFinder {
 
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
-		if (logInfo.getNumberOfEvents() == 0) {
+		if (logInfo.getNumberOfActivityInstances() == 0) {
 			//empty log, return tau
 			
 			Miner.debug(" base case: IMi empty log", minerState);

@@ -45,18 +45,7 @@ public class CutFinderIMilc implements CutFinder {
 
 		Graph<XEventClass> filteredConcurrencyGraph = filterGraph(logInfo.getConcurrencyGraph(), filteredEndActivities,
 				threshold);
-
-		//filter eventually-follows graph
-		//		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = filterGraph(
-		//				logInfo.getEventuallyFollowsGraph(), filteredEndActivities, threshold);
-
-		//		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
-		//				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
-		//				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
-		//				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-		//				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
-		//				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
-
+		
 		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, filteredConcurrencyGraph, null, null,
 				filteredStartActivities, filteredEndActivities, null, null);
 
