@@ -22,9 +22,9 @@ import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -142,6 +142,25 @@ public class IMMiningDialog extends JPanel {
 			return new MiningParametersIMlc();
 		}
 	}
+	
+	public class VariantIMilc extends Variant {
+
+		public String toString() {
+			return "Inductive Miner - infrequent & life cycle";
+		}
+
+		public boolean hasNoise() {
+			return true;
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return false;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMlc();
+		}
+	}
 
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMi();
@@ -163,7 +182,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(),
-				new VariantIMin(), new VariantIMEKS(), new VariantIMlc() });
+				new VariantIMin(), new VariantIMEKS(), new VariantIMlc(), new VariantIMilc() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;

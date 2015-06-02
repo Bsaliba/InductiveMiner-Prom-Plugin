@@ -7,9 +7,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogI
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcInterleaved;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlc;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
@@ -30,9 +28,7 @@ public class MiningParametersIMlc extends MiningParameters {
 				)));
 		
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
-				new CutFinderIMlcInterleaved(),
-				new CutFinderIMlcConcurrent(),
-				new CutFinderIM()
+				new CutFinderIMlc()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());
