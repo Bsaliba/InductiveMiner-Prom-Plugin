@@ -39,6 +39,5 @@ public class MiningParametersIMlc extends MiningParameters {
 				)));
 		
 		setReduce(true);
-		setDebug(true);
 	}
 }
