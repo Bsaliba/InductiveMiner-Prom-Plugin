@@ -57,7 +57,5 @@ public class MiningParametersIMilc extends MiningParameters {
 		//set parameters
 		setNoiseThreshold((float) 0.2);
 		setReduce(true);
-		
-		setDebug(true);
 	}
 }

@@ -46,5 +46,4 @@ public class MiningParametersEKS extends MiningParameters {
 
 		setReduce(true);
 	}
-
 }
