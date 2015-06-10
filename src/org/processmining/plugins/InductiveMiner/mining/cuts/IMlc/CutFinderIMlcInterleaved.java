@@ -85,7 +85,7 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 		Collection<Set<XEventClass>> partition = getPartition(clusters);
 
 		if (partition.size() > 1) {
-			return new Cut(Operator.interleaved, partition);
+			return new Cut(Operator.maybeInterleaved, partition);
 		} else {
 			return null;
 		}

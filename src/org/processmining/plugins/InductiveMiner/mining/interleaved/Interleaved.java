@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.operators;
+package org.processmining.plugins.InductiveMiner.mining.interleaved;
 
 import java.util.List;
 import java.util.UUID;

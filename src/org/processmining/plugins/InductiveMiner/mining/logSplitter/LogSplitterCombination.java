@@ -11,7 +11,7 @@ public class LogSplitterCombination implements LogSplitter {
 	public final LogSplitter sequence;
 	public final LogSplitter parallel;
 	public final LogSplitter loop;
-	public final LogSplitter interleaving;
+	public final LogSplitter interleaved;
 
 	public LogSplitterCombination(LogSplitter xor, LogSplitter sequence, LogSplitter parallel, LogSplitter loop,
 			LogSplitter interleaving) {
@@ -19,7 +19,7 @@ public class LogSplitterCombination implements LogSplitter {
 		this.sequence = sequence;
 		this.parallel = parallel;
 		this.loop = loop;
-		this.interleaving = interleaving;
+		this.interleaved = interleaving;
 	}
 
 	@Deprecated
@@ -28,7 +28,7 @@ public class LogSplitterCombination implements LogSplitter {
 		this.sequence = sequence;
 		this.parallel = parallel;
 		this.loop = loop;
-		this.interleaving = parallel;
+		this.interleaved = parallel;
 	}
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
@@ -41,8 +41,8 @@ public class LogSplitterCombination implements LogSplitter {
 				return parallel.split(log, logInfo, cut, minerState);
 			case loop :
 				return loop.split(log, logInfo, cut, minerState);
-			case interleaved :
-				return interleaving.split(log, logInfo, cut, minerState);
+			case maybeInterleaved :
+				return interleaved.split(log, logInfo, cut, minerState);
 			default :
 				return null;
 		}
