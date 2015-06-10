@@ -8,12 +8,12 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
+import org.processmining.plugins.InductiveMiner.mining.interleaved.DetectInterleaved;
+import org.processmining.plugins.InductiveMiner.mining.interleaved.MaybeInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-import org.processmining.plugins.InductiveMiner.mining.operators.Interleaved;
-import org.processmining.plugins.InductiveMiner.mining.operators.InterleavedXor;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles;
 import org.processmining.processtree.Block;
-import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
@@ -23,11 +23,16 @@ import org.processmining.processtree.impl.ProcessTreeImpl;
 
 public class Miner {
 	/*
-	 * Do not directly call this class, use one of the plugins from the
+	 * Do not directly call this class, use one of the plug-ins from the
 	 * InductiveMiner.plugins folder
 	 */
 
 	public static ProcessTree mine(IMLog log, MiningParameters parameters) {
+		//repair life cycle if necessary
+		if (parameters.isRepairLifeCycle()) {
+			log = LifeCycles.preProcessLog(log);
+		}
+		
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
 		MinerState minerState = new MinerState(parameters);
@@ -39,10 +44,8 @@ public class Miner {
 		debug("discovered tree " + tree.getRoot(), minerState);
 
 		//reduce if necessary
-		if (parameters.isReduce()) {
-			ReduceTree.reduceTree(tree);
-			debug("after reduction " + tree.getRoot(), minerState);
-		}
+		ReduceTree.reduceTree(tree);
+		debug("after reduction " + tree.getRoot(), minerState);
 
 		return tree;
 	}
@@ -116,10 +119,10 @@ public class Miner {
 					newNode.addChild(tau);
 				}
 			}
-
-			//get rid of the interleaving
-			if (cut.getOperator() == Operator.interleaved) {
-				newNode = removeInterleaved(newNode);
+			
+			//replace interleaved if necessary
+			if (newNode instanceof MaybeInterleaved) {
+				newNode = DetectInterleaved.remove((MaybeInterleaved) newNode);
 			}
 			
 			return newNode;
@@ -128,25 +131,6 @@ public class Miner {
 			//cut is not valid; fall through
 			return findFallThrough(log, logInfo, tree, minerState);
 		}
-	}
-
-	private static Block removeInterleaved(Block node) {
-		//check whether all children are sequences
-		for (Node child : node.getChildren()) {
-			if (!(child instanceof Seq)) {
-				return node;
-			}
-		}
-		
-		//for now, just pick the first children
-		Block newNode = new Interleaved("");
-		addNode(node.getProcessTree(), newNode);
-		
-		for (Node grandChild : ((Block) node.getChildren().get(0)).getChildren()) {
-			newNode.addChild(grandChild);
-		}
-		
-		return newNode;
 	}
 
 	private static Block newNode(Operator operator) {
@@ -159,8 +143,8 @@ public class Miner {
 				return new AbstractBlock.Seq("");
 			case xor :
 				return new AbstractBlock.Xor("");
-			case interleaved :
-				return new InterleavedXor("");
+			case maybeInterleaved :
+				return new MaybeInterleaved("");
 			default:
 				return null;
 		}

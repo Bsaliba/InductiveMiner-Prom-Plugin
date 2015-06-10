@@ -28,7 +28,8 @@ public class MiningParametersIMilc extends MiningParameters {
 	 */
 	
 	public MiningParametersIMilc() {
-	
+		setRepairLifeCycle(true);
+		
 		setLog2LogInfo(new IMLog2IMLogInfoLifeCycle());
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(

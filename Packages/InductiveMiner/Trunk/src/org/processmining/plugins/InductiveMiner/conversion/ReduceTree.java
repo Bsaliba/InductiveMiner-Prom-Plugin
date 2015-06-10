@@ -9,8 +9,8 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
-import org.processmining.plugins.InductiveMiner.mining.operators.Interleaved;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Seq;
@@ -33,9 +33,13 @@ public class ReduceTree {
 	}
 
 	public static void reduceTree(ProcessTree tree) {
+		reduceNode(tree.getRoot());
+	}
+	
+	public static void reduceNode(Node node) {
 		boolean changed = true;
 		while (changed) {
-			changed = reduceNode(tree.getRoot(), tree);
+			changed = reduceNode(node, node.getProcessTree());
 		}
 	}
 

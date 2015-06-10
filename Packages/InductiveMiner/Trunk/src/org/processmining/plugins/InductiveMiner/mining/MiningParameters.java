@@ -22,7 +22,7 @@ public abstract class MiningParameters {
 	private float incompleteThreshold;
 
 	private boolean debug;
-	private boolean reduce;
+	private boolean repairLifeCycle;
 	private Probabilities satProbabilities;
 	private ExecutorService minerPool;
 	private ExecutorService satPool;
@@ -37,6 +37,7 @@ public abstract class MiningParameters {
 
 		classifier = getDefaultClassifier();
 		debug = false;
+		repairLifeCycle = false;
 
 		setUseMultithreading(true);
 	}
@@ -168,12 +169,16 @@ public abstract class MiningParameters {
 		this.fallThroughs = fallThroughs;
 	}
 
-	public boolean isReduce() {
-		return reduce;
-	}
-
+	@Deprecated
 	public void setReduce(boolean reduce) {
-		this.reduce = reduce;
+		
 	}
 
+	public boolean isRepairLifeCycle() {
+		return repairLifeCycle;
+	}
+	
+	public void setRepairLifeCycle(boolean repairLifeCycle) {
+		this.repairLifeCycle = repairLifeCycle;
+	}
 }

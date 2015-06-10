@@ -44,6 +44,10 @@ public class LifeCycles {
 				return Transition.other;
 		}
 	}
+	
+	public static IMLog preProcessLog(IMLog log) {
+		return new IMLog(preProcessLog(log.toXLog(), log.getClassifier()), log.getClassifier());
+	}
 
 	public static XLog preProcessLog(XLog log, XEventClassifier classifier) {
 		XLog result = XFactoryRegistry.instance().currentDefault().createLog(log.getAttributes());
