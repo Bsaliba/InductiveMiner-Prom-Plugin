@@ -38,7 +38,5 @@ public class MiningParametersIMlc extends MiningParameters {
 				new FallThroughTauLoop(),
 				new FallThroughFlower()
 				)));
-		
-		setReduce(true);
 	}
 }
