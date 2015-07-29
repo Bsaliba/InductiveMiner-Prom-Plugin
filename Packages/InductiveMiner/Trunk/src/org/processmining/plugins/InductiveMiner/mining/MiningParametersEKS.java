@@ -43,7 +43,5 @@ public class MiningParametersEKS extends MiningParameters {
 				new FallThroughTauLoop(),
 				new FallThroughFlower()
 				)));
-
-		setReduce(true);
 	}
 }
