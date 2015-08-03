@@ -156,6 +156,10 @@ public class ReduceTree {
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
 
 					//for parallel, the number of traces represented is the same, so don't sum
+				} else if (child instanceof Automatic) {
+					//remove tau
+					removeChild((Block) node, child, tree);
+					tree.removeNode(child);
 				} else {
 					i++;
 				}
@@ -177,6 +181,10 @@ public class ReduceTree {
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
 
 					//for sequence, the number of traces represented is the same, so don't sum
+				} else if (child instanceof Automatic) {
+					//remove tau
+					removeChild((Block) node, child, tree);
+					tree.removeNode(child);
 				} else {
 					i++;
 				}

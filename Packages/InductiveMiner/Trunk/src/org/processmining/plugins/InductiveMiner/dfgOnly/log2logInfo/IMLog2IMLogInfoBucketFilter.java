@@ -2,12 +2,17 @@ package org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo;
 
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
+import org.processmining.plugins.InductiveMiner.jobList.JobList;
+import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
+import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
@@ -15,19 +20,28 @@ public class IMLog2IMLogInfoBucketFilter implements IMLog2IMLogInfo {
 
 	private final static double parameterAgreeAt = 0.5;
 
-	private final double noiseThreshold;
+	private final MiningParameters parameters;
 
-	public IMLog2IMLogInfoBucketFilter(double noiseThreshold) {
-		this.noiseThreshold = noiseThreshold;
+	public IMLog2IMLogInfoBucketFilter(MiningParameters parameters) {
+		this.parameters = parameters;
 	}
 
 	public IMLogInfo createLogInfo(IMLog log) {
-		int numberOfBuckets = (int) Math.round(Math.pow(log.size(), noiseThreshold) - 2) + 1;
+		int numberOfBuckets = (int) Math.round(Math.max(0, Math.pow(log.size(), parameters.getNoiseThreshold()) - 2)) + 1;
 		int agreementAt = (int) Math.floor(numberOfBuckets * parameterAgreeAt);
+		
+		System.out.println("number of buckets " + numberOfBuckets + ", traces " + log.size());
 
+		//create sublogs (buckets)
 		Random random = new Random(123);
 		IMLog[] subLogs = makeBuckets(numberOfBuckets, random, log);
-		IMLogInfo[] subLogInfos = makeIMLogInfo(subLogs);
+		IMLogInfo[] subLogInfos;
+		try {
+			subLogInfos = makeIMLogInfo(subLogs);
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+			return null;
+		}
 
 		IMLogInfo logInfoComplete = (new IMLog2IMLogInfoLifeCycle()).createLogInfo(log);
 		IMLogInfo result = (new IMLog2IMLogInfoLifeCycle()).createLogInfo(log);
@@ -96,11 +110,18 @@ public class IMLog2IMLogInfoBucketFilter implements IMLog2IMLogInfo {
 		return result;
 	}
 
-	public static IMLogInfo[] makeIMLogInfo(IMLog[] logs) {
-		IMLogInfo[] result = new IMLogInfo[logs.length];
+	public static IMLogInfo[] makeIMLogInfo(final IMLog[] logs) throws ExecutionException {
+		final IMLogInfo[] result = new IMLogInfo[logs.length];
+		final JobList list = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
 		for (int bucket = 0; bucket < logs.length; bucket++) {
-			result[bucket] = (new IMLog2IMLogInfoLifeCycle()).createLogInfo(logs[bucket]);
+			final int bucket2 = bucket;
+			list.addJob(new Runnable() {
+				public void run() {
+					result[bucket2] = (new IMLog2IMLogInfoLifeCycle()).createLogInfo(logs[bucket2]);
+				}
+			});
 		}
+		list.join();
 		return result;
 	}
 
