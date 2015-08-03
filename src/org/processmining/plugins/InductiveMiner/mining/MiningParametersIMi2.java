@@ -31,7 +31,7 @@ public class MiningParametersIMi2 extends MiningParameters {
 	
 	public MiningParametersIMi2() {
 	
-		setLog2LogInfo(new IMLog2IMLogInfoBucketFilter(this.getNoiseThreshold()));
+		setLog2LogInfo(new IMLog2IMLogInfoBucketFilter(this));
 		
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIMiEmptyLog(),

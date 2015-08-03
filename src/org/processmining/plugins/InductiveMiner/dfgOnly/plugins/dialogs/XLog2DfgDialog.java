@@ -23,6 +23,8 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogI
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoBucketFilter;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi2;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -85,7 +87,9 @@ public class XLog2DfgDialog extends JPanel {
 		}
 
 		public IMLog2IMLogInfo getIMLog2IMLogInfo() {
-			return new IMLog2IMLogInfoBucketFilter(getNoiseThreshold());
+			MiningParameters parameters = new MiningParametersIMi2();
+			parameters.setNoiseThreshold(getNoiseThreshold());
+			return new IMLog2IMLogInfoBucketFilter(parameters);
 		}
 	}
 
@@ -251,10 +255,10 @@ public class XLog2DfgDialog extends JPanel {
 		return ((Variant) variantCombobox.getSelectedItem()).getIMLog2IMLogInfo();
 	}
 
-	public double getNoiseThreshold() {
+	public float getNoiseThreshold() {
 		if (noiseSlider == null) {
-			return 0.2;
+			return 0.2f;
 		}
-		return noiseSlider.getValue() / 1000.0;
+		return noiseSlider.getValue() / 1000f;
 	}
 }
