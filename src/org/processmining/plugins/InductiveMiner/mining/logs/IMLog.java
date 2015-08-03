@@ -195,10 +195,9 @@ public class IMLog implements Iterable<IMTrace> {
 	public XLog toXLog() {
 		XAttributeMap map = new XAttributeMapImpl();
 		XLog result = new XLogImpl(map);
-//		int emptytraces = 0;
 		for (IMTrace trace : this) {
 			if (trace.isEmpty()) {
-//				emptytraces += 1;
+				//XES does not support empty traces
 			} else {
 				XTrace xTrace = new XTraceImpl(map);
 				for (XEvent e : trace) {
@@ -207,8 +206,6 @@ public class IMLog implements Iterable<IMTrace> {
 				result.add(xTrace);
 			}
 		}
-
-		//		debug(emptytraces + " empty traces not converted to XLog");
 
 		return result;
 	}

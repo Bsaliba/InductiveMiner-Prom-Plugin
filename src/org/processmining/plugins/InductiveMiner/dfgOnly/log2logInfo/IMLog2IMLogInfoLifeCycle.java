@@ -15,7 +15,7 @@ import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transitio
 
 public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
-	private class Count {
+	private static class Count {
 		long numberOfEvents = 0;
 		long numberOfActivityInstances = 0;
 		long numberOfEpsilonTraces = 0;
@@ -23,6 +23,10 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 	}
 
 	public IMLogInfo createLogInfo(IMLog log) {
+		return log2logInfo(log);
+	}
+
+	public static IMLogInfo log2logInfo(IMLog log) {
 		Count count = new Count();
 		Dfg dfg = log2Dfg(log, count);
 
@@ -35,7 +39,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				count.numberOfEvents, count.numberOfActivityInstances, count.numberOfEpsilonTraces);
 	}
 
-	public static Dfg log2Dfg(IMLog log, Count count) {
+	private static Dfg log2Dfg(IMLog log, Count count) {
 		Dfg dfg = new Dfg();
 		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, count);
@@ -50,20 +54,6 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 				}
 				count.numberOfEvents += trace.size();
 			}
-		}
-		return dfg;
-	}
-
-	/**
-	 * Get a directly-follows graph from a log.
-	 * 
-	 * @param log
-	 * @return
-	 */
-	public static Dfg log2Dfg(IMLog log) {
-		Dfg dfg = new Dfg();
-		for (IMTrace trace : log) {
-			processTrace(log, dfg, trace, null);
 		}
 		return dfg;
 	}
@@ -155,7 +145,8 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			XEventClass activity = log.classify(event);
 
 			//this is a start event if the log says so, or if we see a complete without corresponding preceding start event. 
-			boolean isStartEvent = log.getLifeCycle(event) == Transition.start || !openActivityInstances.contains(activity);
+			boolean isStartEvent = log.getLifeCycle(event) == Transition.start
+					|| !openActivityInstances.contains(activity);
 			boolean isCompleteEvent = log.getLifeCycle(event) == Transition.complete;
 			isStart[i] = isStartEvent;
 

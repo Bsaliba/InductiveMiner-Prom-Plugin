@@ -41,8 +41,6 @@ public class IMdMiningDialog extends JPanel {
 
 		public abstract boolean hasNoise();
 
-		public abstract boolean noNoiseImpliesFitness();
-
 		public abstract DfgMiningParameters getMiningParameters();
 	}
 
@@ -57,10 +55,6 @@ public class IMdMiningDialog extends JPanel {
 
 		public DfgMiningParameters getMiningParameters() {
 			return new DfgMiningParametersIMd();
-		}
-
-		public boolean noNoiseImpliesFitness() {
-			return false;
 		}
 	}
 
@@ -77,9 +71,6 @@ public class IMdMiningDialog extends JPanel {
 			return new DfgMiningParametersIMiD();
 		}
 
-		public boolean noNoiseImpliesFitness() {
-			return true;
-		}
 	}
 
 	public class VariantIMinD extends Variant {
@@ -95,9 +86,6 @@ public class IMdMiningDialog extends JPanel {
 			return new DfgMiningParametersIMinD();
 		}
 
-		public boolean noNoiseImpliesFitness() {
-			return false;
-		}
 	}
 
 	public IMdMiningDialog() {
@@ -177,18 +165,6 @@ public class IMdMiningDialog extends JPanel {
 
 		gridy++;
 
-		final JLabel noiseExplanation = factory.createLabel("If set to 0.00, perfect direclty-follows fitness is guaranteed.");
-		{
-			GridBagConstraints cNoiseExplanation = new GridBagConstraints();
-			cNoiseExplanation.gridx = 1;
-			cNoiseExplanation.gridy = gridy;
-			cNoiseExplanation.gridwidth = 3;
-			cNoiseExplanation.anchor = GridBagConstraints.WEST;
-			add(noiseExplanation, cNoiseExplanation);
-		}
-		
-		gridy++;
-
 		{
 			GridBagConstraints gbcFiller = new GridBagConstraints();
 			gbcFiller.weighty = 1.0;
@@ -214,7 +190,6 @@ public class IMdMiningDialog extends JPanel {
 
 				noiseLabel.setVisible(variant.hasNoise());
 				noiseSlider.setVisible(variant.hasNoise());
-				noiseExplanation.setVisible(variant.noNoiseImpliesFitness());
 			}
 		});
 

@@ -54,8 +54,8 @@ public class CutFinderIMi implements CutFinder {
 		//				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
 		//				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
 
-		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, null, null, null, filteredStartActivities,
-				filteredEndActivities, null, null);
+		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, filteredStartActivities,
+				filteredEndActivities);
 
 		return new IMLogInfo(dfg, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(),

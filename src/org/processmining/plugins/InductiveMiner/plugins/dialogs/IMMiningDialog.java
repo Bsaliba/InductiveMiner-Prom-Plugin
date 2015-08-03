@@ -33,7 +33,7 @@ public class IMMiningDialog extends JPanel {
 
 	private static final long serialVersionUID = 7693870370139578439L;
 	private final ParametersWrapper p = new ParametersWrapper();
-	private final JComboBox<?> variantCombobox;
+	private final JComboBox<Variant> variantCombobox;
 	private final JLabel noiseLabel;
 	private final JSlider noiseSlider;
 	private final JLabel noiseValue;
@@ -182,6 +182,7 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMi();
 		SlickerFactory factory = SlickerFactory.instance();

@@ -36,10 +36,8 @@ public class DfgCutFinderNoiseFiltering implements DfgCutFinder {
 
 		MultiSet<XEventClass> filteredEndActivities = CutFinderIMi.filterActivities(dfg.getEndActivities(), threshold);
 
-		return new Dfg(filteredDirectlyFollowsGraph, dfg.getEventuallyFollowsGraph(),
-				dfg.getConcurrencyGraph(), dfg.getUncertainDirectlyFollowsGraph(),
-				dfg.getUncertainEventuallyFollowsGraph(), filteredStartActivities, filteredEndActivities,
-				dfg.getUncertainStartActivities(), dfg.getUncertainEndActivities());
+		return new Dfg(filteredDirectlyFollowsGraph, dfg.getConcurrencyGraph(), filteredStartActivities,
+				filteredEndActivities);
 	}
 
 }

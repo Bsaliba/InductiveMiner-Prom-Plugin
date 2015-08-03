@@ -45,9 +45,9 @@ public class CutFinderIMilc implements CutFinder {
 
 		Graph<XEventClass> filteredConcurrencyGraph = filterGraph(logInfo.getConcurrencyGraph(), filteredEndActivities,
 				threshold);
-		
-		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, filteredConcurrencyGraph, null, null,
-				filteredStartActivities, filteredEndActivities, null, null);
+
+		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, filteredConcurrencyGraph, filteredStartActivities,
+				filteredEndActivities);
 
 		return new IMLogInfo(dfg, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
 				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(),
