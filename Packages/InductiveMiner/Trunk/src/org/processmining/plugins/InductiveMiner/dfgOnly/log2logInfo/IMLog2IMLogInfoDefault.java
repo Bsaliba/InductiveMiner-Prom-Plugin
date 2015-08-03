@@ -18,6 +18,10 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
 	public IMLogInfo createLogInfo(IMLog log) {
+		return log2logInfo(log);
+	}
+
+	public static IMLogInfo log2logInfo(IMLog log) {
 		//initialise, read the log
 		Dfg dfg = new Dfg();
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
