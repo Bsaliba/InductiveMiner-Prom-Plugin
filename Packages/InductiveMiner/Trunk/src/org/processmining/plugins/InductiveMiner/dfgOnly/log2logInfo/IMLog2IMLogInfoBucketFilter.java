@@ -10,7 +10,7 @@ import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
+import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton3;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
@@ -112,7 +112,7 @@ public class IMLog2IMLogInfoBucketFilter implements IMLog2IMLogInfo {
 
 	public static IMLogInfo[] makeIMLogInfo(final IMLog[] logs) throws ExecutionException {
 		final IMLogInfo[] result = new IMLogInfo[logs.length];
-		final JobList list = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
+		final JobList list = new JobListConcurrent(ThreadPoolSingleton3.getInstance());
 		for (int bucket = 0; bucket < logs.length; bucket++) {
 			final int bucket2 = bucket;
 			list.addJob(new Runnable() {
