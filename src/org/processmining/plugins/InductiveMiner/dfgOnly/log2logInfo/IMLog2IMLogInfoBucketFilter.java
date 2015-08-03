@@ -8,7 +8,6 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
@@ -16,14 +15,14 @@ public class IMLog2IMLogInfoBucketFilter implements IMLog2IMLogInfo {
 
 	private final static double parameterAgreeAt = 0.5;
 
-	private final MiningParameters miningParameters;
+	private final double noiseThreshold;
 
-	public IMLog2IMLogInfoBucketFilter(MiningParameters miningParameters) {
-		this.miningParameters = miningParameters;
+	public IMLog2IMLogInfoBucketFilter(double noiseThreshold) {
+		this.noiseThreshold = noiseThreshold;
 	}
 
 	public IMLogInfo createLogInfo(IMLog log) {
-		int numberOfBuckets = (int) Math.round(Math.pow(log.size(), miningParameters.getNoiseThreshold()) - 2) + 1;
+		int numberOfBuckets = (int) Math.round(Math.pow(log.size(), noiseThreshold) - 2) + 1;
 		int agreementAt = (int) Math.floor(numberOfBuckets * parameterAgreeAt);
 
 		Random random = new Random(123);
