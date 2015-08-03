@@ -35,7 +35,7 @@ public class ReduceTree {
 	public static void reduceTree(ProcessTree tree) {
 		reduceNode(tree.getRoot());
 	}
-	
+
 	public static void reduceNode(Node node) {
 		boolean changed = true;
 		while (changed) {
@@ -43,8 +43,9 @@ public class ReduceTree {
 		}
 	}
 
-	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPFlattenXor(),
-			new RPFlattenAnd(), new RPFlattenSeq(), new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPOneChild()));
+	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPOneChild(),
+			new RPFlattenSeqAndAboveTau(), new RPFlattenXor(), new RPFlattenAnd(), new RPFlattenSeq(),
+			new RPDoubleTausUnderXor(), new RPFlattenLoop()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
@@ -56,22 +57,28 @@ public class ReduceTree {
 				Node child = ((Block) node).getChildren().get(0);
 				if (node.getProcessTree().getRoot() == node) {
 					//root
+//					System.out.println("  root");
 					removeChild((Block) node, child, tree);
 					tree.setRoot(child);
 					tree.removeNode(node);
+					return true;
 				} else {
 					//non-root
+//					System.out.println("  non root");
 					Block parent = node.getParents().iterator().next();
-					for (int i = 0; i < parent.getChildren().size();i++) {
+					for (int i = 0; i < parent.getChildren().size(); i++) {
 						if (parent.getChildren().get(i) == node) {
 							flattenChildAt(parent, (Block) node, i, tree);
 							return true;
 						}
 					}
 				}
-				return true;
 			}
 			return false;
+		}
+		
+		public String toString() {
+			return "one child";
 		}
 	}
 
@@ -114,24 +121,25 @@ public class ReduceTree {
 				}
 			}
 
-			if (taus.size() == 0) {
-				return false;
-			}
-
-			if (taus.size() == 1 && childProducingTau == null) {
-				return false;
-			}
-
 			//reduce
 			if (childProducingTau != null) {
 				//all taus can be removed
+				if (taus.size() == 0) {
+					return false;
+				}
+				
 				for (Automatic tau : taus) {
 					removeChild(xor, tau, tree);
 					tree.removeNode(tau);
 				}
 			} else {
 				//only the non-first taus can be removed
+				if (taus.size() <= 1) {
+					return false;
+				}
+				
 				Iterator<Automatic> it = taus.iterator();
+				it.next();
 				while (it.hasNext()) {
 					Automatic tau = it.next();
 					removeChild(xor, tau, tree);
@@ -140,6 +148,10 @@ public class ReduceTree {
 			}
 
 			return true;
+		}
+		
+		public String toString() {
+			return "double taus under xor";
 		}
 	}
 
@@ -156,10 +168,6 @@ public class ReduceTree {
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
 
 					//for parallel, the number of traces represented is the same, so don't sum
-				} else if (child instanceof Automatic) {
-					//remove tau
-					removeChild((Block) node, child, tree);
-					tree.removeNode(child);
 				} else {
 					i++;
 				}
@@ -181,15 +189,33 @@ public class ReduceTree {
 					i = flattenChildAt((Block) node, (Block) child, i, tree);
 
 					//for sequence, the number of traces represented is the same, so don't sum
-				} else if (child instanceof Automatic) {
-					//remove tau
-					removeChild((Block) node, child, tree);
-					tree.removeNode(child);
 				} else {
 					i++;
 				}
 			}
 			return changed;
+		}
+	}
+
+	public static class RPFlattenSeqAndAboveTau extends ReductionPattern {
+		public boolean apply(Node node, ProcessTree tree) {
+			if (!(node instanceof Seq || node instanceof And)) {
+				return false;
+			}
+			boolean changed = false;
+			for (Node child : ((Block) node).getChildren()) {
+				if (child instanceof Automatic && ((Block) node).getChildren().size() > 1) {
+					//remove tau
+					removeChild((Block) node, child, tree);
+					tree.removeNode(child);
+					changed = true;
+				}
+			}
+			return changed;
+		}
+		
+		public String toString() {
+			return "taus under sequence/parallel";
 		}
 	}
 
@@ -244,7 +270,7 @@ public class ReduceTree {
 	}
 
 	private static void removeChild(Block node, Node child, ProcessTree tree) {
-		//remove grandChild <-> childXor connection\
+		//remove grandChild <-> childXor connection
 		List<Edge> edges = new ArrayList<Edge>();
 		for (Edge edge : node.getOutgoingEdges()) {
 			if (edge.getTarget() == child) {
@@ -277,17 +303,31 @@ public class ReduceTree {
 	private static boolean reduceNode(Node node, ProcessTree tree) {
 		boolean changed = true;
 		boolean changed2 = false;
+
+		if (node instanceof Block) {
+			for (Node child : ((Block) node).getChildren()) {
+				changed2 |= reduceNode(child, tree);
+			}
+		}
+
 		while (changed) {
 			changed = false;
+//			System.out.println("apply patterns to " + node);
 			for (ReductionPattern pattern : patterns) {
 				boolean x = pattern.apply(node, tree);
+//				if (x) {
+//					System.out.println(" used: " + pattern);
+//					System.out.println(" after reduction  " + node);
+//				}
 				changed = changed || x;
 				changed2 = changed2 || x;
 			}
+//			System.out.println("");
 		}
+		
 		if (node instanceof Block) {
 			for (Node child : ((Block) node).getChildren()) {
-				changed2 = changed2 || reduceNode(child, tree);
+				changed2 = changed2 |= reduceNode(child, tree);
 			}
 		}
 		return changed2;
