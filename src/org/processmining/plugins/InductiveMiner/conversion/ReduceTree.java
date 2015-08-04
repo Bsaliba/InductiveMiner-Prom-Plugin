@@ -13,6 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Block.And;
+import org.processmining.processtree.Block.DefLoop;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
 import org.processmining.processtree.Block.XorLoop;
@@ -21,6 +22,7 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.impl.AbstractBlock;
+import org.processmining.processtree.impl.AbstractTask;
 
 @Plugin(name = "Reduce process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
 public class ReduceTree {
@@ -45,7 +47,7 @@ public class ReduceTree {
 
 	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPOneChild(),
 			new RPFlattenSeqAndAboveTau(), new RPFlattenXor(), new RPFlattenAnd(), new RPFlattenSeq(),
-			new RPDoubleTausUnderXor(), new RPFlattenLoop()));
+			new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPThreeTauLoop()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
@@ -57,14 +59,12 @@ public class ReduceTree {
 				Node child = ((Block) node).getChildren().get(0);
 				if (node.getProcessTree().getRoot() == node) {
 					//root
-//					System.out.println("  root");
 					removeChild((Block) node, child, tree);
 					tree.setRoot(child);
 					tree.removeNode(node);
 					return true;
 				} else {
 					//non-root
-//					System.out.println("  non root");
 					Block parent = node.getParents().iterator().next();
 					for (int i = 0; i < parent.getChildren().size(); i++) {
 						if (parent.getChildren().get(i) == node) {
@@ -76,7 +76,7 @@ public class ReduceTree {
 			}
 			return false;
 		}
-		
+
 		public String toString() {
 			return "one child";
 		}
@@ -98,6 +98,53 @@ public class ReduceTree {
 				}
 			}
 			return changed;
+		}
+	}
+
+	public static class RPThreeTauLoop extends ReductionPattern {
+		public boolean apply(Node node, ProcessTree tree) {
+			if (!(node instanceof XorLoop || node instanceof DefLoop)) {
+				return false;
+			}
+			
+			if (((Block) node).getChildren().isEmpty()) {
+				//this node might already have been removed
+				return false;
+			}
+
+			if (!(((Block) node).getChildren().get(0) instanceof Automatic
+					&& ((Block) node).getChildren().get(1) instanceof Automatic && ((Block) node).getChildren().get(2) instanceof Automatic)) {
+				return false;
+			}
+			
+			//this is a loop with three tau children; replace with a single tau
+			
+			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
+			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
+			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
+			
+			Node newChild = new AbstractTask.Automatic("tau");
+			tree.addNode(newChild);
+			if (node.getProcessTree().getRoot() == node) {
+				//root
+				tree.setRoot(newChild);
+				tree.removeNode(node);
+				return true;
+			} else {
+				//non-root
+				Block parent = node.getParents().iterator().next();
+				for (int i = 0; i < parent.getChildren().size(); i++) {
+					if (parent.getChildren().get(i) == node) {
+						parent.addChildAt(newChild, i);
+
+						//remove old node
+						removeChild(parent, node, tree);
+						tree.removeNode(node);
+						return true;
+					}
+				}
+				return false;
+			}
 		}
 	}
 
@@ -127,7 +174,7 @@ public class ReduceTree {
 				if (taus.size() == 0) {
 					return false;
 				}
-				
+
 				for (Automatic tau : taus) {
 					removeChild(xor, tau, tree);
 					tree.removeNode(tau);
@@ -137,7 +184,7 @@ public class ReduceTree {
 				if (taus.size() <= 1) {
 					return false;
 				}
-				
+
 				Iterator<Automatic> it = taus.iterator();
 				it.next();
 				while (it.hasNext()) {
@@ -149,7 +196,7 @@ public class ReduceTree {
 
 			return true;
 		}
-		
+
 		public String toString() {
 			return "double taus under xor";
 		}
@@ -213,7 +260,7 @@ public class ReduceTree {
 			}
 			return changed;
 		}
-		
+
 		public String toString() {
 			return "taus under sequence/parallel";
 		}
@@ -223,6 +270,11 @@ public class ReduceTree {
 
 		public boolean apply(Node node, ProcessTree tree) {
 			if (!(node instanceof XorLoop)) {
+				return false;
+			}
+			
+			if (((Block) node).getChildren().isEmpty()) {
+				//this function might be called on an already-removed node; in that case skip. 
 				return false;
 			}
 
@@ -312,19 +364,19 @@ public class ReduceTree {
 
 		while (changed) {
 			changed = false;
-//			System.out.println("apply patterns to " + node);
+			//			System.out.println("apply patterns to " + node);
 			for (ReductionPattern pattern : patterns) {
 				boolean x = pattern.apply(node, tree);
-//				if (x) {
-//					System.out.println(" used: " + pattern);
-//					System.out.println(" after reduction  " + node);
-//				}
+				//				if (x) {
+				//					System.out.println(" used: " + pattern);
+				//					System.out.println(" after reduction  " + node);
+				//				}
 				changed = changed || x;
 				changed2 = changed2 || x;
 			}
-//			System.out.println("");
+			//			System.out.println("");
 		}
-		
+
 		if (node instanceof Block) {
 			for (Node child : ((Block) node).getChildren()) {
 				changed2 = changed2 |= reduceNode(child, tree);
