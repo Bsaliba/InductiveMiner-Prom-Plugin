@@ -1,5 +1,9 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +13,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.ArrayUtilities;
+import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -27,14 +32,15 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getDirectlyFollowsGraph());
+		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph());
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return findCut(dfg.getDirectlyFollowsGraph());
+		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph());
 	}
 
-	public static Cut findCut(Graph<XEventClass> graph) {
+	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
+			Graph<XEventClass> graph) {
 		//compute the strongly connected components of the directly-follows graph
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
@@ -87,7 +93,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
-		Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class,  xorCondensedNodes.size());
+		Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class, xorCondensedNodes.size());
 		for (Set<Set<XEventClass>> node : xorCondensedNodes) {
 
 			//we need to flatten this s to get a new list of nodes
@@ -129,10 +135,78 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			}
 
 		});
+		
+		if (result.size() <= 1) {
+			return null;
+		}
 
-		//for (Set<Set<XEventClass>> se : xorCondensedNodes) {
-		//	debug("xor-free nodes: " + implode2(se, ", "));
-		//}
+		/**
+		 * Optimisation 4-8-2015: do not greedily use the maximal cut, but
+		 * choose the one that minimises the introduction of taus.
+		 * 
+		 * This solves the case {<a, b, c>, <c>}, where choosing the cut {a,
+		 * b}{c} increases precision over choosing the cut {a}{b}{c}.
+		 */
+		{
+			//make a mapping node -> subCut
+			//initialise counting of taus
+			TObjectIntMap<XEventClass> node2subCut = new TObjectIntHashMap<>();
+			long[] skippingTaus = new long[result.size() - 1];
+			for (int subCut = 0; subCut < result.size(); subCut++) {
+				for (XEventClass e : result.get(subCut)) {
+					node2subCut.put(e, subCut);
+				}
+			}
+
+			//count the number of taus that will be introduced by each edge
+			for (long edge : graph.getEdges()) {
+				XEventClass source = graph.getEdgeSource(edge);
+				XEventClass target = graph.getEdgeTarget(edge);
+				long cardinality = graph.getEdgeWeight(edge);
+				for (int c = node2subCut.get(source) + 1; c < node2subCut.get(target) - 1; c++) {
+					skippingTaus[c] += cardinality;
+				}
+			}
+
+			//count the number of taus that will be introduced by each start activity
+			for (XEventClass e : startActivities) {
+				for (int c = 0; c < node2subCut.get(e) - 1; c++) {
+					skippingTaus[c] += startActivities.getCardinalityOf(e);
+				}
+			}
+
+			//count the number of taus that will be introduced by each end activity
+			for (XEventClass e : endActivities) {
+				for (int c = node2subCut.get(e) + 1; c < result.size() - 1; c++) {
+					skippingTaus[c] += endActivities.getCardinalityOf(e);
+				}
+			}
+
+			//find the sub cut that introduces the least taus
+			int subCutWithMinimumTaus = -1;
+			{
+				long minimumTaus = Long.MAX_VALUE;
+				for (int i = 0; i < skippingTaus.length; i++) {
+					if (skippingTaus[i] < minimumTaus) {
+						subCutWithMinimumTaus = i;
+						minimumTaus = skippingTaus[i];
+					}
+				}
+			}
+
+			//make a new cut
+			Set<XEventClass> result1 = new THashSet<>();
+			Set<XEventClass> result2 = new THashSet<>();
+			for (int i = 0; i <= subCutWithMinimumTaus ; i ++) {
+				result1.addAll(result.get(i));
+			}
+			for (int i = subCutWithMinimumTaus + 1; i < result.size() ; i ++) {
+				result2.addAll(result.get(i));
+			}
+			result.clear();
+			result.add(result1);
+			result.add(result2);
+		}
 
 		return new Cut(Operator.sequence, result);
 	}
