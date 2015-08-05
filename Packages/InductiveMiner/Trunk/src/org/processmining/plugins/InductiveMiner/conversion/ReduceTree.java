@@ -13,6 +13,7 @@ import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.plugins.InductiveMiner.mining.metrics.MinerMetrics;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Block.And;
+import org.processmining.processtree.Block.Def;
 import org.processmining.processtree.Block.DefLoop;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
@@ -47,7 +48,7 @@ public class ReduceTree {
 
 	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPOneChild(),
 			new RPFlattenSeqAndAboveTau(), new RPFlattenXor(), new RPFlattenAnd(), new RPFlattenSeq(),
-			new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPThreeTauLoop()));
+			new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPThreeTauLoop(), new RPTwoTausAndActivityUnderLoop()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
@@ -101,14 +102,57 @@ public class ReduceTree {
 		}
 	}
 
+	public static class RPTwoTausAndActivityUnderLoop extends ReductionPattern {
+		public boolean apply(Node node, ProcessTree tree) {
+			if (!(node instanceof XorLoop || node instanceof DefLoop)) {
+				return false;
+			}
+
+			if (((Block) node).getChildren().isEmpty()) {
+				//this node is already removed
+				return false;
+			}
+
+			//first child is a tau
+			if (!(((Block) node).getChildren().get(0) instanceof Automatic)) {
+				return false;
+			}
+
+			//second child is a xor
+			if (!(((Block) node).getChildren().get(1) instanceof Xor || ((Block) node).getChildren().get(1) instanceof Def)) {
+				return false;
+			}
+			Block xorChild = (Block) ((Block) node).getChildren().get(1);
+
+			//second child contains a tau
+			Node grandChildTau = null;
+			{
+				for (Node child : xorChild.getChildren()) {
+					if (child instanceof Automatic) {
+						grandChildTau = child;
+						break;
+					}
+				}
+				if (grandChildTau == null) {
+					return false;
+				}
+			}
+
+			//remove the tau
+			removeChild(xorChild, grandChildTau, tree);
+			tree.removeNode(grandChildTau);
+			return true;
+		}
+	}
+
 	public static class RPThreeTauLoop extends ReductionPattern {
 		public boolean apply(Node node, ProcessTree tree) {
 			if (!(node instanceof XorLoop || node instanceof DefLoop)) {
 				return false;
 			}
-			
+
 			if (((Block) node).getChildren().isEmpty()) {
-				//this node might already have been removed
+				//this node is already removed
 				return false;
 			}
 
@@ -116,13 +160,13 @@ public class ReduceTree {
 					&& ((Block) node).getChildren().get(1) instanceof Automatic && ((Block) node).getChildren().get(2) instanceof Automatic)) {
 				return false;
 			}
-			
+
 			//this is a loop with three tau children; replace with a single tau
-			
+
 			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
 			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
 			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
-			
+
 			Node newChild = new AbstractTask.Automatic("tau");
 			tree.addNode(newChild);
 			if (node.getProcessTree().getRoot() == node) {
@@ -272,7 +316,7 @@ public class ReduceTree {
 			if (!(node instanceof XorLoop)) {
 				return false;
 			}
-			
+
 			if (((Block) node).getChildren().isEmpty()) {
 				//this function might be called on an already-removed node; in that case skip. 
 				return false;
