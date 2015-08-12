@@ -26,6 +26,31 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			Miner.addNode(tree, node);
 			
 			return node;
+		} else if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0) {
+			//single activity in semi-flower model
+			
+			Miner.debug(" base case: IM single activity semi-flower model", minerState);
+			
+			XEventClass activity = logInfo.getActivities().iterator().next();
+			Block loopNode = new AbstractBlock.XorLoop("");
+			Miner.addNode(tree, loopNode);
+			
+			//body: activity
+			Node body = new AbstractTask.Manual(activity.toString());
+			Miner.addNode(tree, body);
+			loopNode.addChild(body);
+			
+			//redo: tau
+			Node redo = new AbstractTask.Automatic("tau");
+			Miner.addNode(tree, redo);
+			loopNode.addChild(redo);
+			
+			//exit: tau
+			Node exit = new AbstractTask.Automatic("tau");
+			Miner.addNode(tree, exit);
+			loopNode.addChild(exit);
+			
+			return loopNode;
 		} else if (logInfo.getActivities().setSize() == 0) {
 			//empty log
 			
