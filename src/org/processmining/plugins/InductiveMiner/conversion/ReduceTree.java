@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
@@ -48,7 +50,8 @@ public class ReduceTree {
 
 	public static List<ReductionPattern> patterns = new ArrayList<ReductionPattern>(Arrays.asList(new RPOneChild(),
 			new RPFlattenSeqAndAboveTau(), new RPFlattenXor(), new RPFlattenAnd(), new RPFlattenSeq(),
-			new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPThreeTauLoop(), new RPTwoTausAndActivityUnderLoop()));
+			new RPDoubleTausUnderXor(), new RPFlattenLoop(), new RPThreeTauLoop(), new RPTwoTausAndActivityUnderLoop(),
+			new RPXorTauAlmostFlower()));
 
 	public static abstract class ReductionPattern {
 		public abstract boolean apply(Node node, ProcessTree tree);
@@ -99,6 +102,56 @@ public class ReduceTree {
 				}
 			}
 			return changed;
+		}
+	}
+
+	/**
+	 * xor(tau, xorLoop(A, tau, tau), ...) => xor(xorLoop(tau, A, tau), ...)
+	 * 
+	 * @author sleemans
+	 *
+	 */
+	public static class RPXorTauAlmostFlower extends ReductionPattern {
+		public boolean apply(Node node, ProcessTree tree) {
+			if (!(node instanceof Xor || node instanceof Def)) {
+				return false;
+			}
+
+			//at least one child must be tau
+			Node tauChild = null;
+			{
+				for (Node child : ((Block) node).getChildren()) {
+					if (child instanceof Automatic) {
+						tauChild = child;
+					}
+				}
+				if (tauChild == null) {
+					return false;
+				}
+			}
+
+			//at least one child must be loop(A, tau, tau)
+			Block loopChild = null;
+			{
+				for (Node child : ((Block) node).getChildren()) {
+					if (child instanceof XorLoop || child instanceof DefLoop) {
+						Block child2 = (Block) child;
+						//second and third child are tau
+						if (child2.getChildren().get(1) instanceof Automatic
+								&& child2.getChildren().get(2) instanceof Automatic) {
+							loopChild = child2;
+						}
+					}
+				}
+				if (loopChild == null) {
+					return false;
+				}
+			}
+
+			//cut away the first tau
+			removeChild((Block) node, tauChild, tree);
+			tree.removeNode(node);
+			return true;
 		}
 	}
 
@@ -167,7 +220,7 @@ public class ReduceTree {
 			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
 			removeChild((Block) node, ((Block) node).getChildren().get(0), tree);
 
-			Node newChild = new AbstractTask.Automatic("tau");
+			Node newChild = new AbstractTask.Automatic(getUUID(), "tau");
 			tree.addNode(newChild);
 			if (node.getProcessTree().getRoot() == node) {
 				//root
@@ -380,10 +433,17 @@ public class ReduceTree {
 		}
 	}
 
+	private static Random random = new Random();
+
+	private static UUID getUUID() {
+		return new UUID(random.nextLong(), random.nextLong());
+	}
+
 	private static int flattenChildAt(Block node, Block child, int i, ProcessTree tree) {
 
 		//merge structure
 		for (Node grandChild : child.getChildren()) {
+
 			node.addChildAt(grandChild, i);
 			i++;
 			removeChild(child, grandChild, tree);

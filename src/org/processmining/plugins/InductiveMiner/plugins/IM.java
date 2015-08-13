@@ -54,26 +54,4 @@ public class IM {
 	public static Object[] minePetriNet(PluginContext context, XLog log, MiningParameters parameters) {
 		return IMPetriNet.minePetriNet(context, log, parameters);
 	}
-
-	//make xloginfo to obtain a list of classifiers
-	//		public List<XEventClassifier> getClassifiers(XLog xLog) {
-	//			XLogInfo xLogInfo = XLogInfoFactory.createLogInfo(xLog);
-	//			List<XEventClassifier> classifiers = new ArrayList<XEventClassifier>(xLogInfo.getEventClassifiers());
-	//			classifiers.addAll(xLog.getClassifiers());
-	//			classifiers.add(new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier()));
-	//			Collections.sort(classifiers, new Comparator<XEventClassifier>() {
-	//				public int compare(XEventClassifier o1, XEventClassifier o2) {
-	//					return o1.name().compareTo(o2.name());
-	//				}
-	//			});
-	//			return classifiers;
-	//		}
-	
-//	public static class ClassifierWrapper {
-//		
-//	}
-//	
-//	public static XEventClassifier[] getClassifiers(XLog log) {
-//		return new XEventClassifier[]{new XEventNameClassifier()};
-//	}
 }
