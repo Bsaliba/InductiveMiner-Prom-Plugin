@@ -54,7 +54,7 @@ public class MiningParametersIMi extends MiningParameters {
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughLeaveOutActivitiesThenApplyOthers(),
-				new FallThroughTauLoop(),
+				new FallThroughTauLoop(false),
 				new FallThroughFlower()
 				)));
 		
