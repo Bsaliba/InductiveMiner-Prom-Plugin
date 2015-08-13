@@ -22,6 +22,12 @@ import org.processmining.processtree.impl.AbstractTask.Automatic;
 
 public class FallThroughTauLoop implements FallThrough {
 
+	private final boolean useLifeCycle;
+
+	public FallThroughTauLoop(boolean useLifeCycle) {
+		this.useLifeCycle = useLifeCycle;
+	}
+
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		if (logInfo.getActivities().toSet().size() > 1) {
@@ -30,7 +36,7 @@ public class FallThroughTauLoop implements FallThrough {
 			XLog sublog = new XLogImpl(new XAttributeMapImpl());
 
 			for (IMTrace trace : log) {
-				filterTrace(log, sublog, trace, logInfo.getStartActivities());
+				filterTrace(log, sublog, trace, logInfo.getStartActivities(), useLifeCycle);
 			}
 
 			if (sublog.size() > log.size()) {
@@ -63,7 +69,8 @@ public class FallThroughTauLoop implements FallThrough {
 		return null;
 	}
 
-	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities) {
+	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities,
+			boolean useLifeCycle) {
 		boolean first = true;
 		XTrace partialTrace = new XTraceImpl(new XAttributeMapImpl());
 
@@ -72,23 +79,25 @@ public class FallThroughTauLoop implements FallThrough {
 		for (XEvent event : trace) {
 
 			XEventClass activity = log.classify(event);
-			
+
 			if (!first && startActivities.contains(activity)) {
 				//we discovered a transition body -> body
 				//check whether there are no open activity instances
-				if (openActivityInstances.size() == 0) {
+				if (!useLifeCycle || openActivityInstances.size() == 0) {
 					sublog.add(partialTrace);
 					partialTrace = new XTraceImpl(new XAttributeMapImpl());
 					first = true;
 				}
 			}
-			
-			if (log.getLifeCycle(event) == Transition.complete) {
-				if (openActivityInstances.getCardinalityOf(activity) > 0) {
-					openActivityInstances.remove(activity, 1);
+
+			if (useLifeCycle) {
+				if (log.getLifeCycle(event) == Transition.complete) {
+					if (openActivityInstances.getCardinalityOf(activity) > 0) {
+						openActivityInstances.remove(activity, 1);
+					}
+				} else if (log.getLifeCycle(event) == Transition.start) {
+					openActivityInstances.add(log.classify(event));
 				}
-			} else if (log.getLifeCycle(event) == Transition.start) {
-				openActivityInstances.add(log.classify(event));
 			}
 
 			partialTrace.add(event);

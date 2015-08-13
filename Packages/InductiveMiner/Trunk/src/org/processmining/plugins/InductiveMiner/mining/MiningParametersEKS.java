@@ -40,7 +40,7 @@ public class MiningParametersEKS extends MiningParameters {
 		setLogSplitter(new LogSplitterIMi());
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
-				new FallThroughTauLoop(),
+				new FallThroughTauLoop(true),
 				new FallThroughFlower()
 				)));
 	}
