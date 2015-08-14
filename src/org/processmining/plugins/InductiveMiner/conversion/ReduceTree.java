@@ -301,7 +301,7 @@ public class ReduceTree {
 
 	public static class RPFlattenAnd extends ReductionPattern {
 		public boolean apply(Node node, ProcessTree tree) {
-			if (!(node instanceof And)) {
+			if (!(node instanceof And) || node instanceof Interleaved) {
 				return false;
 			}
 			int i = 0;

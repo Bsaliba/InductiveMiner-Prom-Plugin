@@ -32,39 +32,48 @@ public class FootPrint {
 				return false;
 			}
 
-			if (!startActivities.toSet().equals(other.startActivities.toSet()) || !endActivities.toSet().equals(other.endActivities.toSet())) {
+			if (!startActivities.toSet().equals(other.startActivities.toSet())
+					|| !endActivities.toSet().equals(other.endActivities.toSet())) {
 				return false;
 			}
 
-			if (!(new THashSet<String>(Arrays.asList(directlyFollowsGraph.getVertices()))
-					.equals(new THashSet<String>(Arrays.asList(other.directlyFollowsGraph.getVertices()))))) {
+			if (!(new THashSet<String>(Arrays.asList(directlyFollowsGraph.getVertices())).equals(new THashSet<String>(
+					Arrays.asList(other.directlyFollowsGraph.getVertices()))))) {
 				return false;
 			}
-			
+
+			//compare directly-follows graph activities
+			compareActivities(directlyFollowsGraph.getVertices(), other.directlyFollowsGraph.getVertices());
+
 			//compare directly-follows graphs
 			for (long e1 : directlyFollowsGraph.getEdges()) {
-				if (!other.directlyFollowsGraph.containsEdge(directlyFollowsGraph.getEdgeSource(e1), directlyFollowsGraph.getEdgeTarget(e1))) {
+				if (!other.directlyFollowsGraph.containsEdge(directlyFollowsGraph.getEdgeSource(e1),
+						directlyFollowsGraph.getEdgeTarget(e1))) {
 					return false;
 				}
 			}
 			for (long e1 : other.directlyFollowsGraph.getEdges()) {
-				if (!directlyFollowsGraph.containsEdge(other.directlyFollowsGraph.getEdgeSource(e1), other.directlyFollowsGraph.getEdgeTarget(e1))) {
+				if (!directlyFollowsGraph.containsEdge(other.directlyFollowsGraph.getEdgeSource(e1),
+						other.directlyFollowsGraph.getEdgeTarget(e1))) {
 					return false;
 				}
 			}
-			
+
 			//compare concurrency graphs
+			compareActivities(concurrencyGraph.getVertices(), other.concurrencyGraph.getVertices());
 			for (long e1 : concurrencyGraph.getEdges()) {
-				if (!other.concurrencyGraph.containsEdge(concurrencyGraph.getEdgeSource(e1), concurrencyGraph.getEdgeTarget(e1))) {
+				if (!other.concurrencyGraph.containsEdge(concurrencyGraph.getEdgeSource(e1),
+						concurrencyGraph.getEdgeTarget(e1))) {
 					return false;
 				}
 			}
 			for (long e1 : other.concurrencyGraph.getEdges()) {
-				if (!concurrencyGraph.containsEdge(other.concurrencyGraph.getEdgeSource(e1), other.concurrencyGraph.getEdgeTarget(e1))) {
+				if (!concurrencyGraph.containsEdge(other.concurrencyGraph.getEdgeSource(e1),
+						other.concurrencyGraph.getEdgeTarget(e1))) {
 					return false;
 				}
 			}
-			
+
 			return true;
 		}
 
@@ -111,6 +120,7 @@ public class FootPrint {
 		assert (unode.getNode() instanceof Manual);
 		DfgUnfoldedNode result = new DfgUnfoldedNode();
 		result.directlyFollowsGraph.addVertex(unode.getNode().getName());
+		result.concurrencyGraph.addVertex(unode.getNode().getName());
 		result.startActivities.add(unode.getNode().getName());
 		result.endActivities.add(unode.getNode().getName());
 		result.allowsEmptyTrace = false;
@@ -298,5 +308,33 @@ public class FootPrint {
 		}
 
 		return result;
+	}
+
+	public static boolean compareActivities(String[] a, String[] b) {
+		for (String activity : a) {
+			boolean found = false;
+			for (String otherActivity : b) {
+				if (activity.equals(otherActivity)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+		for (String otherActivity : a) {
+			boolean found = false;
+			for (String activity : b) {
+				if (activity.equals(otherActivity)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
