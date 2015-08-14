@@ -93,7 +93,7 @@ public class Decuple<A, B, C, D, E, F, G, H, I, J> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Decuple other = (Decuple) obj;
+		Decuple<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> other = (Decuple<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (a == null) {
 			if (other.a != null)
 				return false;

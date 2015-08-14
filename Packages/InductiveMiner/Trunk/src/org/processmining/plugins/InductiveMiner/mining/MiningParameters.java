@@ -36,7 +36,7 @@ public abstract class MiningParameters {
 	protected MiningParameters() {
 
 		classifier = getDefaultClassifier();
-		debug = false;
+		debug = true;
 		repairLifeCycle = false;
 
 		setUseMultithreading(true);
@@ -167,11 +167,6 @@ public abstract class MiningParameters {
 
 	public void setFallThroughs(List<FallThrough> fallThroughs) {
 		this.fallThroughs = fallThroughs;
-	}
-
-	@Deprecated
-	public void setReduce(boolean reduce) {
-		
 	}
 
 	public boolean isRepairLifeCycle() {
