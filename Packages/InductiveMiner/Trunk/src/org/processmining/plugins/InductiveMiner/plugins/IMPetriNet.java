@@ -9,11 +9,10 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.processtree.ProcessTree;
-import org.processmining.processtree.conversion.ProcessTree2Petrinet;
-import org.processmining.processtree.conversion.ProcessTree2Petrinet.InvalidProcessTreeException;
-import org.processmining.processtree.conversion.ProcessTree2Petrinet.NotYetImplementedException;
-import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWithMarkings;
-
+import org.processmining.ptconversions.pn.ProcessTree2Petrinet;
+import org.processmining.ptconversions.pn.ProcessTree2Petrinet.InvalidProcessTreeException;
+import org.processmining.ptconversions.pn.ProcessTree2Petrinet.NotYetImplementedException;
+import org.processmining.ptconversions.pn.ProcessTree2Petrinet.PetrinetWithMarkings;
 
 public class IMPetriNet {
 

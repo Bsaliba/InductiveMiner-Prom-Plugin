@@ -75,6 +75,7 @@ public class PropertyDirectlyFollowsGraph extends PropertyList<Triple<MaybeStrin
 
 	@Override
 	public String marshall(Object values) {
+		@SuppressWarnings("unchecked")
 		List<Triple<MaybeString, MaybeString, Long>> value = (List<Triple<MaybeString, MaybeString, Long>>) values;
 		StringBuilder result = new StringBuilder();
 		for (Triple<MaybeString, MaybeString, Long> t : value) {

@@ -384,7 +384,6 @@ public class ReduceTree {
 			XorLoop loop = (XorLoop) node;
 			XorLoop oldBody = (XorLoop) b;
 			Node oldRedo = ((Block) node).getChildren().get(1);
-			Node exit = ((Block) node).getChildren().get(2);
 			Node bodyBody = oldBody.getChildren().get(0);
 			Node bodyRedo = oldBody.getChildren().get(1);
 			Node bodyExit = oldBody.getChildren().get(2);
