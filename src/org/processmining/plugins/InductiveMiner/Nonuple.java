@@ -86,7 +86,7 @@ public class Nonuple<A, B, C, D, E, F, G, H, I> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Nonuple other = (Nonuple) obj;
+		Nonuple<?, ?, ?, ?, ?, ?, ?, ?, ?> other = (Nonuple<?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (a == null) {
 			if (other.a != null)
 				return false;

@@ -68,7 +68,7 @@ public class LogSplitterLoop implements LogSplitter {
 						if (!lastIn && (firstSigma || anyIn)) {
 							//this is the first activity of a new subtrace, so the part up till now is a completed subtrace
 
-							IMTrace newTrace = itEvent.split();
+							itEvent.split();
 //							System.out.println("   split trace " + newTrace + " | " + trace);
 						}
 						lastIn = true;
