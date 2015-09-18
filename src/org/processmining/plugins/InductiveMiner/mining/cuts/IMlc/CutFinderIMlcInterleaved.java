@@ -65,14 +65,14 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 						countOutgoingDfgEdges += directlyFollowsGraph.getEdgeWeight(edge);
 					}
 				}
-			}			
+			}
 
 			if (countStartActivities == countOutgoingDfgEdges) {
 				//we conclude that this sigma is a non-interleaving child of a binary interleaving operator
 				Collection<Set<XEventClass>> newPartition = new THashSet<>();
 				newPartition.add(sigma);
 				Set<XEventClass> newSigma = new THashSet<>();
-				for (Set<XEventClass> sigma2: partition) {
+				for (Set<XEventClass> sigma2 : partition) {
 					if (!sigma.equals(sigma2)) {
 						newSigma.addAll(sigma2);
 					}
@@ -103,17 +103,21 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 			while (!q.isEmpty()) {
 				for (long e : dfg.getOutgoingEdgesOf(q.poll())) {
 					XEventClass c = dfg.getEdgeTarget(e);
-					if (!startActivities.contains(c) && !clusters.containsKey(c)) {
+					if (!startActivities.contains(c)) {
 						//this is not a start activity; merge the two clusters
 						mergeClusters(clusters, startActivity, c);
 
-						//process further
-						q.add(c);
+						if (!clusters.containsKey(c)) {
+							//process further
+							q.add(c);
+						}
 					}
 				}
 			}
 			i++;
 		}
+
+		System.out.println(clusters);
 
 		//merge clusters that have at least one concurrent connection
 		for (long edge : concurrencyGraph.getEdges()) {
