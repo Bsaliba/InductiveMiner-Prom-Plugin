@@ -1,0 +1,86 @@
+package org.processmining.plugins.InductiveMiner.efficienttree.reductionrules;
+
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeMetrics;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
+
+public class LoopTauATau2flower implements EfficientTreeReductionRule {
+
+	public boolean apply(EfficientTree tree, int loop) {
+
+		//look for loop( tau1, A, tau3)
+		if (tree.isLoop(loop)) {
+			int tau2 = tree.getChild(loop, 0);
+			int redo = tree.getChild(loop, 1);
+			int tau4 = tree.getChild(loop, 2);
+
+			if (tree.isTau(tau2) && tree.isTau(tau4)) {
+
+				/*
+				 * perform behaviour analysis: if this subprocess can produce
+				 * the single activity (for every occurring activity), we might
+				 * as well replace it with a flower model
+				 */
+
+				//loop through all nodes for activities
+				int countActivities = 0;
+				for (int i = 0; i < tau4; i++) {
+					if (tree.isActivity(i)) {
+						countActivities++;
+						short activity = tree.getActivity(i);
+
+						//check whether the redo can produce this activity as a single activity
+						if (!EfficientTreeMetrics.canProduceSingleActivity(tree, redo, activity)) {
+							return false;
+						}
+					}
+				}
+				
+				//make sure we are terminating: seq(a) does not require rewriting
+				if ((tau4 - tau2) <= countActivities + 3) {
+					return false;
+				}
+
+				//make sure we are terminating: xor(a, b, c....) does not require rewriting
+				if (tree.isXor(redo)) {
+					int length = tree.traverse(redo) - redo;
+					if (length == countActivities + 1) {
+						return false;
+					}
+				}
+
+				//gather the activities
+				short[] activities = new short[countActivities];
+				int j = 0;
+				for (int i = 0; i < tau4; i++) {
+					if (tree.isActivity(i)) {
+						activities[j] = tree.getTree()[i];
+						j++;
+					}
+				}
+
+				//before: loop(tau2, (....), tau3)
+
+				//remove every node that will be useless in the future
+				for (int child = tau4 - 1; child > tau2 + countActivities + 1; child--) {
+					tree.getTree()[child] = EfficientTree.tau;
+					tree.removeChild(redo, child);
+				}
+
+				//set the xor
+				tree.getTree()[redo] = (short) (EfficientTree.xor - countActivities * EfficientTree.childrenFactor);
+
+				//set the activities
+				for (int i = 0; i < countActivities; i++) {
+					tree.getTree()[redo + i + 1] = activities[i];
+				}
+				
+				//after: loop(tau2, xor( ... ), tau4)
+				
+				return true;
+			}
+		}
+
+		return false;
+	}
+}

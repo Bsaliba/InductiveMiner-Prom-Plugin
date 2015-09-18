@@ -22,6 +22,7 @@ public class IM {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
 		if (result != InteractionResult.FINISHED) {
+			context.getFutureResult(0).cancel(false);
 			return null;
 		}
 		return IMProcessTree.mineProcessTree(log, dialog.getMiningParameters());

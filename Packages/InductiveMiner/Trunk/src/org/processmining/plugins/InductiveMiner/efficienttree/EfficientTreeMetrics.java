@@ -1,0 +1,182 @@
+package org.processmining.plugins.InductiveMiner.efficienttree;
+
+import java.util.BitSet;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+public class EfficientTreeMetrics {
+
+	public static long getShortestTrace(EfficientTree tree, int node) {
+		if (tree.isActivity(node)) {
+			return 1;
+		} else if (tree.isTau(node)) {
+			return 0;
+		} else {
+			if (tree.isXor(node)) {
+				long result = Long.MAX_VALUE;
+				for (int child : tree.getChildren(node)) {
+					result = Math.min(result, getShortestTrace(tree, child));
+				}
+				return result;
+			} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+				int result = 0;
+				for (int child : tree.getChildren(node)) {
+					result += getShortestTrace(tree, child);
+				}
+				return result;
+			} else if (tree.isLoop(node)) {
+				return getShortestTrace(tree, tree.getChild(node, 0)) + getShortestTrace(tree, tree.getChild(node, 2));
+			} else {
+				throw new RuntimeException("not implemented");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param tree
+	 * @return a bitset that denotes whether a node can only produce the empty
+	 *         trace.
+	 */
+	public static BitSet canOnlyProduceTau(EfficientTree tree) {
+		BitSet result = new BitSet(tree.getTree().length);
+		for (int node = tree.getTree().length - 1; node >= 0; node--) {
+			if (tree.isActivity(node)) {
+				result.set(node, false);
+			} else if (tree.isTau(node)) {
+				result.set(node, true);
+			} else if (tree.isOperator(node)) {
+				boolean bresult = true;
+				for (int child : tree.getChildren(node)) {
+					bresult = bresult && result.get(child);
+				}
+				result.set(node, bresult);
+			}
+		}
+		return result;
+	}
+
+	public static BitSet canProduceTau(EfficientTree tree) {
+		BitSet result = new BitSet(tree.getTree().length);
+		for (int node = tree.getTree().length - 1; node >= 0; node--) {
+			if (tree.isActivity(node)) {
+				result.set(node, false);
+			} else if (tree.isTau(node)) {
+				result.set(node, true);
+			} else if (tree.isXor(node)) {
+				boolean bresult = false;
+				for (int child : tree.getChildren(node)) {
+					bresult = bresult || result.get(child);
+				}
+				result.set(node, bresult);
+			} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+				boolean bresult = true;
+				for (int child : tree.getChildren(node)) {
+					bresult = bresult && result.get(child);
+				}
+				result.set(node, bresult);
+			} else if (tree.isLoop(node)) {
+				result.set(node, result.get(tree.getChild(node, 0)) && result.get(tree.getChild(node, 2)));
+			}
+		}
+		return result;
+	}
+
+	public static boolean canProduceTau(EfficientTree tree, int node) {
+		if (tree.isActivity(node)) {
+			return false;
+		} else if (tree.isTau(node)) {
+			return true;
+		} else if (tree.isXor(node)) {
+			boolean bresult = false;
+			for (int child : tree.getChildren(node)) {
+				bresult = bresult || canProduceTau(tree, child);
+			}
+			return bresult;
+		} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+			boolean bresult = true;
+			for (int child : tree.getChildren(node)) {
+				bresult = bresult && canProduceTau(tree, child);
+			}
+			return bresult;
+		} else if (tree.isLoop(node)) {
+			return canProduceTau(tree, tree.getChild(node, 0)) && canProduceTau(tree, tree.getChild(node, 2));
+		}
+		throw new NotImplementedException();
+	}
+
+	/**
+	 * 
+	 * @param tree
+	 * @param node
+	 * @param activity
+	 * @return whether the given node can produce the trace <activity>
+	 */
+	public static boolean canProduceSingleActivity(EfficientTree tree, int node, short activity) {
+		if (tree.isTau(node)) {
+			return false;
+		} else if (tree.isActivity(node)) {
+			return tree.getActivity(node) == activity;
+		} else if (tree.isXor(node)) {
+			for (int child : tree.getChildren(node)) {
+				if (canProduceSingleActivity(tree, child, activity)) {
+					return true;
+				}
+			}
+			return false;
+		} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+			//gather information
+			boolean[] canProduceTau = new boolean[tree.getNumberOfChildren(node)];
+			boolean[] canProduceSingleActivity = new boolean[tree.getNumberOfChildren(node)];
+			{
+				int i = 0;
+				for (int child : tree.getChildren(node)) {
+					canProduceTau[i] = canProduceTau(tree, child);
+					canProduceSingleActivity[i] = canProduceSingleActivity(tree, child, activity);
+					i++;
+				}
+			}
+
+			//check
+			//one child has to be able to produce the single activity, while the others can produce tau
+			for (int i = 0; i < tree.getNumberOfChildren(node); i++) {
+				if (canProduceSingleActivity[i]) {
+					boolean allTau = true;
+					for (int j = 0; j < tree.getNumberOfChildren(node); j++) {
+						if (j != i) {
+							allTau = allTau && canProduceTau[j];
+						}
+					}
+					if (allTau) {
+						return true;
+					}
+				}
+			}
+			return false;
+		} else if (tree.isLoop(node)) {
+			int body = tree.getChild(node, 0);
+			int redo = tree.getChild(node, 1);
+			int exit = tree.getChild(node, 2);
+
+			boolean bodyCanProduceTau = canProduceTau(tree, body);
+			boolean exitCanProduceTau = canProduceTau(tree, exit);
+
+			//case 1: body a, exit tau
+			if (canProduceSingleActivity(tree, body, activity) && exitCanProduceTau) {
+				return true;
+			}
+
+			//case 2: body tau, exit a
+			if (bodyCanProduceTau && canProduceSingleActivity(tree, exit, activity)) {
+				return true;
+			}
+
+			//case 3: body tau, redo a, exit tau
+			if (bodyCanProduceTau && canProduceSingleActivity(tree, redo, activity) && exitCanProduceTau) {
+				return true;
+			}
+			return false;
+		}
+		throw new NotImplementedException();
+	}
+}

@@ -2,7 +2,9 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.Iterator;
 
-import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2processTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduce;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
@@ -32,7 +34,7 @@ public class Miner {
 		if (parameters.isRepairLifeCycle()) {
 			log = LifeCycles.preProcessLog(log);
 		}
-		
+
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
 		MinerState minerState = new MinerState(parameters);
@@ -43,8 +45,14 @@ public class Miner {
 
 		debug("discovered tree " + tree.getRoot(), minerState);
 
-		//reduce if necessary
-		ReduceTree.reduceTree(tree);
+		//reduce the tree
+		EfficientTree efficientTree = new EfficientTree(tree);
+		try {
+			EfficientTreeReduce.reduce(efficientTree);
+			tree = EfficientTree2processTree.convert(efficientTree);
+		} catch (Exception e) {
+			debug("reduction failed", minerState);
+		}
 		debug("after reduction " + tree.getRoot(), minerState);
 
 		return tree;
@@ -119,12 +127,12 @@ public class Miner {
 					newNode.addChild(tau);
 				}
 			}
-			
+
 			//replace interleaved if necessary
 			if (newNode instanceof MaybeInterleaved) {
 				newNode = DetectInterleaved.remove((MaybeInterleaved) newNode);
 			}
-			
+
 			return newNode;
 
 		} else {
@@ -145,7 +153,7 @@ public class Miner {
 				return new AbstractBlock.Xor("");
 			case maybeInterleaved :
 				return new MaybeInterleaved("");
-			default:
+			default :
 				return null;
 		}
 	}
