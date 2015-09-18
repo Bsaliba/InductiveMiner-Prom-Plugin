@@ -470,10 +470,10 @@ public class ReduceTree {
 			//			System.out.println("apply patterns to " + node);
 			for (ReductionPattern pattern : patterns) {
 				boolean x = pattern.apply(node, tree);
-				//				if (x) {
-				//					System.out.println(" used: " + pattern);
-				//					System.out.println(" after reduction  " + node);
-				//				}
+				if (x) {
+					System.out.println(" used: " + pattern);
+					System.out.println(" after reduction  " + node);
+				}
 				changed = changed || x;
 				changed2 = changed2 || x;
 			}
