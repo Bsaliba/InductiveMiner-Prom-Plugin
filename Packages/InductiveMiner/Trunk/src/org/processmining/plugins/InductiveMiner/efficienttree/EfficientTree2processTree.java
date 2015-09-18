@@ -1,7 +1,10 @@
 package org.processmining.plugins.InductiveMiner.efficienttree;
 
+import java.util.List;
+
 import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.processtree.Block;
+import org.processmining.processtree.Edge;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock.And;
@@ -17,6 +20,23 @@ public class EfficientTree2processTree {
 		ProcessTree newTree = new ProcessTreeImpl();
 		newTree.setRoot(convert(tree, 0, newTree));
 		return newTree;
+	}
+	
+	/**
+	 * Make tree a subtree that replaces node.
+	 * @param node
+	 * @param tree
+	 * @return the root of the subtree.
+	 */
+	public static Node replaceNode(Node node, EfficientTree tree) {
+		ProcessTree newTree = node.getProcessTree();
+		Node newNode = convert(tree, 0, newTree);
+		
+		List<Edge> edges = node.getIncomingEdges();
+		for (Edge edge : edges) {
+			edge.setTarget(newNode);
+		}
+		return newNode;
 	}
 
 	public static Node convert(EfficientTree tree, int node, ProcessTree newTree) {

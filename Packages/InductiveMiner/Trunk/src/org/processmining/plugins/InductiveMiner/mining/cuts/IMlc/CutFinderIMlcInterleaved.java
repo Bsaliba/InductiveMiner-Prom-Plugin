@@ -25,11 +25,67 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMlcInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getDirectlyFollowsGraph(), logInfo.getConcurrencyGraph(), logInfo.getStartActivities(),
-				logInfo.getEndActivities());
+		Cut cut = findCutBasic(logInfo.getDirectlyFollowsGraph(), logInfo.getConcurrencyGraph(),
+				logInfo.getStartActivities(), logInfo.getEndActivities());
+		if (cut == null) {
+			return null;
+		}
+
+		return findSpecialCase(cut.getPartition(), logInfo.getDirectlyFollowsGraph(), logInfo.getStartActivities());
 	}
 
-	public static Cut findCut(Graph<XEventClass> dfg, Graph<XEventClass> concurrencyGraph,
+	/**
+	 * Finds the special case int(A, B) where A is not interleaved itself (B
+	 * might be).
+	 * 
+	 * @param partition
+	 * @param directlyFollowsGraph
+	 * @param startActivities
+	 * @return
+	 */
+	public static Cut findSpecialCase(Collection<Set<XEventClass>> partition, Graph<XEventClass> directlyFollowsGraph,
+			MultiSet<XEventClass> startActivities) {
+		//count the number of start activities
+		for (Set<XEventClass> sigma : partition) {
+
+			//check if this sigma has startActivities = outgoing-dfg-edges
+			long countStartActivities = 0;
+			for (XEventClass a : startActivities) {
+				if (sigma.contains(a)) {
+					countStartActivities += startActivities.getCardinalityOf(a);
+				}
+			}
+
+			//count the outgoing-dfg-edges
+			long countOutgoingDfgEdges = 0;
+			for (XEventClass a : sigma) {
+				for (long edge : directlyFollowsGraph.getOutgoingEdgesOf(a)) {
+					if (!sigma.contains(directlyFollowsGraph.getEdgeTarget(edge))) {
+						//this is an outgoing edge
+						countOutgoingDfgEdges += directlyFollowsGraph.getEdgeWeight(edge);
+					}
+				}
+			}			
+
+			if (countStartActivities == countOutgoingDfgEdges) {
+				//we conclude that this sigma is a non-interleaving child of a binary interleaving operator
+				Collection<Set<XEventClass>> newPartition = new THashSet<>();
+				newPartition.add(sigma);
+				Set<XEventClass> newSigma = new THashSet<>();
+				for (Set<XEventClass> sigma2: partition) {
+					if (!sigma.equals(sigma2)) {
+						newSigma.addAll(sigma2);
+					}
+				}
+				newPartition.add(newSigma);
+				System.out.println(" interleaved: special case");
+				return new Cut(Operator.maybeInterleaved, newPartition);
+			}
+		}
+		return new Cut(Operator.maybeInterleaved, partition);
+	}
+
+	public static Cut findCutBasic(Graph<XEventClass> dfg, Graph<XEventClass> concurrencyGraph,
 			MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities) {
 
 		//set up clusters

@@ -12,9 +12,9 @@ import org.processmining.processtree.impl.AbstractBlock;
 public class DetectInterleaved {
 
 	public static Block remove(MaybeInterleaved node) {
-		ReduceTree.reduceNode(node);
 		
-		System.out.println("consider maybeInterleaved " + node);
+		//reduce children
+		ReduceTree.reduceChildrenOf(node);
 
 		Block twoSequence = findSequences(node);
 		if (twoSequence != null) {
