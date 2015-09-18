@@ -2,10 +2,12 @@ package org.processmining.plugins.InductiveMiner.dfgOnly;
 
 import java.util.Iterator;
 
-import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.DfgSplitter.DfgSplitResult;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2processTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduce;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.processtree.Block;
@@ -28,17 +30,21 @@ public class DfgMiner {
 
 		debug(tree.getRoot(), minerState);
 
-		//reduce if necessary
-		if (parameters.isReduce()) {
-			ReduceTree.reduceTree(tree);
-			debug("after reduction " + tree.getRoot(), minerState);
+		//reduce the tree
+		EfficientTree efficientTree = new EfficientTree(tree);
+		try {
+			EfficientTreeReduce.reduce(efficientTree);
+			tree = EfficientTree2processTree.convert(efficientTree);
+		} catch (Exception e) {
+			debug("reduction failed", minerState);
 		}
+		debug("after reduction " + tree.getRoot(), minerState);
 
 		return tree;
 	}
-	
+
 	public static Node mineNode(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
-		
+
 		//find base cases
 		Node baseCase = findBaseCases(dfg, tree, minerState);
 		if (baseCase != null) {
@@ -125,7 +131,7 @@ public class DfgMiner {
 		node.setProcessTree(tree);
 		tree.addNode(node);
 	}
-	
+
 	public static Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
 		Node n = null;
 		Iterator<DfgBaseCaseFinder> it = minerState.getParameters().getDfgBaseCaseFinders().iterator();
