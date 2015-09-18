@@ -50,7 +50,14 @@ public class EfficientTree {
 	}
 
 	public EfficientTree(ProcessTree processTree) {
-		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(processTree);
+		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(processTree.getRoot());
+		tree = t.getA();
+		activity2short = t.getB();
+		short2activity = t.getC();
+	}
+	
+	public EfficientTree(Node node) {
+		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(node);
 		tree = t.getA();
 		activity2short = t.getB();
 		short2activity = t.getC();
@@ -86,11 +93,11 @@ public class EfficientTree {
 	 *            map from activity names to shorts >= 0
 	 * @return
 	 */
-	public static Triple<short[], TObjectShortMap<String>, String[]> tree2efficientTree(ProcessTree tree) {
+	public static Triple<short[], TObjectShortMap<String>, String[]> tree2efficientTree(Node node) {
 		TShortArrayList efficientTree = new TShortArrayList();
 		TObjectShortMap<String> activity2short = new TObjectShortHashMap<>();
 		List<String> short2activity = new ArrayList<>();
-		node2efficientTree(tree.getRoot(), efficientTree, activity2short, short2activity);
+		node2efficientTree(node, efficientTree, activity2short, short2activity);
 
 		return Triple.of(efficientTree.toArray(new short[efficientTree.size()]), activity2short,
 				short2activity.toArray(new String[short2activity.size()]));
