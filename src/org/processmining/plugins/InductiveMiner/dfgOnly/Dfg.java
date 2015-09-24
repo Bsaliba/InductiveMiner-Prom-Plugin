@@ -27,6 +27,18 @@ public class Dfg {
 		endActivities = new MultiSet<>();
 	}
 
+	private Dfg(Graph<XEventClass> directlyFollowsGraph, Graph<XEventClass> concurrencyGraph) {
+		this.directlyFollowsGraph = directlyFollowsGraph;
+		this.concurrencyGraph = concurrencyGraph;
+		startActivities = new MultiSet<>();
+		endActivities = new MultiSet<>();
+	}
+
+	public static Dfg createTimeOptimised(int initialSize) {
+		return new Dfg(GraphFactory.createTimeOptimised(XEventClass.class, initialSize),
+				GraphFactory.createTimeOptimised(XEventClass.class, initialSize));
+	}
+
 	public Dfg(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> concurrencyGraph,
 			final MultiSet<XEventClass> startActivities, final MultiSet<XEventClass> endActivities) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
@@ -44,7 +56,7 @@ public class Dfg {
 	public Graph<XEventClass> getDirectlyFollowsGraph() {
 		return directlyFollowsGraph;
 	}
-	
+
 	public void setDirectlyFollowsGraph(Graph<XEventClass> directlyFollowsGraph) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 	}
