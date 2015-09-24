@@ -55,7 +55,7 @@ public class EfficientTree {
 		activity2short = t.getB();
 		short2activity = t.getC();
 	}
-	
+
 	public EfficientTree(Node node) {
 		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(node);
 		tree = t.getA();
@@ -398,6 +398,7 @@ public class EfficientTree {
 
 	/**
 	 * Copy the tree into a tight array
+	 * 
 	 * @param tree
 	 */
 	public EfficientTree shortenTree() {
@@ -425,5 +426,26 @@ public class EfficientTree {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * 
+	 * @param node
+	 * @return whether the given position is not in the tree (any nodes after it
+	 *         are not either)
+	 */
+	public boolean isSkip(int node) {
+		return tree[node] == skip;
+	}
+
+	public void setOperator(int node, short operator) {
+		tree[node] = (short) (operator - (childrenFactor * getNumberOfChildren(node)));
+	}
+
+	public short[] getChildTree(int node) {
+		int next = traverse(node);
+		short[] result = new short[next - node];
+		System.arraycopy(tree, node, result, 0, next - node);
+		return result;
 	}
 }
