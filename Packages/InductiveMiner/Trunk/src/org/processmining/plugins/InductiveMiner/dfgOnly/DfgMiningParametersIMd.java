@@ -25,7 +25,5 @@ public class DfgMiningParametersIMd extends DfgMiningParameters {
 		setDfgSplitter(
 				new SimpleDfgSplitter()
 				);
-
-		setReduce(true);
 	}
 }

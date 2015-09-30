@@ -32,7 +32,6 @@ public class DfgMiningParametersIMinD extends DfgMiningParameters {
 				new SimpleDfgSplitter()
 				);
 
-		setReduce(true);
 		setSatProbabilities(new ProbabilitiesEstimatedZ());
 		setIncompleteThreshold(0);
 	}

@@ -1,6 +1,8 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.plugins;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,13 +31,25 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 
 	protected Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
 			throws Exception {
-//		Dfg dfg1 = readCSV(input);
-//
-//		if (dfg1 != null) {
-//			return dfg1;
-//		}
+		
+		//read the file
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int len;
+		while ((len = input.read(buffer)) > -1 ) {
+		    baos.write(buffer, 0, len);
+		}
+		baos.flush();
+		
+		//try 1
+		Dfg dfg1 = readCSV(new ByteArrayInputStream(baos.toByteArray()));
 
-		Dfg dfg2 = readFile(input);
+		if (dfg1 != null) {
+			return dfg1;
+		}
+
+		//try 2
+		Dfg dfg2 = readFile(new ByteArrayInputStream(baos.toByteArray()));
 
 		if (dfg2 != null) {
 			return dfg2;

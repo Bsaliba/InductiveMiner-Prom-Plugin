@@ -31,7 +31,6 @@ public class DfgMiningParametersIMiD extends DfgMiningParameters {
 				new SimpleDfgSplitter()
 				);
 
-		setReduce(true);
 		setNoiseThreshold(0.2f);
 	}
 }

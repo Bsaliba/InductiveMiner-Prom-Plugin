@@ -17,8 +17,7 @@ public abstract class DfgMiningParameters {
 	private DfgCutFinder dfgCutFinder;
 	private DfgSplitter dfgSplitter;
 	private Iterable<DfgFallThrough> dfgFallThroughs;
-
-	private boolean reduce;
+	
 	private boolean debug;
 
 	private float noiseThreshold = 0.2f;
@@ -27,6 +26,7 @@ public abstract class DfgMiningParameters {
 	private ExecutorService satPool = null;
 
 	public DfgMiningParameters() {
+		debug = true;
 		setUseMultithreading(true);
 	}
 
@@ -68,14 +68,6 @@ public abstract class DfgMiningParameters {
 
 	public void setDfgFallThroughs(Iterable<DfgFallThrough> dfgFallThroughs) {
 		this.dfgFallThroughs = dfgFallThroughs;
-	}
-
-	public boolean isReduce() {
-		return reduce;
-	}
-
-	public void setReduce(boolean reduce) {
-		this.reduce = reduce;
 	}
 
 	public boolean isDebug() {
