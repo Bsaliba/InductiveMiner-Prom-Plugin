@@ -9,7 +9,6 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
-import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMMiningDialog;
 import org.processmining.processtree.ProcessTree;
@@ -27,19 +26,6 @@ public class IM {
 			return null;
 		}
 		return IMProcessTree.mineProcessTree(log, dialog.getMiningParameters());
-	}
-	
-	@Plugin(name = "Mine tree with Inductive Miner", returnLabels = { "Tree" }, returnTypes = { EfficientTree.class }, parameterLabels = { "Log" }, userAccessible = true)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
-	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
-	public EfficientTree mineGuiTree(UIPluginContext context, XLog log) {
-		IMMiningDialog dialog = new IMMiningDialog(log);
-		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
-		if (result != InteractionResult.FINISHED) {
-			context.getFutureResult(0).cancel(false);
-			return null;
-		}
-		return IMTree.mineTree(log, dialog.getMiningParameters());
 	}
 
 	@Plugin(name = "Mine Petri net with Inductive Miner", returnLabels = { "Petri net", "Initial marking",

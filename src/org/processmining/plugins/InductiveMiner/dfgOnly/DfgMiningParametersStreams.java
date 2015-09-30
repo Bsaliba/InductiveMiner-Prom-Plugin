@@ -32,7 +32,6 @@ public class DfgMiningParametersStreams extends DfgMiningParameters {
 		
 		setDfgSplitter(new SimpleDfgSplitter());
 		
-		setReduce(true);
 		setDebug(true);
 		setNoiseThreshold(0.2f);
 	}
