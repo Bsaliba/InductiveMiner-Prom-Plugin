@@ -8,11 +8,12 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Loo
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SameOperator;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAnd;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTauLoop2flower;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
 
 public class EfficientTreeReduce {
 	public static EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
-			new XorTauTau(), new SameOperator() };
+			new XorTauTau(), new SameOperator(), new XorTauTauLoop2flower() };
 	public static EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAnd(), new SameOperator() };
 	public static EfficientTreeReductionRule[] rulesAnd = new EfficientTreeReductionRule[] { new SingleChild(),
