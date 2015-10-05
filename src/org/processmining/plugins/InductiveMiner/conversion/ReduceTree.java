@@ -13,18 +13,15 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 
 @Plugin(name = "Reduce process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
-@Deprecated
 public class ReduceTree {
 
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Reduce Process Tree Language-equivalently, default", requiredParameterLabels = { 0 })
 	public ProcessTree reduceTree(PluginContext context, ProcessTree tree) {
-		reduceTree(tree);
-		return tree;
+		return reduceTree(tree);
 	}
 	
 	public static void reduceChildrenOf(Block node) {
-		System.out.println("before: " + node);
 		for (Node child : node.getChildren()) {
 			//convert child to an efficient tree
 			EfficientTree partialTree = new EfficientTree(child);
@@ -35,8 +32,6 @@ public class ReduceTree {
 			}
 			EfficientTree2processTree.replaceNode(child, partialTree);
 		}
-			
-		System.out.println("after:  " + node);
 	}
 
 	public static ProcessTree reduceTree(ProcessTree tree) {
