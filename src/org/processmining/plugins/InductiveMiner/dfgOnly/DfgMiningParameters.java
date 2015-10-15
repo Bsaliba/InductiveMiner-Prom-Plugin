@@ -26,7 +26,7 @@ public abstract class DfgMiningParameters {
 	private ExecutorService satPool = null;
 
 	public DfgMiningParameters() {
-		debug = true;
+		debug = false;
 		setUseMultithreading(true);
 	}
 

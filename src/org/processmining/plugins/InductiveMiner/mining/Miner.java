@@ -62,6 +62,7 @@ public class Miner {
 		//find base cases
 		Node baseCase = findBaseCases(log, logInfo, tree, minerState);
 		if (baseCase != null) {
+			debug(" discovered node " + baseCase, minerState);
 			return baseCase;
 		}
 
@@ -125,11 +126,14 @@ public class Miner {
 				newNode = DetectInterleaved.remove((MaybeInterleaved) newNode);
 			}
 
+			debug(" discovered node " + newNode, minerState);
 			return newNode;
 
 		} else {
 			//cut is not valid; fall through
-			return findFallThrough(log, logInfo, tree, minerState);
+			Node result = findFallThrough(log, logInfo, tree, minerState);
+			debug(" discovered node " + result, minerState);
+			return result;
 		}
 	}
 

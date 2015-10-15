@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.factory.XFactory;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -17,6 +18,7 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.xeslite.external.XFactoryExternalStore;
 
 public class LogSplitterXorFiltering implements LogSplitter {
 
@@ -42,6 +44,8 @@ public class LogSplitterXorFiltering implements LogSplitter {
 		
 		MultiSet<XEventClass> noise = new MultiSet<>();
 
+		XFactory factory = new XFactoryExternalStore.MapDBDiskSequentialAccessWithoutCacheImpl();
+		
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
@@ -66,7 +70,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 					/*
 					 * An empty trace should have been filtered out before
 					 * reaching here. We have no information what trace could
-					 * have produced it, so we keep it in all traces.
+					 * have produced it, so we keep it in all sublogs.
 					 */
 				} else if (maxSigma != sigma) {
 					//remove trace
@@ -74,7 +78,8 @@ public class LogSplitterXorFiltering implements LogSplitter {
 				} else {
 					//keep trace, remove all events not from sigma
 					for (Iterator<XEvent> it2 = trace.iterator(); it2.hasNext();) {
-						XEventClass c = sublog.classify(it2.next());
+						XEvent e = it2.next();
+						XEventClass c = sublog.classify(e);
 						if (!sigma.contains(c)) {
 							it2.remove();
 						} else {
@@ -83,7 +88,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 					}
 				}
 			}
-			result.add(sublog);
+			result.add(sublog.decoupleFromXLog());
 		}
 
 		return new LogSplitResult(result, noise);

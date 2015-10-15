@@ -18,7 +18,7 @@ public class EfficientTreeMetrics {
 					result = Math.min(result, getShortestTrace(tree, child));
 				}
 				return result;
-			} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+			} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
 				int result = 0;
 				for (int child : tree.getChildren(node)) {
 					result += getShortestTrace(tree, child);
@@ -69,7 +69,7 @@ public class EfficientTreeMetrics {
 					bresult = bresult || result.get(child);
 				}
 				result.set(node, bresult);
-			} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+			} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
 				boolean bresult = true;
 				for (int child : tree.getChildren(node)) {
 					bresult = bresult && result.get(child);

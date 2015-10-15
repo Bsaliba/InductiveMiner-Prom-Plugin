@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.logs;
 import java.util.BitSet;
 import java.util.Iterator;
 
+import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
@@ -12,7 +13,7 @@ public class IMTrace implements Iterable<XEvent> {
 	private final int XTraceIndex;
 	public final BitSet outEvents;
 	private final IMLog log;
-	
+
 	public IMTrace(int XTraceIndex, BitSet outEvents, IMLog log) {
 		assert (XTraceIndex >= 0);
 
@@ -101,7 +102,7 @@ public class IMTrace implements Iterable<XEvent> {
 		int now;
 		int next;
 		int counter;
-		
+
 		@Override
 		public IMEventIterator clone() {
 			IMEventIterator result = new IMEventIterator(0, to);
@@ -135,14 +136,14 @@ public class IMTrace implements Iterable<XEvent> {
 		public void remove() {
 			outEvents.set(now);
 		}
-		
+
 		public void removeAll() {
 			while (hasNext()) {
 				next();
 				remove();
 			}
 		}
-		
+
 		public XEvent next() {
 			progress();
 			return getXTrace().get(now);
@@ -152,6 +153,15 @@ public class IMTrace implements Iterable<XEvent> {
 			now = next;
 			next = outEvents.nextClearBit(next + 1);
 			counter++;
+		}
+
+		/**
+		 * 
+		 * @return the event class of the current (i.e. last returned by next())
+		 *         event.
+		 */
+		public XEventClass classify() {
+			return log.classify(getXTrace().get(now));
 		}
 
 		/**
@@ -174,9 +184,11 @@ public class IMTrace implements Iterable<XEvent> {
 
 			return newTrace;
 		}
-		
+
 		/**
-		 * Return a new iterable that iterates from the current position (including) to the given iterator (exclusive)
+		 * Return a new iterable that iterates from the current position
+		 * (including) to the given iterator (exclusive)
+		 * 
 		 * @param it
 		 * @return
 		 */
@@ -198,7 +210,7 @@ public class IMTrace implements Iterable<XEvent> {
 			int previous = outEvents.previousClearBit(now - 1);
 			return previous >= 0 && counter >= from;
 		}
-		
+
 		public XEvent previous() {
 			next = now;
 			now = outEvents.previousClearBit(now - 1);
@@ -206,5 +218,5 @@ public class IMTrace implements Iterable<XEvent> {
 			return getXTrace().get(now);
 		}
 	}
-	
+
 }
