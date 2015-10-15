@@ -21,7 +21,7 @@ import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
 public class IMLog implements Iterable<IMTrace> {
-	
+
 	/*
 	 * Memory-lightweight implementation of a filtering system.
 	 */
@@ -29,14 +29,14 @@ public class IMLog implements Iterable<IMTrace> {
 	private final XLog xLog;
 	private final BitSet outTraces;
 	private final BitSet[] outEvents;
-	
+
 	private final TIntArrayList addedTraces;
 	private final List<BitSet> addedTracesOutEvents;
-	
+
 	private final XEventClassifier activityClassifier;
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
-	
+
 	@Deprecated
 	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
 
@@ -52,10 +52,10 @@ public class IMLog implements Iterable<IMTrace> {
 		for (int i = 0; i < xLog.size(); i++) {
 			outEvents[i] = new BitSet();
 		}
-		
+
 		addedTraces = new TIntArrayList();
 		addedTracesOutEvents = new ArrayList<>();
-		
+
 		this.activityClassifier = activityClassifier;
 		xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
 		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifeCycleClassifier);
@@ -73,13 +73,13 @@ public class IMLog implements Iterable<IMTrace> {
 		for (int i = 0; i < xLog.size(); i++) {
 			outEvents[i] = (BitSet) log.outEvents[i].clone();
 		}
-		
+
 		addedTraces = new TIntArrayList(log.addedTraces);
 		addedTracesOutEvents = new ArrayList<>(addedTraces.size());
-		for (int i = 0; i < addedTraces.size() ; i++) {
+		for (int i = 0; i < addedTraces.size(); i++) {
 			addedTracesOutEvents.add((BitSet) log.addedTracesOutEvents.get(i).clone());
 		}
-		
+
 		activityClassifier = log.activityClassifier;
 		xLogInfo = log.xLogInfo;
 		xLogInfoLifecycle = log.xLogInfoLifecycle;
@@ -93,15 +93,15 @@ public class IMLog implements Iterable<IMTrace> {
 	public XEventClass classify(XEvent event) {
 		return xLogInfo.getEventClasses().getClassOf(event);
 	}
-	
+
 	public XEventClassifier getClassifier() {
 		return activityClassifier;
 	}
-	
+
 	public Transition getLifeCycle(XEvent event) {
 		return LifeCycles.getLifeCycleTransition(event);
 	}
-	
+
 	public XTrace getTraceWithIndex(int traceIndex) {
 		return xLog.get(traceIndex);
 	}
@@ -114,15 +114,16 @@ public class IMLog implements Iterable<IMTrace> {
 	public int size() {
 		return (xLog.size() - outTraces.cardinality()) + addedTraces.size();
 	}
-	
+
 	/**
 	 * Copy a trace and return the copy.
+	 * 
 	 * @param index
 	 * @return
 	 */
 	public IMTrace copyTrace(int index, BitSet traceOutEvents) {
-		assert(index >= 0);
-		
+		assert (index >= 0);
+
 		addedTraces.add(index);
 		BitSet newOutEvents = (BitSet) traceOutEvents.clone();
 		addedTracesOutEvents.add(newOutEvents);
@@ -135,7 +136,7 @@ public class IMLog implements Iterable<IMTrace> {
 
 			int next = init();
 			int now = next - 1;
-			
+
 			private int init() {
 				if (addedTraces.isEmpty()) {
 					//start with normal traces
@@ -171,7 +172,7 @@ public class IMLog implements Iterable<IMTrace> {
 					//we are in the normal traces
 					next = outTraces.nextClearBit(next + 1);
 				}
-				
+
 				if (now < 0) {
 					//we are in the added traces
 					return new IMTrace(addedTraces.get(-now - 1), addedTracesOutEvents.get(-now - 1), t);
@@ -182,7 +183,7 @@ public class IMLog implements Iterable<IMTrace> {
 			}
 		};
 	}
-	
+
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		for (IMTrace trace : this) {
@@ -197,7 +198,7 @@ public class IMLog implements Iterable<IMTrace> {
 		XLog result = new XLogImpl(map);
 		for (IMTrace trace : this) {
 			if (trace.isEmpty()) {
-				//XES does not support empty traces
+				result.add(new XTraceImpl(map));
 			} else {
 				XTrace xTrace = new XTraceImpl(map);
 				for (XEvent e : trace) {
@@ -208,5 +209,17 @@ public class IMLog implements Iterable<IMTrace> {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Turns the IMLog into an XLog, and makes a new IMLog out of it. Use this
+	 * method to reduce memory usage if the log becomes sparse.
+	 * 
+	 * @return the newly created IMLog, which has no connection anymore to the
+	 *         original XLog.
+	 */
+	public IMLog decoupleFromXLog() {
+		XLog xLog = toXLog();
+		return new IMLog(xLog, activityClassifier);
 	}
 }

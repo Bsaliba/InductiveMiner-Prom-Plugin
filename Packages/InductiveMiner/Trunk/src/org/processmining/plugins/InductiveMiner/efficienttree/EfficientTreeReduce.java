@@ -8,8 +8,8 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Loo
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SameOperator;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAnd;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTauLoop2flower;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTauLoop2flower;
 
 public class EfficientTreeReduce {
 	public static EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
@@ -33,17 +33,18 @@ public class EfficientTreeReduce {
 		}
 
 		//filter superfluous taus under xor, and, seq
-		{
-			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
-			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
-			BitSet map = p.getA();
-			int[] parents = p.getB();
-			for (int node = tree.getTree().length - 1; node >= 0; node--) {
-				if (map.get(node)) {
-					tree.removeChild(parents[node], node);
-				}
-			}
-		}
+//		{
+//			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
+//			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
+//			BitSet map = p.getA();
+//			int[] parents = p.getB();
+//			for (int node = tree.getTree().length - 1; node >= 0; node--) {
+//				if (map.get(node)) {
+//					tree.removeChild(parents[node], node);
+//				}
+//			}
+//		}
+		//this code works, but does not make reducing faster in repeated experiments
 
 		//apply other filters
 		while (reduceOne(tree)) {
