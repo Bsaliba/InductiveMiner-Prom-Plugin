@@ -1,10 +1,16 @@
 package org.processmining.plugins.InductiveMiner.plugins.dialogs;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.Box;
 import javax.swing.JComboBox;
@@ -37,6 +43,8 @@ public class IMMiningDialog extends JPanel {
 	private final JLabel noiseLabel;
 	private final JSlider noiseSlider;
 	private final JLabel noiseValue;
+	private final JLabel doiLabel;
+	private final JLabel doiValue;
 
 	public class ParametersWrapper {
 		public MiningParameters parameters;
@@ -51,6 +59,10 @@ public class IMMiningDialog extends JPanel {
 		public abstract boolean noNoiseImpliesFitness();
 
 		public abstract MiningParameters getMiningParameters();
+
+		public String getDoi() {
+			return null;
+		}
 	}
 
 	public class VariantIM extends Variant {
@@ -68,6 +80,10 @@ public class IMMiningDialog extends JPanel {
 
 		public boolean noNoiseImpliesFitness() {
 			return false;
+		}
+
+		public String getDoi() {
+			return "http://dx.doi.org/10.1007/978-3-642-38697-8_17";
 		}
 	}
 
@@ -87,6 +103,10 @@ public class IMMiningDialog extends JPanel {
 		public boolean noNoiseImpliesFitness() {
 			return true;
 		}
+
+		public String getDoi() {
+			return "http://dx.doi.org/10.1007/978-3-319-06257-0_6";
+		}
 	}
 
 	public class VariantIMin extends Variant {
@@ -104,6 +124,10 @@ public class IMMiningDialog extends JPanel {
 
 		public boolean noNoiseImpliesFitness() {
 			return false;
+		}
+		
+		public String getDoi() {
+			return "http://dx.doi.org/10.1007/978-3-319-07734-5_6";
 		}
 	}
 
@@ -142,6 +166,10 @@ public class IMMiningDialog extends JPanel {
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersIMlc();
 		}
+		
+		public String getDoi() {
+			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
+		}
 	}
 
 	public class VariantIMilc extends Variant {
@@ -160,6 +188,10 @@ public class IMMiningDialog extends JPanel {
 
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersIMlc();
+		}
+		
+		public String getDoi() {
+			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
 		}
 	}
 
@@ -320,6 +352,41 @@ public class IMMiningDialog extends JPanel {
 
 		gridy++;
 
+		//spacer
+		{
+			JLabel spacer = factory.createLabel(" ");
+			GridBagConstraints cSpacer = new GridBagConstraints();
+			cSpacer.gridx = 0;
+			cSpacer.gridy = gridy;
+			cSpacer.anchor = GridBagConstraints.WEST;
+			add(spacer, cSpacer);
+		}
+
+		gridy++;
+
+		//doi
+		{
+			doiLabel = factory.createLabel("More information");
+			GridBagConstraints cDoiLabel = new GridBagConstraints();
+			cDoiLabel.gridx = 0;
+			cDoiLabel.gridy = gridy;
+			cDoiLabel.weightx = 0.4;
+			cDoiLabel.anchor = GridBagConstraints.NORTHWEST;
+			add(doiLabel, cDoiLabel);
+		}
+
+		{
+			doiValue = factory.createLabel("doi doi");
+			GridBagConstraints cDoiValue = new GridBagConstraints();
+			cDoiValue.gridx = 1;
+			cDoiValue.gridy = gridy;
+			cDoiValue.anchor = GridBagConstraints.NORTHWEST;
+			cDoiValue.weightx = 0.6;
+			add(doiValue, cDoiValue);
+		}
+
+		gridy++;
+
 		{
 			GridBagConstraints gbcFiller = new GridBagConstraints();
 			gbcFiller.weighty = 1.0;
@@ -345,6 +412,15 @@ public class IMMiningDialog extends JPanel {
 					noiseValue.setPreferredSize(new Dimension(width, height));
 				}
 
+				if (variant.getDoi() != null) {
+					doiLabel.setVisible(true);
+					doiValue.setVisible(true);
+					doiValue.setText(variant.getDoi());
+				} else {
+					doiLabel.setVisible(false);
+					doiValue.setVisible(false);
+				}
+
 				noiseLabel.setVisible(variant.hasNoise());
 				noiseSlider.setVisible(variant.hasNoise());
 				noiseExplanation.setVisible(variant.noNoiseImpliesFitness());
@@ -363,10 +439,41 @@ public class IMMiningDialog extends JPanel {
 				p.parameters.setClassifier(((ClassifierWrapper) classifiers.getSelectedItem()).classifier);
 			}
 		});
+
+		doiValue.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				String doi = ((Variant) variantCombobox.getSelectedItem()).getDoi();
+				if (doi != null) {
+					openWebPage(doi);
+				}
+			}
+		});
+		doiValue.setText(((Variant) variantCombobox.getSelectedItem()).getDoi());
 	}
 
 	public MiningParameters getMiningParameters() {
 		return p.parameters;
+	}
+
+	public void openWebPage(String url) {
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			try {
+				desktop.browse(new URI(url));
+			} catch (IOException | URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			Runtime runtime = Runtime.getRuntime();
+			try {
+				runtime.exec("xdg-open " + url);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

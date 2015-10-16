@@ -36,6 +36,9 @@ public class IM {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
 		if (result != InteractionResult.FINISHED) {
+			context.getFutureResult(0).cancel(false);
+			context.getFutureResult(1).cancel(false);
+			context.getFutureResult(2).cancel(false);
 			return new Object[] { null, null, null };
 		}
 		return IMPetriNet.minePetriNet(context, log, dialog.getMiningParameters());
