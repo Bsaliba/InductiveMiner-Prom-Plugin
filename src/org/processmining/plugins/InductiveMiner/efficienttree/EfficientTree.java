@@ -95,7 +95,7 @@ public class EfficientTree {
 	 */
 	public static Triple<short[], TObjectShortMap<String>, String[]> tree2efficientTree(Node node) {
 		TShortArrayList efficientTree = new TShortArrayList();
-		TObjectShortMap<String> activity2short = new TObjectShortHashMap<>();
+		TObjectShortMap<String> activity2short = getEmptyActivity2short();
 		List<String> short2activity = new ArrayList<>();
 		node2efficientTree(node, efficientTree, activity2short, short2activity);
 
@@ -447,5 +447,9 @@ public class EfficientTree {
 		short[] result = new short[next - node];
 		System.arraycopy(tree, node, result, 0, next - node);
 		return result;
+	}
+	
+	public static TObjectShortMap<String> getEmptyActivity2short() {
+		return new TObjectShortHashMap<String>(8, 0.5f, (short) -1);
 	}
 }
