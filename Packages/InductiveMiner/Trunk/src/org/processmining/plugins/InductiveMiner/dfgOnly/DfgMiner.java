@@ -28,7 +28,11 @@ public class DfgMiner {
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
-
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
+		
 		debug(tree.getRoot(), minerState);
 
 		//reduce the tree
@@ -41,6 +45,12 @@ public class DfgMiner {
 		}
 		debug("after reduction " + tree.getRoot(), minerState);
 
+		minerState.shutdownThreadPools();
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
+		
 		return tree;
 	}
 

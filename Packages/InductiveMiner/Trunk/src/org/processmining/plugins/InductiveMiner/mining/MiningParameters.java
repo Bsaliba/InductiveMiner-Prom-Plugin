@@ -1,20 +1,15 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton2;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
-
-import com.google.common.util.concurrent.MoreExecutors;
 
 public abstract class MiningParameters {
 	private XEventClassifier classifier;
@@ -23,9 +18,8 @@ public abstract class MiningParameters {
 
 	private boolean debug;
 	private boolean repairLifeCycle;
+	private boolean useMultiThreading;
 	private Probabilities satProbabilities;
-	private ExecutorService minerPool;
-	private ExecutorService satPool;
 
 	private IMLog2IMLogInfo log2logInfo;
 	private List<BaseCaseFinder> baseCaseFinders;
@@ -38,6 +32,7 @@ public abstract class MiningParameters {
 		classifier = getDefaultClassifier();
 		debug = false;
 		repairLifeCycle = false;
+		useMultiThreading = true;
 
 		setUseMultithreading(true);
 	}
@@ -106,22 +101,12 @@ public abstract class MiningParameters {
 		this.satProbabilities = satProbabilities;
 	}
 
-	public ExecutorService getMinerPool() {
-		return this.minerPool;
-	}
-
-	public ExecutorService getSatPool() {
-		return this.satPool;
-	}
-
 	public void setUseMultithreading(boolean useMultithreading) {
-		if (!useMultithreading) {
-			minerPool = MoreExecutors.sameThreadExecutor();
-			satPool = MoreExecutors.sameThreadExecutor();
-		} else {
-			minerPool = ThreadPoolSingleton2.getInstance();
-			satPool = ThreadPoolSingleton1.getInstance();
-		}
+		this.useMultiThreading = useMultithreading;
+	}
+	
+	public boolean isUseMultithreading() {
+		return useMultiThreading;
 	}
 
 	public IMLog2IMLogInfo getLog2LogInfo() {

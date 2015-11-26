@@ -28,7 +28,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
 		float threshold = minerState.getParameters().getIncompleteThreshold();
-		JobList jobList = new JobListConcurrent(minerState.getParameters().getSatPool());
+		JobList jobList = new JobListConcurrent(minerState.getSatPool());
 		
 		MultiSet<XEventClass> startActivities = dfg.getStartActivities();
 		MultiSet<XEventClass> endActivities = dfg.getEndActivities();
@@ -44,7 +44,7 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
 		float threshold = minerState.parameters.getIncompleteThreshold();
-		JobList jobList = new JobListConcurrent(minerState.parameters.getSatPool());
+		JobList jobList = new JobListConcurrent(minerState.getSatPool());
 
 		MultiSet<XEventClass> startActivities = logInfo.getStartActivities();
 		MultiSet<XEventClass> endActivities = logInfo.getEndActivities();

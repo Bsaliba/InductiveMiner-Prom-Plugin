@@ -15,7 +15,6 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinde
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -64,7 +63,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		final AtomicBoolean found = new AtomicBoolean(false);
 		final CutWrapper cutWrapper = new CutWrapper();
 
-		JobList jobList = new JobListConcurrent(ThreadPoolSingleton1.getInstance());
+		JobList jobList = new JobListConcurrent(minerState.getMinerPool());
 
 		for (XEventClass leaveOutActivity : logInfo.getActivities()) {
 			//leave out a single activity and try whether that gives a valid cut
