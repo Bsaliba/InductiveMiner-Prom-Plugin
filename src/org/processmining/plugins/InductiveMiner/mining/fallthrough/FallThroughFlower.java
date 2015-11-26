@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -14,18 +13,18 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class FallThroughFlower implements FallThrough {
 
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
-		
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+
 		Miner.debug(" fall through: flower model", minerState);
-		
+
 		Block loopNode = new AbstractBlock.XorLoop("");
 		Miner.addNode(tree, loopNode);
-		
+
 		//body: tau
 		Node body = new AbstractTask.Automatic("tau");
 		Miner.addNode(tree, body);
-		loopNode.addChild(body);
-		
+		Miner.addChild(loopNode, body, minerState);
+
 		//redo: xor/activity
 		Block xorNode;
 		if (logInfo.getActivities().setSize() == 1) {
@@ -33,19 +32,19 @@ public class FallThroughFlower implements FallThrough {
 		} else {
 			xorNode = new AbstractBlock.Xor("");
 			Miner.addNode(tree, xorNode);
-			loopNode.addChild(xorNode);
+			Miner.addChild(loopNode, xorNode, minerState);
 		}
-		
-		for (XEventClass activity: logInfo.getActivities()) {
+
+		for (XEventClass activity : logInfo.getActivities()) {
 			Node child = new AbstractTask.Manual(activity.toString());
 			Miner.addNode(tree, child);
-			xorNode.addChild(child);
+			Miner.addChild(xorNode, child, minerState);
 		}
-		
+
 		Node tau2 = new AbstractTask.Automatic("tau");
 		Miner.addNode(tree, tau2);
-		loopNode.addChild(tau2);
-		
+		Miner.addChild(loopNode, tau2, minerState);
+
 		return loopNode;
 	}
 }

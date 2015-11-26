@@ -1,10 +1,10 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiner;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
+import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -13,7 +13,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class DfgFallThroughFlower implements DfgFallThrough {
 
-	public Node fallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
+	public Node fallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
 		DfgMiner.debug(" fall through: flower model", minerState);
 
 		Block loopNode = new AbstractBlock.XorLoop("");
@@ -22,7 +22,7 @@ public class DfgFallThroughFlower implements DfgFallThrough {
 		//body: tau
 		Node body = new AbstractTask.Automatic("tau");
 		DfgMiner.addNode(tree, body);
-		loopNode.addChild(body);
+		Miner.addChild(loopNode, body, minerState);
 
 		//redo: xor/activity
 		Block xorNode;
@@ -31,18 +31,18 @@ public class DfgFallThroughFlower implements DfgFallThrough {
 		} else {
 			xorNode = new AbstractBlock.Xor("");
 			DfgMiner.addNode(tree, xorNode);
-			loopNode.addChild(xorNode);
+			Miner.addChild(loopNode, xorNode, minerState);
 		}
 
 		for (XEventClass activity : dfg.getDirectlyFollowsGraph().getVertices()) {
 			Node child = new AbstractTask.Manual(activity.toString());
 			DfgMiner.addNode(tree, child);
-			xorNode.addChild(child);
+			Miner.addChild(xorNode, child, minerState);
 		}
 
 		Node tau2 = new AbstractTask.Automatic("tau");
 		DfgMiner.addNode(tree, tau2);
-		loopNode.addChild(tau2);
+		Miner.addChild(loopNode, tau2, minerState);
 
 		return loopNode;
 	}

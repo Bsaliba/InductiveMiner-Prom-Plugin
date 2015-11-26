@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
@@ -17,12 +16,12 @@ public class BaseCaseFinderIMi implements BaseCaseFinder {
 	private static List<BaseCaseFinder> baseCaseFinders = new ArrayList<BaseCaseFinder>(Arrays.asList(
 			new BaseCaseFinderIMiEmptyLog(), new BaseCaseFinderIMiEmptyTrace(), new BaseCaseFinderIMiSingleActivity()));
 
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		Node n = null;
 		Iterator<BaseCaseFinder> it = baseCaseFinders.iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().findBaseCases(log, logInfo, tree, minerState, canceller);
+			n = it.next().findBaseCases(log, logInfo, tree, minerState);
 		}
 		return n;
 	}

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.ArrayUtilities;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
@@ -32,16 +31,16 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(), canceller);
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph());
 	}
 
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), canceller);
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph());
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> graph, Canceller canceller) {
+			Graph<XEventClass> graph) {
 		//compute the strongly connected components of the directly-follows graph
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
@@ -136,7 +135,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			}
 
 		});
-		
+
 		if (result.size() <= 1) {
 			return null;
 		}
@@ -198,10 +197,10 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			//make a new cut
 			Set<XEventClass> result1 = new THashSet<>();
 			Set<XEventClass> result2 = new THashSet<>();
-			for (int i = 0; i <= subCutWithMinimumTaus ; i ++) {
+			for (int i = 0; i <= subCutWithMinimumTaus; i++) {
 				result1.addAll(result.get(i));
 			}
-			for (int i = subCutWithMinimumTaus + 1; i < result.size() ; i ++) {
+			for (int i = subCutWithMinimumTaus + 1; i < result.size(); i++) {
 				result2.addAll(result.get(i));
 			}
 			result.clear();

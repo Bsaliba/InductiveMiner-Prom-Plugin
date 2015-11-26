@@ -23,10 +23,10 @@ import org.processmining.xeslite.external.XFactoryExternalStore;
 public class LogSplitterXorFiltering implements LogSplitter {
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		return split(log, cut.getPartition());
+		return split(log, cut.getPartition(), minerState);
 	}
 
-	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition) {
+	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
 		//map activities to sigmas
 		TObjectIntHashMap<XEventClass> eventclass2sigmaIndex = new TObjectIntHashMap<>();
@@ -41,15 +41,20 @@ public class LogSplitterXorFiltering implements LogSplitter {
 				p++;
 			}
 		}
-		
+
 		MultiSet<XEventClass> noise = new MultiSet<>();
 
 		XFactory factory = new XFactoryExternalStore.MapDBDiskSequentialAccessWithoutCacheImpl();
-		
+
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
 			for (Iterator<IMTrace> it = sublog.iterator(); it.hasNext();) {
+
+				if (minerState.isCancelled()) {
+					return null;
+				}
+
 				IMTrace trace = it.next();
 
 				//walk through the events and count how many go in each sigma

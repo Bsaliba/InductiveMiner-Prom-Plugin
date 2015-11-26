@@ -24,6 +24,11 @@ public class LogSplitterInterleaving implements LogSplitter {
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
+			
+			if (minerState.isCancelled()) {
+				return null;
+			}
+			
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
 				IMTrace trace = itTrace.next();
 				if (trace.isEmpty()) {
