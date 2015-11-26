@@ -1,5 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
@@ -20,5 +21,5 @@ public interface FallThrough {
 	 * @param minerState
 	 * @return
 	 */
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState);
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller);
 }

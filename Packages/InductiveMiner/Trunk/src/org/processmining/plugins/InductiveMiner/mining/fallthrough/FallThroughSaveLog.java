@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.out.XSerializer;
 import org.deckfour.xes.out.XesXmlSerializer;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -23,7 +24,7 @@ public class FallThroughSaveLog implements FallThrough {
 		this.directory = directory;		
 	}
 	
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 	
 		XLog xLog = log.toXLog();
 		XSerializer logSerializer = new XesXmlSerializer();

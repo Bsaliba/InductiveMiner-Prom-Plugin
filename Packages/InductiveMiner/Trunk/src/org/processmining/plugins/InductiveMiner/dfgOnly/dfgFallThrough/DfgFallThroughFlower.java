@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiner;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -12,7 +13,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class DfgFallThroughFlower implements DfgFallThrough {
 
-	public Node fallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
+	public Node fallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
 		DfgMiner.debug(" fall through: flower model", minerState);
 
 		Block loopNode = new AbstractBlock.XorLoop("");

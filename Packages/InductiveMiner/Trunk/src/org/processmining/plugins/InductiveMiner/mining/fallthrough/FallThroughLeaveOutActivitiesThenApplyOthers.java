@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
@@ -51,7 +52,8 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		Cut cut = null;
 	}
 
-	public Node fallThrough(final IMLog log, final IMLogInfo logInfo, ProcessTree tree, final MinerState minerState) {
+	public Node fallThrough(final IMLog log, final IMLogInfo logInfo, ProcessTree tree, final MinerState minerState,
+			final Canceller canceller) {
 
 		if (logInfo.getActivities().toSet().size() < 3) {
 			return null;
@@ -70,6 +72,11 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			final XEventClass leaveOutActivity2 = leaveOutActivity;
 			jobList.addJob(new Runnable() {
 				public void run() {
+
+					if (canceller.isCancelled()) {
+						return;
+					}
+
 					if (!found.get()) {
 
 						//in a typical overcomplicated java-way, create a cut (parallel, [{a}, Sigma\{a}])
@@ -84,7 +91,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 
 						//see if a cut applies
 						//for performance reasons, only on the directly-follows graph
-						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null);
+						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null, canceller);
 						if (cut2 != null && cut2.isValid()) {
 							//see if we are first
 							boolean oldFound = found.getAndSet(true);
@@ -101,7 +108,6 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		try {
 			jobList.join();
 		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -119,10 +125,10 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			Block newNode = new AbstractBlock.And("");
 			Miner.addNode(tree, newNode);
 
-			Node child1 = Miner.mineNode(log1, tree, minerState);
+			Node child1 = Miner.mineNode(log1, tree, minerState, canceller);
 			newNode.addChild(child1);
 
-			Node child2 = Miner.mineNode(log2, tree, minerState);
+			Node child2 = Miner.mineNode(log2, tree, minerState, canceller);
 			newNode.addChild(child2);
 
 			return newNode;

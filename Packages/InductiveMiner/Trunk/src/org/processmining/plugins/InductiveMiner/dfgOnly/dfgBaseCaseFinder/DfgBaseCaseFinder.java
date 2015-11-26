@@ -1,5 +1,6 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder;
 
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.processtree.Node;
@@ -18,6 +19,6 @@ public interface DfgBaseCaseFinder {
 	 * @param minerState
 	 * @return
 	 */
-	Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState);
+	Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller);
 
 }

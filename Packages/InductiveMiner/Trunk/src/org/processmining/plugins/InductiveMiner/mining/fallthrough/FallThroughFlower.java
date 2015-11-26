@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -13,7 +14,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class FallThroughFlower implements FallThrough {
 
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 		
 		Miner.debug(" fall through: flower model", minerState);
 		

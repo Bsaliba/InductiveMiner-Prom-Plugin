@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
@@ -17,15 +18,15 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMExclusiveChoice implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(final IMLog log, final IMLogInfo logInfo, final MinerState minerState) {
-		return findCut(logInfo.getDirectlyFollowsGraph());
+	public Cut findCut(final IMLog log, final IMLogInfo logInfo, final MinerState minerState, Canceller canceller) {
+		return findCut(logInfo.getDirectlyFollowsGraph(), canceller);
 	}
-	
-	public Cut findCut(final Dfg dfg, final DfgMinerState minerState) {
-		return findCut(dfg.getDirectlyFollowsGraph());
+
+	public Cut findCut(final Dfg dfg, final DfgMinerState minerState, Canceller canceller) {
+		return findCut(dfg.getDirectlyFollowsGraph(), canceller);
 	}
-	
-	public static Cut findCut(final Graph<XEventClass> graph) {
+
+	public static Cut findCut(final Graph<XEventClass> graph, Canceller canceller) {
 		//compute the connected components of the directly-follows graph
 		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(graph);
 

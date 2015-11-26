@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiner;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -13,7 +14,7 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 
 	private static DfgFallThroughFlower flower = new DfgFallThroughFlower();
 	
-	public Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
+	public Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
 		if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 0) {
 			//no activities (should not happen)
 			Node node = new AbstractTask.Automatic("tau empty log");
@@ -33,7 +34,7 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 				//edges present, must be a self-edge
 				
 				//let fail to flower loop
-				return flower.fallThrough(dfg, tree, minerState);
+				return flower.fallThrough(dfg, tree, minerState, canceller);
 			}
 			
 		}
