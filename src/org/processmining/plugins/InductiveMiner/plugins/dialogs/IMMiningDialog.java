@@ -29,7 +29,6 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi2;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 
@@ -192,25 +191,6 @@ public class IMMiningDialog extends JPanel {
 		
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
-		}
-	}
-
-	public class VariantIMi2 extends Variant {
-
-		public String toString() {
-			return "Inductive Miner - infrequent 2";
-		}
-
-		public boolean hasNoise() {
-			return true;
-		}
-
-		public boolean noNoiseImpliesFitness() {
-			return false;
-		}
-
-		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMi2();
 		}
 	}
 

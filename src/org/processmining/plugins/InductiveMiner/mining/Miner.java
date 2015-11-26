@@ -41,6 +41,10 @@ public class Miner {
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
 
 		debug("discovered tree " + tree.getRoot(), minerState);
 
@@ -48,6 +52,12 @@ public class Miner {
 		tree = ReduceTree.reduceTree(tree);
 		debug("after reduction " + tree.getRoot(), minerState);
 
+		minerState.shutdownThreadPools();
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
+		
 		return tree;
 	}
 

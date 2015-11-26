@@ -1,15 +1,10 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
-import java.util.concurrent.ExecutorService;
-
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.DfgSplitter;
-import org.processmining.plugins.InductiveMiner.jobList.ThreadPoolSingleton1;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
-
-import com.google.common.util.concurrent.MoreExecutors;
 
 public abstract class DfgMiningParameters {
 
@@ -19,23 +14,23 @@ public abstract class DfgMiningParameters {
 	private Iterable<DfgFallThrough> dfgFallThroughs;
 	
 	private boolean debug;
+	private boolean useMultiThreading;
 
 	private float noiseThreshold = 0.2f;
 	private Probabilities satProbabilities = null;
 	private float incompleteThreshold = 0;
-	private ExecutorService satPool = null;
 
 	public DfgMiningParameters() {
 		debug = false;
-		setUseMultithreading(true);
+		useMultiThreading = true;
 	}
 
 	public void setUseMultithreading(boolean useMultithreading) {
-		if (!useMultithreading) {
-			satPool = MoreExecutors.sameThreadExecutor();
-		} else {
-			satPool = ThreadPoolSingleton1.getInstance();
-		}
+		this.useMultiThreading = useMultithreading;
+	}
+	
+	public boolean isUseMultiThreading() {
+		return useMultiThreading;
 	}
 
 	public Iterable<DfgBaseCaseFinder> getDfgBaseCaseFinders() {
@@ -100,10 +95,6 @@ public abstract class DfgMiningParameters {
 	
 	public void setIncompleteThreshold(float incompleteThreshold) {
 		this.incompleteThreshold = incompleteThreshold;
-	}
-
-	public ExecutorService getSatPool() {
-		return this.satPool;
 	}
 
 }

@@ -20,11 +20,8 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.plugins.InductiveMiner.Classifiers;
 import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
-import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoBucketFilter;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
-import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi2;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -76,23 +73,6 @@ public class XLog2DfgDialog extends JPanel {
 		}
 	}
 
-	public class VariantFilterInfrequentBehaviour extends Variant {
-
-		public String toString() {
-			return "use event classes and life cycles & filter infrequent behaviour";
-		}
-
-		public boolean hasNoise() {
-			return true;
-		}
-
-		public IMLog2IMLogInfo getIMLog2IMLogInfo() {
-			MiningParameters parameters = new MiningParametersIMi2();
-			parameters.setNoiseThreshold(getNoiseThreshold());
-			return new IMLog2IMLogInfoBucketFilter(parameters);
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public XLog2DfgDialog(XLog log) {
 		SlickerFactory factory = SlickerFactory.instance();
@@ -113,8 +93,7 @@ public class XLog2DfgDialog extends JPanel {
 				add(variantLabel, cVariantLabel);
 			}
 
-			variantCombobox = factory.createComboBox(new Variant[] { new VariantDefault(), new VariantLifeCycle(),
-					new VariantFilterInfrequentBehaviour() });
+			variantCombobox = factory.createComboBox(new Variant[] { new VariantDefault(), new VariantLifeCycle(), });
 			{
 				GridBagConstraints cVariantCombobox = new GridBagConstraints();
 				cVariantCombobox.gridx = 1;
@@ -126,7 +105,7 @@ public class XLog2DfgDialog extends JPanel {
 				variantCombobox.setSelectedIndex(0);
 			}
 		}
-		
+
 		gridy++;
 
 		//spacer
@@ -239,7 +218,7 @@ public class XLog2DfgDialog extends JPanel {
 				noiseValue.setVisible(variant.hasNoise());
 			}
 		});
-		
+
 		noiseSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				noiseValue.setText(String.format("%.2f", getNoiseThreshold()));
