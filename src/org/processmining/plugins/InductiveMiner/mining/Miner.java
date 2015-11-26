@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining;
 
 import java.util.Iterator;
 
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -27,7 +28,7 @@ public class Miner {
 	 * InductiveMiner.plugins folder
 	 */
 
-	public static ProcessTree mine(IMLog log, MiningParameters parameters) {
+	public static ProcessTree mine(IMLog log, MiningParameters parameters, Canceller canceller) {
 		//repair life cycle if necessary
 		if (parameters.isRepairLifeCycle()) {
 			log = LifeCycles.preProcessLog(log);
@@ -36,7 +37,7 @@ public class Miner {
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
 		MinerState minerState = new MinerState(parameters);
-		Node root = mineNode(log, tree, minerState);
+		Node root = mineNode(log, tree, minerState, canceller);
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
@@ -50,7 +51,7 @@ public class Miner {
 		return tree;
 	}
 
-	public static Node mineNode(IMLog log, ProcessTree tree, MinerState minerState) {
+	public static Node mineNode(IMLog log, ProcessTree tree, MinerState minerState, Canceller canceller) {
 
 		//construct basic information about log
 		IMLogInfo logInfo = minerState.parameters.getLog2LogInfo().createLogInfo(log);
@@ -60,14 +61,23 @@ public class Miner {
 		//debug(log, minerState);
 
 		//find base cases
-		Node baseCase = findBaseCases(log, logInfo, tree, minerState);
+		Node baseCase = findBaseCases(log, logInfo, tree, minerState, canceller);
 		if (baseCase != null) {
 			debug(" discovered node " + baseCase, minerState);
 			return baseCase;
 		}
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
 
 		//find cut
-		Cut cut = findCut(log, logInfo, minerState);
+		Cut cut = findCut(log, logInfo, minerState, canceller);
+		
+		if (canceller.isCancelled()) {
+			return null;
+		}
+		
 		if (cut != null && cut.isValid()) {
 			//cut is valid
 
@@ -83,7 +93,7 @@ public class Miner {
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
 				for (IMLog sublog : splitResult.sublogs) {
-					Node child = mineNode(sublog, tree, minerState);
+					Node child = mineNode(sublog, tree, minerState, canceller);
 					newNode.addChild(child);
 				}
 			} else {
@@ -94,7 +104,7 @@ public class Miner {
 				//mine body
 				IMLog firstSublog = it.next();
 				{
-					Node firstChild = mineNode(firstSublog, tree, minerState);
+					Node firstChild = mineNode(firstSublog, tree, minerState, canceller);
 					newNode.addChild(firstChild);
 				}
 
@@ -109,7 +119,7 @@ public class Miner {
 				}
 				while (it.hasNext()) {
 					IMLog sublog = it.next();
-					Node child = mineNode(sublog, tree, minerState);
+					Node child = mineNode(sublog, tree, minerState, canceller);
 					redoXor.addChild(child);
 				}
 
@@ -131,7 +141,7 @@ public class Miner {
 
 		} else {
 			//cut is not valid; fall through
-			Node result = findFallThrough(log, logInfo, tree, minerState);
+			Node result = findFallThrough(log, logInfo, tree, minerState, canceller);
 			debug(" discovered node " + result, minerState);
 			return result;
 		}
@@ -159,29 +169,29 @@ public class Miner {
 		tree.addNode(node);
 	}
 
-	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public static Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 		Node n = null;
 		Iterator<BaseCaseFinder> it = minerState.parameters.getBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().findBaseCases(log, logInfo, tree, minerState);
+			n = it.next().findBaseCases(log, logInfo, tree, minerState, canceller);
 		}
 		return n;
 	}
 
-	public static Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+	public static Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
 		Cut c = null;
 		Iterator<CutFinder> it = minerState.parameters.getCutFinders().iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
-			c = it.next().findCut(log, logInfo, minerState);
+			c = it.next().findCut(log, logInfo, minerState, canceller);
 		}
 		return c;
 	}
 
-	public static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public static Node findFallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 		Node n = null;
 		Iterator<FallThrough> it = minerState.parameters.getFallThroughs().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().fallThrough(log, logInfo, tree, minerState);
+			n = it.next().fallThrough(log, logInfo, tree, minerState, canceller);
 		}
 		return n;
 	}

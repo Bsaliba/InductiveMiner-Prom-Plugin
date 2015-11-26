@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -28,11 +29,14 @@ public class CutFinderIMlc implements CutFinder {
 			new CutFinderIMParallel()
 			));
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
 		Cut c = null;
 		Iterator<CutFinder> it = cutFinders.iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
-			c = it.next().findCut(log, logInfo, minerState);
+			c = it.next().findCut(log, logInfo, minerState, canceller);
+			if (canceller.isCancelled()) {
+				return null;
+			}
 		}
 		return c;
 	}

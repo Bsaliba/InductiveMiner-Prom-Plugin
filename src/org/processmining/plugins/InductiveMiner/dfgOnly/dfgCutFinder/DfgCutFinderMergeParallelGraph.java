@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -10,7 +11,7 @@ public class DfgCutFinderMergeParallelGraph implements DfgCutFinder {
 	/**
 	 * Combine the parallel graph with the directly-follows graph.
 	 */
-	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
 		
 		//add edges from parallel graph
 		for (long e : dfg.getConcurrencyGraph().getEdges()) {

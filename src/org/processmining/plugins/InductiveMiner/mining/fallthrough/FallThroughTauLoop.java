@@ -7,6 +7,7 @@ import org.deckfour.xes.model.XTrace;
 import org.deckfour.xes.model.impl.XAttributeMapImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
@@ -28,7 +29,7 @@ public class FallThroughTauLoop implements FallThrough {
 		this.useLifeCycle = useLifeCycle;
 	}
 
-	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 
 		if (logInfo.getActivities().toSet().size() > 1) {
 
@@ -46,7 +47,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.addNode(tree, loop);
 
 				{
-					Node body = Miner.mineNode(new IMLog(sublog, log.getClassifier()), tree, minerState);
+					Node body = Miner.mineNode(new IMLog(sublog, log.getClassifier()), tree, minerState, canceller);
 					loop.addChild(body);
 				}
 

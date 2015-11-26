@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -11,7 +12,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 
 		if (logInfo.getActivities().setSize() == 1) {
 			//the log contains just one activity
@@ -19,8 +20,7 @@ public class BaseCaseFinderIMiSingleActivity implements BaseCaseFinder {
 			//assuming application of the activity follows a geometric distribution, we estimate parameter ^p
 
 			//calculate the event-per-trace size of the log
-			double p = log.size()
-					/ ((logInfo.getNumberOfActivityInstances() + log.size()) * 1.0);
+			double p = log.size() / ((logInfo.getNumberOfActivityInstances() + log.size()) * 1.0);
 
 			if (0.5 - minerState.parameters.getNoiseThreshold() <= p
 					&& p <= 0.5 + minerState.parameters.getNoiseThreshold()) {

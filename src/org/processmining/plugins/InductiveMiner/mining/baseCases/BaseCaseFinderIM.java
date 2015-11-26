@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -13,56 +14,56 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIM implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
 
 		if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0
 				&& logInfo.getNumberOfActivityInstances() == log.size()) {
 			//single activity
-			
+
 			Miner.debug(" base case: IM single activity", minerState);
-			
+
 			XEventClass activity = logInfo.getActivities().iterator().next();
 			Node node = new AbstractTask.Manual(activity.toString());
 			Miner.addNode(tree, node);
-			
+
 			return node;
 		} else if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0) {
 			//single activity in semi-flower model
-			
+
 			Miner.debug(" base case: IM single activity semi-flower model", minerState);
-			
+
 			XEventClass activity = logInfo.getActivities().iterator().next();
 			Block loopNode = new AbstractBlock.XorLoop("");
 			Miner.addNode(tree, loopNode);
-			
+
 			//body: activity
 			Node body = new AbstractTask.Manual(activity.toString());
 			Miner.addNode(tree, body);
 			loopNode.addChild(body);
-			
+
 			//redo: tau
 			Node redo = new AbstractTask.Automatic("tau");
 			Miner.addNode(tree, redo);
 			loopNode.addChild(redo);
-			
+
 			//exit: tau
 			Node exit = new AbstractTask.Automatic("tau");
 			Miner.addNode(tree, exit);
 			loopNode.addChild(exit);
-			
+
 			return loopNode;
 		} else if (logInfo.getActivities().setSize() == 0) {
 			//empty log
-			
+
 			Miner.debug(" base case: IM empty log", minerState);
-			
+
 			Node node = new AbstractTask.Automatic("tau");
 			Miner.addNode(tree, node);
-			
+
 			return node;
-		} else if (logInfo.getNumberOfEpsilonTraces() != 0){
+		} else if (logInfo.getNumberOfEpsilonTraces() != 0) {
 			Miner.debug(" base case: IM xor(tau, ..)", minerState);
-			
+
 			Block newNode = new AbstractBlock.Xor("");
 			Miner.addNode(tree, newNode);
 
@@ -72,10 +73,10 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			newNode.addChild(tau);
 
 			//filter empty traces
-			IMLog sublog = BaseCaseFinderIMiEmptyTrace.removeEpsilonTraces(log);
+			IMLog sublog = BaseCaseFinderIMiEmptyTrace.removeEpsilonTraces(log, canceller);
 
 			//recurse
-			Node child = Miner.mineNode(sublog, tree, minerState);
+			Node child = Miner.mineNode(sublog, tree, minerState, canceller);
 			newNode.addChild(child);
 
 			return newNode;

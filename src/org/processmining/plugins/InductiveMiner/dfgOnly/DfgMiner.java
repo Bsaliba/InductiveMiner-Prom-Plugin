@@ -2,6 +2,7 @@ package org.processmining.plugins.InductiveMiner.dfgOnly;
 
 import java.util.Iterator;
 
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.DfgSplitter.DfgSplitResult;
@@ -19,11 +20,11 @@ import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
 public class DfgMiner {
-	public static ProcessTree mine(Dfg dfg, DfgMiningParameters parameters) {
+	public static ProcessTree mine(Dfg dfg, DfgMiningParameters parameters, Canceller canceller) {
 		//create process tree
 		ProcessTree tree = new ProcessTreeImpl();
 		DfgMinerState minerState = new DfgMinerState(parameters);
-		Node root = mineNode(dfg, tree, minerState);
+		Node root = mineNode(dfg, tree, minerState, canceller);
 
 		root.setProcessTree(tree);
 		tree.setRoot(root);
@@ -43,16 +44,16 @@ public class DfgMiner {
 		return tree;
 	}
 
-	public static Node mineNode(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
+	public static Node mineNode(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
 
 		//find base cases
-		Node baseCase = findBaseCases(dfg, tree, minerState);
+		Node baseCase = findBaseCases(dfg, tree, minerState, canceller);
 		if (baseCase != null) {
 			return baseCase;
 		}
 
 		//find cut
-		Cut cut = findCut(dfg, minerState);
+		Cut cut = findCut(dfg, minerState, canceller);
 		if (cut != null && cut.isValid()) {
 			//cut is valid
 
@@ -68,7 +69,7 @@ public class DfgMiner {
 			//recurse
 			if (cut.getOperator() != Operator.loop) {
 				for (Dfg subDfg : splitResult.subDfgs) {
-					Node child = mineNode(subDfg, tree, minerState);
+					Node child = mineNode(subDfg, tree, minerState, canceller);
 					newNode.addChild(child);
 				}
 			} else {
@@ -79,7 +80,7 @@ public class DfgMiner {
 				//mine body
 				Dfg firstSubDfg = it.next();
 				{
-					Node firstChild = mineNode(firstSubDfg, tree, minerState);
+					Node firstChild = mineNode(firstSubDfg, tree, minerState, canceller);
 					newNode.addChild(firstChild);
 				}
 
@@ -94,7 +95,7 @@ public class DfgMiner {
 				}
 				while (it.hasNext()) {
 					Dfg subDfg = it.next();
-					Node child = mineNode(subDfg, tree, minerState);
+					Node child = mineNode(subDfg, tree, minerState, canceller);
 					redoXor.addChild(child);
 				}
 
@@ -110,7 +111,7 @@ public class DfgMiner {
 
 		} else {
 			//cut is not valid; fall through
-			return findFallThrough(dfg, tree, minerState);
+			return findFallThrough(dfg, tree, minerState, canceller);
 		}
 	}
 
@@ -132,24 +133,24 @@ public class DfgMiner {
 		tree.addNode(node);
 	}
 
-	public static Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
+	public static Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
 		Node n = null;
 		Iterator<DfgBaseCaseFinder> it = minerState.getParameters().getDfgBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().findBaseCases(dfg, tree, minerState);
+			n = it.next().findBaseCases(dfg, tree, minerState, canceller);
 		}
 		return n;
 	}
 
-	public static Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return minerState.getParameters().getDfgCutFinder().findCut(dfg, minerState);
+	public static Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
+		return minerState.getParameters().getDfgCutFinder().findCut(dfg, minerState, canceller);
 	}
 
-	public static Node findFallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
+	public static Node findFallThrough(Dfg dfg, ProcessTree tree, DfgMinerState minerState, Canceller canceller) {
 		Node n = null;
 		Iterator<DfgFallThrough> it = minerState.getParameters().getDfgFallThroughs().iterator();
 		while (n == null && it.hasNext()) {
-			n = it.next().fallThrough(dfg, tree, minerState);
+			n = it.next().fallThrough(dfg, tree, minerState, canceller);
 		}
 		return n;
 	}
