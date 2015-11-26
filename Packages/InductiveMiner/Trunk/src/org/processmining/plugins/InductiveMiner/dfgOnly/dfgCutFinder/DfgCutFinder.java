@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder;
 
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -16,5 +15,5 @@ public interface DfgCutFinder {
 	 * @param minerState
 	 * @return
 	 */
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller);
+	public Cut findCut(Dfg dfg, DfgMinerState minerState);
 }

@@ -2,7 +2,7 @@ package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.processmining.framework.packages.PackageManager.Canceller;
+import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
@@ -12,12 +12,12 @@ public abstract class SATSolve {
 
 	protected final AtomicResult bestTillNow;
 	protected final CutFinderIMinInfo info;
-	protected final Canceller canceller;
+	protected final MinerStateBase minerState;
 
-	public SATSolve(CutFinderIMinInfo info, AtomicResult bestTillNow, Canceller canceller) {
+	public SATSolve(CutFinderIMinInfo info, AtomicResult bestTillNow, MinerStateBase minerState) {
 		this.info = info;
 		this.bestTillNow = bestTillNow;
-		this.canceller = canceller;
+		this.minerState = minerState;
 	}
 
 	public abstract void solve();
@@ -33,7 +33,7 @@ public abstract class SATSolve {
 			final int j = i;
 			info.getJobList().addJob(new Runnable() {
 				public void run() {
-					if (!canceller.isCancelled()) {
+					if (!minerState.isCancelled()) {
 						SATSolveSingle solver = null;
 						try {
 							solver = c.getConstructor(CutFinderIMinInfo.class).newInstance(info);

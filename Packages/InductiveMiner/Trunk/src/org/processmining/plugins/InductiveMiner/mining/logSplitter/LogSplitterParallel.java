@@ -18,14 +18,19 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 public class LogSplitterParallel implements LogSplitter {
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		return new LogSplitResult(split(log, cut.getPartition()), new MultiSet<XEventClass>());
+		return new LogSplitResult(split(log, cut.getPartition(), minerState), new MultiSet<XEventClass>());
 	}
-	
-	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition) {
+
+	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
 			IMLog sublog = new IMLog(log);
 			for (IMTrace trace : sublog) {
+
+				if (minerState.isCancelled()) {
+					return null;
+				}
+
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {
 					XEventClass c = sublog.classify(it.next());
 					if (!sigma.contains(c)) {

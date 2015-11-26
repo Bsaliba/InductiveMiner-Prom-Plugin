@@ -1,14 +1,14 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
 
-import org.processmining.framework.packages.PackageManager.Canceller;
+import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single.SATSolveSingleSequence;
 
 public class SATSolveSequence extends SATSolve {
 
-	public SATSolveSequence(CutFinderIMinInfo info, AtomicResult result, Canceller canceller) {
-		super(info, result, canceller);
+	public SATSolveSequence(CutFinderIMinInfo info, AtomicResult result, MinerStateBase minerState) {
+		super(info, result, minerState);
 	}
 
 	public void solve() {

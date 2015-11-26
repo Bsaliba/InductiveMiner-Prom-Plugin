@@ -23,10 +23,10 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 public class LogSplitterSequenceFiltering implements LogSplitter {
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		return split(log, cut.getPartition());
+		return split(log, cut.getPartition(), minerState);
 	}
 
-	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition) {
+	public static LogSplitResult split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 
 		//initialise
 		List<IMLog> result = new ArrayList<>();
@@ -47,6 +47,11 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 
 		//walk through the traces (in all sublogs and the original log)
 		for (IMTrace trace : log) {
+			
+			if (minerState.isCancelled()) {
+				return null;
+			}
+			
 			Map<Set<XEventClass>, IMTrace> subtraces = progress(mapSigma2TraceIterator);
 			Set<XEventClass> ignore = new THashSet<>();
 

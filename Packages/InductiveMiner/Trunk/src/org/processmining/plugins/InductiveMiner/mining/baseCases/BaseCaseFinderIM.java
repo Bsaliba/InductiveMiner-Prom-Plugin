@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -14,7 +13,7 @@ import org.processmining.processtree.impl.AbstractTask;
 
 public class BaseCaseFinderIM implements BaseCaseFinder {
 
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller) {
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
 		if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0
 				&& logInfo.getNumberOfActivityInstances() == log.size()) {
@@ -73,10 +72,10 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			newNode.addChild(tau);
 
 			//filter empty traces
-			IMLog sublog = BaseCaseFinderIMiEmptyTrace.removeEpsilonTraces(log, canceller);
+			IMLog sublog = BaseCaseFinderIMiEmptyTrace.removeEpsilonTraces(log, minerState);
 
 			//recurse
-			Node child = Miner.mineNode(sublog, tree, minerState, canceller);
+			Node child = Miner.mineNode(sublog, tree, minerState);
 			newNode.addChild(child);
 
 			return newNode;

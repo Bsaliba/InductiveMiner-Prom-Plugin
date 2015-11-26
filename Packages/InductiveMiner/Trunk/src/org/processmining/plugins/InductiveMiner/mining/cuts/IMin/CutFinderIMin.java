@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.TransitiveClosure;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
@@ -15,6 +14,7 @@ import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.jobList.JobListConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
+import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
@@ -26,7 +26,7 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMin implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
 		float threshold = minerState.getParameters().getIncompleteThreshold();
 		JobList jobList = new JobListConcurrent(minerState.getSatPool());
 		
@@ -39,10 +39,10 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		boolean debug = minerState.getParameters().isDebug();
 		CutFinderIMinInfo info = new CutFinderIMinInfo(startActivities, endActivities, graph, transitiveGraph,
 				minimumSelfDistancesBetween, satProbabilities, jobList, debug);
-		return findCut(info, threshold, canceller);
+		return findCut(info, threshold, minerState);
 	}
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		float threshold = minerState.parameters.getIncompleteThreshold();
 		JobList jobList = new JobListConcurrent(minerState.getSatPool());
 
@@ -56,17 +56,17 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		boolean debug = minerState.parameters.isDebug();
 		CutFinderIMinInfo info = new CutFinderIMinInfo(startActivities, endActivities, graph, transitiveGraph,
 				minimumSelfDistancesBetween, satProbabilities, jobList, debug);
-		return findCut(info, threshold, canceller);
+		return findCut(info, threshold, minerState);
 	}
 
-	public static Cut findCut(CutFinderIMinInfo info, float threshold, Canceller canceller) {
+	public static Cut findCut(CutFinderIMinInfo info, float threshold, MinerStateBase minerState) {
 		AtomicResult bestSATResult = new AtomicResult(threshold);
-		(new SATSolveXor(info, bestSATResult, canceller)).solve();
-		(new SATSolveParallel(info, bestSATResult, canceller)).solve();
+		(new SATSolveXor(info, bestSATResult, minerState)).solve();
+		(new SATSolveParallel(info, bestSATResult, minerState)).solve();
 
-		(new SATSolveSequence(info, bestSATResult, canceller)).solve();
+		(new SATSolveSequence(info, bestSATResult, minerState)).solve();
 
-		(new SATSolveLoop(info, bestSATResult, canceller)).solve();
+		(new SATSolveLoop(info, bestSATResult, minerState)).solve();
 
 		try {
 			info.getJobList().join();

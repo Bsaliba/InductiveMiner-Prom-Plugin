@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -27,17 +26,16 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
-				canceller);
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
+		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph());
 	}
 
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), canceller);
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph());
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> graph, Canceller canceller) {
+			Graph<XEventClass> graph) {
 		//initialise the start and end activities as a connected component
 		Map<XEventClass, Integer> connectedComponents = new THashMap<XEventClass, Integer>();
 		for (XEventClass startActivity : startActivities.toSet()) {

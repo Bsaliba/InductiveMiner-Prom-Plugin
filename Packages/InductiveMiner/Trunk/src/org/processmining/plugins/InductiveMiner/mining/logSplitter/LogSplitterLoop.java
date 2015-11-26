@@ -37,6 +37,11 @@ public class LogSplitterLoop implements LogSplitter {
 
 			//walk through traces
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
+				
+				if (minerState.isCancelled()) {
+					return null;
+				}
+				
 				IMTrace trace = itTrace.next();
 
 //				System.out.println(" trace " + trace);

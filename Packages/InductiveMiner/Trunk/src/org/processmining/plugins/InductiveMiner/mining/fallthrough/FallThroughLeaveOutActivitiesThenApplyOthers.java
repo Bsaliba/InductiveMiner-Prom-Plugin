@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
@@ -51,8 +50,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 		Cut cut = null;
 	}
 
-	public Node fallThrough(final IMLog log, final IMLogInfo logInfo, ProcessTree tree, final MinerState minerState,
-			final Canceller canceller) {
+	public Node fallThrough(final IMLog log, final IMLogInfo logInfo, ProcessTree tree, final MinerState minerState) {
 
 		if (logInfo.getActivities().toSet().size() < 3) {
 			return null;
@@ -72,7 +70,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			jobList.addJob(new Runnable() {
 				public void run() {
 
-					if (canceller.isCancelled()) {
+					if (minerState.isCancelled()) {
 						return;
 					}
 
@@ -90,7 +88,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 
 						//see if a cut applies
 						//for performance reasons, only on the directly-follows graph
-						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null, canceller);
+						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null);
 						if (cut2 != null && cut2.isValid()) {
 							//see if we are first
 							boolean oldFound = found.getAndSet(true);
@@ -124,11 +122,11 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			Block newNode = new AbstractBlock.And("");
 			Miner.addNode(tree, newNode);
 
-			Node child1 = Miner.mineNode(log1, tree, minerState, canceller);
-			newNode.addChild(child1);
+			Node child1 = Miner.mineNode(log1, tree, minerState);
+			Miner.addChild(newNode, child1, minerState);
 
-			Node child2 = Miner.mineNode(log2, tree, minerState, canceller);
-			newNode.addChild(child2);
+			Node child2 = Miner.mineNode(log2, tree, minerState);
+			Miner.addChild(newNode, child2, minerState);
 
 			return newNode;
 		} else {

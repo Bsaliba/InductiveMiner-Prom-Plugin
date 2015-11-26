@@ -1,6 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.baseCases;
 
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
@@ -20,8 +19,7 @@ public interface BaseCaseFinder {
 	 * @param logInfo
 	 * @param tree
 	 * @param minerState
-	 * @param canceller 
 	 * @return
 	 */
-	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState, Canceller canceller);
+	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState);
 }

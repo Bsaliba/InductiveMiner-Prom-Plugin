@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -13,9 +12,9 @@ public class DfgCutFinderNoiseFiltering implements DfgCutFinder {
 
 	private static DfgCutFinder cutFinder = new DfgCutFinderSimple();
 
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
 		Dfg filteredDfg = filterDfg(dfg, minerState);
-		return cutFinder.findCut(filteredDfg, minerState, canceller);
+		return cutFinder.findCut(filteredDfg, minerState);
 	}
 
 	/**

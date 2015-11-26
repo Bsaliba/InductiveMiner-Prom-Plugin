@@ -1,7 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMilc;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
@@ -17,12 +16,12 @@ public class CutFinderIMilc implements CutFinder {
 
 	private static CutFinder cutFinderIM = new CutFinderIM();
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		//filter logInfo
 		IMLogInfo logInfoFiltered = filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 
 		//call IM cut detection
-		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, minerState, canceller);
+		Cut cut = cutFinderIM.findCut(null, logInfoFiltered, minerState);
 
 		return cut;
 	}

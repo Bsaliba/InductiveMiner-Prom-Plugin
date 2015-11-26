@@ -4,18 +4,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class DfgMinerState {
+public class DfgMinerState implements MinerStateBase {
 	private final DfgMiningParameters parameters;
 	private final MultiSet<XEventClass> discardedEvents;
 	private final ExecutorService satPool;
+	private final Canceller canceller;
 	
-	public DfgMinerState(DfgMiningParameters parameters) {
+	public DfgMinerState(DfgMiningParameters parameters, Canceller canceller) {
 		this.parameters = parameters;
 		discardedEvents = new MultiSet<>();
+		this.canceller = canceller;
 		
 		if (!parameters.isUseMultiThreading()) {
 			satPool = MoreExecutors.sameThreadExecutor();
@@ -38,5 +42,9 @@ public class DfgMinerState {
 	
 	public void shutdownThreadPools() {
 		satPool.shutdownNow();
+	}
+
+	public boolean isCancelled() {
+		return canceller.isCancelled();
 	}
 }

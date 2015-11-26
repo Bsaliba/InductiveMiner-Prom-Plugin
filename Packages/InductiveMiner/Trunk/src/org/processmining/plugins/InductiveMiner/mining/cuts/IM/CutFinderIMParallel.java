@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.Function;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
@@ -25,18 +24,17 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
-				null, canceller);
+				null);
 	}
 
-	public Cut findCut(Dfg dfg, DfgMinerState minerState, Canceller canceller) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), null, canceller);
+	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
+		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), null);
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> dfg, Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween,
-			Canceller canceller) {
+			Graph<XEventClass> dfg, Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
 
 		//noise filtering can have removed all start and end activities.
 		//if that is the case, return

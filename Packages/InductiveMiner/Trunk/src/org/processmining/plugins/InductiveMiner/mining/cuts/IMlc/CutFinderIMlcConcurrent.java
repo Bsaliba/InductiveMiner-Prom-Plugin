@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
@@ -19,7 +18,7 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMlcConcurrent implements CutFinder {
 
-	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState, Canceller canceller) {
+	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		return findCut(logInfo.getConcurrencyGraph(), logInfo.getStartActivities(), logInfo.getEndActivities());
 	}
 
