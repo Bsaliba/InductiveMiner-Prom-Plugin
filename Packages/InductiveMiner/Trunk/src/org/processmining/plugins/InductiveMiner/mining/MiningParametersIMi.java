@@ -15,6 +15,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughLeaveOutActivitiesThenApplyOthers;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughSingleParallel;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterInterleaving;
@@ -53,6 +54,7 @@ public class MiningParametersIMi extends MiningParameters {
 				new LogSplitterInterleaving()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
+				new FallThroughSingleParallel(false),
 				new FallThroughLeaveOutActivitiesThenApplyOthers(),
 				new FallThroughTauLoop(false),
 				new FallThroughFlower()
