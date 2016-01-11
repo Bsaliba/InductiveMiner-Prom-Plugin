@@ -9,11 +9,11 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.interleaved.DetectInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.interleaved.MaybeInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles;
+import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
@@ -22,11 +22,14 @@ import org.processmining.processtree.impl.AbstractBlock.Xor;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
+/**
+ * Do not directly call this class, use one of the plug-ins from the
+ * InductiveMiner.plugins folder
+ * 
+ * @author sleemans
+ *
+ */
 public class Miner {
-	/*
-	 * Do not directly call this class, use one of the plug-ins from the
-	 * InductiveMiner.plugins folder
-	 */
 
 	public static ProcessTree mine(IMLog log, MiningParameters parameters, Canceller canceller) {
 		//repair life cycle if necessary
@@ -73,6 +76,9 @@ public class Miner {
 		//find base cases
 		Node baseCase = findBaseCases(log, logInfo, tree, minerState);
 		if (baseCase != null) {
+
+			baseCase = postProcess(baseCase, log, logInfo, minerState);
+
 			debug(" discovered node " + baseCase, minerState);
 			return baseCase;
 		}
@@ -141,20 +147,27 @@ public class Miner {
 				}
 			}
 
-			//replace interleaved if necessary
-			if (newNode instanceof MaybeInterleaved) {
-				newNode = DetectInterleaved.remove((MaybeInterleaved) newNode);
-			}
+			Node result = postProcess(newNode, log, logInfo, minerState);
 
-			debug(" discovered node " + newNode, minerState);
-			return newNode;
+			debug(" discovered node " + result, minerState);
+			return result;
 
 		} else {
 			//cut is not valid; fall through
 			Node result = findFallThrough(log, logInfo, tree, minerState);
+
+			result = postProcess(result, log, logInfo, minerState);
+
 			debug(" discovered node " + result, minerState);
 			return result;
 		}
+	}
+
+	private static Node postProcess(Node newNode, IMLog log, IMLogInfo logInfo, MinerState minerState) {
+		for (PostProcessor processor : minerState.parameters.getPostProcessors()) {
+			newNode = processor.postProcess(newNode, log, logInfo, minerState);
+		}
+		return newNode;
 	}
 
 	private static Block newNode(Operator operator) {
@@ -174,6 +187,15 @@ public class Miner {
 		}
 	}
 
+	/**
+	 * 
+	 * @param tree
+	 * @param node
+	 * @param log
+	 *            The log used as input for the mining algorithm. Provide null
+	 *            if this node was not directly derived from a log (e.g. it is a
+	 *            child in a flower-loop).
+	 */
 	public static void addNode(ProcessTree tree, Node node) {
 		node.setProcessTree(tree);
 		tree.addNode(node);

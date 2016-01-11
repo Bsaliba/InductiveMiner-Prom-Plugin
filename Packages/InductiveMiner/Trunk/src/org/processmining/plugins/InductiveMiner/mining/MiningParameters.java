@@ -10,6 +10,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
+import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 
 public abstract class MiningParameters {
 	private XEventClassifier classifier;
@@ -26,11 +27,12 @@ public abstract class MiningParameters {
 	private List<CutFinder> cutFinders;
 	private LogSplitter logSplitter;
 	private List<FallThrough> fallThroughs;
+	private List<PostProcessor> postProcessors;
 
 	protected MiningParameters() {
 
 		classifier = getDefaultClassifier();
-		debug = true;
+		debug = false;
 		repairLifeCycle = false;
 		useMultiThreading = true;
 
@@ -159,5 +161,13 @@ public abstract class MiningParameters {
 	
 	public void setRepairLifeCycle(boolean repairLifeCycle) {
 		this.repairLifeCycle = repairLifeCycle;
+	}
+
+	public List<PostProcessor> getPostProcessors() {
+		return postProcessors;
+	}
+
+	public void setPostProcessors(List<PostProcessor> postProcessors) {
+		this.postProcessors = postProcessors;
 	}
 }
