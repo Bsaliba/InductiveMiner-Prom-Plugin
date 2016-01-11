@@ -93,7 +93,7 @@ public class EfficientTreeMetrics {
 				bresult = bresult || canProduceTau(tree, child);
 			}
 			return bresult;
-		} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+		} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
 			boolean bresult = true;
 			for (int child : tree.getChildren(node)) {
 				bresult = bresult && canProduceTau(tree, child);
