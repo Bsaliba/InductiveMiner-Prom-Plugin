@@ -1,5 +1,7 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +16,17 @@ public class SimpleDfgSplitter implements DfgSplitter {
 
 	public DfgSplitResult split(Dfg dfg, Cut cut, DfgMinerState minerState) {
 		List<Dfg> subDfgs = new ArrayList<>();
+
+		TObjectIntHashMap<XEventClass> node2sigma = new TObjectIntHashMap<>();
+		int sigmaN = 0;
+		for (Set<XEventClass> sigma : cut.getPartition()) {
+			for (XEventClass a : sigma) {
+				node2sigma.put(a, sigmaN);
+			}
+			sigmaN++;
+		}
+
+		sigmaN = 0;
 		for (Set<XEventClass> sigma : cut.getPartition()) {
 			Dfg subDfg = new Dfg();
 			subDfgs.add(subDfg);
@@ -55,9 +68,32 @@ public class SimpleDfgSplitter implements DfgSplitter {
 						}
 					} else {
 						//edge unrelated to sigma
+						if (cut.getOperator() == Operator.sequence) {
+							if (node2sigma.get(source) < sigmaN && node2sigma.get(target) > sigmaN) {
+								subDfg.addEmptyTraces(cardinality);
+							}
+						}
 					}
 				}
 			}
+
+			if (cut.getOperator() == Operator.sequence) {
+				//add empty traces for start activities in sigmas after this one
+				for (int sigmaJ = sigmaN + 1; sigmaJ < cut.getPartition().size(); sigmaJ++) {
+					for (XEventClass activity : cut.getPartition().get(sigmaJ)) {
+						subDfg.addEmptyTraces(dfg.getStartActivities().getCardinalityOf(activity));
+					}
+				}
+
+				//add empty traces for end activities in sigmas before this one
+				for (int sigmaJ = 0; sigmaJ < sigmaN; sigmaJ++) {
+					for (XEventClass activity : cut.getPartition().get(sigmaJ)) {
+						subDfg.addEmptyTraces(dfg.getEndActivities().getCardinalityOf(activity));
+					}
+				}
+			}
+
+			sigmaN++;
 		}
 
 		return new DfgSplitResult(subDfgs);
