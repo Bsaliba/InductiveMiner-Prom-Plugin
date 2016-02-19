@@ -1,6 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -10,7 +12,7 @@ public class Cut {
 		xor, sequence, parallel, loop, maybeInterleaved
 	}
 
-	private Collection<Set<XEventClass>> partition = null;
+	private List<Set<XEventClass>> partition = null;
 	private Operator operator = null;
 
 	public boolean isValid() {
@@ -26,7 +28,7 @@ public class Cut {
 	}
 	
 	public Cut(Operator operator, Collection<Set<XEventClass>> partition) {
-		this.partition = partition;
+		this.partition = new ArrayList<>(partition);
 		this.operator = operator;
 	}
 	
@@ -38,11 +40,11 @@ public class Cut {
 		return result.toString();
 	}
 
-	public Collection<Set<XEventClass>> getPartition() {
+	public List<Set<XEventClass>> getPartition() {
 		return partition;
 	}
 
-	public void setPartition(Collection<Set<XEventClass>> partition) {
+	public void setPartition(List<Set<XEventClass>> partition) {
 		this.partition = partition;
 	}
 

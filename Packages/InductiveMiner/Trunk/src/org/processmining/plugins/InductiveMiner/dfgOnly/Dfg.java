@@ -14,6 +14,8 @@ public class Dfg {
 
 	private final MultiSet<XEventClass> startActivities;
 	private final MultiSet<XEventClass> endActivities;
+	
+	private long emptyTraces;
 
 	public Dfg() {
 		this(1);
@@ -22,6 +24,7 @@ public class Dfg {
 	public Dfg(int initialSize) {
 		directlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
 		concurrencyGraph = GraphFactory.create(XEventClass.class, initialSize);
+		emptyTraces = 0;
 
 		startActivities = new MultiSet<>();
 		endActivities = new MultiSet<>();
@@ -30,6 +33,7 @@ public class Dfg {
 	private Dfg(Graph<XEventClass> directlyFollowsGraph, Graph<XEventClass> concurrencyGraph) {
 		this.directlyFollowsGraph = directlyFollowsGraph;
 		this.concurrencyGraph = concurrencyGraph;
+		this.emptyTraces = 0;
 		startActivities = new MultiSet<>();
 		endActivities = new MultiSet<>();
 	}
@@ -81,6 +85,10 @@ public class Dfg {
 	public MultiSet<XEventClass> getEndActivities() {
 		return endActivities;
 	}
+	
+	public long getEmptyTraces() {
+		return emptyTraces;
+	}
 
 	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final long cardinality) {
 		addActivity(source);
@@ -102,6 +110,10 @@ public class Dfg {
 	public void addEndActivity(XEventClass activity, long cardinality) {
 		addActivity(activity);
 		endActivities.add(activity, cardinality);
+	}
+	
+	public void addEmptyTraces(long cardinality) {
+		emptyTraces += cardinality;
 	}
 
 	public String toString() {
