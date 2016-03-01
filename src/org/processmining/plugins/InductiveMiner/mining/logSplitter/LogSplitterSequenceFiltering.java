@@ -35,7 +35,7 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 		Map<XEventClass, Set<XEventClass>> mapActivity2sigma = new THashMap<>();
 		Map<Set<XEventClass>, Iterator<IMTrace>> mapSigma2TraceIterator = new THashMap<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog sublog = log.clone();
 			result.add(sublog);
 			mapSigma2Sublog.put(sigma, sublog);
 			mapSigma2TraceIterator.put(sigma, sublog.iterator());
@@ -82,7 +82,7 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 				//walk over this subtrace, remove all events not from sigma
 				while (atPositionInSubtrace < atPosition) {
 					XEvent event = it.next();
-					XEventClass c = log.classify(event);
+					XEventClass c = log.classify(subtrace, event);
 					if (!sigma.contains(c)) {
 						it.remove();
 						noise.add(c);
@@ -136,7 +136,7 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 
 		XEventClass event;
 		while (it.hasNext()) {
-			event = log.classify(it.next());
+			event = log.classify(trace, it.next());
 			if (ignore.contains(event)) {
 				//skip
 			} else if (sigma.contains(event)) {

@@ -48,7 +48,7 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 			readTrace = new ArrayList<XEventClass>();
 
 			for (XEvent e : trace) {
-				XEventClass ec = log.classify(e);
+				XEventClass ec = log.classify(trace, e);
 				activities.add(ec);
 				dfg.addActivity(ec);
 
