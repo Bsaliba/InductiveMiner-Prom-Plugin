@@ -20,7 +20,7 @@ import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
-public class IMLogImpl implements IMLog {
+public class IMLogImpl extends IMLog {
 
 	/*
 	 * Memory-lightweight implementation of a filtering system.
@@ -46,6 +46,7 @@ public class IMLogImpl implements IMLog {
 	 * @param xLog
 	 */
 	public IMLogImpl(XLog xLog, XEventClassifier activityClassifier) {
+		super(xLog, activityClassifier);
 		this.xLog = xLog;
 		outTraces = new BitSet(xLog.size());
 		outEvents = new BitSet[xLog.size()];
@@ -67,6 +68,7 @@ public class IMLogImpl implements IMLog {
 	 * @param log
 	 */
 	private IMLogImpl(IMLogImpl log) {
+		super(log);
 		this.xLog = log.xLog;
 		outTraces = (BitSet) log.outTraces.clone();
 		outEvents = new BitSet[xLog.size()];
