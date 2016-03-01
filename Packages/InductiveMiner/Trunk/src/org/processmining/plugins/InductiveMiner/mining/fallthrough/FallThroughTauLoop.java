@@ -12,6 +12,7 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogImpl;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 import org.processmining.processtree.Block;
@@ -54,7 +55,7 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.addNode(tree, loop);
 
 				{
-					Node body = Miner.mineNode(new IMLog(sublog, log.getClassifier()), tree, minerState);
+					Node body = Miner.mineNode(new IMLogImpl(sublog, log.getClassifier()), tree, minerState);
 					Miner.addChild(loop, body, minerState);
 				}
 
@@ -86,7 +87,7 @@ public class FallThroughTauLoop implements FallThrough {
 
 		for (XEvent event : trace) {
 
-			XEventClass activity = log.classify(event);
+			XEventClass activity = log.classify(trace, event);
 
 			if (!first && startActivities.contains(activity)) {
 				//we discovered a transition body -> body
@@ -104,7 +105,7 @@ public class FallThroughTauLoop implements FallThrough {
 						openActivityInstances.remove(activity, 1);
 					}
 				} else if (log.getLifeCycle(event) == Transition.start) {
-					openActivityInstances.add(log.classify(event));
+					openActivityInstances.add(log.classify(trace, event));
 				}
 			}
 

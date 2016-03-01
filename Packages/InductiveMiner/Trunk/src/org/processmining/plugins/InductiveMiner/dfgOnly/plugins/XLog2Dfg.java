@@ -9,7 +9,7 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.plugins.dialogs.XLog2DfgDialog;
-import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogImpl;
 
 public class XLog2Dfg {
 
@@ -24,7 +24,7 @@ public class XLog2Dfg {
 		if (result != InteractionResult.FINISHED) {
 			return null;
 		}
-		return dialog.getIMLog2IMLogInfo().createLogInfo(new IMLog(log, dialog.getClassifier())).getDfg();
+		return dialog.getIMLog2IMLogInfo().createLogInfo(new IMLogImpl(log, dialog.getClassifier())).getDfg();
 	}
 
 }

@@ -46,7 +46,7 @@ public class LifeCycles {
 	}
 	
 	public static IMLog preProcessLog(IMLog log) {
-		return new IMLog(preProcessLog(log.toXLog(), log.getClassifier()), log.getClassifier());
+		return new IMLogImpl(preProcessLog(log.toXLog(), log.getClassifier()), log.getClassifier());
 	}
 
 	public static XLog preProcessLog(XLog log, XEventClassifier classifier) {

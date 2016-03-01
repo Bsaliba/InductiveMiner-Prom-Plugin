@@ -32,7 +32,7 @@ public class LogSplitterLoop implements LogSplitter {
 		boolean firstSigma = true;
 		//walk through the partition
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog sublog = log.clone();
 //			System.out.println("sigma " + sigma);
 
 			//walk through traces
@@ -52,7 +52,7 @@ public class LogSplitterLoop implements LogSplitter {
 				//walk through the events
 				for (IMEventIterator itEvent = trace.iterator(); itEvent.hasNext();) {
 					XEvent event = itEvent.next();
-					XEventClass eventClass = log.classify(event);
+					XEventClass eventClass = log.classify(trace, event);
 					Transition transition = log.getLifeCycle(event);
 
 					//keep track of open activity instances (by consistency assumption, should work out)
@@ -67,7 +67,7 @@ public class LogSplitterLoop implements LogSplitter {
 							break;
 					}
 
-					if (sigma.contains(log.classify(event))) {
+					if (sigma.contains(log.classify(trace, event))) {
 						//event of the sigma under consideration
 
 						if (!lastIn && (firstSigma || anyIn)) {

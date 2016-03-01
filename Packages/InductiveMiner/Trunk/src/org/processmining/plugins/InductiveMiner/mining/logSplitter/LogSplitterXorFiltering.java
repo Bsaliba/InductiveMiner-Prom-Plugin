@@ -48,7 +48,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog sublog = log.clone();
 			for (Iterator<IMTrace> it = sublog.iterator(); it.hasNext();) {
 
 				if (minerState.isCancelled()) {
@@ -62,7 +62,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 				int maxCounter = 0;
 				Set<XEventClass> maxSigma = null;
 				for (XEvent event : trace) {
-					int sigmaIndex = eventclass2sigmaIndex.get(log.classify(event));
+					int sigmaIndex = eventclass2sigmaIndex.get(log.classify(trace, event));
 					sigmaEventCounters[sigmaIndex]++;
 					if (sigmaEventCounters[sigmaIndex] > maxCounter) {
 						maxCounter = sigmaEventCounters[sigmaIndex];
@@ -84,7 +84,7 @@ public class LogSplitterXorFiltering implements LogSplitter {
 					//keep trace, remove all events not from sigma
 					for (Iterator<XEvent> it2 = trace.iterator(); it2.hasNext();) {
 						XEvent e = it2.next();
-						XEventClass c = sublog.classify(e);
+						XEventClass c = sublog.classify(trace, e);
 						if (!sigma.contains(c)) {
 							it2.remove();
 						} else {

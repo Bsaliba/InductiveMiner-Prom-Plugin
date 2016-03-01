@@ -7,6 +7,7 @@ import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogImpl;
 import org.processmining.processtree.ProcessTree;
 
 public class IMProcessTree {
@@ -21,7 +22,7 @@ public class IMProcessTree {
 
 	public static ProcessTree mineProcessTree(XLog xlog, MiningParameters parameters) {
 		//prepare the log
-		IMLog log = new IMLog(xlog, parameters.getClassifier());
+		IMLog log = new IMLogImpl(xlog, parameters.getClassifier());
 		return mineProcessTree(log, parameters);
 	}
 

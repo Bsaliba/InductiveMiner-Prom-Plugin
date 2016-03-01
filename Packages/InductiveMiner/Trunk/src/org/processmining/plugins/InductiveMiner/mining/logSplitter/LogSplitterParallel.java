@@ -24,7 +24,7 @@ public class LogSplitterParallel implements LogSplitter {
 	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog sublog = log.clone();
 			for (IMTrace trace : sublog) {
 
 				if (minerState.isCancelled()) {
@@ -32,7 +32,7 @@ public class LogSplitterParallel implements LogSplitter {
 				}
 
 				for (Iterator<XEvent> it = trace.iterator(); it.hasNext();) {
-					XEventClass c = sublog.classify(it.next());
+					XEventClass c = sublog.classify(trace, it.next());
 					if (!sigma.contains(c)) {
 						it.remove();
 					}

@@ -11,13 +11,15 @@ import org.deckfour.xes.model.XTrace;
 public class IMTrace implements Iterable<XEvent> {
 
 	private final int XTraceIndex;
+	private final int IMTraceIndex;
 	public final BitSet outEvents;
 	private final IMLog log;
 
-	public IMTrace(int XTraceIndex, BitSet outEvents, IMLog log) {
+	public IMTrace(int XTraceIndex, int IMTraceIndex, BitSet outEvents, IMLog log) {
 		assert (XTraceIndex >= 0);
 
 		this.XTraceIndex = XTraceIndex;
+		this.IMTraceIndex = IMTraceIndex;
 		this.outEvents = outEvents;
 		this.log = log;
 	}
@@ -71,7 +73,7 @@ public class IMTrace implements Iterable<XEvent> {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		for (XEvent e : this) {
-			result.append(log.classify(e));
+			result.append(log.classify(this, e));
 			result.append(log.getLifeCycle(e).toString());
 			result.append(",");
 		}
@@ -80,6 +82,10 @@ public class IMTrace implements Iterable<XEvent> {
 
 	public XAttributeMap getAttributes() {
 		return getXTrace().getAttributes();
+	}
+	
+	public int getIMTraceIndex() {
+		return IMTraceIndex;
 	}
 
 	public class IMEventIterable implements Iterable<XEvent> {
@@ -161,7 +167,7 @@ public class IMTrace implements Iterable<XEvent> {
 		 *         event.
 		 */
 		public XEventClass classify() {
-			return log.classify(getXTrace().get(now));
+			return log.classify(IMTrace.this, getXTrace().get(now));
 		}
 
 		/**

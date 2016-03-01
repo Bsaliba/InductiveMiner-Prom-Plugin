@@ -23,7 +23,7 @@ public class LogSplitterInterleaving implements LogSplitter {
 	public static List<IMLog> split(IMLog log, Collection<Set<XEventClass>> partition, MinerState minerState) {
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {
-			IMLog sublog = new IMLog(log);
+			IMLog sublog = log.clone();
 			
 			if (minerState.isCancelled()) {
 				return null;
@@ -35,7 +35,7 @@ public class LogSplitterInterleaving implements LogSplitter {
 					itTrace.remove();
 				} else {
 					//if the start activity does not match: remove trace 
-					XEventClass c = sublog.classify(trace.iterator().next());
+					XEventClass c = sublog.classify(trace, trace.iterator().next());
 					if (!sigma.contains(c)) {
 						itTrace.remove();
 					}

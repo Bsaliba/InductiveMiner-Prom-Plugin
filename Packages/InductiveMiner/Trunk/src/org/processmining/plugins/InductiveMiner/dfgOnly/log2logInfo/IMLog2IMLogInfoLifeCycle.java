@@ -78,7 +78,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		MultiSet<XEventClass> activityOccurrencesEndedSinceLastStart = new MultiSet<>();
 		MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
 		for (XEvent event : trace) {
-			XEventClass activity = log.classify(event);
+			XEventClass activity = log.classify(trace, event);
 
 			if (log.getLifeCycle(event) == Transition.start) {
 				//start event
@@ -116,7 +116,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 	private static void processParallel(IMLog log, Dfg dfg, IMTrace trace) {
 		MultiSet<XEventClass> openActivityOccurrences = new MultiSet<XEventClass>();
 		for (XEvent event : trace) {
-			XEventClass eventClass = log.classify(event);
+			XEventClass eventClass = log.classify(trace, event);
 
 			if (log.getLifeCycle(event) == Transition.start) {
 				//this is a start event
@@ -142,7 +142,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		int i = 0;
 		while (itCurrent.hasNext()) {
 			XEvent event = itCurrent.next();
-			XEventClass activity = log.classify(event);
+			XEventClass activity = log.classify(trace, event);
 
 			//this is a start event if the log says so, or if we see a complete without corresponding preceding start event. 
 			boolean isStartEvent = log.getLifeCycle(event) == Transition.start
@@ -178,7 +178,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		while (it.hasPrevious()) {
 			i--;
 			XEvent event = it.previous();
-			XEventClass activity = log.classify(event);
+			XEventClass activity = it.classify();
 
 			if (log.getLifeCycle(event) == Transition.complete) {
 				completes.add(activity);

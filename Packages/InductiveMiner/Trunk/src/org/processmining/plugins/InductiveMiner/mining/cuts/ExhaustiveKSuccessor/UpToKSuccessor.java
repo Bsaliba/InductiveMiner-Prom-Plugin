@@ -46,7 +46,7 @@ public class UpToKSuccessor {
 			eventSeenAt = new THashMap<XEventClass, Integer>();
 
 			for (XEvent e : trace) {
-				XEventClass currentEvent = log.classify(e);
+				XEventClass currentEvent = log.classify(trace, e);
 
 				for (XEventClass seen : eventSeenAt.keySet()) {
 					kSuccessors.feedKSuccessor(toString(seen), toString(currentEvent), pos - eventSeenAt.get(seen));

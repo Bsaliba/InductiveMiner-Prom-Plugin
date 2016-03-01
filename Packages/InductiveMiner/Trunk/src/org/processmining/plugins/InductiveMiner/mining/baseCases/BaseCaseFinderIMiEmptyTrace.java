@@ -58,7 +58,7 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 	}
 
 	public static IMLog removeEpsilonTraces(IMLog log, MinerState minerState) {
-		IMLog sublog = new IMLog(log);
+		IMLog sublog = log.clone();
 		for (Iterator<IMTrace> it = sublog.iterator(); it.hasNext();) {
 			if (minerState.isCancelled()) {
 				return null;
