@@ -51,7 +51,7 @@ public interface IMLog extends Iterable<IMTrace> {
 	 * @param index
 	 * @return
 	 */
-	public IMTrace copyTrace(int index, BitSet traceOutEvents);
+	public IMTrace copyTrace(IMTrace trace, BitSet traceOutEvents);
 
 	public String toString();
 
