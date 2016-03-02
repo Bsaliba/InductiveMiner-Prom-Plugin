@@ -125,7 +125,8 @@ public class IMLogImpl implements IMLog {
 	 * @param index
 	 * @return
 	 */
-	public IMTrace copyTrace(int index, BitSet traceOutEvents) {
+	public IMTrace copyTrace(IMTrace trace, BitSet traceOutEvents) {
+		int index = trace.getXTraceIndex();
 		assert (index >= 0);
 
 		addedTraces.add(index);

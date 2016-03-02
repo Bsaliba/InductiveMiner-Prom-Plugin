@@ -180,7 +180,7 @@ public class IMTrace implements Iterable<XEvent> {
 		 */
 		public IMTrace split() {
 			//copy this trace completely
-			IMTrace newTrace = log.copyTrace(XTraceIndex, outEvents);
+			IMTrace newTrace = log.copyTrace(IMTrace.this, outEvents);
 
 			//in the new trace, remove all events from now
 			newTrace.outEvents.set(now, getXTrace().size());
@@ -223,6 +223,10 @@ public class IMTrace implements Iterable<XEvent> {
 			counter--;
 			return getXTrace().get(now);
 		}
+	}
+
+	public int getXTraceIndex() {
+		return XTraceIndex;
 	}
 
 }
