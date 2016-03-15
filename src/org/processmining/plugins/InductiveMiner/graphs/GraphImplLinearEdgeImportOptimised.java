@@ -132,6 +132,10 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
 	}
+	
+	public Iterable<Long> getIncomingEdgesOf(int v) {
+		throw new RuntimeException("not implemented");
+	}
 
 	public Iterable<Long> getOutgoingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
