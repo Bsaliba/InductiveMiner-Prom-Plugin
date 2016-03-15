@@ -21,7 +21,7 @@ public abstract class DfgMiningParameters {
 	private float incompleteThreshold = 0;
 
 	public DfgMiningParameters() {
-		debug = true;
+		debug = false;
 		useMultiThreading = true;
 	}
 
