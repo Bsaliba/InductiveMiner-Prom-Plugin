@@ -186,6 +186,10 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		return new EdgeIterableIncoming(v2index.get(v));
 	}
+	
+	public Iterable<Long> getIncomingEdgesOf(int v) {
+		return new EdgeIterableIncoming(v2index.get(v));
+	}
 
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the

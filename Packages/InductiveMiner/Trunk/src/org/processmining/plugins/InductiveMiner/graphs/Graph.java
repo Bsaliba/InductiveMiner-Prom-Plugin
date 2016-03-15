@@ -110,6 +110,15 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public Iterable<Long> getIncomingEdgesOf(V v);
+	
+	/**
+	 * Returns an array of edge index, containing all edges of which v is the
+	 * target. Notice that the edge weight might be 0.
+	 * 
+	 * @param v
+	 * @return
+	 */
+	public Iterable<Long> getIncomingEdgesOf(int v);
 
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the

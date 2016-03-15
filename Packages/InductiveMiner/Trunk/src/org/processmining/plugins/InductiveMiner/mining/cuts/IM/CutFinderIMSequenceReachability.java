@@ -1,64 +1,69 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
-import java.util.Map;
-import java.util.Set;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
-public class CutFinderIMSequenceReachability<V> {
-	
-	private Map<V, Set<V>> reachableTo;
-	private Map<V, Set<V>> reachableFrom;
-	private Graph<V> condensedGraph;
+public class CutFinderIMSequenceReachability {
 
-	public CutFinderIMSequenceReachability(Graph<V> graph) {
-		reachableTo = new THashMap<V, Set<V>>();
-		reachableFrom = new THashMap<V, Set<V>>();
+	private TIntObjectMap<TIntSet> reachableTo;
+	private TIntObjectMap<TIntSet> reachableFrom;
+	private Graph<?> condensedGraph;
+
+	public CutFinderIMSequenceReachability(Graph<?> graph) {
+		reachableTo = new TIntObjectHashMap<>();
+		reachableFrom = new TIntObjectHashMap<>();
 		this.condensedGraph = graph;
 	}
-	
-	public Set<V> getReachableFromTo(V node) {
-		Set<V> r = new THashSet<V>(findReachableTo(node));
+
+	public TIntSet getReachableFromTo(int node) {
+		System.out.println("  graph " + condensedGraph + ", node " + node);
+		TIntSet r = new TIntHashSet(findReachableTo(node));
+		System.out.println("   reachable by outgoing edges " + r);
 		r.addAll(findReachableFrom(node));
+		System.out.println("   reachability " + r);
 		return r;
 	}
-	
-	public Set<V> getReachableFrom(V node) {
+
+	public TIntSet getReachableFrom(int node) {
 		return findReachableFrom(node);
 	}
-	
-	private Set<V> findReachableTo(V from) {
+
+	private TIntSet findReachableTo(int from) {
+		System.out.println("     add outgoing edges of " + from);
 		if (!reachableTo.containsKey(from)) {
-			Set<V> reached = new THashSet<V>();
-			
+			TIntSet reached = new TIntHashSet();
+
 			reachableTo.put(from, reached);
-			
+
 			for (long edge : condensedGraph.getOutgoingEdgesOf(from)) {
-				V target = condensedGraph.getEdgeTarget(edge);
+				int target = condensedGraph.getEdgeTargetIndex(edge);
 				reached.add(target);
-				
+				System.out.println("   add " + target);
+
 				//recurse
 				reached.addAll(findReachableTo(target));
 			}
 		}
+		System.out.println("     exit recursion of " + from + " with " + reachableTo.get(from));
 		return reachableTo.get(from);
 	}
-	
-	private Set<V> findReachableFrom(V to) {
+
+	private TIntSet findReachableFrom(int to) {
 		if (!reachableFrom.containsKey(to)) {
-			Set<V> reached = new THashSet<V>();
-			
+			TIntSet reached = new TIntHashSet();
+
 			reachableFrom.put(to, reached);
-			
+
 			for (long edge : condensedGraph.getIncomingEdgesOf(to)) {
-				V target = condensedGraph.getEdgeSource(edge);
-				reached.add(target);
-				
+				int source = condensedGraph.getEdgeSourceIndex(edge);
+				reached.add(source);
+
 				//recurse
-				reached.addAll(findReachableFrom(target));
+				reached.addAll(findReachableFrom(source));
 			}
 		}
 		return reachableFrom.get(to);

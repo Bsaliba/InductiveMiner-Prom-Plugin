@@ -5,6 +5,7 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
@@ -80,20 +81,20 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			}
 		}
 
-		//debug("  nodes in condensed graph 1 " + condensedGraph1.getVertices());
+		debug("  nodes in condensed graph 1 " + condensedGraph1.getVertices());
 
 		//condense the pairwise unreachable nodes
 		Collection<Set<Set<XEventClass>>> xorCondensedNodes;
 		{
 			Components<Set<XEventClass>> components = new Components<Set<XEventClass>>(condensedGraph1.getVertices());
-			CutFinderIMSequenceReachability<Set<XEventClass>> scr1 = new CutFinderIMSequenceReachability<>(
-					condensedGraph1);
-			for (Set<XEventClass> node : condensedGraph1.getVertices()) {
-				Set<Set<XEventClass>> reachableFromTo = scr1.getReachableFromTo(node);
+			CutFinderIMSequenceReachability scr1 = new CutFinderIMSequenceReachability(condensedGraph1);
+
+			for (int node : condensedGraph1.getVertexIndices()) {
+				TIntSet reachableFromTo = scr1.getReachableFromTo(node);
 
 				//debug("nodes pairwise reachable from/to " + node.toString() + ": " + reachableFromTo.toString());
 
-				for (Set<XEventClass> node2 : condensedGraph1.getVertices()) {
+				for (int node2 : condensedGraph1.getVertexIndices()) {
 					if (node != node2 && !reachableFromTo.contains(node2)) {
 						components.mergeComponentsOf(node, node2);
 					}
@@ -105,10 +106,10 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			xorCondensedNodes = components.getComponents();
 		}
 
-		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
+		debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
-		Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class, xorCondensedNodes.size());
+		final Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class, xorCondensedNodes.size());
 		for (Set<Set<XEventClass>> node : xorCondensedNodes) {
 
 			//we need to flatten this s to get a new list of nodes
@@ -135,14 +136,14 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		}
 
 		//now we have a condensed graph. we need to return a sorted list of condensed nodes.
-		final CutFinderIMSequenceReachability<Set<XEventClass>> scr2 = new CutFinderIMSequenceReachability<>(
-				condensedGraph2);
+		final CutFinderIMSequenceReachability scr2 = new CutFinderIMSequenceReachability(condensedGraph2);
 		List<Set<XEventClass>> result = new ArrayList<Set<XEventClass>>();
 		result.addAll(Arrays.asList(condensedGraph2.getVertices()));
 		Collections.sort(result, new Comparator<Set<XEventClass>>() {
 
 			public int compare(Set<XEventClass> arg0, Set<XEventClass> arg1) {
-				if (scr2.getReachableFrom(arg0).contains(arg1)) {
+				if (scr2.getReachableFrom(condensedGraph2.getIndexOfVertex(arg0)).contains(
+						condensedGraph2.getIndexOfVertex(arg1))) {
 					return 1;
 				} else {
 					return -1;
@@ -301,6 +302,6 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 	}
 
 	private static void debug(String s) {
-		//System.out.println(s);
+		System.out.println(s);
 	}
 }

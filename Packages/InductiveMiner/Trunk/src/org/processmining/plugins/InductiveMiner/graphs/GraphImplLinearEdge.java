@@ -186,6 +186,10 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		return new EdgeIterableIncoming(v2index.get(v));
 	}
+	
+	public Iterable<Long> getIncomingEdgesOf(int v) {
+		return new EdgeIterableIncoming(v);
+	}
 
 	public Iterable<Long> getOutgoingEdgesOf(V v) {
 		return new EdgeIterableOutgoing(v2index.get(v));
