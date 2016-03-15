@@ -130,8 +130,8 @@ public interface Graph<V> {
 	public Iterable<Long> getOutgoingEdgesOf(int v);
 
 	/**
-	 * Return an array of edgeIndex containing all edges of which v is a source
-	 * or a target.
+	 * Return an iterable of edgeIndex containing all edges of which v is a source
+	 * or a target. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
@@ -139,8 +139,8 @@ public interface Graph<V> {
 	public Iterable<Long> getEdgesOf(V v);
 
 	/**
-	 * Return an array of edgeIndex containing all edges of which v is a source
-	 * or a target.
+	 * Return an iterable of edgeIndex containing all edges of which v is a source
+	 * or a target. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
