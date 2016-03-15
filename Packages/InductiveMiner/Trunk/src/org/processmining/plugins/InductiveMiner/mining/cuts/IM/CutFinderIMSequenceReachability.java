@@ -20,11 +20,8 @@ public class CutFinderIMSequenceReachability {
 	}
 
 	public TIntSet getReachableFromTo(int node) {
-		System.out.println("  graph " + condensedGraph + ", node " + node);
 		TIntSet r = new TIntHashSet(findReachableTo(node));
-		System.out.println("   reachable by outgoing edges " + r);
 		r.addAll(findReachableFrom(node));
-		System.out.println("   reachability " + r);
 		return r;
 	}
 
@@ -33,7 +30,6 @@ public class CutFinderIMSequenceReachability {
 	}
 
 	private TIntSet findReachableTo(int from) {
-		System.out.println("     add outgoing edges of " + from);
 		if (!reachableTo.containsKey(from)) {
 			TIntSet reached = new TIntHashSet();
 
@@ -42,13 +38,11 @@ public class CutFinderIMSequenceReachability {
 			for (long edge : condensedGraph.getOutgoingEdgesOf(from)) {
 				int target = condensedGraph.getEdgeTargetIndex(edge);
 				reached.add(target);
-				System.out.println("   add " + target);
 
 				//recurse
 				reached.addAll(findReachableTo(target));
 			}
 		}
-		System.out.println("     exit recursion of " + from + " with " + reachableTo.get(from));
 		return reachableTo.get(from);
 	}
 

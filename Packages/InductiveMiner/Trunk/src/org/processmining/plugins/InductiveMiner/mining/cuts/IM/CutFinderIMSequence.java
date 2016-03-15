@@ -81,7 +81,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			}
 		}
 
-		debug("  nodes in condensed graph 1 " + condensedGraph1.getVertices());
+		//debug("  nodes in condensed graph 1 " + condensedGraph1.getVertices());
 
 		//condense the pairwise unreachable nodes
 		Collection<Set<Set<XEventClass>>> xorCondensedNodes;
@@ -106,7 +106,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			xorCondensedNodes = components.getComponents();
 		}
 
-		debug("sccs voor xormerge " + xorCondensedNodes.toString());
+		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
 		final Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class, xorCondensedNodes.size());
