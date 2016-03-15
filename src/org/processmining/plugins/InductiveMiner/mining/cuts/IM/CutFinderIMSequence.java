@@ -1,11 +1,15 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
 import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +22,6 @@ import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
-import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.graphs.StronglyConnectedComponents;
@@ -46,51 +49,67 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 		//condense the strongly connected components
 		Graph<Set<XEventClass>> condensedGraph1 = GraphFactory.create(Set.class, SCCs.size());
-		//add vertices (= components)
-		for (Set<XEventClass> SCC : SCCs) {
-			condensedGraph1.addVertex(SCC);
-		}
-		//add edges
-		for (long edge : graph.getEdges()) {
-			//find the connected components belonging to these nodes
-			XEventClass u = graph.getEdgeSource(edge);
-			Set<XEventClass> SCCu = Sets.findComponentWith(SCCs, u);
-			XEventClass v = graph.getEdgeTarget(edge);
-			Set<XEventClass> SCCv = Sets.findComponentWith(SCCs, v);
+		{
 
-			//add an edge if it is not internal
-			if (SCCv != SCCu) {
-				condensedGraph1.addEdge(SCCu, SCCv, 1); //this returns null if the edge was already present
+			//15-3-2016: optimisation to look up strongly connected components faster
+			THashMap<XEventClass, Set<XEventClass>> node2scc = new THashMap<>();
+			for (Set<XEventClass> scc : SCCs) {
+				for (XEventClass e : scc) {
+					node2scc.put(e, scc);
+				}
+			}
+
+			//add vertices (= components)
+			for (Set<XEventClass> SCC : SCCs) {
+				condensedGraph1.addVertex(SCC);
+			}
+			//add edges
+			for (long edge : graph.getEdges()) {
+				if (graph.getEdgeWeight(edge) >= 0) {
+					//find the connected components belonging to these nodes
+					XEventClass u = graph.getEdgeSource(edge);
+					Set<XEventClass> SCCu = node2scc.get(u);
+					XEventClass v = graph.getEdgeTarget(edge);
+					Set<XEventClass> SCCv = node2scc.get(v);
+
+					//add an edge if it is not internal
+					if (SCCv != SCCu) {
+						condensedGraph1.addEdge(SCCu, SCCv, 1); //this returns null if the edge was already present
+					}
+				}
 			}
 		}
 
-		//debug("nodes in condensed graph 1 " + condensedGraph1.vertexSet().toString());
+		debug("  nodes in condensed graph 1 " + condensedGraph1.getVertices());
 
 		//condense the pairwise unreachable nodes
-		Graph<Set<XEventClass>> xorGraph = GraphFactory.create(Set.class, condensedGraph1.getNumberOfVertices());
-		xorGraph.addVertices(condensedGraph1.getVertices());
+		Collection<Set<Set<XEventClass>>> xorCondensedNodes;
+		{
+			Components<Set<XEventClass>> components = new Components<Set<XEventClass>>(condensedGraph1.getVertices());
+			CutFinderIMSequenceReachability<Set<XEventClass>> scr1 = new CutFinderIMSequenceReachability<>(
+					condensedGraph1);
+			for (Set<XEventClass> node : condensedGraph1.getVertices()) {
+				Set<Set<XEventClass>> reachableFromTo = scr1.getReachableFromTo(node);
 
-		CutFinderIMSequenceReachability<Set<XEventClass>> scr1 = new CutFinderIMSequenceReachability<>(condensedGraph1);
-		for (Set<XEventClass> node : condensedGraph1.getVertices()) {
-			Set<Set<XEventClass>> reachableFromTo = scr1.getReachableFromTo(node);
+				debug("nodes pairwise reachable from/to " + node.toString() + ": " + reachableFromTo.toString());
 
-			//debug("nodes pairwise reachable from/to " + node.toString() + ": " + reachableFromTo.toString());
+				Set<Set<XEventClass>> notReachable = Sets.difference(
+						ArrayUtilities.toSet(condensedGraph1.getVertices()), reachableFromTo);
 
-			Set<Set<XEventClass>> notReachable = Sets.difference(ArrayUtilities.toSet(condensedGraph1.getVertices()),
-					reachableFromTo);
+				//remove the node itself
+				notReachable.remove(node);
 
-			//remove the node itself
-			notReachable.remove(node);
-
-			//add edges to the xor graph
-			for (Set<XEventClass> node2 : notReachable) {
-				xorGraph.addEdge(node, node2, 1);
+				//merge unreachable sets
+				for (Set<XEventClass> node2 : notReachable) {
+					components.mergeComponentsOf(node, node2);
+				}
 			}
+			
+			//find the connected components to find the condensed xor nodes
+			xorCondensedNodes = components.getComponents();
 		}
-
-		//find the connected components to find the condensed xor nodes
-		Set<Set<Set<XEventClass>>> xorCondensedNodes = ConnectedComponents.compute(xorGraph);
-		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
+		
+		debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
 		Graph<Set<XEventClass>> condensedGraph2 = GraphFactory.create(Set.class, xorCondensedNodes.size());
@@ -100,7 +119,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			condensedGraph2.addVertex(Sets.flatten(node));
 		}
 
-		//debug("sccs na xormerge " + condensedGraph2.vertexSet().toString());
+		debug("sccs na xormerge " + condensedGraph2.getVertices().toString());
 
 		//add the edges
 		for (long edge : condensedGraph1.getEdges()) {
@@ -209,5 +228,83 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		}
 
 		return new Cut(Operator.sequence, result);
+	}
+
+	public static class Components<V> {
+
+		private int[] components;
+		private int numberOfComponents;
+		private TObjectIntHashMap<V> node2index;
+
+		public Components(V[] nodes) {
+			components = new int[nodes.length];
+			numberOfComponents = nodes.length;
+			for (int i = 0; i < components.length; i++) {
+				components[i] = i;
+			}
+
+			node2index = new TObjectIntHashMap<V>();
+			{
+				int i = 0;
+				for (V node : nodes) {
+					node2index.put(node, i);
+					i++;
+				}
+			}
+		}
+
+		public void mergeComponentsOf(int indexA, int indexB) {
+			int source = components[indexA];
+			int target = components[indexB];
+
+			if (source != target) {
+				numberOfComponents--;
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] == source) {
+						components[i] = target;
+					}
+				}
+			}
+		}
+
+		public void mergeComponentsOf(V nodeA, V nodeB) {
+			mergeComponentsOf(node2index.get(nodeA), node2index.get(nodeB));
+		}
+
+		public int getNumberOfComponents() {
+			return numberOfComponents;
+		}
+
+		public List<Set<V>> getComponents() {
+			final List<Set<V>> result = new ArrayList<Set<V>>(numberOfComponents);
+
+			//prepare a hashmap of components
+			final TIntIntHashMap component2componentIndex = new TIntIntHashMap();
+			int highestComponentIndex = 0;
+			for (int node = 0; node < components.length; node++) {
+				int component = components[node];
+				if (!component2componentIndex.contains(component)) {
+					component2componentIndex.put(component, highestComponentIndex);
+					highestComponentIndex++;
+					result.add(new THashSet<V>());
+				}
+			}
+
+			//put each node in its component
+			node2index.forEachEntry(new TObjectIntProcedure<V>() {
+				public boolean execute(V node, int nodeIndex) {
+					int component = components[nodeIndex];
+					int componentIndex = component2componentIndex.get(component);
+					result.get(componentIndex).add(node);
+					return true;
+				}
+			});
+
+			return result;
+		}
+	}
+	
+	private static void debug(String s) {
+		System.out.println(s);
 	}
 }

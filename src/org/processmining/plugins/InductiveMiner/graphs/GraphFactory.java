@@ -9,4 +9,8 @@ public class GraphFactory {
 	public static <V> Graph<V> createTimeOptimised(Class<V> clazz, int initialSize) {
 		return new GraphImplQuadratic<V>(clazz, initialSize);
 	}
+	
+	public static <V> Graph<V> createRandomEdgeAdding(Class<?> clazz, int initialSize) {
+		return new GraphImplLinearEdgeImportOptimised<V>(clazz);
+	}
 }

@@ -1,38 +1,39 @@
 package org.processmining.plugins.InductiveMiner;
 
+import gnu.trove.set.hash.THashSet;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class Sets {
 	public static <X> Set<X> extend(Set<X> base, X node) {
-		Set<X> result = new HashSet<X>(base);
+		Set<X> result = new THashSet<X>(base);
 		result.add(node);
 		return result;
 	}
 	
 	public static <X> Set<X> union(Set<X> a, Set<X> b) {
-		Set<X> result = new HashSet<X>(a);
+		Set<X> result = new THashSet<X>(a);
 		result.addAll(b);
 		return result;
 	}
 	
 	public static <X> Set<X> difference(Set<X> a, Set<X> b) {
-		Set<X> result = new HashSet<X>(a);
+		Set<X> result = new THashSet<X>(a);
 		result.removeAll(b);
 		return result;
 	}
 	
 	public static <X> Set<X> intersection(Set<X> a, Set<X> b) {
-		Set<X> result = new HashSet<X>(a);
+		Set<X> result = new THashSet<X>(a);
 		result.retainAll(b);
 		return result;
 	}
 	
 	public static <X> Set<X> flatten(Set<Set<X>> set) {
-		Set<X> result = new HashSet<X>();
+		Set<X> result = new THashSet<X>();
 		for (Set<X> node : set) {
 			result.addAll(node);
 		}
@@ -40,7 +41,7 @@ public class Sets {
 	}
 	
 	public static <X> Set<X> complement(Set<X> set, Set<X> universe) {
-		Set<X> result = new HashSet<X>(universe);
+		Set<X> result = new THashSet<X>(universe);
 		result.removeAll(set);
 		return result;
 	}

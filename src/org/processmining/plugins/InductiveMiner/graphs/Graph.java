@@ -29,8 +29,8 @@ public interface Graph<V> {
 	public int getNumberOfVertices();
 
 	/**
-	 * Gives an iterable that iterates over all edges that have a weight > 0;
-	 * The edges that are returned are indices.
+	 * Gives an iterable that iterates over all edges; The edges that are
+	 * returned are indices. Notice that the edge weight might be 0.
 	 * 
 	 * @return
 	 */
@@ -85,7 +85,7 @@ public interface Graph<V> {
 	public long getEdgeWeight(long edgeIndex);
 
 	/**
-	 * Returns the weight of an edge between source and target
+	 * Returns the weight of an edge between source and target.
 	 * 
 	 * @param source
 	 * @param target
@@ -104,7 +104,7 @@ public interface Graph<V> {
 
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the
-	 * target.
+	 * target. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
@@ -122,7 +122,7 @@ public interface Graph<V> {
 
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the
-	 * source.
+	 * source. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
@@ -130,8 +130,8 @@ public interface Graph<V> {
 	public Iterable<Long> getOutgoingEdgesOf(int v);
 
 	/**
-	 * Return an iterable of edgeIndex containing all edges of which v is a source
-	 * or a target. Notice that the edge weight might be 0.
+	 * Return an iterable of edgeIndex containing all edges of which v is a
+	 * source or a target. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
@@ -139,8 +139,8 @@ public interface Graph<V> {
 	public Iterable<Long> getEdgesOf(V v);
 
 	/**
-	 * Return an iterable of edgeIndex containing all edges of which v is a source
-	 * or a target. Notice that the edge weight might be 0.
+	 * Return an iterable of edgeIndex containing all edges of which v is a
+	 * source or a target. Notice that the edge weight might be 0.
 	 * 
 	 * @param v
 	 * @return
