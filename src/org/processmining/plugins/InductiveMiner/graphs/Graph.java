@@ -13,7 +13,7 @@ public interface Graph<V> {
 	public void addVertex(V x);
 
 	public void addVertices(Collection<V> xs);
-	
+
 	public void addVertices(V[] xs);
 
 	public void addEdge(int source, int target, long weight);
@@ -34,7 +34,7 @@ public interface Graph<V> {
 	 * 
 	 * @return
 	 */
-	public Iterable<Long> getEdges() ;
+	public Iterable<Long> getEdges();
 
 	/**
 	 * Returns whether the graph contains an edge between source and target.
@@ -83,9 +83,10 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public long getEdgeWeight(long edgeIndex);
-	
+
 	/**
 	 * Returns the weight of an edge between source and target
+	 * 
 	 * @param source
 	 * @param target
 	 * @return
@@ -118,6 +119,14 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public Iterable<Long> getOutgoingEdgesOf(V v);
+
+	/**
+	 * Returns an array of edge index, containing all edges of which v is the
+	 * source.
+	 * 
+	 * @param v
+	 * @return
+	 */
 	public Iterable<Long> getOutgoingEdgesOf(int v);
 
 	/**
@@ -127,9 +136,16 @@ public interface Graph<V> {
 	 * @param v
 	 * @return
 	 */
-	public Iterable<Long> getEdgesOf(V v) ;
+	public Iterable<Long> getEdgesOf(V v);
 
-	public Iterable<Long> getEdgesOf(int indexOfV) ;
+	/**
+	 * Return an array of edgeIndex containing all edges of which v is a source
+	 * or a target.
+	 * 
+	 * @param v
+	 * @return
+	 */
+	public Iterable<Long> getEdgesOf(int indexOfV);
 
 	/**
 	 * Returns the weight of the edge with the highest weight.
