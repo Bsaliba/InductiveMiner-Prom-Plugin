@@ -53,11 +53,17 @@ public class ConnectedComponents<V> {
 		marked[v] = true;
 		id[v] = count;
 		size[count]++;
-		for (int w = 0; w < G.getNumberOfVertices(); w++) {
-			if (w != v && (G.getEdgeWeight(w, v) > 0 || G.getEdgeWeight(v, w) > 0)) {
-				if (!marked[w]) {
-					dfs(G, w);
-				}
+		for (long edgeIndex : G.getEdgesOf(v)) {
+			
+			int w;
+			if (G.getEdgeSourceIndex(edgeIndex) == v) {
+				w = G.getEdgeTargetIndex(edgeIndex);
+			} else {
+				w = G.getEdgeSourceIndex(edgeIndex);
+			}
+			
+			if (!marked[w]) {
+				dfs(G, w);
 			}
 		}
 	}
