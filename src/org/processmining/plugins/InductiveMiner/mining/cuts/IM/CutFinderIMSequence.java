@@ -119,13 +119,14 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		//debug("sccs na xormerge " + condensedGraph2.getVertices().toString());
 
 		//add the edges
+		Set<Set<XEventClass>> set = ArrayUtilities.toSet(condensedGraph2.getVertices());
 		for (long edge : condensedGraph1.getEdges()) {
 			//find the condensed node belonging to this activity
 			Set<XEventClass> u = condensedGraph1.getEdgeSource(edge);
-			Set<XEventClass> SCCu = Sets.findComponentWith(ArrayUtilities.toSet(condensedGraph2.getVertices()), u
+			Set<XEventClass> SCCu = Sets.findComponentWith(set, u
 					.iterator().next());
 			Set<XEventClass> v = condensedGraph1.getEdgeTarget(edge);
-			Set<XEventClass> SCCv = Sets.findComponentWith(ArrayUtilities.toSet(condensedGraph2.getVertices()), v
+			Set<XEventClass> SCCv = Sets.findComponentWith(set, v
 					.iterator().next());
 
 			//add an edge if it is not internal
