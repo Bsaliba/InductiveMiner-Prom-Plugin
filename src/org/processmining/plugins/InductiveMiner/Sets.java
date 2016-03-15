@@ -20,8 +20,8 @@ public class Sets {
 		return result;
 	}
 	
-	public static <X> Set<X> difference(Set<X> a, Set<X> b) {
-		Set<X> result = new THashSet<X>(a);
+	public static <X> Collection<X> difference(Collection<X> a, Set<X> b) {
+		Collection<X> result = new THashSet<X>(a);
 		result.removeAll(b);
 		return result;
 	}

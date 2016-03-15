@@ -93,22 +93,18 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 				//debug("nodes pairwise reachable from/to " + node.toString() + ": " + reachableFromTo.toString());
 
-				Set<Set<XEventClass>> notReachable = Sets.difference(
-						ArrayUtilities.toSet(condensedGraph1.getVertices()), reachableFromTo);
-
-				//remove the node itself
-				notReachable.remove(node);
-
-				//merge unreachable sets
-				for (Set<XEventClass> node2 : notReachable) {
-					components.mergeComponentsOf(node, node2);
+				for (Set<XEventClass> node2 : condensedGraph1.getVertices()) {
+					if (node != node2 && !reachableFromTo.contains(node2)) {
+						components.mergeComponentsOf(node, node2);
+					}
 				}
+
 			}
-			
+
 			//find the connected components to find the condensed xor nodes
 			xorCondensedNodes = components.getComponents();
 		}
-		
+
 		//debug("sccs voor xormerge " + xorCondensedNodes.toString());
 
 		//make a new condensed graph
@@ -303,7 +299,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			return result;
 		}
 	}
-	
+
 	private static void debug(String s) {
 		//System.out.println(s);
 	}
