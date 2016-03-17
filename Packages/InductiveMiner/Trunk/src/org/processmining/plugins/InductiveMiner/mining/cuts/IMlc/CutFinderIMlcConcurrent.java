@@ -1,11 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMlc;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
-import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
+import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents2;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -45,7 +46,7 @@ public class CutFinderIMlcConcurrent implements CutFinder {
 			}
 		}
 
-		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(negatedGraph);
+		Collection<Set<XEventClass>> connectedComponents = ConnectedComponents2.compute(negatedGraph);
 
 		List<Set<XEventClass>> connectedComponents2 = CutFinderIMParallel.ensureStartEndInEach(startActivities, endActivities,
 				connectedComponents);
