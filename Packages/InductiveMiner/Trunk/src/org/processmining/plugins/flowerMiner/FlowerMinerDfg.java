@@ -13,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2proc
 import org.processmining.processtree.ProcessTree;
 
 public class FlowerMinerDfg {
-	@Plugin(name = "Mine a Process tree using Flower Miner - dfg", returnLabels = { "Process tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Directly-follows graph" }, userAccessible = true)
+	@Plugin(name = "Mine process tree using Flower Miner - directly-follows", returnLabels = { "Process tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Directly-follows graph" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public ProcessTree mine(PluginContext context, Dfg dfg) {
