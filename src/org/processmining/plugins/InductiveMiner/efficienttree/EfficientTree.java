@@ -1,8 +1,8 @@
 package org.processmining.plugins.InductiveMiner.efficienttree;
 
-import gnu.trove.list.array.TShortArrayList;
-import gnu.trove.map.TObjectShortMap;
-import gnu.trove.map.hash.TObjectShortHashMap;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,7 +26,7 @@ import org.processmining.processtree.Task.Manual;
  * Class to store a process tree memory efficient and perform operations cpu
  * efficient.
  * 
- * Idea: keep an array of short. An activity is a >= 0 value. A node is a
+ * Idea: keep an array of int. An activity is a >= 0 value. A node is a
  * negative value. Some bits encode the operator, the other bits the number of
  * children.
  * 
@@ -35,106 +35,106 @@ import org.processmining.processtree.Task.Manual;
  */
 public class EfficientTree {
 
-	private final short[] tree;
-	private final TObjectShortMap<String> activity2short;
-	private final String[] short2activity;
+	private final int[] tree;
+	private final TObjectIntMap<String> activity2int;
+	private final String[] int2activity;
 
-	public EfficientTree(short[] tree, TObjectShortMap<String> activity2short, String[] short2activity) {
+	public EfficientTree(int[] tree, TObjectIntMap<String> activity2int, String[] int2activity) {
 		this.tree = tree;
-		this.activity2short = activity2short;
-		this.short2activity = short2activity;
+		this.activity2int = activity2int;
+		this.int2activity = int2activity;
 	}
 
-	public Triple<short[], TObjectShortMap<String>, String[]> toTriple() {
-		return Triple.of(tree, activity2short, short2activity);
+	public Triple<int[], TObjectIntMap<String>, String[]> toTriple() {
+		return Triple.of(tree, activity2int, int2activity);
 	}
 
 	public EfficientTree(ProcessTree processTree) {
-		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(processTree.getRoot());
+		Triple<int[], TObjectIntMap<String>, String[]> t = tree2efficientTree(processTree.getRoot());
 		tree = t.getA();
-		activity2short = t.getB();
-		short2activity = t.getC();
+		activity2int = t.getB();
+		int2activity = t.getC();
 	}
 
 	public EfficientTree(Node node) {
-		Triple<short[], TObjectShortMap<String>, String[]> t = tree2efficientTree(node);
+		Triple<int[], TObjectIntMap<String>, String[]> t = tree2efficientTree(node);
 		tree = t.getA();
-		activity2short = t.getB();
-		short2activity = t.getC();
+		activity2int = t.getB();
+		int2activity = t.getC();
 	}
 
-	public short[] getTree() {
+	public int[] getTree() {
 		return tree;
 	}
 
-	public TObjectShortMap<String> getActivity2short() {
-		return activity2short;
+	public TObjectIntMap<String> getActivity2int() {
+		return activity2int;
 	}
 
-	public String[] getShort2activity() {
-		return short2activity;
+	public String[] getInt2activity() {
+		return int2activity;
 	}
 
-	public static final short tau = -1;
-	public static final short xor = -2;
-	public static final short sequence = -3;
-	public static final short concurrent = -4;
-	public static final short interleaved = -5;
-	public static final short loop = -6;
-	public static final short skip = -7;
+	public static final int tau = -1;
+	public static final int xor = -2;
+	public static final int sequence = -3;
+	public static final int concurrent = -4;
+	public static final int interleaved = -5;
+	public static final int loop = -6;
+	public static final int skip = -7;
 
-	public static final short childrenFactor = 10;
+	public static final int childrenFactor = 10;
 
 	/**
 	 * Convert a process tree into a efficient tree
 	 * 
 	 * @param tree
-	 * @param activity2short
-	 *            map from activity names to shorts >= 0
+	 * @param activity2int
+	 *            map from activity names to ints >= 0
 	 * @return
 	 */
-	public static Triple<short[], TObjectShortMap<String>, String[]> tree2efficientTree(Node node) {
-		TShortArrayList efficientTree = new TShortArrayList();
-		TObjectShortMap<String> activity2short = getEmptyActivity2short();
-		List<String> short2activity = new ArrayList<>();
-		node2efficientTree(node, efficientTree, activity2short, short2activity);
+	public static Triple<int[], TObjectIntMap<String>, String[]> tree2efficientTree(Node node) {
+		TIntArrayList efficientTree = new TIntArrayList();
+		TObjectIntMap<String> activity2int = getEmptyActivity2int();
+		List<String> int2activity = new ArrayList<>();
+		node2efficientTree(node, efficientTree, activity2int, int2activity);
 
-		return Triple.of(efficientTree.toArray(new short[efficientTree.size()]), activity2short,
-				short2activity.toArray(new String[short2activity.size()]));
+		return Triple.of(efficientTree.toArray(new int[efficientTree.size()]), activity2int,
+				int2activity.toArray(new String[int2activity.size()]));
 	}
 
-	private static void node2efficientTree(Node node, TShortArrayList efficientTree,
-			TObjectShortMap<String> activity2short, List<String> short2activity2) {
+	private static void node2efficientTree(Node node, TIntArrayList efficientTree,
+			TObjectIntMap<String> activity2int, List<String> int2activity2) {
 		if (node instanceof Automatic) {
 			efficientTree.add(tau);
 		} else if (node instanceof Manual) {
-			short max = (short) short2activity2.size();
+			int max = int2activity2.size();
 			String name = node.getName();
-			if (!activity2short.containsKey(name)) {
-				activity2short.put(name, max);
-				short2activity2.add(name);
+			if (!activity2int.containsKey(name)) {
+				activity2int.put(name, max);
+				int2activity2.add(name);
 			}
-			efficientTree.add(activity2short.get(name));
+			efficientTree.add(activity2int.get(name));
 		} else if (node instanceof Xor || node instanceof Def) {
-			node2efficientTreeChildren(xor, node, efficientTree, activity2short, short2activity2);
+			node2efficientTreeChildren(xor, node, efficientTree, activity2int, int2activity2);
 		} else if (node instanceof Seq) {
-			node2efficientTreeChildren(sequence, node, efficientTree, activity2short, short2activity2);
+			node2efficientTreeChildren(sequence, node, efficientTree, activity2int, int2activity2);
 		} else if (node instanceof Interleaved) {
-			node2efficientTreeChildren(interleaved, node, efficientTree, activity2short, short2activity2);
+			node2efficientTreeChildren(interleaved, node, efficientTree, activity2int, int2activity2);
 		} else if (node instanceof And) {
-			node2efficientTreeChildren(concurrent, node, efficientTree, activity2short, short2activity2);
+			node2efficientTreeChildren(concurrent, node, efficientTree, activity2int, int2activity2);
 		} else if (node instanceof XorLoop || node instanceof DefLoop) {
-			node2efficientTreeChildren(loop, node, efficientTree, activity2short, short2activity2);
+			node2efficientTreeChildren(loop, node, efficientTree, activity2int, int2activity2);
 		} else {
 			throw new RuntimeException("Node operator translation not implemented.");
 		}
 	}
 
-	private static void node2efficientTreeChildren(short operator, Node node, TShortArrayList result,
-			TObjectShortMap<String> activity2short, List<String> short2activity) {
-		result.add((short) (operator - (childrenFactor * ((Block) node).getChildren().size())));
+	private static void node2efficientTreeChildren(int operator, Node node, TIntArrayList result,
+			TObjectIntMap<String> activity2int, List<String> int2activity) {
+		result.add(operator - (childrenFactor * ((Block) node).getChildren().size()));
 		for (Node child : ((Block) node).getChildren()) {
-			node2efficientTree(child, result, activity2short, short2activity);
+			node2efficientTree(child, result, activity2int, int2activity);
 		}
 	}
 
@@ -145,7 +145,7 @@ public class EfficientTree {
 	 * @param parent
 	 * @param asChildNr
 	 */
-	public void addChild(int parent, int asChildNr, short operatorOrActivity) {
+	public void addChild(int parent, int asChildNr, int operatorOrActivity) {
 		assert (tree[parent] < 0);
 
 		//find the tree index where the new child is to go
@@ -163,7 +163,7 @@ public class EfficientTree {
 		//increase the children of the parent
 		tree[parent] -= childrenFactor;
 		if (tree[parent] > 0) {
-			//short underflow happened
+			//int underflow happened
 			throw new RuntimeException("child cannot be added");
 		}
 	}
@@ -194,7 +194,7 @@ public class EfficientTree {
 	 * @return the activity number denoted at position node. Only call if the
 	 *         node is an activity.
 	 */
-	public short getActivity(int node) {
+	public int getActivity(int node) {
 		return tree[node];
 	}
 
@@ -206,7 +206,7 @@ public class EfficientTree {
 	 *         is an activity.
 	 */
 	public String getActivityName(int node) {
-		return short2activity[tree[node]];
+		return int2activity[tree[node]];
 	}
 
 	/**
@@ -224,8 +224,8 @@ public class EfficientTree {
 	 * @return the number of children of the current node. Only call when the
 	 *         node is an operator.
 	 */
-	public short getNumberOfChildren(int node) {
-		return (short) (tree[node] / -childrenFactor);
+	public int getNumberOfChildren(int node) {
+		return tree[node] / -childrenFactor;
 	}
 
 	/**
@@ -319,8 +319,8 @@ public class EfficientTree {
 	 * @param node
 	 * @return the operator of the node (only call if the node is an operator)
 	 */
-	public short getOperator(int node) {
-		return (short) (tree[node] % childrenFactor);
+	public int getOperator(int node) {
+		return tree[node] % childrenFactor;
 	}
 
 	/**
@@ -403,9 +403,9 @@ public class EfficientTree {
 	 */
 	public EfficientTree shortenTree() {
 		int length = traverse(0);
-		short[] newTree = new short[length];
+		int[] newTree = new int[length];
 		System.arraycopy(tree, 0, newTree, 0, length);
-		return new EfficientTree(tree, activity2short, short2activity);
+		return new EfficientTree(tree, activity2int, int2activity);
 	}
 
 	public boolean isConsistent() {
@@ -438,18 +438,18 @@ public class EfficientTree {
 		return tree[node] == skip;
 	}
 
-	public void setOperator(int node, short operator) {
-		tree[node] = (short) (operator - (childrenFactor * getNumberOfChildren(node)));
+	public void setOperator(int node, int operator) {
+		tree[node] = operator - (childrenFactor * getNumberOfChildren(node));
 	}
 
-	public short[] getChildTree(int node) {
+	public int[] getChildTree(int node) {
 		int next = traverse(node);
-		short[] result = new short[next - node];
+		int[] result = new int[next - node];
 		System.arraycopy(tree, node, result, 0, next - node);
 		return result;
 	}
-	
-	public static TObjectShortMap<String> getEmptyActivity2short() {
-		return new TObjectShortHashMap<String>(8, 0.5f, (short) -1);
+
+	public static TObjectIntMap<String> getEmptyActivity2int() {
+		return new TObjectIntHashMap<String>(8, 0.5f, -1);
 	}
 }

@@ -1,7 +1,6 @@
 package org.processmining.plugins.flowerMiner;
 
-import gnu.trove.map.TObjectShortMap;
-import gnu.trove.map.hash.TObjectShortHashMap;
+import gnu.trove.map.TObjectIntMap;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -25,23 +24,25 @@ public class FlowerMinerDfg {
 		XEventClass[] vertices = dfg.getDirectlyFollowsGraph().getVertices();
 
 		//construct activity structures
-		String[] short2activity = new String[vertices.length];
-		TObjectShortMap<String> activity2short = new TObjectShortHashMap<>();
-		for (short i = 0; i < vertices.length; i++) {
-			short2activity[i] = vertices[i].getId();
-			activity2short.put(vertices[i].getId(), i);
+		String[] int2activity = new String[vertices.length];
+		TObjectIntMap<String> activity2int = EfficientTree.getEmptyActivity2int();
+		for (int i = 0; i < vertices.length; i++) {
+			int2activity[i] = vertices[i].getId();
+			activity2int.put(vertices[i].getId(), i);
 		}
 
 		//construct the tree
-		short[] tree = new short[short2activity.length + 4];
+		int[] tree = new int[int2activity.length + 4];
 		tree[0] = EfficientTree.loop - 3 * EfficientTree.childrenFactor;
-		tree[1] = (short) (EfficientTree.xor - short2activity.length * EfficientTree.childrenFactor);
-		for (short i = 0; i < short2activity.length; i++) {
+		assert(tree[0] < 0);
+		tree[1] = EfficientTree.xor - int2activity.length * EfficientTree.childrenFactor;
+		assert(tree[1] < 0);
+		for (int i = 0; i < int2activity.length; i++) {
 			tree[2 + i] = i;
 		}
-		tree[2 + short2activity.length] = EfficientTree.tau;
-		tree[3 + short2activity.length] = EfficientTree.tau;
+		tree[2 + int2activity.length] = EfficientTree.tau;
+		tree[3 + int2activity.length] = EfficientTree.tau;
 		
-		return new EfficientTree(tree, activity2short, short2activity);
+		return new EfficientTree(tree, activity2int, int2activity);
 	}
 }

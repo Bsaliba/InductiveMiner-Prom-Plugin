@@ -112,7 +112,7 @@ public class EfficientTreeMetrics {
 	 * @param activity
 	 * @return whether the given node can produce the trace <activity>
 	 */
-	public static boolean canProduceSingleActivity(EfficientTree tree, int node, short activity) {
+	public static boolean canProduceSingleActivity(EfficientTree tree, int node, int activity) {
 		if (tree.isTau(node)) {
 			return false;
 		} else if (tree.isActivity(node)) {
