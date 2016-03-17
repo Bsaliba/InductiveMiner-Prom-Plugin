@@ -31,28 +31,28 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 
 	protected Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
 			throws Exception {
-		
+
 		//read the file
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int len;
-		while ((len = input.read(buffer)) > -1 ) {
-		    baos.write(buffer, 0, len);
+		while ((len = input.read(buffer)) > -1) {
+			baos.write(buffer, 0, len);
 		}
 		baos.flush();
-		
-		//try 1
-		Dfg dfg1 = readCSV(new ByteArrayInputStream(baos.toByteArray()));
-
-		if (dfg1 != null) {
-			return dfg1;
-		}
 
 		//try 2
 		Dfg dfg2 = readFile(new ByteArrayInputStream(baos.toByteArray()));
 
 		if (dfg2 != null) {
 			return dfg2;
+		}
+
+		//try 1
+		Dfg dfg1 = readCSV(new ByteArrayInputStream(baos.toByteArray()));
+
+		if (dfg1 != null) {
+			return dfg1;
 		}
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -157,7 +157,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				dfg.addEndActivity(dfg.getDirectlyFollowsGraph().getVertexOfIndex(activityIndex), cardinality);
 			}
 		}
-		
+
 		//read edges
 		{
 			String line;
@@ -166,8 +166,8 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				int xAt = line.indexOf('x');
 				int source = Integer.parseInt(line.substring(0, eAt));
 				int target = Integer.parseInt(line.substring(eAt + 1, xAt));
-				long cardinality = Long.parseLong(line.substring(xAt+1, line.length()));
-				
+				long cardinality = Long.parseLong(line.substring(xAt + 1, line.length()));
+
 				dfg.getDirectlyFollowsGraph().addEdge(source, target, cardinality);
 			}
 		}
