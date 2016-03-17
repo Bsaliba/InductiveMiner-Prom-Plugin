@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +13,7 @@ import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
-import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents;
+import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents2;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -77,7 +78,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		//debug(dfr.debugGraph());
 
 		//compute the connected components of the negated graph
-		Set<Set<XEventClass>> connectedComponents = ConnectedComponents.compute(negatedGraph);
+		Collection<Set<XEventClass>> connectedComponents = ConnectedComponents2.compute(negatedGraph);
 
 		List<Set<XEventClass>> connectedComponents2 = ensureStartEndInEach(startActivities, endActivities,
 				connectedComponents);
@@ -90,7 +91,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 	}
 
 	public static List<Set<XEventClass>> ensureStartEndInEach(MultiSet<XEventClass> startActivities,
-			MultiSet<XEventClass> endActivities, Set<Set<XEventClass>> connectedComponents) {
+			MultiSet<XEventClass> endActivities, Collection<Set<XEventClass>> connectedComponents) {
 		//not all connected components are guaranteed to have start and end activities. Merge those that do not.
 		List<Set<XEventClass>> ccsWithStartEnd = new ArrayList<Set<XEventClass>>();
 		List<Set<XEventClass>> ccsWithStart = new ArrayList<Set<XEventClass>>();

@@ -1,7 +1,8 @@
 package org.processmining.plugins.InductiveMiner.graphs;
 
+import gnu.trove.set.hash.THashSet;
+
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public class ConnectedComponents<V> {
@@ -26,14 +27,14 @@ public class ConnectedComponents<V> {
 		@SuppressWarnings("unchecked")
 		Set<V>[] components = new Set[count];
 		for (int i = 0; i < count; i++) {
-			components[i] = new HashSet<>();
+			components[i] = new THashSet<>();
 		}
 		for (int v = 0; v < G.getNumberOfVertices(); v++) {
 			int component = id[v];
 			components[component].add(G.getVertexOfIndex(v));
 		}
 
-		return new HashSet<Set<V>>(Arrays.asList(components));
+		return new THashSet<Set<V>>(Arrays.asList(components));
 	}
 
 	private ConnectedComponents(Graph<V> G) {
