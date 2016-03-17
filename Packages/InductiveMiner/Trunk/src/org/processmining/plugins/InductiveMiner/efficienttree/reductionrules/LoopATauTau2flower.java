@@ -27,7 +27,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 				for (int i = 0; i < tau4; i++) {
 					if (tree.isActivity(i)) {
 						countActivities++;
-						short activity = tree.getActivity(i);
+						int activity = tree.getActivity(i);
 
 						//check whether the redo can produce this activity as a single activity
 						if (!EfficientTreeMetrics.canProduceSingleActivity(tree, body, activity)) {
@@ -37,7 +37,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 				}
 
 				//gather the activities
-				short[] activities = new short[countActivities];
+				int[] activities = new int[countActivities];
 				int j = 0;
 				for (int i = 0; i < tau4; i++) {
 					if (tree.isActivity(i)) {
@@ -67,7 +67,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 					}
 
 					//set the xor
-					tree.getTree()[body] = (short) (EfficientTree.xor - countActivities * EfficientTree.childrenFactor);
+					tree.getTree()[body] = EfficientTree.xor - countActivities * EfficientTree.childrenFactor;
 
 					//set the activities
 					for (int i = 0; i < countActivities; i++) {
@@ -88,8 +88,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 					tree.getTree()[body] = EfficientTree.tau;
 
 					//set the xor
-					tree.getTree()[body + 1] = (short) (EfficientTree.xor - countActivities
-							* EfficientTree.childrenFactor);
+					tree.getTree()[body + 1] = EfficientTree.xor - countActivities * EfficientTree.childrenFactor;
 
 					//set the activities
 					for (int i = 0; i < countActivities; i++) {

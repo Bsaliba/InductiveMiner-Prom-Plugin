@@ -7,7 +7,7 @@ public class SameOperator implements EfficientTreeReductionRule {
 
 	public boolean apply(EfficientTree tree, int node) {
 		if (tree.isXor(node) || tree.isSequence(node) || tree.isConcurrent(node)) {
-			short operator = tree.getOperator(node);
+			int operator = tree.getOperator(node);
 
 			for (int child : tree.getChildren(node)) {
 				if (tree.isOperator(child) && tree.getOperator(child) == operator) {
