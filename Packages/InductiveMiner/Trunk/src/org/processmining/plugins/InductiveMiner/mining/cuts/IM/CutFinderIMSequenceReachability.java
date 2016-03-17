@@ -7,6 +7,11 @@ import gnu.trove.set.hash.TIntHashSet;
 
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
+/**
+ * Notice that this approach does not work on cyclic graphs.
+ * @author sleemans
+ *
+ */
 public class CutFinderIMSequenceReachability {
 
 	private TIntObjectMap<TIntSet> reachableTo;
