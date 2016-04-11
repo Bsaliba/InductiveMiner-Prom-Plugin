@@ -9,6 +9,7 @@ public class LogSplitterIMi extends LogSplitterCombination {
 				new LogSplitterSequenceFiltering(), 
 				new LogSplitterParallel(),
 				new LogSplitterLoop(),
-				new LogSplitterInterleaving());
+				new LogSplitterMaybeInterleaved(),
+				new LogSplitterParallel());
 	}
 }

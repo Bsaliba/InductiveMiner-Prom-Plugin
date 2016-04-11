@@ -9,6 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
+import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.plugins.InductiveMiner.mining.interleaved.MaybeInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
@@ -21,6 +22,8 @@ import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractBlock.Xor;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Do not directly call this class, use one of the plug-ins from the
@@ -183,9 +186,10 @@ public class Miner {
 				return new AbstractBlock.Xor("");
 			case maybeInterleaved :
 				return new MaybeInterleaved("");
-			default :
-				return null;
+			case interleaved :
+				return new Interleaved("");
 		}
+		throw new NotImplementedException();
 	}
 
 	/**

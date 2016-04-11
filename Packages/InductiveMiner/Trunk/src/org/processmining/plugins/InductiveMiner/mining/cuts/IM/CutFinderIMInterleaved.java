@@ -7,6 +7,7 @@ import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
+import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
@@ -58,6 +59,6 @@ public class CutFinderIMInterleaved implements CutFinder {
 			}
 		}
 
-		return null;
+		return new Cut(Operator.interleaved, components.getComponents());
 	}
 }
