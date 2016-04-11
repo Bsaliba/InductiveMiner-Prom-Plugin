@@ -5,29 +5,35 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class LogSplitterCombination implements LogSplitter {
 
 	public final LogSplitter xor;
 	public final LogSplitter sequence;
 	public final LogSplitter parallel;
 	public final LogSplitter loop;
+	public final LogSplitter maybeInterleaved;
 	public final LogSplitter interleaved;
 
 	public LogSplitterCombination(LogSplitter xor, LogSplitter sequence, LogSplitter parallel, LogSplitter loop,
-			LogSplitter interleaving) {
+			LogSplitter maybeInterleaved, LogSplitter interleaved) {
 		this.xor = xor;
 		this.sequence = sequence;
 		this.parallel = parallel;
 		this.loop = loop;
-		this.interleaved = interleaving;
+		this.maybeInterleaved = maybeInterleaved;
+		this.interleaved = interleaved;
 	}
-
+	
 	@Deprecated
-	public LogSplitterCombination(LogSplitter xor, LogSplitter sequence, LogSplitter parallel, LogSplitter loop) {
+	public LogSplitterCombination(LogSplitter xor, LogSplitter sequence, LogSplitter parallel, LogSplitter loop,
+			LogSplitter maybeInterleaved) {
 		this.xor = xor;
 		this.sequence = sequence;
 		this.parallel = parallel;
 		this.loop = loop;
+		this.maybeInterleaved = maybeInterleaved;
 		this.interleaved = parallel;
 	}
 
@@ -42,9 +48,10 @@ public class LogSplitterCombination implements LogSplitter {
 			case loop :
 				return loop.split(log, logInfo, cut, minerState);
 			case maybeInterleaved :
+				return maybeInterleaved.split(log, logInfo, cut, minerState);
+			case interleaved :
 				return interleaved.split(log, logInfo, cut, minerState);
-			default :
-				return null;
 		}
+		throw new NotImplementedException();
 	}
 }
