@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.efficienttree;
 import java.util.BitSet;
 
 import org.processmining.plugins.InductiveMiner.Pair;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.IntShortLanguage;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopATauTau2flower;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopTauATau2flower;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SameOperator;
@@ -10,6 +11,8 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Sin
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAnd;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTauLoop2flower;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class EfficientTreeReduce {
 	public static EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
@@ -20,6 +23,8 @@ public class EfficientTreeReduce {
 			new TauChildOfSeqAnd(), new SameOperator() };
 	public static EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopATauTau2flower(),
 			new LoopTauATau2flower() };
+	public static EfficientTreeReductionRule[] rulesInt = new EfficientTreeReductionRule[] { new SingleChild(),
+		new TauChildOfSeqAnd(), new SameOperator(), new IntShortLanguage() };
 
 	public static void reduce(EfficientTree tree) throws ReductionFailedException {
 		//filter epsilon subtrees
@@ -67,8 +72,10 @@ public class EfficientTreeReduce {
 					rules = rulesLoop;
 				} else if (tree.isConcurrent(node)) {
 					rules = rulesAnd;
+				} else if (tree.isInterleaved(node)) {
+					rules = rulesInt;
 				} else {
-					rules = rulesXor;
+					throw new NotImplementedException();
 				}
 
 				for (EfficientTreeReductionRule rule : rules) {

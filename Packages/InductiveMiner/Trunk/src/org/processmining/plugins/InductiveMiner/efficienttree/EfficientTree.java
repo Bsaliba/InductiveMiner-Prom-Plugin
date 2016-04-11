@@ -37,6 +37,16 @@ public class EfficientTree {
 	private final int[] tree;
 	private final TObjectIntMap<String> activity2int;
 	private final String[] int2activity;
+	
+	public static final int tau = -1;
+	public static final int xor = -2;
+	public static final int sequence = -3;
+	public static final int concurrent = -4;
+	public static final int interleaved = -5;
+	public static final int loop = -6;
+	public static final int skip = -7;
+
+	public static final int childrenFactor = 10;
 
 	/**
 	 * Construct a new efficient tree using the given inputs. These inputs will
@@ -93,16 +103,6 @@ public class EfficientTree {
 	public String[] getInt2activity() {
 		return int2activity;
 	}
-
-	public static final int tau = -1;
-	public static final int xor = -2;
-	public static final int sequence = -3;
-	public static final int concurrent = -4;
-	public static final int interleaved = -5;
-	public static final int loop = -6;
-	public static final int skip = -7;
-
-	public static final int childrenFactor = 10;
 
 	/**
 	 * Convert a process tree into a efficient tree
