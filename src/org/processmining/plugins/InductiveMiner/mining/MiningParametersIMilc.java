@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduceParameters;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
@@ -65,5 +66,7 @@ public class MiningParametersIMilc extends MiningParameters {
 		
 		//set parameters
 		setNoiseThreshold((float) 0.2);
+		
+		setReduceParameters(new EfficientTreeReduceParameters(true));
 	}
 }

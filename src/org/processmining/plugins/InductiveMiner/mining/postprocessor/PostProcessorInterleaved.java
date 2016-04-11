@@ -18,7 +18,7 @@ public class PostProcessorInterleaved implements PostProcessor {
 	public Node postProcess(Node node, IMLog log, IMLogInfo logInfo, MinerState state) {
 
 		if (node instanceof MaybeInterleaved) {
-			node = DetectInterleaved.remove((MaybeInterleaved) node);
+			node = DetectInterleaved.remove((MaybeInterleaved) node, state.parameters.getReduceParameters());
 		}
 		return node;
 	}

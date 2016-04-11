@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduceParameters;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
@@ -46,5 +47,7 @@ public class MiningParametersIMlc extends MiningParameters {
 		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
 				new PostProcessorInterleaved()
 				)));
+		
+		setReduceParameters(new EfficientTreeReduceParameters(true));
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduceParameters;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
@@ -28,15 +29,16 @@ public abstract class MiningParameters {
 	private LogSplitter logSplitter;
 	private List<FallThrough> fallThroughs;
 	private List<PostProcessor> postProcessors;
+	
+	private EfficientTreeReduceParameters reduceParameters;
 
 	protected MiningParameters() {
-
 		classifier = getDefaultClassifier();
 		debug = false;
 		repairLifeCycle = false;
 		useMultiThreading = true;
-
-		setUseMultithreading(true);
+		
+		reduceParameters = new EfficientTreeReduceParameters(false);
 	}
 
 	public static XEventClassifier getDefaultClassifier() {
@@ -169,5 +171,13 @@ public abstract class MiningParameters {
 
 	public void setPostProcessors(List<PostProcessor> postProcessors) {
 		this.postProcessors = postProcessors;
+	}
+
+	public EfficientTreeReduceParameters getReduceParameters() {
+		return reduceParameters;
+	}
+
+	public void setReduceParameters(EfficientTreeReduceParameters reduceParameters) {
+		this.reduceParameters = reduceParameters;
 	}
 }
