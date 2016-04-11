@@ -56,6 +56,22 @@ public class EfficientTreeMetrics {
 		return result;
 	}
 
+	public static boolean canOnlyProduceTau(EfficientTree tree, int node) {
+		if (tree.isActivity(node)) {
+			return false;
+		} else if (tree.isTau(node)) {
+			return true;
+		} else if (tree.isOperator(node)) {
+			for (int child : tree.getChildren(node)) {
+				if (!canOnlyProduceTau(tree, child)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		throw new NotImplementedException();
+	}
+
 	public static BitSet canProduceTau(EfficientTree tree) {
 		BitSet result = new BitSet(tree.getTree().length);
 		for (int node = tree.getTree().length - 1; node >= 0; node--) {
@@ -176,6 +192,70 @@ public class EfficientTreeMetrics {
 				return true;
 			}
 			return false;
+		}
+		throw new NotImplementedException();
+	}
+
+	/**
+	 * 
+	 * @param tree
+	 * @param node
+	 * @return whether each trace of the node has a length of at most one.
+	 */
+	public static boolean traceLengthAtMostOne(EfficientTree tree, int node) {
+		if (tree.isActivity(node)) {
+			return true;
+		} else if (tree.isTau(node)) {
+			return true;
+		} else if (tree.isOperator(node)) {
+			if (tree.isXor(node)) {
+				for (int child : tree.getChildren(node)) {
+					if (!traceLengthAtMostOne(tree, child)) {
+						return false;
+					}
+				}
+				return true;
+			} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
+				//one child can produce a singleton trace, the others cannot anymore then
+				boolean singletonTraceChildSeen = false;
+				for (int child : tree.getChildren(node)) {
+					if (!onlyEmptyTrace(tree, node)) {
+						//empty children are not worrying
+						if (!traceLengthAtMostOne(tree, child)) {
+							return false;
+						}
+						if (singletonTraceChildSeen) {
+							return false;
+						}
+						singletonTraceChildSeen = true;
+					}
+				}
+				return true;
+			} else if (tree.isLoop(node)) {
+				return onlyEmptyTrace(tree, node);
+			}
+		}
+		throw new NotImplementedException();
+	}
+
+	/**
+	 * 
+	 * @param tree
+	 * @param node
+	 * @return whether each trace of the node has a length of at most zero.
+	 */
+	public static boolean onlyEmptyTrace(EfficientTree tree, int node) {
+		if (tree.isActivity(node)) {
+			return false;
+		} else if (tree.isTau(node)) {
+			return true;
+		} else if (tree.isOperator(node)) {
+			for (int child : tree.getChildren(node)) {
+				if (!onlyEmptyTrace(tree, child)) {
+					return false;
+				}
+			}
+			return true;
 		}
 		throw new NotImplementedException();
 	}

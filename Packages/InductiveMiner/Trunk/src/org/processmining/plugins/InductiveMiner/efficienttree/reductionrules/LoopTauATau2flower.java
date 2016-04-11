@@ -4,6 +4,7 @@ import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeMetrics;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
 
+@Deprecated
 public class LoopTauATau2flower implements EfficientTreeReductionRule {
 
 	public boolean apply(EfficientTree tree, int loop) {

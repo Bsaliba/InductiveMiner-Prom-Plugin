@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.efficienttree.reductionrules;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
 
+@Deprecated
 public class XorTauTauLoop2flower implements EfficientTreeReductionRule {
 
 	public boolean apply(EfficientTree tree, int node) {
