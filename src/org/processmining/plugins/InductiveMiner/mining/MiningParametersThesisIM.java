@@ -8,10 +8,10 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughSingleParallel;
@@ -32,7 +32,7 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
-				new CutFinderIMlcInterleaved(),
+				new CutFinderIMInterleaved(),
 				new CutFinderIMParallelWithMinimumSelfDistance(),
 				new CutFinderIMLoop()
 				)));
