@@ -46,6 +46,7 @@ public class Miner {
 		tree.setRoot(root);
 
 		if (canceller.isCancelled()) {
+			minerState.shutdownThreadPools();
 			return null;
 		}
 

@@ -26,9 +26,8 @@ import org.processmining.processtree.Task.Manual;
  * Class to store a process tree memory efficient and perform operations cpu
  * efficient.
  * 
- * Idea: keep an array of int. An activity is a >= 0 value. A node is a
- * negative value. Some bits encode the operator, the other bits the number of
- * children.
+ * Idea: keep an array of int. An activity is a >= 0 value. A node is a negative
+ * value. Some bits encode the operator, the other bits the number of children.
  * 
  * @author sleemans
  *
@@ -39,6 +38,21 @@ public class EfficientTree {
 	private final TObjectIntMap<String> activity2int;
 	private final String[] int2activity;
 
+	/**
+	 * Construct a new efficient tree using the given inputs. These inputs will
+	 * not be copied and should not be altered outside the EfficientTree context
+	 * after creating the tree.
+	 * 
+	 * @param tree
+	 * @param activity2int
+	 *            The mapping from activities (strings) to integers. The map
+	 *            should be created such that the emptiness value is not 0 (as
+	 *            that is a valid activity). Preferably, use
+	 *            getEmptyActivity2int() to obtain such a map.
+	 * @param int2activity
+	 *            The mapping from integers to the activities (strings). Should
+	 *            be consistent with activity2int.
+	 */
 	public EfficientTree(int[] tree, TObjectIntMap<String> activity2int, String[] int2activity) {
 		this.tree = tree;
 		this.activity2int = activity2int;
@@ -63,6 +77,11 @@ public class EfficientTree {
 		int2activity = t.getC();
 	}
 
+	/**
+	 * 
+	 * @return the internal representation of the process tree. Do not edit the
+	 *         returned object.
+	 */
 	public int[] getTree() {
 		return tree;
 	}
@@ -103,8 +122,8 @@ public class EfficientTree {
 				int2activity.toArray(new String[int2activity.size()]));
 	}
 
-	private static void node2efficientTree(Node node, TIntArrayList efficientTree,
-			TObjectIntMap<String> activity2int, List<String> int2activity2) {
+	private static void node2efficientTree(Node node, TIntArrayList efficientTree, TObjectIntMap<String> activity2int,
+			List<String> int2activity2) {
 		if (node instanceof Automatic) {
 			efficientTree.add(tau);
 		} else if (node instanceof Manual) {

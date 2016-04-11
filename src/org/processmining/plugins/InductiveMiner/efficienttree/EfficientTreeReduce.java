@@ -33,17 +33,17 @@ public class EfficientTreeReduce {
 		}
 
 		//filter superfluous taus under xor, and, seq
-//		{
-//			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
-//			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
-//			BitSet map = p.getA();
-//			int[] parents = p.getB();
-//			for (int node = tree.getTree().length - 1; node >= 0; node--) {
-//				if (map.get(node)) {
-//					tree.removeChild(parents[node], node);
-//				}
-//			}
-//		}
+		//		{
+		//			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
+		//			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
+		//			BitSet map = p.getA();
+		//			int[] parents = p.getB();
+		//			for (int node = tree.getTree().length - 1; node >= 0; node--) {
+		//				if (map.get(node)) {
+		//					tree.removeChild(parents[node], node);
+		//				}
+		//			}
+		//		}
 		//this code works, but does not make reducing faster in repeated experiments
 
 		//apply other filters
@@ -120,7 +120,7 @@ public class EfficientTreeReduce {
 		}
 		return Pair.of(superfluous, parents);
 	}
-	
+
 	public static class ReductionFailedException extends Exception {
 		private static final long serialVersionUID = -7417483651057438248L;
 	}
