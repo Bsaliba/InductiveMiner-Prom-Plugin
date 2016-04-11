@@ -68,11 +68,7 @@ public class EfficientTreeReduce {
 				}
 
 				for (EfficientTreeReductionRule rule : rules) {
-					boolean thisChanged = rule.apply(tree, node);
-					changed = changed | thisChanged;
-					if (thisChanged) {
-						System.out.println(rule);
-					}
+					changed = changed | rule.apply(tree, node);
 					if (!tree.isConsistent()) {
 						throw new ReductionFailedException();
 					}
