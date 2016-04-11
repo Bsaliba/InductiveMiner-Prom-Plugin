@@ -138,7 +138,7 @@ public class Exhaustive {
 
 		//split log
 		LogSplitter logSplitter = new LogSplitterIMi();
-		Cut cut = new Cut(Operator.parallel, partition);
+		Cut cut = new Cut(Operator.concurrent, partition);
 		result.sublogs = logSplitter.split(log, logInfo, cut, minerState).sublogs;
 
 		//make k-successor relations

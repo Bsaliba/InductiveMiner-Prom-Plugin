@@ -86,7 +86,7 @@ public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 		if (connectedComponents2 == null) {
 			return null;
 		} else {
-			return new Cut(Operator.parallel, connectedComponents2);
+			return new Cut(Operator.concurrent, connectedComponents2);
 		}
 	}
 
