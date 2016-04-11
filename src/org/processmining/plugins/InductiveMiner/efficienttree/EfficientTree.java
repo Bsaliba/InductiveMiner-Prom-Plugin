@@ -34,10 +34,10 @@ import org.processmining.processtree.Task.Manual;
  */
 public class EfficientTree {
 
-	private final int[] tree;
+	private int[] tree;
 	private final TObjectIntMap<String> activity2int;
 	private final String[] int2activity;
-	
+
 	public static final int tau = -1;
 	public static final int xor = -2;
 	public static final int sequence = -3;
@@ -470,5 +470,14 @@ public class EfficientTree {
 
 	public static TObjectIntMap<String> getEmptyActivity2int() {
 		return new TObjectIntHashMap<String>(8, 0.5f, -1);
+	}
+
+	/**
+	 * Replace the tree structure.
+	 * 
+	 * @param newTree
+	 */
+	public void replaceTree(int[] tree) {
+		this.tree = tree;
 	}
 }
