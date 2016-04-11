@@ -9,7 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderI
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlcInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
@@ -33,8 +33,8 @@ public class MiningParametersThesisIM extends MiningParameters {
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
 				new CutFinderIMlcInterleaved(),
-				new CutFinderIMLoop(),
-				new CutFinderIMParallel()
+				new CutFinderIMParallelWithMinimumSelfDistance(),
+				new CutFinderIMLoop()
 				)));
 		
 		setLogSplitter(new LogSplitterIMi());

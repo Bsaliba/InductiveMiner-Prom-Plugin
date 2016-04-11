@@ -1,6 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.interleaved;
 
 import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduceParameters;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.interleaved.FootPrint.DfgUnfoldedNode;
 import org.processmining.processtree.Block;
@@ -11,10 +12,10 @@ import org.processmining.processtree.impl.AbstractBlock;
 
 public class DetectInterleaved {
 
-	public static Block remove(MaybeInterleaved node) {
+	public static Block remove(MaybeInterleaved node, EfficientTreeReduceParameters reduceParameters) {
 		
 		//reduce children
-		ReduceTree.reduceChildrenOf(node);
+		ReduceTree.reduceChildrenOf(node, reduceParameters);
 
 		Block twoSequence = findSequences(node);
 		if (twoSequence != null) {

@@ -3,30 +3,18 @@ package org.processmining.plugins.InductiveMiner.efficienttree;
 import java.util.BitSet;
 
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.IntShortLanguage;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopATauTau2flower;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopTauATau2flower;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SameOperator;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAnd;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTauLoop2flower;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class EfficientTreeReduce {
-	public static EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
-			new XorTauTau(), new SameOperator(), new XorTauTauLoop2flower() };
-	public static EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
-			new TauChildOfSeqAnd(), new SameOperator() };
-	public static EfficientTreeReductionRule[] rulesAnd = new EfficientTreeReductionRule[] { new SingleChild(),
-			new TauChildOfSeqAnd(), new SameOperator() };
-	public static EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopATauTau2flower(),
-			new LoopTauATau2flower() };
-	public static EfficientTreeReductionRule[] rulesInt = new EfficientTreeReductionRule[] { new SingleChild(),
-		new TauChildOfSeqAnd(), new SameOperator(), new IntShortLanguage() };
 
-	public static void reduce(EfficientTree tree) throws ReductionFailedException {
+	public static void reduce(EfficientTree tree)
+			throws ReductionFailedException {
+		reduce(tree, new EfficientTreeReduceParameters(false));
+	}
+	
+	public static void reduce(EfficientTree tree, EfficientTreeReduceParameters reduceParameters)
+			throws ReductionFailedException {
 		//filter epsilon subtrees
 		{
 			BitSet map = EfficientTreeMetrics.canOnlyProduceTau(tree);
@@ -52,28 +40,29 @@ public class EfficientTreeReduce {
 		//this code works, but does not make reducing faster in repeated experiments
 
 		//apply other filters
-		while (reduceOne(tree)) {
+		while (reduceOne(tree, reduceParameters)) {
 
 		}
 
 	}
 
-	private static boolean reduceOne(EfficientTree tree) throws ReductionFailedException {
+	private static boolean reduceOne(EfficientTree tree, EfficientTreeReduceParameters reduceParameters)
+			throws ReductionFailedException {
 		boolean changed = false;
 
 		for (int node = 0; node < tree.getTree().length; node++) {
 			if (tree.isOperator(node)) {
 				EfficientTreeReductionRule[] rules;
 				if (tree.isXor(node)) {
-					rules = rulesXor;
+					rules = reduceParameters.getRulesXor();
 				} else if (tree.isSequence(node)) {
-					rules = rulesSeq;
+					rules = reduceParameters.getRulesSequence();
 				} else if (tree.isLoop(node)) {
-					rules = rulesLoop;
+					rules = reduceParameters.getRulesLoop();
 				} else if (tree.isConcurrent(node)) {
-					rules = rulesAnd;
+					rules = reduceParameters.getRulesConcurrent();
 				} else if (tree.isInterleaved(node)) {
-					rules = rulesInt;
+					rules = reduceParameters.getRulesInterleaved();
 				} else {
 					throw new NotImplementedException();
 				}
