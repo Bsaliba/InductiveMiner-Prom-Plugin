@@ -75,7 +75,7 @@ public class FallThroughSingleParallel implements FallThrough {
 					List<Set<XEventClass>> partition = new ArrayList<Set<XEventClass>>();
 					partition.add(sigma0);
 					partition.add(sigma1);
-					Cut cut = new Cut(Operator.parallel, partition);
+					Cut cut = new Cut(Operator.concurrent, partition);
 
 					//split log
 					LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cut,

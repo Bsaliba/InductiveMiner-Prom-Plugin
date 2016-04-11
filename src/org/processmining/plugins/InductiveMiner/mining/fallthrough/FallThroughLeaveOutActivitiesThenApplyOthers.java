@@ -82,7 +82,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 						List<Set<XEventClass>> partition = new ArrayList<Set<XEventClass>>();
 						partition.add(leaveOutSet);
 						partition.add(Sets.complement(leaveOutSet, logInfo.getActivities().toSet()));
-						Cut cut = new Cut(Operator.parallel, partition);
+						Cut cut = new Cut(Operator.concurrent, partition);
 
 						Miner.debug("  try cut " + cut, minerState);
 

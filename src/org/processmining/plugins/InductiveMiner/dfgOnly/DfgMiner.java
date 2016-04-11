@@ -131,7 +131,7 @@ public class DfgMiner {
 			return new AbstractBlock.Xor("");
 		} else if (operator == Operator.sequence) {
 			return new AbstractBlock.Seq("");
-		} else if (operator == Operator.parallel) {
+		} else if (operator == Operator.concurrent) {
 			return new AbstractBlock.And("");
 		} else if (operator == Operator.loop) {
 			return new AbstractBlock.XorLoop("");

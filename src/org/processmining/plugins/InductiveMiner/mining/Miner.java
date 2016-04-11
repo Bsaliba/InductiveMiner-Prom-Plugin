@@ -178,7 +178,7 @@ public class Miner {
 		switch (operator) {
 			case loop :
 				return new AbstractBlock.XorLoop("");
-			case parallel :
+			case concurrent :
 				return new AbstractBlock.And("");
 			case sequence :
 				return new AbstractBlock.Seq("");

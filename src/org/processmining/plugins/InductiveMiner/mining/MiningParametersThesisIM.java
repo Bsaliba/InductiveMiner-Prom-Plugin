@@ -32,8 +32,8 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
-				new CutFinderIMInterleaved(),
 				new CutFinderIMParallelWithMinimumSelfDistance(),
+				new CutFinderIMInterleaved(),
 				new CutFinderIMLoop()
 				)));
 		

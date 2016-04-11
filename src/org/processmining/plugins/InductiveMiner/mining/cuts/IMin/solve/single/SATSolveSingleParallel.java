@@ -157,7 +157,7 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 				}
 
 				double averageProbability = sumProbability / numberOfEdgesInCut;
-				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, Operator.parallel);
+				SATResult result2 = new SATResult(result.getLeft(), result.getRight(), averageProbability, Operator.concurrent);
 
 				debug("  " + result2.toString());
 				//debug("   edges " + x);
