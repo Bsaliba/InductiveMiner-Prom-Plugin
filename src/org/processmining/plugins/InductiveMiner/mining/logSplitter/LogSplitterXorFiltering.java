@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.deckfour.xes.factory.XFactory;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -18,7 +17,6 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
-import org.processmining.xeslite.external.XFactoryExternalStore;
 
 public class LogSplitterXorFiltering implements LogSplitter {
 
@@ -43,8 +41,6 @@ public class LogSplitterXorFiltering implements LogSplitter {
 		}
 
 		MultiSet<XEventClass> noise = new MultiSet<>();
-
-		XFactory factory = new XFactoryExternalStore.MapDBDiskSequentialAccessWithoutCacheImpl();
 
 		List<IMLog> result = new ArrayList<>();
 		for (Set<XEventClass> sigma : partition) {

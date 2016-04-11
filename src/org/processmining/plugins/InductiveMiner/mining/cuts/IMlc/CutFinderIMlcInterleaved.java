@@ -78,7 +78,7 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 					}
 				}
 				newPartition.add(newSigma);
-				System.out.println(" interleaved: special case");
+				//System.out.println(" interleaved: special case");
 				return new Cut(Operator.maybeInterleaved, newPartition);
 			}
 		}
