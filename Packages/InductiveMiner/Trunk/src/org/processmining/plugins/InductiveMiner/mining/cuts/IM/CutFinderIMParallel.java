@@ -13,6 +13,7 @@ import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Components;
 import org.processmining.plugins.InductiveMiner.graphs.ConnectedComponents2;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
@@ -26,12 +27,63 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMParallel implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
+		return findCut2(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph(),
 				null);
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), null);
+		return findCut2(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph(), null);
+	}
+
+	public static Cut findCut2(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
+			Graph<XEventClass> dfg, Function<XEventClass, MultiSet<XEventClass>> minimumSelfDistanceBetween) {
+
+		//noise filtering can have removed all start and end activities.
+		//if that is the case, return
+		if (startActivities.toSet().size() == 0 || endActivities.toSet().size() == 0) {
+			return null;
+		}
+
+		//initialise each activity as a component
+		Components<XEventClass> components = new Components<XEventClass>(dfg.getVertices());
+
+		//walk through all possible edges; if an edge is missing, then the source and target cannot be in different components.
+		for (int e1 : dfg.getVertexIndices()) {
+			for (int e2 : dfg.getVertexIndices()) {
+				if (e1 < e2) {
+					if (!dfg.containsEdge(e1, e2) || !dfg.containsEdge(e2, e1)) {
+						components.mergeComponentsOf(e1, e2);
+					}
+				}
+			}
+		}
+
+		//if wanted, apply an extension to the IM algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
+		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
+		if (minimumSelfDistanceBetween != null) {
+			for (XEventClass activity : dfg.getVertices()) {
+				try {
+					for (XEventClass activity2 : minimumSelfDistanceBetween.call(activity).toSet()) {
+						components.mergeComponentsOf(activity, activity2);
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+					return null;
+				}
+			}
+		}
+
+		//construct the components
+		Collection<Set<XEventClass>> connectedComponents = components.getComponents();
+
+		List<Set<XEventClass>> connectedComponents2 = ensureStartEndInEach(startActivities, endActivities,
+				connectedComponents);
+
+		if (connectedComponents2 == null) {
+			return null;
+		} else {
+			return new Cut(Operator.concurrent, connectedComponents2);
+		}
 	}
 
 	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
