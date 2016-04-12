@@ -12,7 +12,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
@@ -25,13 +25,13 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMlcInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		Cut cut = findCutBasic(logInfo.getDirectlyFollowsGraph(), logInfo.getConcurrencyGraph(),
-				logInfo.getStartActivities(), logInfo.getEndActivities());
+		Cut cut = findCutBasic(logInfo.getDfg(), logInfo.getDfg().getDirectlyFollowsGraph(), logInfo.getDfg()
+				.getConcurrencyGraph());
 		if (cut == null) {
 			return null;
 		}
 
-		return findSpecialCase(cut.getPartition(), logInfo.getDirectlyFollowsGraph(), logInfo.getStartActivities());
+		return findSpecialCase(logInfo.getDfg(), cut.getPartition(), logInfo.getDfg().getDirectlyFollowsGraph());
 	}
 
 	/**
@@ -43,16 +43,16 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 	 * @param startActivities
 	 * @return
 	 */
-	public static Cut findSpecialCase(Collection<Set<XEventClass>> partition, Graph<XEventClass> directlyFollowsGraph,
-			MultiSet<XEventClass> startActivities) {
+	public static Cut findSpecialCase(Dfg dfg, Collection<Set<XEventClass>> partition,
+			Graph<XEventClass> directlyFollowsGraph) {
 		//count the number of start activities
 		for (Set<XEventClass> sigma : partition) {
 
 			//check if this sigma has startActivities = outgoing-dfg-edges
 			long countStartActivities = 0;
-			for (XEventClass a : startActivities) {
+			for (XEventClass a : dfg.getStartActivities()) {
 				if (sigma.contains(a)) {
-					countStartActivities += startActivities.getCardinalityOf(a);
+					countStartActivities += dfg.getStartActivityCardinality(a);
 				}
 			}
 
@@ -85,15 +85,14 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 		return new Cut(Operator.maybeInterleaved, partition);
 	}
 
-	public static Cut findCutBasic(Graph<XEventClass> dfg, Graph<XEventClass> concurrencyGraph,
-			MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities) {
+	public static Cut findCutBasic(Dfg dfg, Graph<XEventClass> directGraph, Graph<XEventClass> concurrencyGraph) {
 
 		//set up clusters
 		TObjectIntMap<XEventClass> clusters = new TObjectIntHashMap<>();
 
 		//consider start activities
 		int i = 0;
-		for (XEventClass startActivity : startActivities) {
+		for (XEventClass startActivity : dfg.getStartActivities()) {
 			//start a new cluster
 			clusters.put(startActivity, i);
 
@@ -101,9 +100,9 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 			Queue<XEventClass> q = new LinkedList<>();
 			q.add(startActivity);
 			while (!q.isEmpty()) {
-				for (long e : dfg.getOutgoingEdgesOf(q.poll())) {
-					XEventClass c = dfg.getEdgeTarget(e);
-					if (!startActivities.contains(c)) {
+				for (long e : directGraph.getOutgoingEdgesOf(q.poll())) {
+					XEventClass c = directGraph.getEdgeTarget(e);
+					if (!dfg.isStartActivity(c)) {
 						//this is not a start activity; merge the two clusters
 						mergeClusters(clusters, startActivity, c);
 
@@ -127,9 +126,9 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 		for (TIntIterator it = clusters.valueCollection().iterator(); it.hasNext();) {
 			clusterGraph.addVertex((long) it.next());
 		}
-		for (long edge : dfg.getEdges()) {
-			int cluster1 = clusters.get(dfg.getEdgeSource(edge));
-			int cluster2 = clusters.get(dfg.getEdgeTarget(edge));
+		for (long edge : directGraph.getEdges()) {
+			int cluster1 = clusters.get(directGraph.getEdgeSource(edge));
+			int cluster2 = clusters.get(directGraph.getEdgeTarget(edge));
 			clusterGraph.addEdge((long) cluster1, (long) cluster2, 1);
 		}
 		for (long cluster1 : clusterGraph.getVertices()) {

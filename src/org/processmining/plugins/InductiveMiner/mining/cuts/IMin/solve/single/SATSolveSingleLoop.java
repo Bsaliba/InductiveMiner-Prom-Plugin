@@ -162,7 +162,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 			//constraint: Start(a) => cut(a)
 			for (XEventClass a : nodes) {
 				int A = startBody.get(a).getVarInt();
-				if (info.getStartActivities().contains(a)) {
+				if (info.getDfg().isStartActivity(a)) {
 					addClause(A);
 
 					int B = node2var.get(a).getVarInt();
@@ -176,7 +176,7 @@ public class SATSolveSingleLoop extends SATSolveSingle {
 			//constraint: End(a) => cut(a)
 			for (XEventClass a : nodes) {
 				int A = endBody.get(a).getVarInt();
-				if (info.getEndActivities().contains(a)) {
+				if (info.getDfg().isEndActivity(a)) {
 					addClause(A);
 
 					int B = node2var.get(a).getVarInt();

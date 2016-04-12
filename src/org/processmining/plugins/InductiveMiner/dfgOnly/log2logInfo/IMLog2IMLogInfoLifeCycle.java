@@ -7,6 +7,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
@@ -40,7 +41,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 	}
 
 	private static Dfg log2Dfg(IMLog log, Count count) {
-		Dfg dfg = new Dfg();
+		Dfg dfg = new DfgImpl();
 		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, count);
 
@@ -110,7 +111,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
 			activityOccurrenceCompleted = activityOccurrenceCompleted || log.getLifeCycle(event) == Transition.complete;
 		}
-		dfg.getEndActivities().addAll(activityOccurrencesEndedSinceLastStart);
+		dfg.addEndActivities(activityOccurrencesEndedSinceLastStart);
 	}
 
 	private static void processParallel(IMLog log, Dfg dfg, IMTrace trace) {

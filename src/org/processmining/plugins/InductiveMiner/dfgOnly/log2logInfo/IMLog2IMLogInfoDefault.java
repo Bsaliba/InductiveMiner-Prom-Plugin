@@ -11,6 +11,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
@@ -23,7 +24,7 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 
 	public static IMLogInfo log2logInfo(IMLog log) {
 		//initialise, read the log
-		Dfg dfg = new Dfg();
+		Dfg dfg = new DfgImpl();
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
 		TObjectIntHashMap<XEventClass> minimumSelfDistances = new TObjectIntHashMap<>();
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();

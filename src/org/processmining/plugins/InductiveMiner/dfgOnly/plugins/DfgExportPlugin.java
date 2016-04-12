@@ -30,21 +30,19 @@ public class DfgExportPlugin {
 
 	public static void export(Dfg dfg, File file) throws IOException {
 		BufferedWriter result = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-		result.append(dfg.getDirectlyFollowsGraph().getNumberOfVertices() + "\n");
+		result.append(dfg.getNumberOfActivities() + "\n");
 		for (XEventClass e : dfg.getDirectlyFollowsGraph().getVertices()) {
 			result.append(e + "\n");
 		}
 
-		result.append(dfg.getStartActivities().setSize() + "\n");
-		for (XEventClass e : dfg.getStartActivities()) {
-			result.append(dfg.getDirectlyFollowsGraph().getIndexOfVertex(e) + "x"
-					+ dfg.getStartActivities().getCardinalityOf(e) + "\n");
+		result.append(dfg.getNumberOfStartActivitiesAsSet() + "\n");
+		for (int activityIndex : dfg.getStartActivityIndices()) {
+			result.append(activityIndex + "x" + dfg.getStartActivityCardinality(activityIndex) + "\n");
 		}
 
-		result.append(dfg.getEndActivities().setSize() + "\n");
-		for (XEventClass e : dfg.getEndActivities()) {
-			result.append(dfg.getDirectlyFollowsGraph().getIndexOfVertex(e) + "x"
-					+ dfg.getEndActivities().getCardinalityOf(e) + "\n");
+		result.append(dfg.getNumberOfEndActivitiesAsSet() + "\n");
+		for (int activityIndex : dfg.getEndActivityIndices()) {
+			result.append(activityIndex + "x" + dfg.getEndActivityCardinality(activityIndex) + "\n");
 		}
 
 		Graph<XEventClass> g = dfg.getDirectlyFollowsGraph();

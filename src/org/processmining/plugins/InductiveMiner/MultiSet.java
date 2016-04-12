@@ -224,4 +224,10 @@ public class MultiSet<X> implements Iterable<X> {
 	public String toString() {
 		return cardinalities.toString();
 	}
+	
+	public MultiSet<X> clone() {
+		MultiSet<X> result = new MultiSet<>();
+		result.addAll(this);
+		return result;
+	}
 }

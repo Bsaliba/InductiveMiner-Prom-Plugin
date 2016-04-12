@@ -17,7 +17,7 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 	private static DfgFallThroughFlower flower = new DfgFallThroughFlower();
 
 	public Node findBaseCases(Dfg dfg, ProcessTree tree, DfgMinerState minerState) {
-		if (dfg.getEmptyTraces() != 0) {
+		if (dfg.getNumberOfEmptyTraces() != 0) {
 			//empty traces
 
 			Block newNode = new AbstractBlock.Xor("");
@@ -29,8 +29,8 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 			Miner.addChild(newNode, tau, minerState);
 
 			//filter empty traces
-			Dfg subDfg = new Dfg(dfg.getDirectlyFollowsGraph(), dfg.getConcurrencyGraph(), dfg.getStartActivities(),
-					dfg.getEndActivities());
+			Dfg subDfg = dfg.clone();
+			subDfg.setNumberOfEmptyTraces(0);
 
 			//recurse
 			Node child = DfgMiner.mineNode(subDfg, tree, minerState);

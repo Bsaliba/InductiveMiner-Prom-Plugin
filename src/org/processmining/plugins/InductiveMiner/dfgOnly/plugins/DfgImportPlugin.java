@@ -17,6 +17,7 @@ import org.processmining.framework.abstractplugins.AbstractImportPlugin;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
@@ -78,7 +79,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 				activities[a] = new XEventClass(sActivities[a], a);
 			}
 
-			dfg = new Dfg(sActivities.length);
+			dfg = new DfgImpl(sActivities.length);
 			for (int a = 0; a < sActivities.length; a++) {
 				dfg.addActivity(activities[a]);
 			}
@@ -88,7 +89,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 			for (int a = 0; a < sActivities.length; a++) {
 				long cardinality = Long.valueOf(sStartActivities[a]);
 				if (cardinality > 0) {
-					dfg.getStartActivities().add(activities[a], cardinality);
+					dfg.addStartActivity(activities[a], cardinality);
 				}
 			}
 
@@ -97,7 +98,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 			for (int a = 0; a < sActivities.length; a++) {
 				long cardinality = Long.valueOf(sEndActivities[a]);
 				if (cardinality > 0) {
-					dfg.getEndActivities().add(activities[a], cardinality);
+					dfg.addEndActivity(activities[a], cardinality);
 				}
 			}
 
@@ -123,7 +124,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 	public static Dfg readFile(InputStream input) throws IOException {
 		BufferedReader r = new BufferedReader(new InputStreamReader(input, CHARSET), BUFFER_SIZE);
 
-		Dfg dfg = new Dfg();
+		Dfg dfg = new DfgImpl();
 
 		//read activity names
 		int nrOfActivities = Integer.parseInt(r.readLine());
