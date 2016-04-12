@@ -14,7 +14,7 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMlcConcurrent implements CutFinder {
@@ -47,7 +47,7 @@ public class CutFinderIMlcConcurrent implements CutFinder {
 
 		Collection<Set<XEventClass>> connectedComponents = ConnectedComponents2.compute(negatedGraph);
 
-		List<Set<XEventClass>> connectedComponents2 = CutFinderIMParallel
+		List<Set<XEventClass>> connectedComponents2 = CutFinderIMConcurrent
 				.ensureStartEndInEach(dfg, connectedComponents);
 
 		if (connectedComponents2 == null) {

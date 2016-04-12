@@ -9,10 +9,10 @@ import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrent;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrentWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallel;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMParallelWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
@@ -23,9 +23,9 @@ public class CutFinderIMlc implements CutFinder {
 			new CutFinderIMSequence(),
 			new CutFinderIMlcConcurrent(),
 			new CutFinderIMlcInterleaved(),
-			new CutFinderIMParallelWithMinimumSelfDistance(),
+			new CutFinderIMConcurrentWithMinimumSelfDistance(),
 			new CutFinderIMLoop(),
-			new CutFinderIMParallel()
+			new CutFinderIMConcurrent()
 			));
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
