@@ -89,6 +89,11 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 						//see if a cut applies
 						//for performance reasons, only on the directly-follows graph
 						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null);
+						
+						if (minerState.isCancelled()) {
+							return;
+						}
+						
 						if (cut2 != null && cut2.isValid()) {
 							//see if we are first
 							boolean oldFound = found.getAndSet(true);
@@ -109,7 +114,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 			return null;
 		}
 
-		if (found.get()) {
+		if (found.get() && !minerState.isCancelled()) {
 			//the cut we made is a valid one; split the log, construct the parallel construction and recurse
 
 			Miner.debug(" fall through: leave out activity", minerState);
