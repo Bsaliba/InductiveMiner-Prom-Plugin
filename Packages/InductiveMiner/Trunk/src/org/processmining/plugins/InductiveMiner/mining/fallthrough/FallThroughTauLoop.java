@@ -8,6 +8,7 @@ import org.deckfour.xes.model.impl.XAttributeMapImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -45,7 +46,7 @@ public class FallThroughTauLoop implements FallThrough {
 			XLog sublog = new XLogImpl(new XAttributeMapImpl());
 
 			for (IMTrace trace : log) {
-				filterTrace(log, sublog, trace, logInfo.getStartActivities(), useLifeCycle);
+				filterTrace(log, sublog, trace, logInfo.getDfg(), useLifeCycle);
 			}
 
 			if (sublog.size() > log.size()) {
@@ -78,8 +79,7 @@ public class FallThroughTauLoop implements FallThrough {
 		return null;
 	}
 
-	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, MultiSet<XEventClass> startActivities,
-			boolean useLifeCycle) {
+	public static void filterTrace(IMLog log, XLog sublog, IMTrace trace, Dfg dfg, boolean useLifeCycle) {
 		boolean first = true;
 		XTrace partialTrace = new XTraceImpl(new XAttributeMapImpl());
 
@@ -89,7 +89,7 @@ public class FallThroughTauLoop implements FallThrough {
 
 			XEventClass activity = log.classify(trace, event);
 
-			if (!first && startActivities.contains(activity)) {
+			if (!first && dfg.isStartActivity(activity)) {
 				//we discovered a transition body -> body
 				//check whether there are no open activity instances
 				if (!useLifeCycle || openActivityInstances.size() == 0) {

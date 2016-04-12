@@ -7,7 +7,6 @@ import java.util.Map;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
-import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
 public class IMLogInfo {
 
@@ -35,35 +34,12 @@ public class IMLogInfo {
 		this.numberOfEpsilonTraces = numberOfEpsilonTraces;
 	}
 
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-		result.append("start activities: " + dfg.getStartActivities() + "\n");
-		result.append("end activities: " + dfg.getEndActivities());
-		return result.toString();
-	}
-
 	public Dfg getDfg() {
 		return dfg;
 	}
 
 	public MultiSet<XEventClass> getActivities() {
 		return activities;
-	}
-
-	public Graph<XEventClass> getDirectlyFollowsGraph() {
-		return dfg.getDirectlyFollowsGraph();
-	}
-
-	public MultiSet<XEventClass> getStartActivities() {
-		return dfg.getStartActivities();
-	}
-
-	public MultiSet<XEventClass> getEndActivities() {
-		return dfg.getEndActivities();
-	}
-	
-	public Graph<XEventClass> getConcurrencyGraph() {
-		return dfg.getConcurrencyGraph();
 	}
 
 	public Map<XEventClass, MultiSet<XEventClass>> getMinimumSelfDistancesBetween() {
@@ -123,13 +99,5 @@ public class IMLogInfo {
 	 */
 	public long getOccurencesOfMostOccuringDirectEdge() {
 		return dfg.getDirectlyFollowsGraph().getWeightOfHeaviestEdge();
-	}
-
-	public long getOccurrencesOfMostOccurringStartActivity() {
-		return dfg.getStartActivities().getCardinalityOf(dfg.getStartActivities().getElementWithHighestCardinality());
-	}
-
-	public long getOccurrencesOfMostOccurringEndActivity() {
-		return dfg.getEndActivities().getCardinalityOf(dfg.getEndActivities().getElementWithHighestCardinality());
 	}
 }

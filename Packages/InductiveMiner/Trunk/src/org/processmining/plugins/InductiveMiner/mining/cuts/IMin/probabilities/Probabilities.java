@@ -8,6 +8,8 @@ import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
 
+import com.google.common.collect.ImmutableSet;
+
 public abstract class Probabilities {
 
 	public abstract double getProbabilityXor(CutFinderIMinInfo info, XEventClass a, XEventClass b);
@@ -17,11 +19,11 @@ public abstract class Probabilities {
 	public abstract double getProbabilityParallel(CutFinderIMinInfo info, XEventClass a, XEventClass b);
 
 	public abstract double getProbabilityLoopSingle(CutFinderIMinInfo info, XEventClass a, XEventClass b);
-	
+
 	public abstract double getProbabilityLoopDouble(CutFinderIMinInfo info, XEventClass a, XEventClass b);
-	
+
 	public abstract double getProbabilityLoopIndirect(CutFinderIMinInfo info, XEventClass a, XEventClass b);
-	
+
 	public abstract String toString();
 
 	public final int doubleToIntFactor = 100000;
@@ -45,11 +47,11 @@ public abstract class Probabilities {
 	public BigInteger getProbabilityLoopSingleB(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopSingle(info, a, b));
 	}
-	
+
 	public BigInteger getProbabilityLoopDoubleB(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopDouble(info, a, b));
 	}
-	
+
 	public BigInteger getProbabilityLoopIndirectB(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
 		return toBigInt(getProbabilityLoopIndirect(info, a, b));
 	}
@@ -61,7 +63,7 @@ public abstract class Probabilities {
 		for (long edge : graph.getOutgoingEdgesOf(a)) {
 			sum += graph.getEdgeWeight(edge);
 		}
-		sum += info.getEndActivities().getCardinalityOf(a);
+		sum += info.getDfg().getEndActivityCardinality(a);
 
 		return Math.round(sum);
 	}
@@ -90,10 +92,11 @@ public abstract class Probabilities {
 	protected double x(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
 		return info.getGraph().getEdgeWeight(a, b);
 	}
-	
+
 	protected boolean noSEinvolvedInMsd(CutFinderIMinInfo info, XEventClass a, XEventClass b) {
-		Set<XEventClass> SE = Sets.union(info.getStartActivities().toSet(), info.getEndActivities().toSet());
-		if (w(info,a,b) > 0 && !SE.contains(a) && !SE.contains(b)) {
+		Set<XEventClass> SE = Sets.union(ImmutableSet.copyOf(info.getDfg().getStartActivities()),
+				ImmutableSet.copyOf(info.getDfg().getEndActivities()));
+		if (w(info, a, b) > 0 && !SE.contains(a) && !SE.contains(b)) {
 			Set<XEventClass> SEmMSD = Sets.intersection(SE, info.getMinimumSelfDistanceBetween(a).toSet());
 			if (SEmMSD.size() == 0) {
 				return true;

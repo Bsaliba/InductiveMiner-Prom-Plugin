@@ -15,6 +15,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	private long[][] edges; //matrix of weights of edges
 	private TObjectIntMap<V> v2index; //map V to its vertex index
 	private V[] index2x; //map vertex index to V
+	private final Class<?> clazz; 
 
 	public GraphImplQuadratic(Class<?> clazz) {
 		this(clazz, 1);
@@ -27,21 +28,19 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 		v2index = new TObjectIntHashMap<V>();
 
 		index2x = (V[]) Array.newInstance(clazz, 0);
+		this.clazz = clazz;
 	}
 
-	/**
-	 * Add a vertex to the graph. Has no effect if the vertex is already in the
-	 * graph.
-	 * 
-	 * @param x
-	 */
-	public void addVertex(V x) {
-		if (!v2index.containsKey(x)) {
-			int newNumber = vertices;
-			v2index.put(x, newNumber);
+	public int addVertex(V x) {
+		int newNumber = vertices;
+		int oldIndex = v2index.putIfAbsent(x, newNumber);
+		if (oldIndex == v2index.getNoEntryValue()) {
 			vertices++;
 			increaseSizeTo(vertices);
 			index2x[newNumber] = x;
+			return vertices - 1;
+		} else {
+			return oldIndex;
 		}
 	}
 
@@ -391,5 +390,16 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 		public boolean hasNext() {
 			return nextIndex < vertices * vertices;
 		}
+	}
+	
+	public Graph<V> clone() {
+		GraphImplQuadratic<V> result = new GraphImplQuadratic<V>(clazz, edges.length);
+		result.vertices = vertices;
+		for (int i = 0; i < edges.length ; i++) {
+			System.arraycopy(edges[i], 0, result.edges[i], 0, edges[i].length);
+		}
+		result.v2index.putAll(v2index);
+		System.arraycopy(index2x, 0, result.index2x, 0, index2x.length);
+		return result;
 	}
 }

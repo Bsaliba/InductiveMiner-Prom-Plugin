@@ -19,7 +19,7 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMExclusiveChoice implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(final IMLog log, final IMLogInfo logInfo, final MinerState minerState) {
-		return findCut(logInfo.getDirectlyFollowsGraph());
+		return findCut(logInfo.getDfg().getDirectlyFollowsGraph());
 	}
 
 	public Cut findCut(final Dfg dfg, final DfgMinerState minerState) {

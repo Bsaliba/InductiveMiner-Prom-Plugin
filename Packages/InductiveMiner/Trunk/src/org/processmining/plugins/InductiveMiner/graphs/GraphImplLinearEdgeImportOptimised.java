@@ -18,7 +18,7 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 	private final ArrayList<V> index2v; //map vertex index to V
 
 	private final TLongLongMap edges;
-	
+
 	private final Class<?> clazz;
 
 	public GraphImplLinearEdgeImportOptimised(Class<?> clazz) {
@@ -29,11 +29,14 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 		this.clazz = clazz;
 	}
 
-	public void addVertex(V x) {
-		if (!v2index.containsKey(x)) {
-			int newNumber = index2v.size();
-			v2index.put(x, newNumber);
+	public int addVertex(V x) {
+		int newNumber = index2v.size();
+		int oldIndex = v2index.putIfAbsent(x, newNumber);
+		if (oldIndex == v2index.getNoEntryValue()) {
 			index2v.add(x);
+			return index2v.size() - 1;
+		} else {
+			return oldIndex;
 		}
 	}
 
@@ -48,9 +51,9 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 			addVertex(x);
 		}
 	}
-	
+
 	private long getEdgeIndex(int source, int target) {
-        return  (((long) source) << 32) | (target & 0xFFFFFFFFL);
+		return (((long) source) << 32) | (target & 0xFFFFFFFFL);
 	}
 
 	public void addEdge(int source, int target, long weight) {
@@ -90,7 +93,7 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 				return IteratorUtils.arrayIterator(edges.keys());
 			}
 		};
-		
+
 	}
 
 	public boolean containsEdge(V source, V target) {
@@ -132,7 +135,7 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
 	}
-	
+
 	public Iterable<Long> getIncomingEdgesOf(int v) {
 		throw new RuntimeException("not implemented");
 	}
@@ -140,7 +143,7 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 	public Iterable<Long> getOutgoingEdgesOf(V v) {
 		throw new RuntimeException("not implemented");
 	}
-	
+
 	public Iterable<Long> getOutgoingEdgesOf(int v) {
 		throw new RuntimeException("not implemented");
 	}
@@ -159,5 +162,13 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 
 	public int getIndexOfVertex(V e) {
 		return v2index.get(e);
+	}
+
+	public Graph<V> clone() {
+		GraphImplLinearEdgeImportOptimised<V> result = new GraphImplLinearEdgeImportOptimised<>(clazz);
+		result.v2index.putAll(v2index);
+		result.index2v.addAll(index2v);
+		result.edges.putAll(edges);
+		return result;
 	}
 }

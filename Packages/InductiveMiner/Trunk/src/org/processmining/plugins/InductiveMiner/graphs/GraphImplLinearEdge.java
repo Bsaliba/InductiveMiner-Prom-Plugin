@@ -2,7 +2,6 @@ package org.processmining.plugins.InductiveMiner.graphs;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.lang.reflect.Array;
@@ -11,7 +10,7 @@ import java.util.Collection;
 
 public class GraphImplLinearEdge<V> implements Graph<V> {
 
-	private final TObjectIntMap<V> v2index; //map V to its vertex index
+	private final TObjectIntHashMap<V> v2index; //map V to its vertex index
 	private final ArrayList<V> index2v; //map vertex index to V
 
 	private final TIntArrayList sources;
@@ -21,7 +20,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	private final Class<?> clazz;
 
 	public GraphImplLinearEdge(Class<?> clazz) {
-		v2index = new TObjectIntHashMap<V>();
+		v2index = new TObjectIntHashMap<V>(10, 0.5f, -1);
 		index2v = new ArrayList<>();
 
 		sources = new TIntArrayList();
@@ -30,11 +29,14 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		this.clazz = clazz;
 	}
 
-	public void addVertex(V x) {
-		if (!v2index.containsKey(x)) {
-			int newNumber = index2v.size();
-			v2index.put(x, newNumber);
+	public int addVertex(V x) {
+		int newNumber = index2v.size();
+		int oldIndex = v2index.putIfAbsent(x, newNumber);
+		if (oldIndex == v2index.getNoEntryValue()) {
 			index2v.add(x);
+			return index2v.size() - 1;
+		} else {
+			return oldIndex;
 		}
 	}
 
@@ -66,6 +68,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 
 	/**
 	 * Similar to Arrays.binarySearch, but works on both sources and targets
+	 * 
 	 * @param source
 	 * @param target
 	 * @return
@@ -186,7 +189,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		return new EdgeIterableIncoming(v2index.get(v));
 	}
-	
+
 	public Iterable<Long> getIncomingEdgesOf(int v) {
 		return new EdgeIterableIncoming(v);
 	}
@@ -222,6 +225,17 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 			result.append(", ");
 		}
 		return result.toString();
+	}
+
+	@Override
+	public Graph<V> clone() {
+		GraphImplLinearEdge<V> result = new GraphImplLinearEdge<>(clazz);
+		result.v2index.putAll(v2index);
+		result.index2v.addAll(index2v);
+		result.sources.addAll(sources);
+		result.targets.addAll(targets);
+		result.weights.addAll(weights);
+		return result;
 	}
 
 	public int getIndexOfVertex(V v) {

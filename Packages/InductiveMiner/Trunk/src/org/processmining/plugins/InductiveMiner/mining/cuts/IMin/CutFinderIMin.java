@@ -29,15 +29,13 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
 		float threshold = minerState.getParameters().getIncompleteThreshold();
 		JobList jobList = new JobListConcurrent(minerState.getSatPool());
-		
-		MultiSet<XEventClass> startActivities = dfg.getStartActivities();
-		MultiSet<XEventClass> endActivities = dfg.getEndActivities();
+
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 		Graph<XEventClass> transitiveGraph = TransitiveClosure.transitiveClosure(XEventClass.class, graph);
 		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = null;
 		Probabilities satProbabilities = minerState.getParameters().getSatProbabilities();
 		boolean debug = minerState.getParameters().isDebug();
-		CutFinderIMinInfo info = new CutFinderIMinInfo(startActivities, endActivities, graph, transitiveGraph,
+		CutFinderIMinInfo info = new CutFinderIMinInfo(dfg, graph, transitiveGraph,
 				minimumSelfDistancesBetween, satProbabilities, jobList, debug);
 		return findCut(info, threshold, minerState);
 	}
@@ -46,15 +44,12 @@ public class CutFinderIMin implements CutFinder, DfgCutFinder {
 		float threshold = minerState.parameters.getIncompleteThreshold();
 		JobList jobList = new JobListConcurrent(minerState.getSatPool());
 
-		MultiSet<XEventClass> startActivities = logInfo.getStartActivities();
-		MultiSet<XEventClass> endActivities = logInfo.getEndActivities();
-		Graph<XEventClass> graph = logInfo.getDirectlyFollowsGraph();
+		Graph<XEventClass> graph = logInfo.getDfg().getDirectlyFollowsGraph();
 		Graph<XEventClass> transitiveGraph = TransitiveClosure.transitiveClosure(XEventClass.class, graph);
-		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo
-				.getMinimumSelfDistancesBetween();
+		Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = logInfo.getMinimumSelfDistancesBetween();
 		Probabilities satProbabilities = minerState.parameters.getSatProbabilities();
 		boolean debug = minerState.parameters.isDebug();
-		CutFinderIMinInfo info = new CutFinderIMinInfo(startActivities, endActivities, graph, transitiveGraph,
+		CutFinderIMinInfo info = new CutFinderIMinInfo(logInfo.getDfg(), graph, transitiveGraph,
 				minimumSelfDistancesBetween, satProbabilities, jobList, debug);
 		return findCut(info, threshold, minerState);
 	}

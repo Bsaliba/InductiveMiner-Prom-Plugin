@@ -7,13 +7,13 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
+import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
 
 public class CutFinderIMinInfo {
-	private final MultiSet<XEventClass> startActivities;
-	private final MultiSet<XEventClass> endActivities;
+	private final Dfg dfg;
 	private final Graph<XEventClass> graph;
 	private final Graph<XEventClass> transitiveGraph;
 	private final Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween;
@@ -31,13 +31,12 @@ public class CutFinderIMinInfo {
 	 * @param probabilities
 	 * @param debug
 	 */
-	public CutFinderIMinInfo(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
+	public CutFinderIMinInfo(Dfg dfg,
 			Graph<XEventClass> graph2,
 			Graph<XEventClass> transitiveGraph2,
 			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween, Probabilities probabilities,
 			JobList jobList, boolean debug) {
-		this.startActivities = startActivities;
-		this.endActivities = endActivities;
+		this.dfg = dfg;
 		this.graph = graph2;
 		this.transitiveGraph = transitiveGraph2;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
@@ -46,12 +45,8 @@ public class CutFinderIMinInfo {
 		this.debug = debug;
 	}
 
-	public MultiSet<XEventClass> getStartActivities() {
-		return startActivities;
-	}
-
-	public MultiSet<XEventClass> getEndActivities() {
-		return endActivities;
+	public Dfg getDfg() {
+		return dfg;
 	}
 
 	public Graph<XEventClass> getGraph() {

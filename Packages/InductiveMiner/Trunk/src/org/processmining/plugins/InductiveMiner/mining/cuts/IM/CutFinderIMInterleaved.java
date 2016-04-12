@@ -28,17 +28,17 @@ public class CutFinderIMInterleaved implements CutFinder {
 		 * have connections from other subtrees. Thus, walk over all such
 		 * activities and merge components.
 		 */
-		for (XEventClass activity : graph.getVertices()) {
-			if (!dfg.getStartActivities().contains(activity)) {
-				for (long edgeIndex : graph.getIncomingEdgesOf(activity)) {
-					XEventClass source = graph.getEdgeSource(edgeIndex);
-					components.mergeComponentsOf(source, activity);
+		for (int activityIndex : graph.getVertexIndices()) {
+			if (!dfg.isStartActivity(activityIndex)) {
+				for (long edgeIndex : graph.getIncomingEdgesOf(activityIndex)) {
+					int source = graph.getEdgeSourceIndex(edgeIndex);
+					components.mergeComponentsOf(source, activityIndex);
 				}
 			}
-			if (!dfg.getEndActivities().contains(activity)) {
-				for (long edgeIndex : graph.getOutgoingEdgesOf(activity)) {
-					XEventClass target = graph.getEdgeTarget(edgeIndex);
-					components.mergeComponentsOf(activity, target);
+			if (!dfg.isEndActivity(activityIndex)) {
+				for (long edgeIndex : graph.getOutgoingEdgesOf(activityIndex)) {
+					int target = graph.getEdgeTargetIndex(edgeIndex);
+					components.mergeComponentsOf(activityIndex, target);
 				}
 			}
 		}
@@ -49,8 +49,8 @@ public class CutFinderIMInterleaved implements CutFinder {
 		 * activities and end activities and violating pairs. The reverse
 		 * direction is implied.
 		 */
-		for (XEventClass startActivity : dfg.getStartActivities()) {
-			for (XEventClass endActivity : dfg.getEndActivities()) {
+		for (int startActivity : dfg.getStartActivityIndices()) {
+			for (int endActivity : dfg.getEndActivityIndices()) {
 				if (startActivity != endActivity) {
 					if (!graph.containsEdge(endActivity, startActivity)) {
 						components.mergeComponentsOf(startActivity, endActivity);

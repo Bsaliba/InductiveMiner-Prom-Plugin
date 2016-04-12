@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
@@ -28,18 +29,18 @@ public class SimpleDfgSplitter implements DfgSplitter {
 
 		sigmaN = 0;
 		for (Set<XEventClass> sigma : cut.getPartition()) {
-			Dfg subDfg = new Dfg();
+			Dfg subDfg = new DfgImpl();
 			subDfgs.add(subDfg);
 
 			//walk through the nodes
 			for (XEventClass activity : sigma) {
 				subDfg.getDirectlyFollowsGraph().addVertex(activity);
 
-				if (dfg.getStartActivities().contains(activity)) {
-					subDfg.getStartActivities().add(activity, dfg.getStartActivities().getCardinalityOf(activity));
+				if (dfg.isStartActivity(activity)) {
+					subDfg.addStartActivity(activity, dfg.getStartActivityCardinality(activity));
 				}
-				if (dfg.getEndActivities().contains(activity)) {
-					subDfg.getEndActivities().add(activity, dfg.getEndActivities().getCardinalityOf(activity));
+				if (dfg.isEndActivity(activity)) {
+					subDfg.addEndActivity(activity, dfg.getEndActivityCardinality(activity));
 				}
 			}
 
@@ -58,13 +59,13 @@ public class SimpleDfgSplitter implements DfgSplitter {
 						//edge going out of sigma
 						if (cut.getOperator() == Operator.sequence || cut.getOperator() == Operator.loop) {
 							//source is an end activity
-							subDfg.getEndActivities().add(source, cardinality);
+							subDfg.addEndActivity(source, cardinality);
 						}
 					} else if (!sigma.contains(source) && sigma.contains(target)) {
 						//edge going into sigma
 						if (cut.getOperator() == Operator.sequence || cut.getOperator() == Operator.loop) {
 							//target is a start activity
-							subDfg.getStartActivities().add(target, cardinality);
+							subDfg.addStartActivity(target, cardinality);
 						}
 					} else {
 						//edge unrelated to sigma
@@ -81,14 +82,14 @@ public class SimpleDfgSplitter implements DfgSplitter {
 				//add empty traces for start activities in sigmas after this one
 				for (int sigmaJ = sigmaN + 1; sigmaJ < cut.getPartition().size(); sigmaJ++) {
 					for (XEventClass activity : cut.getPartition().get(sigmaJ)) {
-						subDfg.addEmptyTraces(dfg.getStartActivities().getCardinalityOf(activity));
+						subDfg.addEmptyTraces(dfg.getStartActivityCardinality(activity));
 					}
 				}
 
 				//add empty traces for end activities in sigmas before this one
 				for (int sigmaJ = 0; sigmaJ < sigmaN; sigmaJ++) {
 					for (XEventClass activity : cut.getPartition().get(sigmaJ)) {
-						subDfg.addEmptyTraces(dfg.getEndActivities().getCardinalityOf(activity));
+						subDfg.addEmptyTraces(dfg.getEndActivityCardinality(activity));
 					}
 				}
 			}

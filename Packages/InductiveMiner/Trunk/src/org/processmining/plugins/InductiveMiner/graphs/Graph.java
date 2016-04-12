@@ -6,11 +6,11 @@ public interface Graph<V> {
 
 	/**
 	 * Add a vertex to the graph. Has no effect if the vertex is already in the
-	 * graph.
+	 * graph. Returns the index of the inserted vertex.
 	 * 
 	 * @param x
 	 */
-	public void addVertex(V x);
+	public int addVertex(V x);
 
 	public void addVertices(Collection<V> xs);
 
@@ -110,7 +110,7 @@ public interface Graph<V> {
 	 * @return
 	 */
 	public Iterable<Long> getIncomingEdgesOf(V v);
-	
+
 	/**
 	 * Returns an array of edge index, containing all edges of which v is the
 	 * target. Notice that the edge weight might be 0.
@@ -169,4 +169,11 @@ public interface Graph<V> {
 	 * @return the index of the given vertex
 	 */
 	public int getIndexOfVertex(V v);
+
+	/**
+	 * 
+	 * @return A copy of the graph that is not connected to this graph. Should
+	 *         not clone the vertices themselves.
+	 */
+	public Graph<V> clone();
 }

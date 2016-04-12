@@ -16,7 +16,6 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.ArrayUtilities;
-import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
@@ -35,15 +34,16 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph());
+		return findCut(logInfo.getDfg());
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph());
+		return findCut(dfg);
 	}
 
-	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> graph) {
+	public static Cut findCut(Dfg dfg) {
+		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
+		
 		//compute the strongly connected components of the directly-follows graph
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
@@ -122,11 +122,9 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		for (long edge : condensedGraph1.getEdges()) {
 			//find the condensed node belonging to this activity
 			Set<XEventClass> u = condensedGraph1.getEdgeSource(edge);
-			Set<XEventClass> SCCu = Sets.findComponentWith(set, u
-					.iterator().next());
+			Set<XEventClass> SCCu = Sets.findComponentWith(set, u.iterator().next());
 			Set<XEventClass> v = condensedGraph1.getEdgeTarget(edge);
-			Set<XEventClass> SCCv = Sets.findComponentWith(set, v
-					.iterator().next());
+			Set<XEventClass> SCCv = Sets.findComponentWith(set, v.iterator().next());
 
 			//add an edge if it is not internal
 			if (SCCv != SCCu) {
@@ -185,16 +183,16 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			}
 
 			//count the number of taus that will be introduced by each start activity
-			for (XEventClass e : startActivities) {
+			for (XEventClass e : dfg.getStartActivities()) {
 				for (int c = 0; c < node2subCut.get(e) - 1; c++) {
-					skippingTaus[c] += startActivities.getCardinalityOf(e);
+					skippingTaus[c] += dfg.getStartActivityCardinality(e);
 				}
 			}
 
 			//count the number of taus that will be introduced by each end activity
-			for (XEventClass e : endActivities) {
+			for (XEventClass e : dfg.getEndActivities()) {
 				for (int c = node2subCut.get(e) + 1; c < result.size() - 1; c++) {
-					skippingTaus[c] += endActivities.getCardinalityOf(e);
+					skippingTaus[c] += dfg.getEndActivityCardinality(e);
 				}
 			}
 
@@ -225,9 +223,5 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		}
 
 		return new Cut(Operator.sequence, result);
-	}
-
-	private static void debug(String s) {
-		System.out.println(s);
 	}
 }

@@ -76,9 +76,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has a start activity
 			{
-				int[] clause = new int[info.getStartActivities().toSet().size()];
+				int[] clause = new int[info.getDfg().getNumberOfStartActivitiesAsSet()];
 				int i = 0;
-				for (XEventClass e : info.getStartActivities().toSet()) {
+				for (XEventClass e : info.getDfg().getStartActivities()) {
 					clause[i] = node2var.get(e).getVarInt();
 					i++;
 				}
@@ -87,9 +87,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has an end activity
 			{
-				int[] clause = new int[info.getEndActivities().toSet().size()];
+				int[] clause = new int[info.getDfg().getNumberOfEndActivitiesAsSet()];
 				int i = 0;
-				for (XEventClass e : info.getEndActivities().toSet()) {
+				for (XEventClass e : info.getDfg().getEndActivities()) {
 					clause[i] = node2var.get(e).getVarInt();
 					i++;
 				}
@@ -98,9 +98,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: -cut side has a start activity
 			{
-				int[] clause = new int[info.getStartActivities().toSet().size()];
+				int[] clause = new int[info.getDfg().getNumberOfStartActivitiesAsSet()];
 				int i = 0;
-				for (XEventClass e : info.getStartActivities().toSet()) {
+				for (XEventClass e : info.getDfg().getStartActivities()) {
 					clause[i] = -node2var.get(e).getVarInt();
 					i++;
 				}
@@ -109,9 +109,9 @@ public class SATSolveSingleParallel extends SATSolveSingle {
 
 			//constraint: cut side has an end activity
 			{
-				int[] clause = new int[info.getEndActivities().toSet().size()];
+				int[] clause = new int[info.getDfg().getNumberOfEndActivitiesAsSet()];
 				int i = 0;
-				for (XEventClass e : info.getEndActivities().toSet()) {
+				for (XEventClass e : info.getDfg().getEndActivities()) {
 					clause[i] = -node2var.get(e).getVarInt();
 					i++;
 				}

@@ -1,142 +1,296 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
-import java.util.Iterator;
-
-import org.apache.commons.collections15.iterators.ArrayIterator;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
-import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 
-public class Dfg {
-	private Graph<XEventClass> directlyFollowsGraph;
-	private Graph<XEventClass> concurrencyGraph;
+public interface Dfg {
 
-	private final MultiSet<XEventClass> startActivities;
-	private final MultiSet<XEventClass> endActivities;
-	
-	private long emptyTraces;
+	/**
+	 * Adds an activity to the Dfg.
+	 * 
+	 * @param activity
+	 * @return The index of the inserted activity.
+	 */
+	public int addActivity(XEventClass activity);
 
-	public Dfg() {
-		this(1);
-	}
+	public Graph<XEventClass> getDirectlyFollowsGraph();
 
-	public Dfg(int initialSize) {
-		directlyFollowsGraph = GraphFactory.create(XEventClass.class, initialSize);
-		concurrencyGraph = GraphFactory.create(XEventClass.class, initialSize);
-		emptyTraces = 0;
+	public int[] getActivityIndices();
 
-		startActivities = new MultiSet<>();
-		endActivities = new MultiSet<>();
-	}
+	/**
+	 * 
+	 * @return The concurrency graph. Do not edit directly.
+	 */
+	public Graph<XEventClass> getConcurrencyGraph();
 
-	private Dfg(Graph<XEventClass> directlyFollowsGraph, Graph<XEventClass> concurrencyGraph) {
-		this.directlyFollowsGraph = directlyFollowsGraph;
-		this.concurrencyGraph = concurrencyGraph;
-		this.emptyTraces = 0;
-		startActivities = new MultiSet<>();
-		endActivities = new MultiSet<>();
-	}
+	/**
+	 * 
+	 * @return The number of empty (epsilon) traces.
+	 */
+	public long getNumberOfEmptyTraces();
 
-	public static Dfg createTimeOptimised(int initialSize) {
-		return new Dfg(GraphFactory.createTimeOptimised(XEventClass.class, initialSize),
-				GraphFactory.createTimeOptimised(XEventClass.class, initialSize));
-	}
+	/**
+	 * Set the number of empty (epsilon) traces.
+	 * 
+	 * @param numberOfEmptyTraces
+	 */
+	public void setNumberOfEmptyTraces(long numberOfEmptyTraces);
 
-	public Dfg(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> concurrencyGraph,
-			final MultiSet<XEventClass> startActivities, final MultiSet<XEventClass> endActivities) {
-		this.directlyFollowsGraph = directlyFollowsGraph;
-		this.concurrencyGraph = concurrencyGraph;
+	/**
+	 * Adds empty traces.
+	 * 
+	 * @param cardinality
+	 */
+	public void addEmptyTraces(long cardinality);
 
-		this.startActivities = startActivities;
-		this.endActivities = endActivities;
-	}
+	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final long cardinality);
 
-	public void addActivity(XEventClass activity) {
-		directlyFollowsGraph.addVertex(activity);
-		concurrencyGraph.addVertex(activity);
-	}
+	public void addParallelEdge(final XEventClass a, final XEventClass b, final long cardinality);
 
-	public Graph<XEventClass> getDirectlyFollowsGraph() {
-		return directlyFollowsGraph;
-	}
+	public void addStartActivity(XEventClass activity, long cardinality);
 
-	public void setDirectlyFollowsGraph(Graph<XEventClass> directlyFollowsGraph) {
-		this.directlyFollowsGraph = directlyFollowsGraph;
-	}
-
-	public Iterable<XEventClass> getActivities() {
-		return new Iterable<XEventClass>() {
-			public Iterator<XEventClass> iterator() {
-				return new ArrayIterator<XEventClass>(directlyFollowsGraph.getVertices());
-			}
-		};
-
-	}
-
-	public Graph<XEventClass> getConcurrencyGraph() {
-		return concurrencyGraph;
-	}
-
-	public MultiSet<XEventClass> getStartActivities() {
-		return startActivities;
-	}
-
-	public MultiSet<XEventClass> getEndActivities() {
-		return endActivities;
-	}
-	
-	public long getEmptyTraces() {
-		return emptyTraces;
-	}
-
-	public void addDirectlyFollowsEdge(final XEventClass source, final XEventClass target, final long cardinality) {
-		addActivity(source);
-		addActivity(target);
-		directlyFollowsGraph.addEdge(source, target, cardinality);
-	}
-
-	public void addParallelEdge(final XEventClass a, final XEventClass b, final long cardinality) {
-		addActivity(a);
-		addActivity(b);
-		concurrencyGraph.addEdge(a, b, cardinality);
-	}
-
-	public void addStartActivity(XEventClass activity, long cardinality) {
-		addActivity(activity);
-		startActivities.add(activity, cardinality);
-	}
-
-	public void addEndActivity(XEventClass activity, long cardinality) {
-		addActivity(activity);
-		endActivities.add(activity, cardinality);
-	}
-	
-	public void addEmptyTraces(long cardinality) {
-		emptyTraces += cardinality;
-	}
-
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-		for (long edgeIndex : directlyFollowsGraph.getEdges()) {
-			result.append(directlyFollowsGraph.getEdgeSource(edgeIndex));
-			result.append("->");
-			result.append(directlyFollowsGraph.getEdgeTargetIndex(edgeIndex));
-			result.append(", ");
-		}
-		return result.toString();
-	}
+	public void addEndActivity(XEventClass activity, long cardinality);
 
 	/**
 	 * Adds a directly-follows graph edge (in each direction) for each parallel
 	 * edge.
 	 */
-	public void collapseParallelIntoDirectly() {
-		for (long edgeIndex : concurrencyGraph.getEdges()) {
-			directlyFollowsGraph.addEdge(concurrencyGraph.getEdgeSource(edgeIndex),
-					concurrencyGraph.getEdgeTarget(edgeIndex), concurrencyGraph.getEdgeWeight(edgeIndex));
-			directlyFollowsGraph.addEdge(concurrencyGraph.getEdgeTarget(edgeIndex),
-					concurrencyGraph.getEdgeSource(edgeIndex), concurrencyGraph.getEdgeWeight(edgeIndex));
-		}
-	}
+	public void collapseParallelIntoDirectly();
+
+	/**
+	 * 
+	 * @return An unconnected copy of the Dfg.
+	 */
+	public Dfg clone();
+
+	/**
+	 * 
+	 * @return The number of activities (as if they were a set).
+	 */
+	public int getNumberOfActivities();
+
+	/**
+	 * 
+	 * @param activity
+	 * @return The index of the given activity, or -1 if it does not exist.
+	 */
+	public int getIndexOfActivity(XEventClass activity);
+
+	/**
+	 * 
+	 * @param activityIndex
+	 * @return The activity of the given index.
+	 */
+	public XEventClass getActivityOfIndex(int activityIndex);
+
+	public boolean hasStartActivities();
+
+	public boolean hasEndActivities();
+
+	/**
+	 * 
+	 * @return The size of the set of start activities.
+	 */
+	public int getNumberOfStartActivitiesAsSet();
+
+	/**
+	 * 
+	 * @return The size of the set of end activities.
+	 */
+	public int getNumberOfEndActivitiesAsSet();
+
+	/**
+	 * 
+	 * @param activityIndex
+	 * @return Whether the activity with the given index is a start activity.
+	 */
+	public boolean isStartActivity(int activityIndex);
+
+	/**
+	 * 
+	 * @param activity
+	 * @return Whether the activity is a start activity. If possible, use the
+	 *         integer-variant.
+	 */
+	public boolean isStartActivity(XEventClass activity);
+
+	/**
+	 * 
+	 * @param activityIndex
+	 * @return How often the activity was a start activity.
+	 */
+	public long getStartActivityCardinality(int activityIndex);
+
+	/**
+	 * 
+	 * @param activity
+	 * @return How often the activity was a start activity. Use the integer
+	 *         variant if possible.
+	 */
+	public long getStartActivityCardinality(XEventClass activity);
+
+	/**
+	 * 
+	 * @return The number of occurrences of the activity that occurs the most as
+	 *         a start activity.
+	 */
+	public long getMostOccurringStartActivityCardinality();
+
+	/**
+	 * 
+	 * @param activityIndex
+	 * @return Whether the activity with the given index is a end activity.
+	 */
+	public boolean isEndActivity(int activityIndex);
+
+	/**
+	 * 
+	 * @param activity
+	 * @return Whether the activity is a end activity. If possible, use the
+	 *         integer-variant.
+	 */
+	public boolean isEndActivity(XEventClass activity);
+
+	/**
+	 * 
+	 * @return The number of occurrences of the activity that occurs the most as
+	 *         an end activity.
+	 */
+	public long getMostOccurringEndActivityCardinality();
+
+	/**
+	 * 
+	 * @param activityIndex
+	 * @return How often the activity was an end activity.
+	 */
+	public long getEndActivityCardinality(int activityIndex);
+
+	/**
+	 * 
+	 * @param activity
+	 * @return How often the activity was an end activity. Use the integer
+	 *         variant if possible.
+	 */
+	public long getEndActivityCardinality(XEventClass activity);
+
+	// ========= activities ==========
+
+	/**
+	 * 
+	 * @return An array of the activities. Do not edit this array.
+	 */
+	public XEventClass[] getActivities();
+
+	// ========= directly-follows graph ==========
+
+	public void removeDirectlyFollowsEdge(long edgeIndex);
+
+	// ========= concurrency graph ==========
+
+	public void removeConcurrencyEdge(long edgeIndex);
+
+	// ========= start activities ==========
+
+	/**
+	 * Add the start activities in the multiset to the start activities.
+	 * 
+	 * @param startActivities
+	 */
+	public void addStartActivities(MultiSet<XEventClass> startActivities);
+
+	/**
+	 * Add the start activities in the dfg to the start activities.
+	 * 
+	 * @param startActivities
+	 */
+	public void addStartActivities(Dfg dfg);
+
+	/**
+	 * Removes the start activity.
+	 * 
+	 * @param activityIndex
+	 */
+	public void removeStartActivity(int activityIndex);
+
+	/**
+	 * Removes the start activity. Use the integer variant if possible.
+	 * 
+	 * @param activity
+	 */
+	public void removeStartActivity(XEventClass activity);
+
+	/**
+	 * Return an iterable over the start activities. Use the integer variant if
+	 * possible.
+	 * 
+	 * @return
+	 */
+	public MultiSet<XEventClass> getStartActivities();
+
+	/**
+	 * 
+	 * @return The indices of the start activities. This array should not be
+	 *         edited.
+	 */
+	public int[] getStartActivityIndices();
+	
+	/**
+	 * 
+	 * @return The number of times that an end activity occurred. Use
+	 *         getNumberOfStartActivities() for the set-size.
+	 */
+	public long getNumberOfStartActivities();
+
+	// ========= end activities ==========
+
+	/**
+	 * Add the end activities in the multiset to the end activities.
+	 * 
+	 * @param endActivities
+	 */
+	public void addEndActivities(MultiSet<XEventClass> endActivities);
+
+	/**
+	 * Add the end activities in the dfg to the end activities.
+	 * 
+	 * @param startActivities
+	 */
+	public void addEndActivities(Dfg dfg);
+
+	/**
+	 * Removes the end activity.
+	 * 
+	 * @param activityIndex
+	 */
+	public void removeEndActivity(int activityIndex);
+
+	/**
+	 * Removes the end activity. Use the integer variant if possible.
+	 * 
+	 * @param activity
+	 */
+	public void removeEndActivity(XEventClass activity);
+
+	/**
+	 * Return an iterable over the start activities. Use the integer variant if
+	 * possible.
+	 * 
+	 * @return
+	 */
+	public MultiSet<XEventClass> getEndActivities();
+
+	/**
+	 * 
+	 * @return The indices of the start activities. This array should not be
+	 *         edited.
+	 */
+	public int[] getEndActivityIndices();
+
+	/**
+	 * 
+	 * @return The number of times that an end activity occurred. Use
+	 *         getNumberOfEndActivities() for the set-size.
+	 */
+	public long getNumberOfEndActivities();
 }

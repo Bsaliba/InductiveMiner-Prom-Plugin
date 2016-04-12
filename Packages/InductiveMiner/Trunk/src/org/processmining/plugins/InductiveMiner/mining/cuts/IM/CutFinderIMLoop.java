@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
+import org.processmining.plugins.InductiveMiner.graphs.Components;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -27,29 +27,61 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getStartActivities(), logInfo.getEndActivities(), logInfo.getDirectlyFollowsGraph());
+		return findCut(logInfo.getDfg());
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return findCut(dfg.getStartActivities(), dfg.getEndActivities(), dfg.getDirectlyFollowsGraph());
+		return findCut(dfg);
 	}
 
-	public static Cut findCut(MultiSet<XEventClass> startActivities, MultiSet<XEventClass> endActivities,
-			Graph<XEventClass> graph) {
+	public static Cut findCut2(Dfg dfg) {
+		//initialise the components: each activity gets its own
+		Components<XEventClass> components = new Components<XEventClass>(dfg.getActivities());
+
+		if (!dfg.hasStartActivities() || !dfg.hasEndActivities()) {
+			return null;
+		}
+
+		//merge all start and end activities into one component
+		{
+			int pivot = dfg.getStartActivityIndices()[0];
+			for (int e : dfg.getStartActivityIndices()) {
+				components.mergeComponentsOf(pivot, e);
+			}
+			for (int e : dfg.getEndActivityIndices()) {
+				components.mergeComponentsOf(pivot, e);
+			}
+		}
+
+		//find the other connected components
+		for (long edgeIndex : dfg.getDirectlyFollowsGraph().getEdges()) {
+			int source = dfg.getDirectlyFollowsGraph().getEdgeSourceIndex(edgeIndex);
+			if (!dfg.isStartActivity(source) && !dfg.isEndActivity(source)) {
+				int target = dfg.getDirectlyFollowsGraph().getEdgeTargetIndex(edgeIndex);
+				if (!dfg.isStartActivity(target) && !dfg.isEndActivity(target)) {
+					components.mergeComponentsOf(source, target);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static Cut findCut(Dfg dfg) {
 		//initialise the start and end activities as a connected component
 		Map<XEventClass, Integer> connectedComponents = new THashMap<XEventClass, Integer>();
-		for (XEventClass startActivity : startActivities.toSet()) {
+		for (XEventClass startActivity : dfg.getStartActivities()) {
 			connectedComponents.put(startActivity, 0);
 		}
-		for (XEventClass endActivity : endActivities.toSet()) {
+		for (XEventClass endActivity : dfg.getEndActivities()) {
 			connectedComponents.put(endActivity, 0);
 		}
 
 		//find the other connected components
 		Integer ccs = 1;
-		for (XEventClass node : graph.getVertices()) {
+		for (XEventClass node : dfg.getDirectlyFollowsGraph().getVertices()) {
 			if (!connectedComponents.containsKey(node)) {
-				labelConnectedComponents(graph, node, connectedComponents, ccs);
+				labelConnectedComponents(dfg.getDirectlyFollowsGraph(), node, connectedComponents, ccs);
 				ccs += 1;
 			}
 		}
@@ -59,10 +91,10 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			subStartActivities.put(cc, new THashSet<XEventClass>());
 		}
-		for (XEventClass node : graph.getVertices()) {
+		for (XEventClass node : dfg.getDirectlyFollowsGraph().getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (long edge : graph.getIncomingEdgesOf(node)) {
-				if (cc != connectedComponents.get(graph.getEdgeSource(edge))) {
+			for (long edge : dfg.getDirectlyFollowsGraph().getIncomingEdgesOf(node)) {
+				if (cc != connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeSource(edge))) {
 					//this is a start activity
 					Set<XEventClass> start = subStartActivities.get(cc);
 					start.add(node);
@@ -76,10 +108,10 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			subEndActivities.put(cc, new THashSet<XEventClass>());
 		}
-		for (XEventClass node : graph.getVertices()) {
+		for (XEventClass node : dfg.getDirectlyFollowsGraph().getVertices()) {
 			Integer cc = connectedComponents.get(node);
-			for (long edge : graph.getOutgoingEdgesOf(node)) {
-				if (cc != connectedComponents.get(graph.getEdgeTarget(edge))) {
+			for (long edge : dfg.getDirectlyFollowsGraph().getOutgoingEdgesOf(node)) {
+				if (cc != connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeTarget(edge))) {
 					//this is an end activity
 					Set<XEventClass> end = subEndActivities.get(cc);
 					end.add(node);
@@ -97,19 +129,19 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 
 		//exclude all candidates that are reachable from the start activities (that are not an end activity)
-		for (XEventClass startActivity : startActivities.toSet()) {
-			if (!endActivities.contains(startActivity)) {
-				for (long edge : graph.getOutgoingEdgesOf(startActivity)) {
-					candidates[connectedComponents.get(graph.getEdgeTarget(edge))] = false;
+		for (int startActivity : dfg.getStartActivityIndices()) {
+			if (!dfg.isEndActivity(startActivity)) {
+				for (long edge : dfg.getDirectlyFollowsGraph().getOutgoingEdgesOf(startActivity)) {
+					candidates[connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeTarget(edge))] = false;
 				}
 			}
 		}
 
 		//exclude all candidates that can reach an end activity (which is not a start activity)
-		for (XEventClass endActivity : endActivities.toSet()) {
-			if (!startActivities.contains(endActivity)) {
-				for (long edge : graph.getIncomingEdgesOf(endActivity)) {
-					candidates[connectedComponents.get(graph.getEdgeSource(edge))] = false;
+		for (int endActivity : dfg.getEndActivityIndices()) {
+			if (!dfg.isStartActivity(endActivity)) {
+				for (long edge : dfg.getDirectlyFollowsGraph().getIncomingEdgesOf(endActivity)) {
+					candidates[connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeSource(edge))] = false;
 				}
 			}
 		}
@@ -118,8 +150,8 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			Set<XEventClass> end = subEndActivities.get(cc);
 			for (XEventClass node1 : end) {
-				for (XEventClass node2 : startActivities.toSet()) {
-					if (!graph.containsEdge(node1, node2)) {
+				for (XEventClass node2 : dfg.getStartActivities()) {
+					if (!dfg.getDirectlyFollowsGraph().containsEdge(node1, node2)) {
 						candidates[cc] = false;
 						//debug("body part for no connection to all start activities " + cc.toString());
 					}
@@ -131,8 +163,8 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		for (Integer cc = 0; cc < ccs; cc++) {
 			Set<XEventClass> start = subStartActivities.get(cc);
 			for (XEventClass node1 : start) {
-				for (XEventClass node2 : endActivities.toSet()) {
-					if (!graph.containsEdge(node2, node1)) {
+				for (XEventClass node2 : dfg.getEndActivities()) {
+					if (!dfg.getDirectlyFollowsGraph().containsEdge(node2, node1)) {
 						candidates[cc] = false;
 						//debug("body part for no connection from all end activities " + node2.toString() + " " + node1.toString());
 					}
@@ -147,7 +179,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 		}
 
 		//divide the activities
-		for (XEventClass node : graph.getVertices()) {
+		for (XEventClass node : dfg.getDirectlyFollowsGraph().getVertices()) {
 			//debug(node.toString() + " in connected component " + connectedComponents.get(node));
 			int index;
 			if (candidates[connectedComponents.get(node)]) {

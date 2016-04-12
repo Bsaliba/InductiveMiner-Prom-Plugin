@@ -1,10 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMi;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
-import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -31,32 +29,19 @@ public class CutFinderIMi implements CutFinder {
 	 */
 
 	public static IMLogInfo filterNoise(IMLogInfo logInfo, float threshold) {
-		//filter start activities
-		MultiSet<XEventClass> filteredStartActivities = filterActivities(logInfo.getStartActivities(), threshold);
+		return new IMLogInfo(filterNoise(logInfo.getDfg(), threshold), logInfo.getActivities().copy(),
+				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
+				logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(), logInfo.getNumberOfEpsilonTraces());
+	}
 
-		//filter end activities
-		MultiSet<XEventClass> filteredEndActivities = filterActivities(logInfo.getEndActivities(), threshold);
+	public static Dfg filterNoise(Dfg dfg, float threshold) {
+		Dfg newDfg = dfg.clone();
 
-		//filter directly-follows graph
-		Graph<XEventClass> filteredDirectlyFollowsGraph = filterGraph(logInfo.getDirectlyFollowsGraph(),
-				filteredEndActivities, threshold);
-
-		//filter eventually-follows graph
-		//		DefaultDirectedWeightedGraph<XEventClass, DefaultWeightedEdge> filteredEventuallyFollowsGraph = filterGraph(
-		//				logInfo.getEventuallyFollowsGraph(), filteredEndActivities, threshold);
-
-		//		return new IMLogInfo(filteredDirectlyFollowsGraph, filteredEventuallyFollowsGraph,
-		//				TransitiveClosure.transitiveClosure(filteredDirectlyFollowsGraph), logInfo.getActivities().copy(),
-		//				filteredStartActivities, filteredEndActivities, logInfo.getMinimumSelfDistancesBetween(),
-		//				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfEpsilonTraces(),
-		//				logInfo.getHighestTraceCardinality(), logInfo.getOccurencesOfMostOccuringDirectEdge(),
-		//				logInfo.getMostOccurringStartActivity(), logInfo.getMostOccurringEndActivity());
-
-		Dfg dfg = new Dfg(filteredDirectlyFollowsGraph, null, filteredStartActivities, filteredEndActivities);
-
-		return new IMLogInfo(dfg, logInfo.getActivities().copy(), logInfo.getMinimumSelfDistancesBetween(),
-				logInfo.getMinimumSelfDistances(), logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(),
-				logInfo.getNumberOfEpsilonTraces());
+		filterStartActivities(newDfg, threshold);
+		filterEndActivities(newDfg, threshold);
+		filterDirectlyFollowsGraph(newDfg, threshold);
+		filterConcurrencyGraph(newDfg, threshold);
+		return newDfg;
 	}
 
 	/**
@@ -67,50 +52,83 @@ public class CutFinderIMi implements CutFinder {
 	 * @param threshold
 	 * @return
 	 */
-	public static Graph<XEventClass> filterGraph(Graph<XEventClass> graph, MultiSet<XEventClass> endActivities,
-			float threshold) {
-		//filter directly-follows graph
-		Graph<XEventClass> filtered = GraphFactory.create(XEventClass.class, graph.getNumberOfVertices());
+	private static void filterDirectlyFollowsGraph(Dfg dfg, float threshold) {
+		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
-		//add nodes
-		filtered.addVertices(graph.getVertices());
-
-		//add edges
-		for (XEventClass activity : graph.getVertices()) {
+		for (int activity : dfg.getActivityIndices()) {
 			//find the maximum outgoing weight of this node
-			long maxWeightOut = endActivities.getCardinalityOf(activity);
+			long maxWeightOut = dfg.getEndActivityCardinality(activity);
 			for (long edge : graph.getOutgoingEdgesOf(activity)) {
 				maxWeightOut = Math.max(maxWeightOut, (int) graph.getEdgeWeight(edge));
 			}
 
 			//add all edges that are strong enough
 			for (long edge : graph.getOutgoingEdgesOf(activity)) {
-				if (graph.getEdgeWeight(edge) >= maxWeightOut * threshold) {
-					XEventClass from = graph.getEdgeSource(edge);
-					XEventClass to = graph.getEdgeTarget(edge);
-					filtered.addEdge(from, to, graph.getEdgeWeight(edge));
+				if (graph.getEdgeWeight(edge) < maxWeightOut * threshold) {
+					dfg.removeDirectlyFollowsEdge(edge);
 				}
 			}
 		}
-		return filtered;
+	}
+	
+	/**
+	 * Filter a graph. Only keep the edges that occur often enough, compared
+	 * with other outgoing edges of the source. 0 <= threshold <= 1.
+	 * 
+	 * @param graph
+	 * @param threshold
+	 * @return
+	 */
+	private static void filterConcurrencyGraph(Dfg dfg, float threshold) {
+		Graph<XEventClass> graph = dfg.getConcurrencyGraph();
+
+		for (int activity : dfg.getActivityIndices()) {
+			//find the maximum outgoing weight of this node
+			long maxWeightOut = dfg.getEndActivityCardinality(activity);
+			for (long edge : graph.getOutgoingEdgesOf(activity)) {
+				maxWeightOut = Math.max(maxWeightOut, (int) graph.getEdgeWeight(edge));
+			}
+
+			//add all edges that are strong enough
+			for (long edge : graph.getOutgoingEdgesOf(activity)) {
+				if (graph.getEdgeWeight(edge) < maxWeightOut * threshold) {
+					dfg.removeConcurrencyEdge(edge);
+				}
+			}
+		}
 	}
 
 	/**
-	 * Filter start or end activities. Only keep those occurring more times than
+	 * Filter start activities. Only keep those occurring more times than
 	 * threshold * the most occurring activity. 0 <= threshold <= 1.
 	 * 
 	 * @param activities
 	 * @param threshold
 	 * @return
 	 */
-	public static MultiSet<XEventClass> filterActivities(MultiSet<XEventClass> activities, float threshold) {
-		long max = activities.getCardinalityOf(activities.getElementWithHighestCardinality());
-		MultiSet<XEventClass> filtered = new MultiSet<XEventClass>();
-		for (XEventClass activity : activities) {
-			if (activities.getCardinalityOf(activity) >= threshold * max) {
-				filtered.add(activity, activities.getCardinalityOf(activity));
+	private static void filterStartActivities(Dfg dfg, float threshold) {
+		long max = dfg.getMostOccurringStartActivityCardinality();
+		for (int activity : dfg.getStartActivityIndices()) {
+			if (dfg.getStartActivityCardinality(activity) < threshold * max) {
+				dfg.removeStartActivity(activity);
 			}
 		}
-		return filtered;
+	}
+
+	/**
+	 * Filter start activities. Only keep those occurring more times than
+	 * threshold * the most occurring activity. 0 <= threshold <= 1.
+	 * 
+	 * @param activities
+	 * @param threshold
+	 * @return
+	 */
+	private static void filterEndActivities(Dfg dfg, float threshold) {
+		long max = dfg.getMostOccurringEndActivityCardinality();
+		for (int activity : dfg.getEndActivityIndices()) {
+			if (dfg.getEndActivityCardinality(activity) < threshold * max) {
+				dfg.removeEndActivity(activity);
+			}
+		}
 	}
 }
