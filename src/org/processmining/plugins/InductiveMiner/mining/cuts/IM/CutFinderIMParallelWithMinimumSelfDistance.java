@@ -12,7 +12,7 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMParallelWithMinimumSelfDistance implements CutFinder {
 
 	public Cut findCut(final IMLog log, final IMLogInfo logInfo, final MinerState minerState) {
-		return CutFinderIMParallel.findCutImpl(logInfo.getDfg(), new Function<XEventClass, MultiSet<XEventClass>>() {
+		return CutFinderIMConcurrent.findCutImpl(logInfo.getDfg(), new Function<XEventClass, MultiSet<XEventClass>>() {
 			public MultiSet<XEventClass> call(XEventClass input) throws Exception {
 				return logInfo.getMinimumSelfDistanceBetween(input);
 			}
