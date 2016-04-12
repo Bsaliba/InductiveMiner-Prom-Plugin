@@ -1,7 +1,10 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
+import gnu.trove.iterator.TIntLongIterator;
 import gnu.trove.map.TIntLongMap;
 import gnu.trove.map.hash.TIntLongHashMap;
+
+import java.util.Iterator;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.IntegerMultiSet;
@@ -311,24 +314,23 @@ public class DfgImpl implements Dfg {
 	}
 
 	@Override
-	public MultiSet<XEventClass> getStartActivities() {
-//		return new Iterable<XEventClass>() {
-//			public Iterator<XEventClass> iterator() {
-//				return new Iterator<XEventClass>() {
-//					TIntLongIterator it = startActivities.iterator();
-//
-//					public XEventClass next() {
-//						it.advance();
-//						return getActivityOfIndex(it.key());
-//					}
-//
-//					public boolean hasNext() {
-//						return it.hasNext();
-//					}
-//				};
-//			}
-//		};
-		return null;
+	public Iterable<XEventClass> getStartActivities() {
+		return new Iterable<XEventClass>() {
+			public Iterator<XEventClass> iterator() {
+				return new Iterator<XEventClass>() {
+					TIntLongIterator it = startActivities.iterator();
+
+					public XEventClass next() {
+						it.advance();
+						return getActivityOfIndex(it.key());
+					}
+
+					public boolean hasNext() {
+						return it.hasNext();
+					}
+				};
+			}
+		};
 	}
 
 	@Override
@@ -372,24 +374,23 @@ public class DfgImpl implements Dfg {
 	}
 
 	@Override
-	public MultiSet<XEventClass> getEndActivities() {
-//		return new Iterable<XEventClass>() {
-//			public Iterator<XEventClass> iterator() {
-//				return new Iterator<XEventClass>() {
-//					TIntLongIterator it = endActivities.iterator();
-//
-//					public XEventClass next() {
-//						it.advance();
-//						return getActivityOfIndex(it.key());
-//					}
-//
-//					public boolean hasNext() {
-//						return it.hasNext();
-//					}
-//				};
-//			}
-//		};
-		return null;
+	public Iterable<XEventClass> getEndActivities() {
+		return new Iterable<XEventClass>() {
+			public Iterator<XEventClass> iterator() {
+				return new Iterator<XEventClass>() {
+					TIntLongIterator it = endActivities.iterator();
+
+					public XEventClass next() {
+						it.advance();
+						return getActivityOfIndex(it.key());
+					}
+
+					public boolean hasNext() {
+						return it.hasNext();
+					}
+				};
+			}
+		};
 	}
 
 	@Override

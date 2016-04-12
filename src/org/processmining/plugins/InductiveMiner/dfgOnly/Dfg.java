@@ -226,7 +226,7 @@ public interface Dfg {
 	 * 
 	 * @return
 	 */
-	public MultiSet<XEventClass> getStartActivities();
+	public Iterable<XEventClass> getStartActivities();
 
 	/**
 	 * 
@@ -278,7 +278,7 @@ public interface Dfg {
 	 * 
 	 * @return
 	 */
-	public MultiSet<XEventClass> getEndActivities();
+	public Iterable<XEventClass> getEndActivities();
 
 	/**
 	 * 
