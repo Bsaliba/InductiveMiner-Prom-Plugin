@@ -328,6 +328,10 @@ public class DfgImpl implements Dfg {
 					public boolean hasNext() {
 						return it.hasNext();
 					}
+					
+					public void remove() {
+						
+					}
 				};
 			}
 		};
@@ -387,6 +391,10 @@ public class DfgImpl implements Dfg {
 
 					public boolean hasNext() {
 						return it.hasNext();
+					}
+					
+					public void remove() {
+						
 					}
 				};
 			}
