@@ -16,9 +16,9 @@ public class CutFinderIM implements CutFinder {
 	private static List<CutFinder> cutFinders = new ArrayList<CutFinder>(Arrays.asList(
 			new CutFinderIMExclusiveChoice(),
 			new CutFinderIMSequence(),
-			new CutFinderIMParallelWithMinimumSelfDistance(),
+			new CutFinderIMConcurrentWithMinimumSelfDistance(),
 			new CutFinderIMLoop(),
-			new CutFinderIMParallel()
+			new CutFinderIMConcurrent()
 			));
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
