@@ -31,7 +31,7 @@ public class CutFinderIMi implements CutFinder {
 	public static IMLogInfo filterNoise(IMLogInfo logInfo, float threshold) {
 		return new IMLogInfo(filterNoise(logInfo.getDfg(), threshold), logInfo.getActivities().copy(),
 				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(), logInfo.getNumberOfEpsilonTraces());
+				logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances());
 	}
 
 	public static Dfg filterNoise(Dfg dfg, float threshold) {
@@ -70,7 +70,7 @@ public class CutFinderIMi implements CutFinder {
 			}
 		}
 	}
-	
+
 	/**
 	 * Filter a graph. Only keep the edges that occur often enough, compared
 	 * with other outgoing edges of the source. 0 <= threshold <= 1.

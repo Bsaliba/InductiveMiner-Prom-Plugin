@@ -74,7 +74,8 @@ public class Miner {
 		IMLogInfo logInfo = minerState.parameters.getLog2LogInfo().createLogInfo(log);
 
 		//output information about the log
-		debug("\nMine epsilon=" + logInfo.getNumberOfEpsilonTraces() + ", " + logInfo.getActivities(), minerState);
+		debug("\nMine epsilon=" + logInfo.getDfg().getNumberOfEmptyTraces() + ", " + logInfo.getActivities(),
+				minerState);
 		//debug(log, minerState);
 
 		//find base cases

@@ -55,7 +55,7 @@ public class FallThroughSingleParallel implements FallThrough {
 				 */
 
 				long cardinality = logInfo.getActivities().getCardinalityOf(activity);
-				long epsilon = logInfo.getNumberOfEpsilonTraces();
+				long epsilon = logInfo.getDfg().getNumberOfEmptyTraces();
 				boolean x = epsilon == 0 && cardinality == log.size();
 				
 				double noise = minerState.parameters.getNoiseThreshold();

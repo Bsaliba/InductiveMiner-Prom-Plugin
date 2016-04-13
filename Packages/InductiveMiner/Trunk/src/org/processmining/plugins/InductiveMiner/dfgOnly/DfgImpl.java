@@ -297,6 +297,10 @@ public class DfgImpl implements Dfg {
 	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex) {
 		return directlyFollowsGraph.getEdgeTarget(edgeIndex);
 	}
+	
+	public long getMostOccuringDirectlyFollowsEdgeCardinality() {
+		return directlyFollowsGraph.getWeightOfHeaviestEdge();
+	}
 
 	// ========= concurrency graph ==========
 
@@ -326,6 +330,10 @@ public class DfgImpl implements Dfg {
 	
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex) {
 		return concurrencyGraph.getEdgeTarget(edgeIndex);
+	}
+	
+	public long getMostOccuringConcurrencyEdgeCardinality() {
+		return concurrencyGraph.getWeightOfHeaviestEdge();
 	}
 
 	// ========= start activities ==========
