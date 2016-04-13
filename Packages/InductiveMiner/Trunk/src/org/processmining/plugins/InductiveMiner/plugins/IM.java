@@ -4,6 +4,7 @@ import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
+import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
@@ -19,14 +20,19 @@ public class IM {
 	@Plugin(name = "Mine process tree with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
-	public ProcessTree mineGuiProcessTree(UIPluginContext context, XLog log) {
+	public ProcessTree mineGuiProcessTree(final UIPluginContext context, XLog log) {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
+		context.log("Mining...");
 		if (result != InteractionResult.FINISHED) {
 			context.getFutureResult(0).cancel(false);
 			return null;
 		}
-		return IMProcessTree.mineProcessTree(log, dialog.getMiningParameters());
+		return IMProcessTree.mineProcessTree(log, dialog.getMiningParameters(), new Canceller() {
+			public boolean isCancelled() {
+				return context.getProgress().isCancelled();
+			}
+		});
 	}
 
 	@Plugin(name = "Mine Petri net with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = { "Petri net", "Initial marking",
@@ -36,6 +42,7 @@ public class IM {
 	public Object[] mineGuiPetrinet(UIPluginContext context, XLog log) {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
+		context.log("Mining...");
 		if (result != InteractionResult.FINISHED) {
 			context.getFutureResult(0).cancel(false);
 			context.getFutureResult(1).cancel(false);
@@ -49,6 +56,7 @@ public class IM {
 			"Log", "IM Parameters" }, userAccessible = false)
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameters", requiredParameterLabels = { 0, 1 })
 	public static ProcessTree mineProcessTree(PluginContext context, XLog log, MiningParameters parameters) {
+		context.log("Mining...");
 		return IMProcessTree.mineProcessTree(log, parameters);
 	}
 
@@ -57,6 +65,7 @@ public class IM {
 			"Log", "IM Parameters" }, userAccessible = false)
 	@PluginVariant(variantLabel = "Mine a Process Tree, parameters", requiredParameterLabels = { 0, 1 })
 	public static Object[] minePetriNet(PluginContext context, XLog log, MiningParameters parameters) {
+		context.log("Mining...");
 		return IMPetriNet.minePetriNet(context, log, parameters);
 	}
 }

@@ -25,6 +25,12 @@ public class IMProcessTree {
 		IMLog log = new IMLogImpl(xlog, parameters.getClassifier());
 		return mineProcessTree(log, parameters);
 	}
+	
+	public static ProcessTree mineProcessTree(XLog xlog, MiningParameters parameters, Canceller canceller) {
+		//prepare the log
+		IMLog log = new IMLogImpl(xlog, parameters.getClassifier());
+		return mineProcessTree(log, parameters, canceller);
+	}
 
 	public static ProcessTree mineProcessTree(IMLog log, MiningParameters parameters) {
 		return Miner.mine(log, parameters, new Canceller() {
