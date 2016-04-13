@@ -38,18 +38,18 @@ public class SimpleDfgBaseCaseFinder implements DfgBaseCaseFinder {
 
 			return newNode;
 
-		} else if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 0) {
+		} else if (dfg.getNumberOfActivities() == 0) {
 			//no activities (should not happen)
 			Node node = new AbstractTask.Automatic("tau empty log");
 			DfgMiner.addNode(tree, node);
 			return node;
 
-		} else if (dfg.getDirectlyFollowsGraph().getNumberOfVertices() == 1) {
+		} else if (dfg.getNumberOfActivities() == 1) {
 			//single activity
 
-			if (dfg.getDirectlyFollowsGraph().getWeightOfHeaviestEdge() < 1) {
+			if (!dfg.getDirectlyFollowsEdges().iterator().hasNext()) {
 				//no self-edges present: single activity
-				XEventClass activity = dfg.getDirectlyFollowsGraph().getVertices()[0];
+				XEventClass activity = dfg.getActivities()[0];
 				Node node = new AbstractTask.Manual(activity.toString());
 				DfgMiner.addNode(tree, node);
 				return node;

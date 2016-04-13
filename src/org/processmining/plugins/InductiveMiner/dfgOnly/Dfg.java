@@ -203,6 +203,8 @@ public interface Dfg {
 	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex);
 	
 	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex);
+	
+	public long getMostOccuringDirectlyFollowsEdgeCardinality();
 
 	// ========= concurrency graph ==========
 
@@ -223,6 +225,8 @@ public interface Dfg {
 	public XEventClass getConcurrencyEdgeSource(long edgeIndex);
 	
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex);
+	
+	public long getMostOccuringConcurrencyEdgeCardinality();
 
 	// ========= start activities ==========
 

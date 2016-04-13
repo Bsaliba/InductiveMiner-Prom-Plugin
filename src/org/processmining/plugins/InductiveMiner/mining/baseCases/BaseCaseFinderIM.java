@@ -15,7 +15,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 
-		if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0
+		if (logInfo.getActivities().setSize() == 1 && logInfo.getDfg().getNumberOfEmptyTraces() == 0
 				&& logInfo.getNumberOfActivityInstances() == log.size()) {
 			//single activity
 
@@ -26,7 +26,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			Miner.addNode(tree, node);
 
 			return node;
-		} else if (logInfo.getActivities().setSize() == 1 && logInfo.getNumberOfEpsilonTraces() == 0) {
+		} else if (logInfo.getActivities().setSize() == 1 && logInfo.getDfg().getNumberOfEmptyTraces() == 0) {
 			//single activity in semi-flower model
 
 			Miner.debug(" base case: IM single activity semi-flower model", minerState);
@@ -60,7 +60,7 @@ public class BaseCaseFinderIM implements BaseCaseFinder {
 			Miner.addNode(tree, node);
 
 			return node;
-		} else if (logInfo.getNumberOfEpsilonTraces() != 0) {
+		} else if (logInfo.getDfg().getNumberOfEmptyTraces() != 0) {
 			Miner.debug(" base case: IM xor(tau, ..)", minerState);
 
 			Block newNode = new AbstractBlock.Xor("");

@@ -19,7 +19,6 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 	private static class Count {
 		long numberOfEvents = 0;
 		long numberOfActivityInstances = 0;
-		long numberOfEpsilonTraces = 0;
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
 	}
 
@@ -37,7 +36,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
 
 		return new IMLogInfo(dfg, count.activities, minimumSelfDistancesBetween, minimumSelfDistances,
-				count.numberOfEvents, count.numberOfActivityInstances, count.numberOfEpsilonTraces);
+				count.numberOfEvents, count.numberOfActivityInstances);
 	}
 
 	private static Dfg log2Dfg(IMLog log, Count count) {
@@ -45,22 +44,19 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		for (IMTrace trace : log) {
 			processTrace(log, dfg, trace, count);
 
-			if (trace.isEmpty()) {
-				count.numberOfEpsilonTraces++;
-			} else {
-				for (XEvent e : trace) {
-					if (log.getLifeCycle(e) == Transition.complete) {
-						count.numberOfActivityInstances += 1;
-					}
+			for (XEvent e : trace) {
+				if (log.getLifeCycle(e) == Transition.complete) {
+					count.numberOfActivityInstances += 1;
 				}
-				count.numberOfEvents += trace.size();
 			}
+			count.numberOfEvents += trace.size();
 		}
 		return dfg;
 	}
 
 	private static void processTrace(IMLog log, Dfg dfg, IMTrace trace, Count count) {
 		if (trace.isEmpty()) {
+			dfg.addEmptyTraces(1);
 			return;
 		}
 
