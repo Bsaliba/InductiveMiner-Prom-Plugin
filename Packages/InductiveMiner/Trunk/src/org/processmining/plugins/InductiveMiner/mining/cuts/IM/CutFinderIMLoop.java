@@ -27,11 +27,11 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getDfg());
+		return findCut2(logInfo.getDfg());
 	}
 
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
-		return findCut(dfg);
+		return findCut2(dfg);
 	}
 
 	public static Cut findCut2(Dfg dfg) {
@@ -53,18 +53,63 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 			}
 		}
 
-		//find the other connected components
-		for (long edgeIndex : dfg.getDirectlyFollowsGraph().getEdges()) {
-			int source = dfg.getDirectlyFollowsGraph().getEdgeSourceIndex(edgeIndex);
-			if (!dfg.isStartActivity(source) && !dfg.isEndActivity(source)) {
-				int target = dfg.getDirectlyFollowsGraph().getEdgeTargetIndex(edgeIndex);
-				if (!dfg.isStartActivity(target) && !dfg.isEndActivity(target)) {
+		//merge the other connected components
+		for (long edgeIndex : dfg.getDirectlyFollowsEdges()) {
+			int source = dfg.getDirectlyFollowsEdgeSourceIndex(edgeIndex);
+			int target = dfg.getDirectlyFollowsEdgeTargetIndex(edgeIndex);
+			if (!dfg.isStartActivity(source)) {
+				if (!dfg.isEndActivity(source)) {
+					if (!dfg.isStartActivity(target)) {
+						//if (!dfg.isEndActivity(target)) { //optimisation: do not perform this check
+						//this is an edge inside a sub-component
+						components.mergeComponentsOf(source, target);
+						//} else {
+						//target is an end but not a start activity
+						//a redo cannot reach an end activity that is not a start activity
+						//	components.mergeComponentsOf(source, target);
+						//}
+					}
+				}
+			} else {
+				if (!dfg.isEndActivity(source)) {
+					//source is a start but not an end activity
+					//a redo cannot be reachable from a start activity that is not an end activity
 					components.mergeComponentsOf(source, target);
 				}
 			}
 		}
 
-		return null;
+		/*
+		 * We have merged all sub-components. We only have to find out whether
+		 * each sub-component belongs to the body or the redo.
+		 */
+
+		//		//make a list of sub-start and sub-endactivities
+		//		TIntSet subStartActivities = new TIntHashSet();
+		//		TIntSet subEndActivities = new TIntHashSet();
+		//		for (long edgeIndex : dfg.getDirectlyFollowsEdges()) {
+		//			int source = dfg.getDirectlyFollowsEdgeSourceIndex(edgeIndex);
+		//			int target = dfg.getDirectlyFollowsEdgeTargetIndex(edgeIndex);
+		//
+		//			if (!components.areInSameComponent(source, target)) {
+		//				subEndActivities.add(source);
+		//				subStartActivities.add(target);
+		//			}
+		//		}
+
+		//put the start and end activity component first
+		List<Set<XEventClass>> partition = components.getComponents();
+		XEventClass pivot = dfg.getStartActivities().iterator().next();
+		for (int i = 0; i < partition.size(); i++) {
+			if (partition.get(i).contains(pivot)) {
+				Set<XEventClass> swap = partition.get(0);
+				partition.set(0, partition.get(i));
+				partition.set(i, swap);
+				break;
+			}
+		}
+
+		return new Cut(Operator.loop, partition);
 	}
 
 	public static Cut findCut(Dfg dfg) {
@@ -95,7 +140,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 			Integer cc = connectedComponents.get(node);
 			for (long edge : dfg.getDirectlyFollowsGraph().getIncomingEdgesOf(node)) {
 				if (cc != connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeSource(edge))) {
-					//this is a start activity
+					//this is a sub-start activity
 					Set<XEventClass> start = subStartActivities.get(cc);
 					start.add(node);
 					subStartActivities.put(cc, start);
@@ -112,7 +157,7 @@ public class CutFinderIMLoop implements CutFinder, DfgCutFinder {
 			Integer cc = connectedComponents.get(node);
 			for (long edge : dfg.getDirectlyFollowsGraph().getOutgoingEdgesOf(node)) {
 				if (cc != connectedComponents.get(dfg.getDirectlyFollowsGraph().getEdgeTarget(edge))) {
-					//this is an end activity
+					//this is a sub-end activity
 					Set<XEventClass> end = subEndActivities.get(cc);
 					end.add(node);
 					subEndActivities.put(cc, end);

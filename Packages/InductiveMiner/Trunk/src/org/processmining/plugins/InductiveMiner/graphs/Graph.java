@@ -16,8 +16,23 @@ public interface Graph<V> {
 
 	public void addVertices(V[] xs);
 
+	/**
+	 * Adds an edge. If the weight becomes 0, the edge is removed.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param weight
+	 */
 	public void addEdge(int source, int target, long weight);
 
+	/**
+	 * Adds an edge. If the weight becomes 0, the edge is removed. Use the
+	 * integer variant if possible.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param weight
+	 */
 	public void addEdge(V source, V target, long weight);
 
 	public V getVertexOfIndex(int index);
@@ -30,7 +45,7 @@ public interface Graph<V> {
 
 	/**
 	 * Gives an iterable that iterates over all edges; The edges that are
-	 * returned are indices. Notice that the edge weight might be 0.
+	 * returned are indices. Notice that the edge weight might NOT be 0.
 	 * 
 	 * @return
 	 */
