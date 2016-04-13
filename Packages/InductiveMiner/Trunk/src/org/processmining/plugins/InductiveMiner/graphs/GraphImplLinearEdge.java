@@ -100,15 +100,20 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 			weights.set(from, weights.get(from) + weight);
 			
 			if (weights.get(from) == 0) {
-				sources.remove(from, 1);
-				targets.remove(from, 1);
-				weights.remove(from, 1);
+				removeEdge(from);
 			}
 		} else {
 			sources.insert(~from, source);
 			targets.insert(~from, target);
 			weights.insert(~from, weight);
 		}
+	}
+	
+	public void removeEdge(long edge) {
+		assert(edge <= Integer.MAX_VALUE);
+		sources.remove((int) edge, 1);
+		targets.remove((int) edge, 1);
+		weights.remove((int) edge, 1);
 	}
 
 	public void addEdge(V source, V target, long weight) {

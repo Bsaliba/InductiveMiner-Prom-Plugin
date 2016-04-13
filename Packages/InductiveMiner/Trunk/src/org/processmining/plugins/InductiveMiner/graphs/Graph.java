@@ -34,6 +34,15 @@ public interface Graph<V> {
 	 * @param weight
 	 */
 	public void addEdge(V source, V target, long weight);
+	
+	/**
+	 * Removes an edge.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param weight
+	 */
+	public void removeEdge(long edge);
 
 	public V getVertexOfIndex(int index);
 

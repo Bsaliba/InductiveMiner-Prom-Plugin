@@ -170,8 +170,8 @@ public class DfgImpl implements Dfg {
 
 	@Override
 	public Dfg clone() {
-		return new DfgImpl(directlyFollowsGraph.clone(), concurrencyGraph.clone(), new TIntLongHashMap(
-				startActivities), new TIntLongHashMap(endActivities), numberOfEmptyTraces);
+		return new DfgImpl(directlyFollowsGraph.clone(), concurrencyGraph.clone(),
+				new TIntLongHashMap(startActivities), new TIntLongHashMap(endActivities), numberOfEmptyTraces);
 	}
 
 	@Override
@@ -276,28 +276,36 @@ public class DfgImpl implements Dfg {
 		int target = directlyFollowsGraph.getEdgeTargetIndex(edgeIndex);
 		directlyFollowsGraph.addEdge(source, target, -cardinality);
 	}
-	
+
 	@Override
 	public java.lang.Iterable<Long> getDirectlyFollowsEdges() {
 		return directlyFollowsGraph.getEdges();
 	};
-	
+
+	public boolean containsDirectlyFollowsEdge(int sourceIndex, int targetIndex) {
+		return directlyFollowsGraph.containsEdge(sourceIndex, targetIndex);
+	}
+
+	public boolean containsDirectlyFollowsEdge(XEventClass source, XEventClass target) {
+		return directlyFollowsGraph.containsEdge(source, target);
+	}
+
 	public int getDirectlyFollowsEdgeSourceIndex(long edgeIndex) {
 		return directlyFollowsGraph.getEdgeSourceIndex(edgeIndex);
 	}
-	
+
 	public int getDirectlyFollowsEdgeTargetIndex(long edgeIndex) {
 		return directlyFollowsGraph.getEdgeTargetIndex(edgeIndex);
 	}
-	
+
 	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex) {
 		return directlyFollowsGraph.getEdgeSource(edgeIndex);
 	}
-	
+
 	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex) {
 		return directlyFollowsGraph.getEdgeTarget(edgeIndex);
 	}
-	
+
 	public long getMostOccuringDirectlyFollowsEdgeCardinality() {
 		return directlyFollowsGraph.getWeightOfHeaviestEdge();
 	}
@@ -311,27 +319,35 @@ public class DfgImpl implements Dfg {
 		int target = concurrencyGraph.getEdgeTargetIndex(edgeIndex);
 		concurrencyGraph.addEdge(source, target, -cardinality);
 	}
-	
+
 	public java.lang.Iterable<Long> getConcurrencyEdges() {
 		return concurrencyGraph.getEdges();
-	};
+	}
 	
+	public boolean containsConcurrencyEdge(int sourceIndex, int targetIndex) {
+		return concurrencyGraph.containsEdge(sourceIndex, targetIndex);
+	}
+	
+	public boolean containsConcurrencyEdge(XEventClass source, XEventClass target) {
+		return concurrencyGraph.containsEdge(source, target);
+	}
+
 	public int getConcurrencyEdgeSourceIndex(long edgeIndex) {
 		return concurrencyGraph.getEdgeSourceIndex(edgeIndex);
 	}
-	
+
 	public int getConcurrencyEdgeTargetIndex(long edgeIndex) {
 		return concurrencyGraph.getEdgeTargetIndex(edgeIndex);
 	}
-	
+
 	public XEventClass getConcurrencyEdgeSource(long edgeIndex) {
 		return concurrencyGraph.getEdgeSource(edgeIndex);
 	}
-	
+
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex) {
 		return concurrencyGraph.getEdgeTarget(edgeIndex);
 	}
-	
+
 	public long getMostOccuringConcurrencyEdgeCardinality() {
 		return concurrencyGraph.getWeightOfHeaviestEdge();
 	}
@@ -344,19 +360,19 @@ public class DfgImpl implements Dfg {
 			addStartActivity(e, startActivities.getCardinalityOf(e));
 		}
 	}
-	
+
 	@Override
 	public void addStartActivities(Dfg dfg) {
 		for (XEventClass e : dfg.getStartActivities()) {
 			addStartActivity(e, dfg.getStartActivityCardinality(e));
 		}
 	}
-	
+
 	@Override
 	public void removeStartActivity(int activityIndex) {
 		startActivities.remove(activityIndex);
 	}
-	
+
 	@Override
 	public void removeStartActivity(XEventClass activity) {
 		removeStartActivity(getIndexOfActivity(activity));
@@ -377,9 +393,9 @@ public class DfgImpl implements Dfg {
 					public boolean hasNext() {
 						return it.hasNext();
 					}
-					
+
 					public void remove() {
-						
+
 					}
 				};
 			}
@@ -390,8 +406,8 @@ public class DfgImpl implements Dfg {
 	public int[] getStartActivityIndices() {
 		return startActivities.keys();
 	}
-	
-	@Override 
+
+	@Override
 	public long getNumberOfStartActivities() {
 		long count = 0;
 		for (long value : startActivities.values()) {
@@ -408,19 +424,19 @@ public class DfgImpl implements Dfg {
 			addEndActivity(e, endActivities.getCardinalityOf(e));
 		}
 	}
-	
+
 	@Override
 	public void addEndActivities(Dfg dfg) {
 		for (XEventClass e : dfg.getEndActivities()) {
 			addEndActivity(e, dfg.getEndActivityCardinality(e));
 		}
 	}
-	
+
 	@Override
 	public void removeEndActivity(int activityIndex) {
 		endActivities.remove(activityIndex);
 	}
-	
+
 	@Override
 	public void removeEndActivity(XEventClass activity) {
 		removeEndActivity(getIndexOfActivity(activity));
@@ -441,9 +457,9 @@ public class DfgImpl implements Dfg {
 					public boolean hasNext() {
 						return it.hasNext();
 					}
-					
+
 					public void remove() {
-						
+
 					}
 				};
 			}
@@ -454,8 +470,8 @@ public class DfgImpl implements Dfg {
 	public int[] getEndActivityIndices() {
 		return endActivities.keys();
 	}
-	
-	@Override 
+
+	@Override
 	public long getNumberOfEndActivities() {
 		long count = 0;
 		for (long value : endActivities.values()) {

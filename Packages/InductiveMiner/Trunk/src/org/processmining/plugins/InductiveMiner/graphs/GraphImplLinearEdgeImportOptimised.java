@@ -60,12 +60,16 @@ public class GraphImplLinearEdgeImportOptimised<V> implements Graph<V> {
 		long edgeIndex = getEdgeIndex(source, target);
 		long newValue = edges.adjustOrPutValue(edgeIndex, weight, weight);
 		if (newValue == 0) {
-			edges.remove(edgeIndex);
+			removeEdge(edgeIndex);
 		}
 	}
 
 	public void addEdge(V source, V target, long weight) {
 		addEdge(v2index.get(source), v2index.get(target), weight);
+	}
+	
+	public void removeEdge(long edge) {
+		edges.remove(edge);
 	}
 
 	public V getVertexOfIndex(int index) {
