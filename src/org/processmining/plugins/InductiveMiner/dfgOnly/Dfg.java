@@ -196,14 +196,18 @@ public interface Dfg {
 	 */
 	public Iterable<Long> getDirectlyFollowsEdges();
 	
+	public boolean containsDirectlyFollowsEdge(int sourceIndex, int targetIndex);
+	
+	public boolean containsDirectlyFollowsEdge(XEventClass source, XEventClass target);
+
 	public int getDirectlyFollowsEdgeSourceIndex(long edgeIndex);
-	
+
 	public int getDirectlyFollowsEdgeTargetIndex(long edgeIndex);
-	
+
 	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex);
-	
+
 	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex);
-	
+
 	public long getMostOccuringDirectlyFollowsEdgeCardinality();
 
 	// ========= concurrency graph ==========
@@ -218,14 +222,18 @@ public interface Dfg {
 	 */
 	public Iterable<Long> getConcurrencyEdges();
 	
+	public boolean containsConcurrencyEdge(int sourceIndex, int targetIndex);
+	
+	public boolean containsConcurrencyEdge(XEventClass source, XEventClass target);
+
 	public int getConcurrencyEdgeSourceIndex(long edgeIndex);
-	
+
 	public int getConcurrencyEdgeTargetIndex(long edgeIndex);
-	
+
 	public XEventClass getConcurrencyEdgeSource(long edgeIndex);
-	
+
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex);
-	
+
 	public long getMostOccuringConcurrencyEdgeCardinality();
 
 	// ========= start activities ==========

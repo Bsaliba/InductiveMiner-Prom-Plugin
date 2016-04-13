@@ -65,6 +65,10 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public void addEdge(V source, V target, long weight) {
 		edges[v2index.get(source)][v2index.get(target)] += weight;
 	}
+	
+	public void removeEdge(long edge) {
+		edges[getEdgeSourceIndex(edge)][getEdgeTargetIndex(edge)] = 0;
+	}
 
 	public V getVertexOfIndex(int index) {
 		return index2x[index];
