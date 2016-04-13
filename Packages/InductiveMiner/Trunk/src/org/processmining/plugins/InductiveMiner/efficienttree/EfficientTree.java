@@ -22,6 +22,8 @@ import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.Task.Manual;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 /**
  * Class to store a process tree memory efficient and perform operations cpu
  * efficient.
@@ -479,5 +481,47 @@ public class EfficientTree {
 	 */
 	public void replaceTree(int[] tree) {
 		this.tree = tree;
+	}
+
+	/**
+	 * Return a string representation of this tree. This string representation
+	 * is not unique for equivalent trees, e.g. the trees xor(a, b) and xor(b,
+	 * a) are equivalent, but do not have the same string representation.
+	 */
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		toString(0, result);
+		return result.toString();
+	}
+
+	public void toString(int node, StringBuilder result) {
+		if (isActivity(node)) {
+			result.append(getActivityName(node));
+		} else if (isTau(node)) {
+			result.append("tau");
+		} else if (isOperator(node)) {
+			if (isXor(node)) {
+				result.append("xor(");
+			} else if (isSequence(node)) {
+				result.append("seq(");
+			} else if (isConcurrent(node)) {
+				result.append("and(");
+			} else if (isInterleaved(node)) {
+				result.append("int(");
+			} else if (isLoop(node)) {
+				result.append("loop(");
+			}
+			for (int i = 0; i < getNumberOfChildren(node); i++) {
+				int child = getChild(node, i);
+				toString(child, result);
+				if (i < getNumberOfChildren(node) - 1) {
+					result.append(",");
+				}
+			}
+			result.append(")");
+		} else {
+			throw new NotImplementedException();
+		}
+
 	}
 }
