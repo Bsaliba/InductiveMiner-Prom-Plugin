@@ -14,6 +14,7 @@ public interface Dfg {
 	 */
 	public int addActivity(XEventClass activity);
 
+	@Deprecated
 	public Graph<XEventClass> getDirectlyFollowsGraph();
 
 	public int[] getActivityIndices();
@@ -22,6 +23,7 @@ public interface Dfg {
 	 * 
 	 * @return The concurrency graph. Do not edit directly.
 	 */
+	@Deprecated
 	public Graph<XEventClass> getConcurrencyGraph();
 
 	/**
@@ -186,9 +188,41 @@ public interface Dfg {
 
 	public void removeDirectlyFollowsEdge(long edgeIndex);
 
+	/**
+	 * Returns an iterable that iterates over all edges; The edges that are
+	 * returned are indices. Edges of weight 0 are excluded.
+	 * 
+	 * @return
+	 */
+	public Iterable<Long> getDirectlyFollowsEdges();
+	
+	public int getDirectlyFollowsEdgeSourceIndex(long edgeIndex);
+	
+	public int getDirectlyFollowsEdgeTargetIndex(long edgeIndex);
+	
+	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex);
+	
+	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex);
+
 	// ========= concurrency graph ==========
 
 	public void removeConcurrencyEdge(long edgeIndex);
+
+	/**
+	 * Returns an iterable that iterates over all edges; The edges that are
+	 * returned are indices. Edges of weight 0 are excluded.
+	 * 
+	 * @return
+	 */
+	public Iterable<Long> getConcurrencyEdges();
+	
+	public int getConcurrencyEdgeSourceIndex(long edgeIndex);
+	
+	public int getConcurrencyEdgeTargetIndex(long edgeIndex);
+	
+	public XEventClass getConcurrencyEdgeSource(long edgeIndex);
+	
+	public XEventClass getConcurrencyEdgeTarget(long edgeIndex);
 
 	// ========= start activities ==========
 
@@ -234,7 +268,7 @@ public interface Dfg {
 	 *         edited.
 	 */
 	public int[] getStartActivityIndices();
-	
+
 	/**
 	 * 
 	 * @return The number of times that an end activity occurred. Use
