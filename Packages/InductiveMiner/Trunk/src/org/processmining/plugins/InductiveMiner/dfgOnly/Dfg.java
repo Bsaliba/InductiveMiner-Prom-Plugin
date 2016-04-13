@@ -207,6 +207,8 @@ public interface Dfg {
 	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex);
 
 	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex);
+	
+	public long getDirectlyFollowsEdgeCardinality(long edgeIndex);
 
 	public long getMostOccuringDirectlyFollowsEdgeCardinality();
 
@@ -234,6 +236,8 @@ public interface Dfg {
 
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex);
 
+	public long getConcurrencyEdgeCardinality(long edgeIndex);
+	
 	public long getMostOccuringConcurrencyEdgeCardinality();
 
 	// ========= start activities ==========

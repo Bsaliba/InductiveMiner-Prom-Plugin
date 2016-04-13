@@ -1,7 +1,8 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
@@ -23,6 +24,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinde
 import org.processmining.plugins.InductiveMiner.graphs.Components;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
+import org.processmining.plugins.InductiveMiner.graphs.Reachability;
 import org.processmining.plugins.InductiveMiner.graphs.StronglyConnectedComponents;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
@@ -43,7 +45,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 	public static Cut findCut(Dfg dfg) {
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
-		
+
 		//compute the strongly connected components of the directly-follows graph
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
@@ -52,10 +54,14 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		{
 
 			//15-3-2016: optimisation to look up strongly connected components faster
-			THashMap<XEventClass, Set<XEventClass>> node2scc = new THashMap<>();
-			for (Set<XEventClass> scc : SCCs) {
-				for (XEventClass e : scc) {
-					node2scc.put(e, scc);
+			TIntIntMap node2sccIndex = new TIntIntHashMap();
+			{
+				int i = 0;
+				for (Set<XEventClass> scc : SCCs) {
+					for (XEventClass e : scc) {
+						node2sccIndex.put(graph.getIndexOfVertex(e), i);
+					}
+					i++;
 				}
 			}
 
@@ -67,10 +73,10 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 			for (long edge : graph.getEdges()) {
 				if (graph.getEdgeWeight(edge) >= 0) {
 					//find the connected components belonging to these nodes
-					XEventClass u = graph.getEdgeSource(edge);
-					Set<XEventClass> SCCu = node2scc.get(u);
-					XEventClass v = graph.getEdgeTarget(edge);
-					Set<XEventClass> SCCv = node2scc.get(v);
+					int u = graph.getEdgeSourceIndex(edge);
+					int SCCu = node2sccIndex.get(u);
+					int v = graph.getEdgeTargetIndex(edge);
+					int SCCv = node2sccIndex.get(v);
 
 					//add an edge if it is not internal
 					if (SCCv != SCCu) {
@@ -177,6 +183,117 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 				XEventClass source = graph.getEdgeSource(edge);
 				XEventClass target = graph.getEdgeTarget(edge);
 				long cardinality = graph.getEdgeWeight(edge);
+				for (int c = node2subCut.get(source) + 1; c < node2subCut.get(target) - 1; c++) {
+					skippingTaus[c] += cardinality;
+				}
+			}
+
+			//count the number of taus that will be introduced by each start activity
+			for (XEventClass e : dfg.getStartActivities()) {
+				for (int c = 0; c < node2subCut.get(e) - 1; c++) {
+					skippingTaus[c] += dfg.getStartActivityCardinality(e);
+				}
+			}
+
+			//count the number of taus that will be introduced by each end activity
+			for (XEventClass e : dfg.getEndActivities()) {
+				for (int c = node2subCut.get(e) + 1; c < result.size() - 1; c++) {
+					skippingTaus[c] += dfg.getEndActivityCardinality(e);
+				}
+			}
+
+			//find the sub cut that introduces the least taus
+			int subCutWithMinimumTaus = -1;
+			{
+				long minimumTaus = Long.MAX_VALUE;
+				for (int i = 0; i < skippingTaus.length; i++) {
+					if (skippingTaus[i] < minimumTaus) {
+						subCutWithMinimumTaus = i;
+						minimumTaus = skippingTaus[i];
+					}
+				}
+			}
+
+			//make a new cut
+			Set<XEventClass> result1 = new THashSet<>();
+			Set<XEventClass> result2 = new THashSet<>();
+			for (int i = 0; i <= subCutWithMinimumTaus; i++) {
+				result1.addAll(result.get(i));
+			}
+			for (int i = subCutWithMinimumTaus + 1; i < result.size(); i++) {
+				result2.addAll(result.get(i));
+			}
+			result.clear();
+			result.add(result1);
+			result.add(result2);
+		}
+
+		return new Cut(Operator.sequence, result);
+	}
+
+	public static Cut findCut2(Dfg dfg) {
+		Components<XEventClass> components = new Components<XEventClass>(dfg.getActivities());
+
+		final Reachability reachability = new Reachability(dfg);
+		for (int i : dfg.getActivityIndices()) {
+			for (int j : dfg.getActivityIndices()) {
+				if (!components.areInSameComponent(i, j)) {
+					if (reachability.isReachable(i, j) == reachability.isReachable(j, i)) {
+						/*
+						 * Either the nodes are not reachable from each other (=
+						 * xor), or they are reachable from one another
+						 * (=loop/and/int). Hence, merge.
+						 */
+						components.mergeComponentsOf(i, j);
+					}
+				}
+			}
+		}
+
+		if (components.getNumberOfComponents() < 2) {
+			return null;
+		}
+
+		/*
+		 * Sort the components by their structure, i.e. if a component is
+		 * reachable from another component, it appears afterwards in the list.
+		 */
+		List<Set<XEventClass>> result = components.getComponents();
+		Collections.sort(result, new Comparator<Set<XEventClass>>() {
+			public int compare(Set<XEventClass> arg0, Set<XEventClass> arg1) {
+				XEventClass pivot0 = arg0.iterator().next();
+				XEventClass pivot1 = arg1.iterator().next();
+				if (!reachability.isReachable(pivot0, pivot1)) {
+					return 1;
+				} else {
+					return -1;
+				}
+			}
+		});
+
+		/**
+		 * Optimisation 4-8-2015: do not greedily use the maximal cut, but
+		 * choose the one that minimises the introduction of taus.
+		 * 
+		 * This solves the case {<a, b, c>, <c>}, where choosing the cut {a,
+		 * b}{c} increases precision over choosing the cut {a}{b}{c}.
+		 */
+		{
+			//make a mapping node -> subCut
+			//initialise counting of taus
+			TObjectIntMap<XEventClass> node2subCut = new TObjectIntHashMap<>();
+			long[] skippingTaus = new long[result.size() - 1];
+			for (int subCut = 0; subCut < result.size(); subCut++) {
+				for (XEventClass e : result.get(subCut)) {
+					node2subCut.put(e, subCut);
+				}
+			}
+
+			//count the number of taus that will be introduced by each edge
+			for (long edge : dfg.getDirectlyFollowsEdges()) {
+				XEventClass source = dfg.getDirectlyFollowsEdgeSource(edge);
+				XEventClass target = dfg.getDirectlyFollowsEdgeTarget(edge);
+				long cardinality = dfg.getDirectlyFollowsEdgeCardinality(edge);
 				for (int c = node2subCut.get(source) + 1; c < node2subCut.get(target) - 1; c++) {
 					skippingTaus[c] += cardinality;
 				}
