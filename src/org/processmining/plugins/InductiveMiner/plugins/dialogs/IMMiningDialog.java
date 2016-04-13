@@ -31,6 +31,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersThesisIM;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -58,6 +59,28 @@ public class IMMiningDialog extends JPanel {
 		public abstract boolean noNoiseImpliesFitness();
 
 		public abstract MiningParameters getMiningParameters();
+
+		public String getDoi() {
+			return null;
+		}
+	}
+
+	public class VariantThesisIM extends Variant {
+		public String toString() {
+			return "Inductive Miner - thesis";
+		}
+
+		public boolean hasNoise() {
+			return false;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersThesisIM();
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return false;
+		}
 
 		public String getDoi() {
 			return null;
@@ -124,7 +147,7 @@ public class IMMiningDialog extends JPanel {
 		public boolean noNoiseImpliesFitness() {
 			return false;
 		}
-		
+
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-07734-5_6";
 		}
@@ -165,7 +188,7 @@ public class IMMiningDialog extends JPanel {
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersIMlc();
 		}
-		
+
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
 		}
@@ -188,7 +211,7 @@ public class IMMiningDialog extends JPanel {
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersIMlc();
 		}
-		
+
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
 		}
@@ -215,7 +238,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
-				new VariantIMEKS(), new VariantIMlc(), new VariantIMilc() });
+				new VariantIMEKS(), new VariantIMlc(), new VariantIMilc(), new VariantThesisIM() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
