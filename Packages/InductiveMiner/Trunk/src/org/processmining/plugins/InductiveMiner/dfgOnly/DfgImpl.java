@@ -276,6 +276,27 @@ public class DfgImpl implements Dfg {
 		int target = directlyFollowsGraph.getEdgeTargetIndex(edgeIndex);
 		directlyFollowsGraph.addEdge(source, target, -cardinality);
 	}
+	
+	@Override
+	public java.lang.Iterable<Long> getDirectlyFollowsEdges() {
+		return directlyFollowsGraph.getEdges();
+	};
+	
+	public int getDirectlyFollowsEdgeSourceIndex(long edgeIndex) {
+		return directlyFollowsGraph.getEdgeSourceIndex(edgeIndex);
+	}
+	
+	public int getDirectlyFollowsEdgeTargetIndex(long edgeIndex) {
+		return directlyFollowsGraph.getEdgeTargetIndex(edgeIndex);
+	}
+	
+	public XEventClass getDirectlyFollowsEdgeSource(long edgeIndex) {
+		return directlyFollowsGraph.getEdgeSource(edgeIndex);
+	}
+	
+	public XEventClass getDirectlyFollowsEdgeTarget(long edgeIndex) {
+		return directlyFollowsGraph.getEdgeTarget(edgeIndex);
+	}
 
 	// ========= concurrency graph ==========
 
@@ -285,6 +306,26 @@ public class DfgImpl implements Dfg {
 		int source = concurrencyGraph.getEdgeSourceIndex(edgeIndex);
 		int target = concurrencyGraph.getEdgeTargetIndex(edgeIndex);
 		concurrencyGraph.addEdge(source, target, -cardinality);
+	}
+	
+	public java.lang.Iterable<Long> getConcurrencyEdges() {
+		return concurrencyGraph.getEdges();
+	};
+	
+	public int getConcurrencyEdgeSourceIndex(long edgeIndex) {
+		return concurrencyGraph.getEdgeSourceIndex(edgeIndex);
+	}
+	
+	public int getConcurrencyEdgeTargetIndex(long edgeIndex) {
+		return concurrencyGraph.getEdgeTargetIndex(edgeIndex);
+	}
+	
+	public XEventClass getConcurrencyEdgeSource(long edgeIndex) {
+		return concurrencyGraph.getEdgeSource(edgeIndex);
+	}
+	
+	public XEventClass getConcurrencyEdgeTarget(long edgeIndex) {
+		return concurrencyGraph.getEdgeTarget(edgeIndex);
 	}
 
 	// ========= start activities ==========
