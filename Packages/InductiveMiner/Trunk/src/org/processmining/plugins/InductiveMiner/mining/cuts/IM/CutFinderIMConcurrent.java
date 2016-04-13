@@ -46,7 +46,7 @@ public class CutFinderIMConcurrent implements CutFinder, DfgCutFinder {
 		//walk through all possible edges; if an edge is missing, then the source and target cannot be in different components.
 		for (int e1 : dfg.getActivityIndices()) {
 			for (int e2 : dfg.getActivityIndices()) {
-				if (e1 < e2) {
+				if (e1 < e2 && !components.areInSameComponent(e1, e2)) {
 					if (!dfg.getDirectlyFollowsGraph().containsEdge(e1, e2)
 							|| !dfg.getDirectlyFollowsGraph().containsEdge(e2, e1)) {
 						components.mergeComponentsOf(e1, e2);
