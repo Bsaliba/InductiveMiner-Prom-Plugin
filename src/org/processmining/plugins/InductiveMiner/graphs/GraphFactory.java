@@ -6,7 +6,7 @@ public class GraphFactory {
 		return new GraphImplLinearEdge<V>(clazz);
 	}
 
-	public static <V> Graph<V> createTimeOptimised(Class<V> clazz, int initialSize) {
+	public static <V> Graph<V> createTimeOptimised(Class<?> clazz, int initialSize) {
 		return new GraphImplQuadratic<V>(clazz, initialSize);
 	}
 	

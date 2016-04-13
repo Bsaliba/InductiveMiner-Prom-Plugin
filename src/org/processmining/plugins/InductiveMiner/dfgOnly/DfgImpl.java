@@ -41,24 +41,11 @@ public class DfgImpl implements Dfg {
 	}
 
 	public static DfgImpl createTimeOptimised(int initialSize) {
-		return new DfgImpl(GraphFactory.createTimeOptimised(XEventClass.class, initialSize),
-				GraphFactory.createTimeOptimised(XEventClass.class, initialSize), new MultiSet<XEventClass>(),
-				new MultiSet<XEventClass>());
-	}
-
-	/**
-	 * Use the variant with number of empty traces instead.
-	 * 
-	 * @param directlyFollowsGraph
-	 * @param concurrencyGraph
-	 * @param startActivities
-	 * @param endActivities
-	 */
-	@Deprecated
-	public DfgImpl(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> concurrencyGraph,
-			final MultiSet<XEventClass> startActivities, final MultiSet<XEventClass> endActivities) {
-		this(directlyFollowsGraph, concurrencyGraph, IntegerMultiSet.create(startActivities, directlyFollowsGraph),
-				IntegerMultiSet.create(endActivities, directlyFollowsGraph), 0);
+		Graph<XEventClass> d = GraphFactory.createTimeOptimised(XEventClass.class, initialSize);
+		Graph<XEventClass> c = GraphFactory.createTimeOptimised(XEventClass.class, initialSize);
+		TIntLongMap s = IntegerMultiSet.createEmpty();
+		TIntLongMap e = IntegerMultiSet.createEmpty();
+		return new DfgImpl(d, c, s, e, 0);
 	}
 
 	private DfgImpl(final Graph<XEventClass> directlyFollowsGraph, final Graph<XEventClass> concurrencyGraph,
@@ -306,6 +293,10 @@ public class DfgImpl implements Dfg {
 		return directlyFollowsGraph.getEdgeTarget(edgeIndex);
 	}
 
+	public long getDirectlyFollowsEdgeCardinality(long edgeIndex) {
+		return directlyFollowsGraph.getEdgeWeight(edgeIndex);
+	}
+
 	public long getMostOccuringDirectlyFollowsEdgeCardinality() {
 		return directlyFollowsGraph.getWeightOfHeaviestEdge();
 	}
@@ -323,11 +314,11 @@ public class DfgImpl implements Dfg {
 	public java.lang.Iterable<Long> getConcurrencyEdges() {
 		return concurrencyGraph.getEdges();
 	}
-	
+
 	public boolean containsConcurrencyEdge(int sourceIndex, int targetIndex) {
 		return concurrencyGraph.containsEdge(sourceIndex, targetIndex);
 	}
-	
+
 	public boolean containsConcurrencyEdge(XEventClass source, XEventClass target) {
 		return concurrencyGraph.containsEdge(source, target);
 	}
@@ -346,6 +337,10 @@ public class DfgImpl implements Dfg {
 
 	public XEventClass getConcurrencyEdgeTarget(long edgeIndex) {
 		return concurrencyGraph.getEdgeTarget(edgeIndex);
+	}
+
+	public long getConcurrencyEdgeCardinality(long edgeIndex) {
+		return concurrencyGraph.getEdgeWeight(edgeIndex);
 	}
 
 	public long getMostOccuringConcurrencyEdgeCardinality() {
