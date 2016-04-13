@@ -14,6 +14,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlower;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithoutEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughSingleParallel;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
@@ -23,7 +24,8 @@ import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcess
 public class MiningParametersThesisIM extends MiningParameters {
 	
 	public MiningParametersThesisIM() {
-	setLog2LogInfo(new IMLog2IMLogInfoDefault());
+		
+		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 	
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
 				new BaseCaseFinderIM()
@@ -42,6 +44,7 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughSingleParallel(true),
 				new FallThroughTauLoop(false),
+				new FallThroughFlowerWithoutEpsilon(),
 				new FallThroughFlower()
 				)));
 		
