@@ -76,10 +76,12 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	private int binarySearch(int source, int target) {
 		int low = 0;
 		int high = sources.size() - 1;
+		int mid;
+		int midVal;
 
 		while (low <= high) {
-			int mid = (low + high) >>> 1;
-			int midVal = compare(source, target, sources.get(mid), targets.get(mid));
+			mid = (low + high) >>> 1;
+			midVal = compare(source, target, sources.get(mid), targets.get(mid));
 
 			if (midVal < 0)
 				low = mid + 1;
@@ -96,6 +98,12 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 		int from = binarySearch(source, target);
 		if (from >= 0) {
 			weights.set(from, weights.get(from) + weight);
+			
+			if (weights.get(from) == 0) {
+				sources.remove(from, 1);
+				targets.remove(from, 1);
+				weights.remove(from, 1);
+			}
 		} else {
 			sources.insert(~from, source);
 			targets.insert(~from, target);

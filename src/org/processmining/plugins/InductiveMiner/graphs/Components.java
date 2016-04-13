@@ -32,6 +32,13 @@ public class Components<V> {
 		}
 	}
 
+	/**
+	 * Merge the components of the two nodes. If they are in the same component,
+	 * runs in O(1). If they are not, runs in O(n) (n = number of nodes).
+	 * 
+	 * @param indexA
+	 * @param indexB
+	 */
 	public void mergeComponentsOf(int indexA, int indexB) {
 		int source = components[indexA];
 		int target = components[indexB];
@@ -46,9 +53,40 @@ public class Components<V> {
 		}
 	}
 
+	/**
+	 * Merge the components of the two nodes. If they are in the same component,
+	 * runs in O(1). If they are not, runs in O(n) (n = number of nodes). Use
+	 * the integer variant if possible.
+	 * 
+	 * @param indexA
+	 * @param indexB
+	 */
 	public void mergeComponentsOf(V nodeA, V nodeB) {
 		mergeComponentsOf(node2index.get(nodeA), node2index.get(nodeB));
 	}
+
+	public boolean areInSameComponent(int nodeIndexA, int nodeIndexB) {
+		return components[nodeIndexA] == components[nodeIndexB];
+	}
+
+	/**
+	 * Preferably use the integer variant.
+	 * @param nodeA
+	 * @param nodeB
+	 * @return
+	 */
+	public boolean areInSameComponent(V nodeA, V nodeB) {
+		return areInSameComponent(node2index.get(nodeA), node2index.get(nodeB));
+	}
+
+	//	
+	//	public int getComponentOf(int node) {
+	//		return components[node];
+	//	}
+	//	
+	//	public int getComponentOf(V node) {
+	//		return getComponentOf(node2index.get(node));
+	//	}
 
 	public int getNumberOfComponents() {
 		return numberOfComponents;
