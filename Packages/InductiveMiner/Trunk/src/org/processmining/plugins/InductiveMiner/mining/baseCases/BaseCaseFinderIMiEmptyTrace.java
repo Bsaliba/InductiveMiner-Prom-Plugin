@@ -16,7 +16,6 @@ import org.processmining.processtree.impl.AbstractTask;
 public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 
 	public Node findBaseCases(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
-		//this clause is not proven in the paper
 		if (logInfo.getDfg().getNumberOfEmptyTraces() != 0) {
 			//the log contains empty traces
 
@@ -46,6 +45,10 @@ public class BaseCaseFinderIMiEmptyTrace implements BaseCaseFinder {
 
 				//filter empty traces
 				IMLog sublog = removeEpsilonTraces(log, minerState);
+
+				if (minerState.isCancelled()) {
+					return null;
+				}
 
 				//recurse
 				Node child = Miner.mineNode(sublog, tree, minerState);

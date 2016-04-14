@@ -43,14 +43,7 @@ public class Components<V> {
 		int source = components[indexA];
 		int target = components[indexB];
 
-		if (source != target) {
-			numberOfComponents--;
-			for (int i = 0; i < components.length; i++) {
-				if (components[i] == source) {
-					components[i] = target;
-				}
-			}
-		}
+		mergeComponents(source, target);
 	}
 
 	/**
@@ -63,6 +56,17 @@ public class Components<V> {
 	 */
 	public void mergeComponentsOf(V nodeA, V nodeB) {
 		mergeComponentsOf(node2index.get(nodeA), node2index.get(nodeB));
+	}
+	
+	public void mergeComponents(int componentA, int componentB) {
+		if (componentA != componentB) {
+			numberOfComponents--;
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] == componentA) {
+					components[i] = componentB;
+				}
+			}
+		}
 	}
 
 	public boolean areInSameComponent(int nodeIndexA, int nodeIndexB) {
@@ -79,14 +83,13 @@ public class Components<V> {
 		return areInSameComponent(node2index.get(nodeA), node2index.get(nodeB));
 	}
 
-	//	
-	//	public int getComponentOf(int node) {
-	//		return components[node];
-	//	}
-	//	
-	//	public int getComponentOf(V node) {
-	//		return getComponentOf(node2index.get(node));
-	//	}
+	public int getComponentOf(int node) {
+		return components[node];
+	}
+
+	public int getComponentOf(V node) {
+		return getComponentOf(node2index.get(node));
+	}
 
 	public int getNumberOfComponents() {
 		return numberOfComponents;

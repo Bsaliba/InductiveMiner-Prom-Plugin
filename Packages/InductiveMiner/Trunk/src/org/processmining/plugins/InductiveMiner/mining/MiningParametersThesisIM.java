@@ -5,7 +5,9 @@ import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
-import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyLog;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
+import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiSingleActivity;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrentWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
@@ -28,7 +30,9 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 	
 		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIM()
+				new BaseCaseFinderIMiEmptyLog(),
+				new BaseCaseFinderIMiEmptyTrace(),
+				new BaseCaseFinderIMiSingleActivity()
 				)));
 		
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
