@@ -1,5 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import java.util.BitSet;
+
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Components;
@@ -10,14 +12,16 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 
 public class CutFinderIMInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(logInfo.getDfg());
+		return findCut(log, logInfo.getDfg());
 	}
 
-	public Cut findCut(Dfg dfg) {
+	public Cut findCut(IMLog log, Dfg dfg) {
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
 		//put each activity in a component.
@@ -46,7 +50,7 @@ public class CutFinderIMInterleaved implements CutFinder {
 		/*
 		 * All start activities need to be doubly connected from all end
 		 * activities from other components. Thus, walk through the start
-		 * activities and end activities and violating pairs. The reverse
+		 * activities and end activities and merge violating pairs. The reverse
 		 * direction is implied.
 		 */
 		for (int startActivity : dfg.getStartActivityIndices()) {
@@ -54,6 +58,44 @@ public class CutFinderIMInterleaved implements CutFinder {
 				if (startActivity != endActivity) {
 					if (!graph.containsEdge(endActivity, startActivity)) {
 						components.mergeComponentsOf(startActivity, endActivity);
+					}
+				}
+			}
+		}
+
+		/*
+		 * Perform an extra check for fitness: walk through all the traces and
+		 * make sure that the interleaving is not violated, i.e. that no trace
+		 * enters a component twice.
+		 */
+
+		for (IMTrace trace : log) {
+			int currentComponent;
+			BitSet enteredComponents = new BitSet(components.getNumberOfComponents());
+			boolean done = false;
+
+			while (!done) {
+				done = true;
+				currentComponent = -1;
+				enteredComponents.clear();
+				for (IMEventIterator it = trace.iterator(); it.hasNext();) {
+					it.next();
+					int component = components.getComponentOf(it.classify());
+					if (component != currentComponent) {
+						//we are entering a new component with this event
+						//check whether it was visited before
+						if (!enteredComponents.get(component)) {
+							//first time we are entering this component: no problem
+							enteredComponents.set(component);
+						} else {
+							//second time we are entering this component: fitness violation
+							//merge the components
+							components.mergeComponents(currentComponent, component);
+							//recheck the trace
+							done = false;
+							break;
+						}
+						currentComponent = component;
 					}
 				}
 			}
