@@ -11,7 +11,7 @@ import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractTask;
 
-public class FallThroughFlower implements FallThrough {
+public class FallThroughFlowerWithEpsilon implements FallThrough {
 
 	public Node fallThrough(IMLog log, IMLogInfo logInfo, ProcessTree tree, MinerState minerState) {
 

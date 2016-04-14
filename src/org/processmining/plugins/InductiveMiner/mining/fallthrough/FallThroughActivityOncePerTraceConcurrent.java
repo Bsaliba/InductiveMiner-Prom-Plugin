@@ -27,7 +27,7 @@ import org.processmining.processtree.impl.AbstractBlock;
  * @author sleemans
  *
  */
-public class FallThroughSingleParallel implements FallThrough {
+public class FallThroughActivityOncePerTraceConcurrent implements FallThrough {
 
 	private final boolean strict;
 
@@ -38,7 +38,7 @@ public class FallThroughSingleParallel implements FallThrough {
 	 *            only apply if each trace contains precisely one activity;
 	 *            false = apply it also if it's close enough.
 	 */
-	public FallThroughSingleParallel(boolean strict) {
+	public FallThroughActivityOncePerTraceConcurrent(boolean strict) {
 		this.strict = strict;
 	}
 
