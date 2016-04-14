@@ -26,7 +26,7 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
 
-public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough {
+public class FallThroughActivityConcurrent implements FallThrough {
 
 	/*
 	 * (non-Javadoc)
@@ -42,7 +42,7 @@ public class FallThroughLeaveOutActivitiesThenApplyOthers implements FallThrough
 	 * left out activity in parallel is fitness-preserving
 	 */
 
-	public FallThroughLeaveOutActivitiesThenApplyOthers() {
+	public FallThroughActivityConcurrent() {
 
 	}
 
