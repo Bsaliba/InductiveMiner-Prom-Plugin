@@ -20,6 +20,7 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughAc
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithoutEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoopStrict;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
@@ -49,6 +50,7 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughActivityOncePerTraceConcurrent(true),
 				new FallThroughActivityConcurrent(),
+				new FallThroughTauLoopStrict(),
 				new FallThroughTauLoop(false),
 				new FallThroughFlowerWithoutEpsilon(),
 				new FallThroughFlowerWithEpsilon()
