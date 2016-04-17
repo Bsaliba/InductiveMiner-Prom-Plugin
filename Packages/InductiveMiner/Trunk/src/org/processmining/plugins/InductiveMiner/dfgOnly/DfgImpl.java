@@ -136,10 +136,15 @@ public class DfgImpl implements Dfg {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
+		for (int activity : getActivityIndices()) {
+			result.append(activity + ": " + getActivityOfIndex(activity) + ", ");
+		}
+		
+		result.append("\n");
 		for (long edgeIndex : directlyFollowsGraph.getEdges()) {
 			result.append(directlyFollowsGraph.getEdgeSource(edgeIndex));
 			result.append("->");
-			result.append(directlyFollowsGraph.getEdgeTargetIndex(edgeIndex));
+			result.append(directlyFollowsGraph.getEdgeTarget(edgeIndex));
 			result.append(", ");
 		}
 		return result.toString();
