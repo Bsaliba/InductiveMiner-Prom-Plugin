@@ -177,6 +177,10 @@ public abstract class MiningParameters {
 		return reduceParameters;
 	}
 
+	/**
+	 * Set to null if the tree is not to be reduced.
+	 * @param reduceParameters
+	 */
 	public void setReduceParameters(EfficientTreeReduceParameters reduceParameters) {
 		this.reduceParameters = reduceParameters;
 	}

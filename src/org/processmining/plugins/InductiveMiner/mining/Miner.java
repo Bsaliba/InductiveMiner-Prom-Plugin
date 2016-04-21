@@ -56,8 +56,10 @@ public class Miner {
 		debug("discovered tree " + tree.getRoot(), minerState);
 
 		//reduce the tree
-		tree = ReduceTree.reduceTree(tree, parameters.getReduceParameters());
-		debug("after reduction " + tree.getRoot(), minerState);
+		if (parameters.getReduceParameters() != null) {
+			tree = ReduceTree.reduceTree(tree, parameters.getReduceParameters());
+			debug("after reduction " + tree.getRoot(), minerState);
+		}
 
 		minerState.shutdownThreadPools();
 
