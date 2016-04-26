@@ -238,7 +238,9 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
-				new VariantIMEKS(), new VariantIMlc(), new VariantIMilc(), new VariantThesisIM() });
+				new VariantIMEKS(), new VariantIMlc(), new VariantIMilc() });
+		//variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
+		//		new VariantIMEKS(), new VariantIMlc(), new VariantIMilc(), new VariantThesisIM() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
