@@ -28,7 +28,7 @@ import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcess
 public class MiningParametersThesisIM extends MiningParameters {
 	
 	public MiningParametersThesisIM() {
-		setDebug(true);
+		setDebug(false);
 		
 		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 	
