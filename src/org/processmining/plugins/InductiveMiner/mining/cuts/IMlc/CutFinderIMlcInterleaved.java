@@ -1,20 +1,16 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMlc;
 
-import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+import org.processmining.plugins.InductiveMiner.graphs.Components;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
-import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -87,65 +83,52 @@ public class CutFinderIMlcInterleaved implements CutFinder {
 
 	public static Cut findCutBasic(Dfg dfg, Graph<XEventClass> directGraph, Graph<XEventClass> concurrencyGraph) {
 
-		//set up clusters
-		TObjectIntMap<XEventClass> clusters = new TObjectIntHashMap<>();
+		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
-		//consider start activities
-		int i = 0;
-		for (XEventClass startActivity : dfg.getStartActivities()) {
-			//start a new cluster
-			clusters.put(startActivity, i);
+		//put each activity in a component.
+		Components<XEventClass> components = new Components<XEventClass>(graph.getVertices());
 
-			//process all outgoing nodes
-			Queue<XEventClass> q = new LinkedList<>();
-			q.add(startActivity);
-			while (!q.isEmpty()) {
-				for (long e : directGraph.getOutgoingEdgesOf(q.poll())) {
-					XEventClass c = directGraph.getEdgeTarget(e);
-					if (!dfg.isStartActivity(c)) {
-						//this is not a start activity; merge the two clusters
-						mergeClusters(clusters, startActivity, c);
+		/*
+		 * By semantics of the interleaved operator, a non-start activity cannot
+		 * have connections from other subtrees. Thus, walk over all such
+		 * activities and merge components.
+		 */
+		for (int activityIndex : graph.getVertexIndices()) {
+			if (!dfg.isStartActivity(activityIndex)) {
+				for (long edgeIndex : graph.getIncomingEdgesOf(activityIndex)) {
+					int source = graph.getEdgeSourceIndex(edgeIndex);
+					components.mergeComponentsOf(source, activityIndex);
+				}
+			}
+			if (!dfg.isEndActivity(activityIndex)) {
+				for (long edgeIndex : graph.getOutgoingEdgesOf(activityIndex)) {
+					int target = graph.getEdgeTargetIndex(edgeIndex);
+					components.mergeComponentsOf(activityIndex, target);
+				}
+			}
+		}
 
-						if (!clusters.containsKey(c)) {
-							//process further
-							q.add(c);
-						}
+		/*
+		 * All start activities need to be doubly connected from all end
+		 * activities from other components. Thus, walk through the start
+		 * activities and end activities and merge violating pairs. The reverse
+		 * direction is implied.
+		 */
+		for (int startActivity : dfg.getStartActivityIndices()) {
+			for (int endActivity : dfg.getEndActivityIndices()) {
+				if (startActivity != endActivity) {
+					if (!graph.containsEdge(endActivity, startActivity)) {
+						components.mergeComponentsOf(startActivity, endActivity);
 					}
 				}
 			}
-			i++;
 		}
-
-		//merge clusters that have at least one concurrent connection
-		for (long edge : concurrencyGraph.getEdges()) {
-			mergeClusters(clusters, concurrencyGraph.getEdgeSource(edge), concurrencyGraph.getEdgeTarget(edge));
-		}
-
-		//merge all clusters that are not fully connected, i.e. xor and sequence clusters
-		Graph<Long> clusterGraph = GraphFactory.create(Long.class, i);
-		for (TIntIterator it = clusters.valueCollection().iterator(); it.hasNext();) {
-			clusterGraph.addVertex((long) it.next());
-		}
-		for (long edge : directGraph.getEdges()) {
-			int cluster1 = clusters.get(directGraph.getEdgeSource(edge));
-			int cluster2 = clusters.get(directGraph.getEdgeTarget(edge));
-			clusterGraph.addEdge((long) cluster1, (long) cluster2, 1);
-		}
-		for (long cluster1 : clusterGraph.getVertices()) {
-			for (long cluster2 : clusterGraph.getVertices()) {
-				if (!clusterGraph.containsEdge(cluster1, cluster2) || !clusterGraph.containsEdge(cluster2, cluster1)) {
-					mergeClusters(clusters, (int) cluster1, (int) cluster2);
-				}
-			}
-		}
-
-		Collection<Set<XEventClass>> partition = getPartition(clusters);
-
-		if (partition.size() > 1) {
-			return new Cut(Operator.maybeInterleaved, partition);
-		} else {
+		
+		if (components.getNumberOfComponents() < 2) {
 			return null;
 		}
+		
+		return new Cut(Operator.maybeInterleaved, components.getComponents());
 	}
 
 	public static void mergeClusters(TObjectIntMap<XEventClass> clusters, int c1, int c2) {
