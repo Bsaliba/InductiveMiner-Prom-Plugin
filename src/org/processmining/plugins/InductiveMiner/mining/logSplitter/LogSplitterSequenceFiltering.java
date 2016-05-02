@@ -107,7 +107,7 @@ public class LogSplitterSequenceFiltering implements LogSplitter {
 	 * @param mapSigma2Trace
 	 * @return
 	 */
-	private static Map<Set<XEventClass>, IMTrace> progress(
+	public static Map<Set<XEventClass>, IMTrace> progress(
 			Map<Set<XEventClass>, Iterator<IMTrace>> mapSigma2TraceIterator) {
 		Map<Set<XEventClass>, IMTrace> result = new THashMap<>();
 		for (Entry<Set<XEventClass>, Iterator<IMTrace>> e : mapSigma2TraceIterator.entrySet()) {

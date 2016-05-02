@@ -4,17 +4,15 @@ import java.util.BitSet;
 
 import org.processmining.plugins.InductiveMiner.Pair;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class EfficientTreeReduce {
 
 	public static void reduce(EfficientTree tree)
-			throws ReductionFailedException {
+			throws ReductionFailedException, UnknownTreeNodeException {
 		reduce(tree, new EfficientTreeReduceParameters(false));
 	}
 	
 	public static void reduce(EfficientTree tree, EfficientTreeReduceParameters reduceParameters)
-			throws ReductionFailedException {
+			throws ReductionFailedException, UnknownTreeNodeException {
 		//filter epsilon subtrees
 		{
 			BitSet map = EfficientTreeMetrics.canOnlyProduceTau(tree);
@@ -47,7 +45,7 @@ public class EfficientTreeReduce {
 	}
 
 	private static boolean reduceOne(EfficientTree tree, EfficientTreeReduceParameters reduceParameters)
-			throws ReductionFailedException {
+			throws ReductionFailedException, UnknownTreeNodeException {
 		boolean changed = false;
 
 		for (int node = 0; node < tree.getTree().length; node++) {
@@ -64,7 +62,7 @@ public class EfficientTreeReduce {
 				} else if (tree.isInterleaved(node)) {
 					rules = reduceParameters.getRulesInterleaved();
 				} else {
-					throw new NotImplementedException();
+					throw new UnknownTreeNodeException();
 				}
 
 				for (EfficientTreeReductionRule rule : rules) {

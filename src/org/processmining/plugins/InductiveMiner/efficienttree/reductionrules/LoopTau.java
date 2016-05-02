@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.efficienttree.reductionrules;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeMetrics;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 
 /**
  * This reduction rule makes the tree longer. Termination is guaranteed as it is
@@ -13,7 +14,7 @@ import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduc
  */
 public class LoopTau implements EfficientTreeReductionRule {
 
-	public boolean apply(EfficientTree tree, int node) {
+	public boolean apply(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isLoop(node)) {
 			int body = tree.getChild(node, 0);
 			if (tree.isTau(body)) {

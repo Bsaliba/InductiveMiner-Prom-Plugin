@@ -37,8 +37,8 @@ public class DfgMiner {
 		debug(tree.getRoot(), minerState);
 
 		//reduce the tree
-		EfficientTree efficientTree = new EfficientTree(tree);
 		try {
+			EfficientTree efficientTree = new EfficientTree(tree);
 			EfficientTreeReduce.reduce(efficientTree);
 			tree = EfficientTree2processTree.convert(efficientTree);
 		} catch (Exception e) {

@@ -10,6 +10,7 @@ public class LogSplitterIMi extends LogSplitterCombination {
 				new LogSplitterParallel(),
 				new LogSplitterLoop(),
 				new LogSplitterMaybeInterleaved(),
-				new LogSplitterParallel());
+				new LogSplitterParallel(),
+				new LogSplitterOr());
 	}
 }

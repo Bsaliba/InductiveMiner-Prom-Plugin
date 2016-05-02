@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
@@ -19,8 +20,6 @@ import org.processmining.processtree.Block.XorLoop;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.Task;
 import org.processmining.processtree.Task.Manual;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class UpToKSuccessor {
 
@@ -68,7 +67,7 @@ public class UpToKSuccessor {
 		return kSuccessors;
 	}
 
-	public static UpToKSuccessorMatrix fromNode(Node node) {
+	public static UpToKSuccessorMatrix fromNode(Node node) throws UnknownTreeNodeException {
 
 		if (node instanceof Task.Manual) {
 			HashSet<String> activities = new HashSet<String>();
@@ -113,7 +112,7 @@ public class UpToKSuccessor {
 
 		} else {
 			System.out.println(node.getClass().toString());
-			throw new NotImplementedException();
+			throw new UnknownTreeNodeException();
 		}
 	}
 

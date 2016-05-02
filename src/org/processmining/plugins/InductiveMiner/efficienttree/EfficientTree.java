@@ -14,6 +14,7 @@ import org.processmining.processtree.Block;
 import org.processmining.processtree.Block.And;
 import org.processmining.processtree.Block.Def;
 import org.processmining.processtree.Block.DefLoop;
+import org.processmining.processtree.Block.Or;
 import org.processmining.processtree.Block.Seq;
 import org.processmining.processtree.Block.Xor;
 import org.processmining.processtree.Block.XorLoop;
@@ -21,8 +22,6 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.Task.Manual;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Class to store a process tree memory efficient and perform operations cpu
@@ -47,6 +46,7 @@ public class EfficientTree {
 	public static final int interleaved = -5;
 	public static final int loop = -6;
 	public static final int skip = -7;
+	public static final int or = -8;
 
 	public static final int childrenFactor = 10;
 
@@ -75,14 +75,14 @@ public class EfficientTree {
 		return Triple.of(tree, activity2int, int2activity);
 	}
 
-	public EfficientTree(ProcessTree processTree) {
+	public EfficientTree(ProcessTree processTree) throws UnknownTreeNodeException {
 		Triple<int[], TObjectIntMap<String>, String[]> t = tree2efficientTree(processTree.getRoot());
 		tree = t.getA();
 		activity2int = t.getB();
 		int2activity = t.getC();
 	}
 
-	public EfficientTree(Node node) {
+	public EfficientTree(Node node) throws UnknownTreeNodeException {
 		Triple<int[], TObjectIntMap<String>, String[]> t = tree2efficientTree(node);
 		tree = t.getA();
 		activity2int = t.getB();
@@ -113,8 +113,10 @@ public class EfficientTree {
 	 * @param activity2int
 	 *            map from activity names to ints >= 0
 	 * @return
+	 * @throws UnknownTreeNodeException
 	 */
-	public static Triple<int[], TObjectIntMap<String>, String[]> tree2efficientTree(Node node) {
+	public static Triple<int[], TObjectIntMap<String>, String[]> tree2efficientTree(Node node)
+			throws UnknownTreeNodeException {
 		TIntArrayList efficientTree = new TIntArrayList();
 		TObjectIntMap<String> activity2int = getEmptyActivity2int();
 		List<String> int2activity = new ArrayList<>();
@@ -125,7 +127,7 @@ public class EfficientTree {
 	}
 
 	private static void node2efficientTree(Node node, TIntArrayList efficientTree, TObjectIntMap<String> activity2int,
-			List<String> int2activity2) {
+			List<String> int2activity2) throws UnknownTreeNodeException {
 		if (node instanceof Automatic) {
 			efficientTree.add(tau);
 		} else if (node instanceof Manual) {
@@ -146,13 +148,15 @@ public class EfficientTree {
 			node2efficientTreeChildren(concurrent, node, efficientTree, activity2int, int2activity2);
 		} else if (node instanceof XorLoop || node instanceof DefLoop) {
 			node2efficientTreeChildren(loop, node, efficientTree, activity2int, int2activity2);
+		} else if (node instanceof Or) {
+			node2efficientTreeChildren(or, node, efficientTree, activity2int, int2activity2);
 		} else {
-			throw new RuntimeException("Node operator translation not implemented.");
+			throw new UnknownTreeNodeException();
 		}
 	}
 
 	private static void node2efficientTreeChildren(int operator, Node node, TIntArrayList result,
-			TObjectIntMap<String> activity2int, List<String> int2activity) {
+			TObjectIntMap<String> activity2int, List<String> int2activity) throws UnknownTreeNodeException {
 		result.add(operator - (childrenFactor * ((Block) node).getChildren().size()));
 		for (Node child : ((Block) node).getChildren()) {
 			node2efficientTree(child, result, activity2int, int2activity);
@@ -236,7 +240,7 @@ public class EfficientTree {
 	 * @return whether the node at position i is an operator
 	 */
 	public boolean isOperator(int node) {
-		return tree[node] < tau && tree[node] != skip;
+		return tree[node] < 0 && tree[node] != skip && tree[node] != tau;
 	}
 
 	/**
@@ -338,10 +342,27 @@ public class EfficientTree {
 	/**
 	 * 
 	 * @param node
+	 * @return whether the given node is an or
+	 */
+	public boolean isOr(int node) {
+		return tree[node] < 0 && tree[node] % childrenFactor == or;
+	}
+
+	/**
+	 * 
+	 * @param node
 	 * @return the operator of the node (only call if the node is an operator)
 	 */
 	public int getOperator(int node) {
 		return tree[node] % childrenFactor;
+	}
+
+	/**
+	 * 
+	 * @return The index of the root of the tree.
+	 */
+	public int getRoot() {
+		return 0;
 	}
 
 	/**
@@ -490,11 +511,15 @@ public class EfficientTree {
 	 */
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		toString(0, result);
+		try {
+			toString(0, result);
+		} catch (UnknownTreeNodeException e) {
+			e.printStackTrace();
+		}
 		return result.toString();
 	}
 
-	public void toString(int node, StringBuilder result) {
+	public void toString(int node, StringBuilder result) throws UnknownTreeNodeException {
 		if (isActivity(node)) {
 			result.append(getActivityName(node));
 		} else if (isTau(node)) {
@@ -510,6 +535,10 @@ public class EfficientTree {
 				result.append("int(");
 			} else if (isLoop(node)) {
 				result.append("loop(");
+			} else if (isOr(node)) {
+				result.append("or(");
+			} else {
+				throw new UnknownTreeNodeException();
 			}
 			for (int i = 0; i < getNumberOfChildren(node); i++) {
 				int child = getChild(node, i);
@@ -520,7 +549,7 @@ public class EfficientTree {
 			}
 			result.append(")");
 		} else {
-			throw new NotImplementedException();
+			throw new UnknownTreeNodeException();
 		}
 
 	}
