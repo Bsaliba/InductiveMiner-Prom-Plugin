@@ -3,6 +3,7 @@ package org.processmining.plugins.InductiveMiner.plugins;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 
@@ -17,7 +18,12 @@ public class IMTree {
 	}
 	
 	public static EfficientTree mineTree(XLog log, MiningParameters parameters) {
-		return new EfficientTree(IMProcessTree.mineProcessTree(log, parameters));
+		try {
+			return new EfficientTree(IMProcessTree.mineProcessTree(log, parameters));
+		} catch (UnknownTreeNodeException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 }

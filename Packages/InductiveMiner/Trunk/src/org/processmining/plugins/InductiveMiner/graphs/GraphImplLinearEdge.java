@@ -94,6 +94,9 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public void addEdge(int source, int target, long weight) {
+		assert(source >= 0);
+		assert(target >= 0);
+		
 		//idea: keep the sources and targets sorted; first on source then on target
 		int from = binarySearch(source, target);
 		if (from >= 0) {

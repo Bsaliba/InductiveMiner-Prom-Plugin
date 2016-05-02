@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
@@ -22,8 +23,6 @@ import org.processmining.processtree.impl.AbstractBlock;
 import org.processmining.processtree.impl.AbstractBlock.Xor;
 import org.processmining.processtree.impl.AbstractTask;
 import org.processmining.processtree.impl.ProcessTreeImpl;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Do not directly call this class, use one of the plug-ins from the
@@ -62,8 +61,12 @@ public class Miner {
 
 		//reduce the tree
 		if (parameters.getReduceParameters() != null) {
-			tree = ReduceTree.reduceTree(tree, parameters.getReduceParameters());
-			debug("after reduction " + tree.getRoot(), minerState);
+			try {
+				tree = ReduceTree.reduceTree(tree, parameters.getReduceParameters());
+				debug("after reduction " + tree.getRoot(), minerState);
+			} catch (UnknownTreeNodeException e) {
+				e.printStackTrace();
+			}
 		}
 
 		minerState.shutdownThreadPools();
@@ -119,7 +122,13 @@ public class Miner {
 			}
 			
 			//make node
-			Block newNode = newNode(cut.getOperator());
+			Block newNode;
+			try {
+				newNode = newNode(cut.getOperator());
+			} catch (UnknownTreeNodeException e) {
+				e.printStackTrace();
+				return null;
+			}
 			addNode(tree, newNode);
 
 			//recurse
@@ -201,7 +210,7 @@ public class Miner {
 		return newNode;
 	}
 
-	private static Block newNode(Operator operator) {
+	private static Block newNode(Operator operator) throws UnknownTreeNodeException {
 		switch (operator) {
 			case loop :
 				return new AbstractBlock.XorLoop("");
@@ -215,8 +224,10 @@ public class Miner {
 				return new MaybeInterleaved("");
 			case interleaved :
 				return new Interleaved("");
+			case or:
+				return new AbstractBlock.Or("");
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 
 	/**

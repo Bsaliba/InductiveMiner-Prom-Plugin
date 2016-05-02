@@ -62,6 +62,10 @@ public class CutFinderIMInterleaved implements CutFinder {
 				}
 			}
 		}
+		
+		if (components.getNumberOfComponents() < 2) {
+			return null;
+		}
 
 		/*
 		 * Perform an extra check for fitness: walk through all the traces and

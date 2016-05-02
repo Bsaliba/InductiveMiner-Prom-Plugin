@@ -2,11 +2,9 @@ package org.processmining.plugins.InductiveMiner.efficienttree;
 
 import java.util.BitSet;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class EfficientTreeMetrics {
 
-	public static long getShortestTrace(EfficientTree tree, int node) {
+	public static long getShortestTrace(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
 			return 1;
 		} else if (tree.isTau(node)) {
@@ -27,7 +25,7 @@ public class EfficientTreeMetrics {
 			} else if (tree.isLoop(node)) {
 				return getShortestTrace(tree, tree.getChild(node, 0)) + getShortestTrace(tree, tree.getChild(node, 2));
 			} else {
-				throw new RuntimeException("not implemented");
+				throw new UnknownTreeNodeException();
 			}
 		}
 	}
@@ -56,7 +54,7 @@ public class EfficientTreeMetrics {
 		return result;
 	}
 
-	public static boolean canOnlyProduceTau(EfficientTree tree, int node) {
+	public static boolean canOnlyProduceTau(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
 			return false;
 		} else if (tree.isTau(node)) {
@@ -69,7 +67,7 @@ public class EfficientTreeMetrics {
 			}
 			return true;
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 
 	public static BitSet canProduceTau(EfficientTree tree) {
@@ -98,7 +96,7 @@ public class EfficientTreeMetrics {
 		return result;
 	}
 
-	public static boolean canProduceTau(EfficientTree tree, int node) {
+	public static boolean canProduceTau(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
 			return false;
 		} else if (tree.isTau(node)) {
@@ -118,7 +116,7 @@ public class EfficientTreeMetrics {
 		} else if (tree.isLoop(node)) {
 			return canProduceTau(tree, tree.getChild(node, 0)) && canProduceTau(tree, tree.getChild(node, 2));
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 
 	/**
@@ -127,8 +125,9 @@ public class EfficientTreeMetrics {
 	 * @param node
 	 * @param activity
 	 * @return whether the given node can produce the trace <activity>
+	 * @throws UnknownTreeNodeException 
 	 */
-	public static boolean canProduceSingleActivity(EfficientTree tree, int node, int activity) {
+	public static boolean canProduceSingleActivity(EfficientTree tree, int node, int activity) throws UnknownTreeNodeException {
 		if (tree.isTau(node)) {
 			return false;
 		} else if (tree.isActivity(node)) {
@@ -193,7 +192,7 @@ public class EfficientTreeMetrics {
 			}
 			return false;
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 
 	/**
@@ -201,8 +200,9 @@ public class EfficientTreeMetrics {
 	 * @param tree
 	 * @param node
 	 * @return whether each trace of the node has a length of at most one.
+	 * @throws UnknownTreeNodeException 
 	 */
-	public static boolean traceLengthAtMostOne(EfficientTree tree, int node) {
+	public static boolean traceLengthAtMostOne(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
 			return true;
 		} else if (tree.isTau(node)) {
@@ -235,7 +235,7 @@ public class EfficientTreeMetrics {
 				return onlyEmptyTrace(tree, node);
 			}
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 
 	/**
@@ -243,8 +243,9 @@ public class EfficientTreeMetrics {
 	 * @param tree
 	 * @param node
 	 * @return whether each trace of the node has a length of at most zero.
+	 * @throws UnknownTreeNodeException 
 	 */
-	public static boolean onlyEmptyTrace(EfficientTree tree, int node) {
+	public static boolean onlyEmptyTrace(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
 			return false;
 		} else if (tree.isTau(node)) {
@@ -257,6 +258,6 @@ public class EfficientTreeMetrics {
 			}
 			return true;
 		}
-		throw new NotImplementedException();
+		throw new UnknownTreeNodeException();
 	}
 }

@@ -1,5 +1,6 @@
 package org.processmining.plugins.InductiveMiner.mining.postprocessor;
 
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.interleaved.DetectInterleaved;
@@ -18,7 +19,11 @@ public class PostProcessorInterleaved implements PostProcessor {
 	public Node postProcess(Node node, IMLog log, IMLogInfo logInfo, MinerState state) {
 
 		if (node instanceof MaybeInterleaved) {
-			node = DetectInterleaved.remove((MaybeInterleaved) node, state.parameters.getReduceParameters());
+			try {
+				node = DetectInterleaved.remove((MaybeInterleaved) node, state.parameters.getReduceParameters());
+			} catch (UnknownTreeNodeException e) {
+				e.printStackTrace();
+			}
 		}
 		return node;
 	}

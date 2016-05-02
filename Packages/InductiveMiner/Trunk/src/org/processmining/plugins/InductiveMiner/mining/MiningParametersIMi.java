@@ -13,13 +13,14 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityOncePerTraceConcurrent;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterMaybeInterleaved;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterOr;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterParallel;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSequenceFiltering;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXorFiltering;
@@ -54,7 +55,8 @@ public class MiningParametersIMi extends MiningParameters {
 				new LogSplitterParallel(), 
 				new LogSplitterLoop(),
 				new LogSplitterMaybeInterleaved(),
-				new LogSplitterParallel()));
+				new LogSplitterParallel(),
+				new LogSplitterOr()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughActivityOncePerTraceConcurrent(false),

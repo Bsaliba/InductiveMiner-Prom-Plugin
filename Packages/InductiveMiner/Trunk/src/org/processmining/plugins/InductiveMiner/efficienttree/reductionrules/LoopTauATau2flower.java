@@ -3,11 +3,12 @@ package org.processmining.plugins.InductiveMiner.efficienttree.reductionrules;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeMetrics;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
+import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 
 @Deprecated
 public class LoopTauATau2flower implements EfficientTreeReductionRule {
 
-	public boolean apply(EfficientTree tree, int loop) {
+	public boolean apply(EfficientTree tree, int loop) throws UnknownTreeNodeException {
 
 		//look for loop( tau1, A, tau3)
 		if (tree.isLoop(loop)) {

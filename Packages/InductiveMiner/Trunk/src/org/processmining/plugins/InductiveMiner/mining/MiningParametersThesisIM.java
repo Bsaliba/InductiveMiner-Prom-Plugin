@@ -21,14 +21,19 @@ import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFl
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithoutEpsilon;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoopStrict;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterMaybeInterleaved;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterOr;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterParallel;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSequenceFiltering;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXorFiltering;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
-import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
 
 public class MiningParametersThesisIM extends MiningParameters {
 	
 	public MiningParametersThesisIM() {
-		setDebug(false);
+		setDebug(true);
 		
 		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 	
@@ -41,12 +46,21 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
+				//new CutFinderIMInclusiveChoice(),
 				new CutFinderIMConcurrentWithMinimumSelfDistance(),
 				new CutFinderIMInterleaved(),
 				new CutFinderIMLoop()
 				)));
 		
-		setLogSplitter(new LogSplitterIMi());
+		setLogSplitter(new LogSplitterCombination(
+				new LogSplitterXorFiltering(), 
+				new LogSplitterSequenceFiltering(), 
+				new LogSplitterParallel(),
+				new LogSplitterLoop(),
+				new LogSplitterMaybeInterleaved(),
+				//new LogSplitterInterleavedFiltering(),
+				new LogSplitterParallel(),
+				new LogSplitterOr()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
 				new FallThroughActivityOncePerTraceConcurrent(true),
@@ -57,8 +71,6 @@ public class MiningParametersThesisIM extends MiningParameters {
 				new FallThroughFlowerWithEpsilon()
 				)));
 		
-		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
-				new PostProcessorInterleaved()
-				)));
+		setPostProcessors(new ArrayList<PostProcessor>());
 	}
 }
