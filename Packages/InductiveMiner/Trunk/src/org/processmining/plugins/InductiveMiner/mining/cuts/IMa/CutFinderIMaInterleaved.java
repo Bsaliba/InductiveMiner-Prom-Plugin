@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMa;
 
 import java.util.BitSet;
 
@@ -15,7 +15,14 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 
-public class CutFinderIMInterleaved implements CutFinder {
+/**
+ * Detect an interleaved cut. Guarantee local fitness preservation by walking
+ * over the log.
+ * 
+ * @author sleemans
+ *
+ */
+public class CutFinderIMaInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		return findCut(log, logInfo.getDfg());
@@ -62,7 +69,7 @@ public class CutFinderIMInterleaved implements CutFinder {
 				}
 			}
 		}
-		
+
 		if (components.getNumberOfComponents() < 2) {
 			return null;
 		}

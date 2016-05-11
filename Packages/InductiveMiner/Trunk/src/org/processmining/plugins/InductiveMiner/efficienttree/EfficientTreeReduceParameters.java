@@ -1,10 +1,13 @@
 package org.processmining.plugins.InductiveMiner.efficienttree;
 
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.And2Or;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.IntShortLanguage;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopLoop;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.LoopTau;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.OrXorTau;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SameOperator;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfOr;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAndInt;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
 
@@ -35,12 +38,14 @@ public class EfficientTreeReduceParameters {
 	public EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
 	public EfficientTreeReductionRule[] rulesAnd = new EfficientTreeReductionRule[] { new SingleChild(),
-			new TauChildOfSeqAndInt(), new SameOperator() };
+			new TauChildOfSeqAndInt(), new SameOperator(), new And2Or() };
 	public EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopLoop(), new LoopTau() };
 	public EfficientTreeReductionRule[] rulesIntCollapsed = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
 	public EfficientTreeReductionRule[] rulesIntExpanded = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator(), new IntShortLanguage() };
+	public EfficientTreeReductionRule[] rulesOr = new EfficientTreeReductionRule[] { new SingleChild(),
+			new SameOperator(), new TauChildOfOr(), new OrXorTau() };
 
 	public EfficientTreeReductionRule[] getRulesXor() {
 		return rulesXor;
@@ -64,5 +69,9 @@ public class EfficientTreeReduceParameters {
 		} else {
 			return rulesIntExpanded;
 		}
+	}
+	
+	public EfficientTreeReductionRule[] getRulesOr() {
+		return rulesOr;
 	}
 }

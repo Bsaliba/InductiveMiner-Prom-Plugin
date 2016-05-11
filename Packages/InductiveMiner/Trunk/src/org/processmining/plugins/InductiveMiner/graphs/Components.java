@@ -6,14 +6,16 @@ import gnu.trove.procedure.TObjectIntProcedure;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 public class Components<V> {
 
-	private int[] components;
+	private final int[] components;
 	private int numberOfComponents;
-	private TObjectIntHashMap<V> node2index;
+	private final TObjectIntHashMap<V> node2index;
 
 	public Components(V[] nodes) {
 		components = new int[nodes.length];
@@ -22,13 +24,36 @@ public class Components<V> {
 			components[i] = i;
 		}
 
-		node2index = new TObjectIntHashMap<V>();
+		node2index = new TObjectIntHashMap<>();
 		{
 			int i = 0;
 			for (V node : nodes) {
 				node2index.put(node, i);
 				i++;
 			}
+		}
+	}
+
+	public Components(Collection<? extends Collection<V>> partition) {
+		numberOfComponents = partition.size();
+		node2index = new TObjectIntHashMap<>();
+		int nodeNumber = 0;
+		for (Collection<V> component : partition) {
+			for (V node : component) {
+				node2index.put(node, nodeNumber);
+				nodeNumber++;
+			}
+		}
+		components = new int[nodeNumber];
+
+		int componentNumber = 0;
+		nodeNumber = 0;
+		for (Collection<V> component : partition) {
+			for (V node : component) {
+				components[nodeNumber] = componentNumber;
+				nodeNumber++;
+			}
+			componentNumber++;
 		}
 	}
 
@@ -57,7 +82,7 @@ public class Components<V> {
 	public void mergeComponentsOf(V nodeA, V nodeB) {
 		mergeComponentsOf(node2index.get(nodeA), node2index.get(nodeB));
 	}
-	
+
 	public void mergeComponents(int componentA, int componentB) {
 		if (componentA != componentB) {
 			numberOfComponents--;
@@ -75,6 +100,7 @@ public class Components<V> {
 
 	/**
 	 * Preferably use the integer variant.
+	 * 
 	 * @param nodeA
 	 * @param nodeB
 	 * @return
@@ -121,5 +147,35 @@ public class Components<V> {
 		});
 
 		return result;
+	}
+
+	public Iterable<Integer> getNodeIndicesOfComponent(final int componentIndex) {
+		return new Iterable<Integer>() {
+			public Iterator<Integer> iterator() {
+				return new Iterator<Integer>() {
+					int now = -1;
+
+					public Integer next() {
+						for (int i = now + 1; i < components.length; i++) {
+							if (components[i] == componentIndex) {
+								now = i;
+								return now;
+							}
+						}
+						return null;
+					}
+
+					public boolean hasNext() {
+						for (int i = now + 1; i < components.length; i++) {
+							if (components[i] == componentIndex) {
+								return true;
+							}
+						}
+						return false;
+					}
+				};
+			}
+		};
+
 	}
 }

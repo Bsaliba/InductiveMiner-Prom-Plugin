@@ -9,11 +9,12 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderI
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiEmptyTrace;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMiSingleActivity;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrentWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaConcurrent;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaInterleaved;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaOr;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityConcurrent;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityOncePerTraceConcurrent;
@@ -30,9 +31,9 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSe
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXorFiltering;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 
-public class MiningParametersThesisIM extends MiningParameters {
+public class MiningParametersIMa extends MiningParameters {
 	
-	public MiningParametersThesisIM() {
+	public MiningParametersIMa() {
 		setDebug(true);
 		
 		setLog2LogInfo(new IMLog2IMLogInfoDefault());
@@ -46,9 +47,9 @@ public class MiningParametersThesisIM extends MiningParameters {
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMExclusiveChoice(),
 				new CutFinderIMSequence(),
-				//new CutFinderIMInclusiveChoice(),
-				new CutFinderIMConcurrentWithMinimumSelfDistance(),
-				new CutFinderIMInterleaved(),
+				new CutFinderIMaOr(),
+				new CutFinderIMaConcurrent(),
+				new CutFinderIMaInterleaved(),
 				new CutFinderIMLoop()
 				)));
 		

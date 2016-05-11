@@ -101,7 +101,7 @@ public class EfficientTreeMetrics {
 			return false;
 		} else if (tree.isTau(node)) {
 			return true;
-		} else if (tree.isXor(node)) {
+		} else if (tree.isXor(node) || tree.isOr(node)) {
 			boolean bresult = false;
 			for (int child : tree.getChildren(node)) {
 				bresult = bresult || canProduceTau(tree, child);
