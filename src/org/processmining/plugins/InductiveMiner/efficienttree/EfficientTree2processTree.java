@@ -8,6 +8,7 @@ import org.processmining.processtree.Edge;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock.And;
+import org.processmining.processtree.impl.AbstractBlock.Or;
 import org.processmining.processtree.impl.AbstractBlock.Seq;
 import org.processmining.processtree.impl.AbstractBlock.Xor;
 import org.processmining.processtree.impl.AbstractBlock.XorLoop;
@@ -60,6 +61,8 @@ public class EfficientTree2processTree {
 				newNode = new Interleaved("");
 			} else if (tree.isLoop(node)) {
 				newNode = new XorLoop("");
+			} else if (tree.isOr(node)) {
+				newNode = new Or("");
 			} else {
 				throw new RuntimeException("not implemented");
 			}

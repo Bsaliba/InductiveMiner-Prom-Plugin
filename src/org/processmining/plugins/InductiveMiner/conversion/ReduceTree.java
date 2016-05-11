@@ -19,18 +19,21 @@ public class ReduceTree {
 	@Plugin(name = "Reduce process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Reduce Process Tree Language-equivalently, default", requiredParameterLabels = { 0 })
-	public ProcessTree reduceTree(PluginContext context, ProcessTree tree) throws UnknownTreeNodeException {
+	public ProcessTree reduceTree(PluginContext context, ProcessTree tree) throws UnknownTreeNodeException,
+			ReductionFailedException {
 		return reduceTree(tree, new EfficientTreeReduceParameters(false));
 	}
-	
+
 	@Plugin(name = "Reduce collapsed process tree language-equivalently", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Process Tree" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Reduce Process Tree Language-equivalently, default", requiredParameterLabels = { 0 })
-	public ProcessTree reduceCollapsedTree(PluginContext context, ProcessTree tree) throws UnknownTreeNodeException {
+	public ProcessTree reduceCollapsedTree(PluginContext context, ProcessTree tree) throws UnknownTreeNodeException,
+			ReductionFailedException {
 		return reduceTree(tree, new EfficientTreeReduceParameters(true));
 	}
-	
-	public static void reduceChildrenOf(Block node, EfficientTreeReduceParameters reduceParameters) throws UnknownTreeNodeException {
+
+	public static void reduceChildrenOf(Block node, EfficientTreeReduceParameters reduceParameters)
+			throws UnknownTreeNodeException {
 		for (Node child : node.getChildren()) {
 			//convert child to an efficient tree
 			EfficientTree partialTree = new EfficientTree(child);
@@ -43,13 +46,10 @@ public class ReduceTree {
 		}
 	}
 
-	public static ProcessTree reduceTree(ProcessTree tree, EfficientTreeReduceParameters reduceParameters) throws UnknownTreeNodeException {
+	public static ProcessTree reduceTree(ProcessTree tree, EfficientTreeReduceParameters reduceParameters)
+			throws UnknownTreeNodeException, ReductionFailedException {
 		EfficientTree efficientTree = new EfficientTree(tree);
-		try {
-			EfficientTreeReduce.reduce(efficientTree, reduceParameters);
-			return EfficientTree2processTree.convert(efficientTree);
-		} catch (Exception e) {
-			return tree;
-		}
+		EfficientTreeReduce.reduce(efficientTree, reduceParameters);
+		return EfficientTree2processTree.convert(efficientTree);
 	}
 }

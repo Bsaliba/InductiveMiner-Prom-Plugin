@@ -6,7 +6,7 @@ import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduc
 public class SameOperator implements EfficientTreeReductionRule {
 
 	public boolean apply(EfficientTree tree, int node) {
-		if (tree.isXor(node) || tree.isSequence(node) || tree.isConcurrent(node)) {
+		if (tree.isXor(node) || tree.isSequence(node) || tree.isConcurrent(node) || tree.isOr(node)) {
 			int operator = tree.getOperator(node);
 
 			for (int child : tree.getChildren(node)) {

@@ -31,7 +31,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersThesisIM;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -65,9 +65,9 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantThesisIM extends Variant {
+	public class VariantIMe extends Variant {
 		public String toString() {
-			return "Inductive Miner - thesis";
+			return "Inductive Miner - extended";
 		}
 
 		public boolean hasNoise() {
@@ -75,7 +75,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersThesisIM();
+			return new MiningParametersIMa();
 		}
 
 		public boolean noNoiseImpliesFitness() {

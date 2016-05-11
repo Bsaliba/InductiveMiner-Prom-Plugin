@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.processmining.framework.packages.PackageManager.Canceller;
 import org.processmining.plugins.InductiveMiner.conversion.ReduceTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduce.ReductionFailedException;
 import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
@@ -43,7 +44,7 @@ public class Miner {
 		ProcessTree tree = new ProcessTreeImpl();
 		MinerState minerState = new MinerState(parameters, canceller);
 		Node root = mineNode(log, tree, minerState);
-		
+
 		if (canceller.isCancelled()) {
 			minerState.shutdownThreadPools();
 			return null;
@@ -64,7 +65,7 @@ public class Miner {
 			try {
 				tree = ReduceTree.reduceTree(tree, parameters.getReduceParameters());
 				debug("after reduction " + tree.getRoot(), minerState);
-			} catch (UnknownTreeNodeException e) {
+			} catch (UnknownTreeNodeException | ReductionFailedException e) {
 				e.printStackTrace();
 			}
 		}
@@ -120,7 +121,7 @@ public class Miner {
 			if (minerState.isCancelled()) {
 				return null;
 			}
-			
+
 			//make node
 			Block newNode;
 			try {
@@ -135,11 +136,11 @@ public class Miner {
 			if (cut.getOperator() != Operator.loop) {
 				for (IMLog sublog : splitResult.sublogs) {
 					Node child = mineNode(sublog, tree, minerState);
-					
+
 					if (minerState.isCancelled()) {
 						return null;
 					}
-					
+
 					addChild(newNode, child, minerState);
 				}
 			} else {
@@ -151,11 +152,11 @@ public class Miner {
 				IMLog firstSublog = it.next();
 				{
 					Node firstChild = mineNode(firstSublog, tree, minerState);
-					
+
 					if (minerState.isCancelled()) {
 						return null;
 					}
-					
+
 					addChild(newNode, firstChild, minerState);
 				}
 
@@ -171,11 +172,11 @@ public class Miner {
 				while (it.hasNext()) {
 					IMLog sublog = it.next();
 					Node child = mineNode(sublog, tree, minerState);
-					
+
 					if (minerState.isCancelled()) {
 						return null;
 					}
-					
+
 					addChild(redoXor, child, minerState);
 				}
 
@@ -224,7 +225,7 @@ public class Miner {
 				return new MaybeInterleaved("");
 			case interleaved :
 				return new Interleaved("");
-			case or:
+			case or :
 				return new AbstractBlock.Or("");
 		}
 		throw new UnknownTreeNodeException();
@@ -248,11 +249,11 @@ public class Miner {
 		Node n = null;
 		Iterator<BaseCaseFinder> it = minerState.parameters.getBaseCaseFinders().iterator();
 		while (n == null && it.hasNext()) {
-			
+
 			if (minerState.isCancelled()) {
 				return null;
 			}
-			
+
 			n = it.next().findBaseCases(log, logInfo, tree, minerState);
 		}
 		return n;
@@ -262,11 +263,11 @@ public class Miner {
 		Cut c = null;
 		Iterator<CutFinder> it = minerState.parameters.getCutFinders().iterator();
 		while (it.hasNext() && (c == null || !c.isValid())) {
-			
+
 			if (minerState.isCancelled()) {
 				return null;
 			}
-			
+
 			c = it.next().findCut(log, logInfo, minerState);
 		}
 		return c;
@@ -276,11 +277,11 @@ public class Miner {
 		Node n = null;
 		Iterator<FallThrough> it = minerState.parameters.getFallThroughs().iterator();
 		while (n == null && it.hasNext()) {
-			
+
 			if (minerState.isCancelled()) {
 				return null;
 			}
-			
+
 			n = it.next().fallThrough(log, logInfo, tree, minerState);
 		}
 		return n;
@@ -288,7 +289,7 @@ public class Miner {
 
 	public static LogSplitResult splitLog(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
 		LogSplitResult result = minerState.parameters.getLogSplitter().split(log, logInfo, cut, minerState);
-		
+
 		if (minerState.isCancelled()) {
 			return null;
 		}

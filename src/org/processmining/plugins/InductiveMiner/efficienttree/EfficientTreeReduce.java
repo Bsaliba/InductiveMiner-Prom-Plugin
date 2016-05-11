@@ -61,6 +61,8 @@ public class EfficientTreeReduce {
 					rules = reduceParameters.getRulesConcurrent();
 				} else if (tree.isInterleaved(node)) {
 					rules = reduceParameters.getRulesInterleaved();
+				} else if (tree.isOr(node)) {
+					rules = reduceParameters.getRulesOr();
 				} else {
 					throw new UnknownTreeNodeException();
 				}

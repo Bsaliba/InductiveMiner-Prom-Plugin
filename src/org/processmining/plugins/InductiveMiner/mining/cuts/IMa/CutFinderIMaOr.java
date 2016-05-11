@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMa;
 
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -12,16 +12,17 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcurrentWithMinimumSelfDistance;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 
-public class CutFinderIMInclusiveChoice implements CutFinder {
+public class CutFinderIMaOr implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
 		Cut cut = CutFinderIMConcurrentWithMinimumSelfDistance.findCutImpl(log, logInfo, minerState);
 
-		if (!cut.isValid()) {
+		if (cut == null || !cut.isValid()) {
 			return null;
 		}
 
@@ -64,6 +65,6 @@ public class CutFinderIMInclusiveChoice implements CutFinder {
 		if (partsWithoutEmptyTraces.isEmpty()) {
 			return new Cut(Operator.or, cut.getPartition());
 		}
-		return cut;
+		return null;
 	}
 }
