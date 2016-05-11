@@ -173,6 +173,10 @@ public class Components<V> {
 						}
 						return false;
 					}
+					
+					public void remove() {
+						
+					}
 				};
 			}
 		};
