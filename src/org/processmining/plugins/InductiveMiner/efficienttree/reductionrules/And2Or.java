@@ -35,7 +35,7 @@ public class And2Or implements EfficientTreeReductionRule {
 				numberOfSkips++;
 			}
 
-			int[] newTree = new int[tree.getTree().length + 3 - numberOfSkips];
+			int[] newTree = new int[(tree.getTree().length + 3) - numberOfSkips];
 
 			//copy the part up to the node
 			System.arraycopy(tree.getTree(), 0, newTree, 0, node);
@@ -70,15 +70,13 @@ public class And2Or implements EfficientTreeReductionRule {
 				System.arraycopy(tree.getTree(), child, newTree, pos, childLength);
 				pos += childLength;
 			}
-			
-			pos += 1;
 
-			//set the empty parts of the tree to skip
-			for (; pos < newTree.length; pos++) {
-				newTree[pos] = EfficientTree.skip;
-			}
+			//copy the part after the node
+			int afterNode = tree.traverse(node);
+			System.arraycopy(tree.getTree(), afterNode, newTree, pos, newTree.length - pos);
 
 			tree.replaceTree(newTree);
+
 			return true;
 		}
 		return false;
