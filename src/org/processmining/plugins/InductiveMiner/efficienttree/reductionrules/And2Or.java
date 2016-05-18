@@ -25,10 +25,10 @@ public class And2Or implements EfficientTreeReductionRule {
 			//there are more than two children that can produce tau
 
 			//before: and ... Q2 ... Q4 ... skip skip skip
-			
+
 			//find the number of skips at the end
 			int numberOfSkips = 0;
-			for (int i = tree.getTree().length - 1; i >= 0;  i--) {
+			for (int i = tree.getTree().length - 1; i >= 0; i--) {
 				if (!tree.isSkip(i)) {
 					break;
 				}
@@ -53,27 +53,31 @@ public class And2Or implements EfficientTreeReductionRule {
 					pos += childLength;
 				}
 			}
-			
+
 			//set the xor
 			newTree[pos] = EfficientTree.xor - EfficientTree.childrenFactor * 2;
-			
+
 			//set the tau
 			newTree[pos + 1] = EfficientTree.tau;
-			
+
 			//set the or
 			newTree[pos + 2] = EfficientTree.or - EfficientTree.childrenFactor * childrenThatCanProduceTau.size();
-			
+
 			pos += 3;
-			
+
 			for (int child : childrenThatCanProduceTau.toArray()) {
 				int childLength = tree.traverse(child) - child;
 				System.arraycopy(tree.getTree(), child, newTree, pos, childLength);
 				pos += childLength;
 			}
 			
+			pos += 1;
+
 			//set the empty parts of the tree to skip
-			
-			
+			for (; pos < newTree.length; pos++) {
+				newTree[pos] = EfficientTree.skip;
+			}
+
 			tree.replaceTree(newTree);
 			return true;
 		}
