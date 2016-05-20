@@ -366,7 +366,7 @@ public class IMMiningDialog extends JPanel {
 
 		//classifiers
 		{
-			final JLabel classifierLabel = factory.createLabel("Events classifier");
+			final JLabel classifierLabel = factory.createLabel("Event classifier");
 			GridBagConstraints cClassifierLabel = new GridBagConstraints();
 			cClassifierLabel.gridx = 0;
 			cClassifierLabel.gridy = gridy;
