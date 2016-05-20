@@ -56,23 +56,17 @@ public class ClassifierChooser extends JPanel {
 	 * @param eventAttributes
 	 * @param filterLifeCycleTransition
 	 */
-	private ClassifierChooser(XLog log, String[] eventAttributes, boolean filterLifeCycleTransition) {
+	public ClassifierChooser(XLog log, String[] eventAttributes, boolean filterLifeCycleTransition) {
 		setLayout(new BorderLayout());
 		setOpaque(false);
 		this.combobox = new MultiComboBox<>(AttributeClassifier.class, new AttributeClassifier[0]);
 		add(combobox, BorderLayout.CENTER);
 
-		Pair<AttributeClassifier[], AttributeClassifier> p = AttributeClassifiers.getAttributeClassifiers(log,
-				eventAttributes, filterLifeCycleTransition);
-		AttributeClassifier[] attributeClassifiers = p.getA();
-		AttributeClassifier defaultAttributeClassifier = p.getB();
-
-		//add the classifiers/attributes one by one to set singularity
-		combobox.removeAllItems();
-		for (AttributeClassifier classifier : attributeClassifiers) {
-			combobox.addItem(classifier, classifier.isClassifier());
+		if (log != null && eventAttributes != null) {
+			Pair<AttributeClassifier[], AttributeClassifier> p = AttributeClassifiers.getAttributeClassifiers(log,
+					eventAttributes, filterLifeCycleTransition);
+			replaceClassifiers(p.getA(), p.getB());
 		}
-		combobox.setSelectedItem(defaultAttributeClassifier);
 	}
 
 	public void addActionListener(ActionListener actionListener) {
@@ -81,6 +75,20 @@ public class ClassifierChooser extends JPanel {
 
 	public XEventClassifier getSelectedClassifier() {
 		return AttributeClassifiers.constructClassifier(combobox.getSelectedObjects());
+	}
+
+	/**
+	 * Replace the classifiers in the combobox and select (only) one.
+	 * 
+	 * @param attributeClassifiers
+	 * @param selectedClassifier
+	 */
+	public void replaceClassifiers(AttributeClassifier[] attributeClassifiers, AttributeClassifier selectedClassifier) {
+		combobox.removeAllItems();
+		for (AttributeClassifier classifier : attributeClassifiers) {
+			combobox.addItem(classifier, classifier.isClassifier());
+		}
+		combobox.setSelectedItem(selectedClassifier);
 	}
 
 	public MultiComboBox<AttributeClassifier> getMultiComboBox() {
