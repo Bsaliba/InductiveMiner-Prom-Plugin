@@ -41,6 +41,10 @@ public class EfficientTreeReduce {
 		while (reduceOne(tree, reduceParameters)) {
 
 		}
+		
+		if (!tree.isConsistent()) {
+			throw new ReductionFailedException();
+		}
 
 	}
 
