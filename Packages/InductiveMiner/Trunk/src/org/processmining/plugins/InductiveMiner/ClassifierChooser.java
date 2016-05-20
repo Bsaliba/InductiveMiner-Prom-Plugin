@@ -44,13 +44,26 @@ public class ClassifierChooser extends JPanel {
 	 * @param eventAttributes
 	 */
 	private ClassifierChooser(XLog log, String[] eventAttributes) {
+		this(log, eventAttributes, false);
+	}
+
+	/**
+	 * This construct does not walk through the event log, but takes the list of
+	 * event attributes provided. Life cycle transition classifiers and
+	 * attributes are filtered if requested.
+	 * 
+	 * @param log
+	 * @param eventAttributes
+	 * @param filterLifeCycleTransition
+	 */
+	private ClassifierChooser(XLog log, String[] eventAttributes, boolean filterLifeCycleTransition) {
 		setLayout(new BorderLayout());
 		setOpaque(false);
 		this.combobox = new MultiComboBox<>(AttributeClassifier.class, new AttributeClassifier[0]);
 		add(combobox, BorderLayout.CENTER);
 
 		Pair<AttributeClassifier[], AttributeClassifier> p = AttributeClassifiers.getAttributeClassifiers(log,
-				eventAttributes, false);
+				eventAttributes, filterLifeCycleTransition);
 		AttributeClassifier[] attributeClassifiers = p.getA();
 		AttributeClassifier defaultAttributeClassifier = p.getB();
 
