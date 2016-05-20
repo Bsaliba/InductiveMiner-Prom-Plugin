@@ -21,7 +21,7 @@ import org.processmining.plugins.InductiveMiner.AttributeClassifiers.AttributeCl
  * @author sleemans
  *
  */
-public class ClassifiersChooser extends JPanel {
+public class ClassifierChooser extends JPanel {
 
 	private static final long serialVersionUID = 3348039386637737989L;
 	private final MultiComboBox<AttributeClassifier> combobox;
@@ -32,28 +32,31 @@ public class ClassifiersChooser extends JPanel {
 	 * 
 	 * @param log
 	 */
-	public ClassifiersChooser(XLog log) {
+	public ClassifierChooser(XLog log) {
+		this(log, getEventAttributes(log));
+	}
+
+	/**
+	 * This constructor does not walk through the event log, but takes the list
+	 * of event attributes provided.
+	 * 
+	 * @param log
+	 * @param eventAttributes
+	 */
+	private ClassifierChooser(XLog log, String[] eventAttributes) {
 		setLayout(new BorderLayout());
 		setOpaque(false);
 		this.combobox = new MultiComboBox<>(AttributeClassifier.class, new AttributeClassifier[0]);
 		add(combobox, BorderLayout.CENTER);
-		
-		//walk through the log to gather attributes
-		THashSet<String> attributes = new THashSet<>();
-		for (XTrace trace : log) {
-			for (XEvent event : trace) {
-				attributes.addAll(event.getAttributes().keySet());
-			}
-		}
-		String[] attributesArray = attributes.toArray(new String[attributes.size()]);
-		
-		Pair<AttributeClassifier[], AttributeClassifier> p = AttributeClassifiers.getAttributeClassifiers(log, attributesArray, false);
+
+		Pair<AttributeClassifier[], AttributeClassifier> p = AttributeClassifiers.getAttributeClassifiers(log,
+				eventAttributes, false);
 		AttributeClassifier[] attributeClassifiers = p.getA();
 		AttributeClassifier defaultAttributeClassifier = p.getB();
-		
+
 		//add the classifiers/attributes one by one to set singularity
 		combobox.removeAllItems();
-		for (AttributeClassifier classifier: attributeClassifiers) {
+		for (AttributeClassifier classifier : attributeClassifiers) {
 			combobox.addItem(classifier, classifier.isClassifier());
 		}
 		combobox.setSelectedItem(defaultAttributeClassifier);
@@ -66,8 +69,24 @@ public class ClassifiersChooser extends JPanel {
 	public XEventClassifier getSelectedClassifier() {
 		return AttributeClassifiers.constructClassifier(combobox.getSelectedObjects());
 	}
-	
+
 	public MultiComboBox<AttributeClassifier> getMultiComboBox() {
 		return combobox;
+	}
+
+	/**
+	 * 
+	 * @param log
+	 * @return A list of all event attributes (keys). Linear in the size of the
+	 *         event log.
+	 */
+	public static String[] getEventAttributes(XLog log) {
+		THashSet<String> attributes = new THashSet<>();
+		for (XTrace trace : log) {
+			for (XEvent event : trace) {
+				attributes.addAll(event.getAttributes().keySet());
+			}
+		}
+		return attributes.toArray(new String[attributes.size()]);
 	}
 }

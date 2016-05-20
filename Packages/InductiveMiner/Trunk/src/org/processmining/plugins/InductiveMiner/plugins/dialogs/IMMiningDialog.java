@@ -23,7 +23,7 @@ import javax.swing.event.ChangeListener;
 
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
-import org.processmining.plugins.InductiveMiner.ClassifiersChooser;
+import org.processmining.plugins.InductiveMiner.ClassifierChooser;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
@@ -376,7 +376,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		//final JComboBox<ClassifierWrapper> classifiers = factory.createComboBox(Classifiers.getClassifiers(log));
-		final ClassifiersChooser classifiers = new ClassifiersChooser(log);
+		final ClassifierChooser classifiers = new ClassifierChooser(log);
 		{
 			GridBagConstraints cClassifiers = new GridBagConstraints();
 			cClassifiers.gridx = 1;
