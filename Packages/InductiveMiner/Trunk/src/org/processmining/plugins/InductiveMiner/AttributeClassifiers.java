@@ -6,9 +6,9 @@ import java.util.TreeSet;
 
 import org.deckfour.xes.classification.XEventAttributeClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.extension.std.XConceptExtension;
 import org.deckfour.xes.extension.std.XLifecycleExtension;
 import org.deckfour.xes.model.XLog;
-import org.processmining.plugins.InductiveMiner.Pair;
 
 public class AttributeClassifiers {
 
@@ -104,45 +104,63 @@ public class AttributeClassifiers {
 	 * @param log
 	 * @param attributes
 	 * @return A sorted list of attributes and classifiers; first classifiers,
-	 *         than attributes, and the first log-classifier encountered (if
-	 *         any).
+	 *         than attributes, and the default classifier.
 	 */
 	public static Pair<AttributeClassifier[], AttributeClassifier> getAttributeClassifiers(XLog log,
 			String[] attributes, boolean filterLifeCycleClassifiers) {
 
 		AttributeClassifier firstClassifier = null;
+		Set<AttributeClassifier> result = new TreeSet<>();
 
 		//add classifiers
-		Set<AttributeClassifier> result = new TreeSet<>();
-		for (XEventClassifier classifier : log.getClassifiers()) {
-			boolean include = true;
-			if (filterLifeCycleClassifiers) {
-				for (String attribute : classifier.getDefiningAttributeKeys()) {
-					if (attribute.equals(XLifecycleExtension.KEY_TRANSITION)) {
-						include = false;
+		{
+			for (XEventClassifier classifier : log.getClassifiers()) {
+				boolean include = true;
+				if (filterLifeCycleClassifiers) {
+					for (String attribute : classifier.getDefiningAttributeKeys()) {
+						if (attribute.equals(XLifecycleExtension.KEY_TRANSITION)) {
+							include = false;
+						}
 					}
 				}
-			}
-			if (include) {
-				AttributeClassifier add = new AttributeClassifier(classifier);
-				result.add(add);
-				if (firstClassifier == null) {
-					firstClassifier = add;
+				if (include) {
+					AttributeClassifier add = new AttributeClassifier(classifier);
+					result.add(add);
+					if (firstClassifier == null) {
+						firstClassifier = add;
+					}
 				}
 			}
 		}
 
 		//add attributes
-		for (String attribute : attributes) {
-			if (!filterLifeCycleClassifiers || !attribute.equals(XLifecycleExtension.KEY_TRANSITION)) {
-				result.add(new AttributeClassifier(attribute));
+		{
+			for (String attribute : attributes) {
+				if (!filterLifeCycleClassifiers || !attribute.equals(XLifecycleExtension.KEY_TRANSITION)) {
+					result.add(new AttributeClassifier(attribute));
+				}
 			}
 		}
 
+		//transform to array
 		AttributeClassifier[] result2 = new AttributeClassifier[result.size()];
 		Iterator<AttributeClassifier> it = result.iterator();
 		for (int i = 0; i < result2.length; i++) {
 			result2[i] = it.next();
+		}
+
+		if (firstClassifier == null) {
+			//if the log did not contain any classifiers, prefer the concept:name
+			for (AttributeClassifier classifier : result2) {
+				if (classifier.isAttribute() && classifier.getAttribute().equals(XConceptExtension.KEY_NAME)) {
+					firstClassifier = classifier;
+				}
+			}
+		}
+
+		if (firstClassifier == null) {
+			//if we still did not find a classifier, return a dummy one
+			firstClassifier = new AttributeClassifier("empty classifier");
 		}
 
 		return Pair.of(result2, firstClassifier);
