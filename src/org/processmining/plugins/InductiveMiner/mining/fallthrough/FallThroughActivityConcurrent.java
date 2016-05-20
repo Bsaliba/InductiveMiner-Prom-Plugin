@@ -121,6 +121,9 @@ public class FallThroughActivityConcurrent implements FallThrough {
 
 			LogSplitResult logSplitResult = minerState.parameters.getLogSplitter().split(log, logInfo, cutWrapper.cut,
 					minerState);
+			if (minerState.isCancelled()) {
+				return null;
+			}
 			IMLog log1 = logSplitResult.sublogs.get(0);
 			IMLog log2 = logSplitResult.sublogs.get(1);
 
