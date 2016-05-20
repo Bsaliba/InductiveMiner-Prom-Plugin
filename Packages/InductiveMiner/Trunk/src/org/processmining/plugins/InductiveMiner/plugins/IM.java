@@ -1,6 +1,11 @@
 package org.processmining.plugins.InductiveMiner.plugins;
 
+import javax.swing.JOptionPane;
+
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
+import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.info.XLogInfo;
+import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -23,11 +28,13 @@ public class IM {
 	public ProcessTree mineGuiProcessTree(final UIPluginContext context, XLog log) {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
-		context.log("Mining...");
-		if (result != InteractionResult.FINISHED) {
+		if (result != InteractionResult.FINISHED || !confirmLargeLogs(context, log, dialog)) {
 			context.getFutureResult(0).cancel(false);
 			return null;
 		}
+
+		context.log("Mining...");
+
 		return IMProcessTree.mineProcessTree(log, dialog.getMiningParameters(), new Canceller() {
 			public boolean isCancelled() {
 				return context.getProgress().isCancelled();
@@ -35,15 +42,16 @@ public class IM {
 		});
 	}
 
-	@Plugin(name = "Mine Petri net with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = { "Petri net", "Initial marking",
-			"final marking" }, returnTypes = { Petrinet.class, Marking.class, Marking.class }, parameterLabels = { "Log" }, userAccessible = true)
+	@Plugin(name = "Mine Petri net with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = {
+			"Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class,
+			Marking.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Object[] mineGuiPetrinet(UIPluginContext context, XLog log) {
 		IMMiningDialog dialog = new IMMiningDialog(log);
 		InteractionResult result = context.showWizard("Mine using Inductive Miner", true, true, dialog);
 		context.log("Mining...");
-		if (result != InteractionResult.FINISHED) {
+		if (result != InteractionResult.FINISHED || !confirmLargeLogs(context, log, dialog)) {
 			context.getFutureResult(0).cancel(false);
 			context.getFutureResult(1).cancel(false);
 			context.getFutureResult(2).cancel(false);
@@ -67,5 +75,26 @@ public class IM {
 	public static Object[] minePetriNet(PluginContext context, XLog log, MiningParameters parameters) {
 		context.log("Mining...");
 		return IMPetriNet.minePetriNet(context, log, parameters);
+	}
+
+	public boolean confirmLargeLogs(final UIPluginContext context, XLog log, IMMiningDialog dialog) {
+		if (dialog.getVariant().getWarningThreshold() > 0) {
+			XEventClassifier classifier = dialog.getMiningParameters().getClassifier();
+			XLogInfo xLogInfo = XLogInfoFactory.createLogInfo(log, classifier);
+			int numberOfActivities = xLogInfo.getEventClasses().size();
+			if (numberOfActivities > dialog.getVariant().getWarningThreshold()) {
+				int cResult = JOptionPane
+						.showConfirmDialog(
+								null,
+								dialog.getVariant().toString()
+										+ " might take a long time, as the event log contains "
+										+ numberOfActivities
+										+ " activities.\nThe chosen variant of Inductive Miner is exponential in the number of activities.\nAre you sure you want to continue?",
+								"Inductive Miner might take a while", JOptionPane.YES_NO_OPTION);
+
+				return cResult == JOptionPane.YES_OPTION;
+			}
+		}
+		return true;
 	}
 }

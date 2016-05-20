@@ -28,10 +28,10 @@ import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -48,6 +48,7 @@ public class IMMiningDialog extends JPanel {
 
 	public class ParametersWrapper {
 		public MiningParameters parameters;
+		public Variant variant;
 	}
 
 	public abstract class Variant {
@@ -59,6 +60,8 @@ public class IMMiningDialog extends JPanel {
 		public abstract boolean noNoiseImpliesFitness();
 
 		public abstract MiningParameters getMiningParameters();
+		
+		public abstract int getWarningThreshold();
 
 		public String getDoi() {
 			return null;
@@ -67,7 +70,7 @@ public class IMMiningDialog extends JPanel {
 
 	public class VariantIMe extends Variant {
 		public String toString() {
-			return "Inductive Miner - extended";
+			return "Inductive Miner - all operators";
 		}
 
 		public boolean hasNoise() {
@@ -84,6 +87,10 @@ public class IMMiningDialog extends JPanel {
 
 		public String getDoi() {
 			return null;
+		}
+
+		public int getWarningThreshold() {
+			return 0;
 		}
 	}
 
@@ -107,6 +114,10 @@ public class IMMiningDialog extends JPanel {
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-642-38697-8_17";
 		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
 	}
 
 	public class VariantIMi extends Variant {
@@ -128,6 +139,10 @@ public class IMMiningDialog extends JPanel {
 
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-06257-0_6";
+		}
+
+		public int getWarningThreshold() {
+			return 0;
 		}
 	}
 
@@ -151,6 +166,10 @@ public class IMMiningDialog extends JPanel {
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-07734-5_6";
 		}
+
+		public int getWarningThreshold() {
+			return 30;
+		}
 	}
 
 	public class VariantIMEKS extends Variant {
@@ -168,6 +187,10 @@ public class IMMiningDialog extends JPanel {
 
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersEKS();
+		}
+
+		public int getWarningThreshold() {
+			return 20;
 		}
 	}
 
@@ -192,6 +215,10 @@ public class IMMiningDialog extends JPanel {
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
 		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
 	}
 
 	public class VariantIMilc extends Variant {
@@ -215,11 +242,16 @@ public class IMMiningDialog extends JPanel {
 		public String getDoi() {
 			return "http://dx.doi.org/10.1007/978-3-319-19237-6_6";
 		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMi();
+		p.variant = new VariantIMi();
 		SlickerFactory factory = SlickerFactory.instance();
 
 		int gridy = 1;
@@ -408,6 +440,7 @@ public class IMMiningDialog extends JPanel {
 				p.parameters = variant.getMiningParameters();
 				p.parameters.setNoiseThreshold(noise);
 				p.parameters.setClassifier(classifier);
+				p.variant = variant;
 				if (variant.hasNoise()) {
 					noiseValue.setText(String.format("%.2f", p.parameters.getNoiseThreshold()));
 				} else {
@@ -459,6 +492,10 @@ public class IMMiningDialog extends JPanel {
 
 	public MiningParameters getMiningParameters() {
 		return p.parameters;
+	}
+	
+	public Variant getVariant() {
+		return p.variant;
 	}
 
 	public void openWebPage(String url) {
