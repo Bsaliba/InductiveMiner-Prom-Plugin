@@ -148,13 +148,11 @@ public class AttributeClassifiers {
 		for (int i = 0; i < result2.length; i++) {
 			result2[i] = it.next();
 		}
-
-		if (firstClassifier == null) {
-			//if the log did not contain any classifiers, prefer the concept:name
-			for (AttributeClassifier classifier : result2) {
-				if (classifier.isAttribute() && classifier.getAttribute().equals(XConceptExtension.KEY_NAME)) {
-					firstClassifier = classifier;
-				}
+		
+		//look for the concept:name attribute
+		for (AttributeClassifier classifier : result2) {
+			if (classifier.isAttribute() && classifier.getAttribute().equals(XConceptExtension.KEY_NAME)) {
+				firstClassifier = classifier;
 			}
 		}
 
