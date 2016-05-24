@@ -44,7 +44,7 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 	public static final Color selection_colour_fg = new Color(180, 180, 180);
 
 	private static final long serialVersionUID = -7720215210683281697L;
-	private transient CellButtonsMouseListener cbml;
+	//private transient CellButtonsMouseListener cbml;
 	private BitSet selected; //denotes which elements are currently selected
 	private BitSet singular; //denotes which elements do not allow other elements to be selected at the same time.
 	private Class<E> clazz;
@@ -90,9 +90,12 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 		setRenderer((ListCellRenderer<? super Object>) new ButtonsRenderer());
 		JList<E> list = getList();
 		if (list != null) {
-			cbml = new CellButtonsMouseListener();
+			CellButtonsMouseListener cbml = new CellButtonsMouseListener();
 			list.addMouseListener(cbml);
 			list.addMouseMotionListener(cbml);
+			ComboBoxMouseListener cbbml = new ComboBoxMouseListener();
+			addMouseListener(cbbml);
+			addMouseMotionListener(cbbml);
 		}
 	}
 
@@ -230,111 +233,160 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 		singular.clear();
 	};
 
-	private class CellButtonsMouseListener extends MouseAdapter {
-		private int prevIndex = -1;
-		private JCheckBox prevButton;
+	private int prevIndex = -1;
+	private JCheckBox prevButton;
 
-		private void listRepaint(JList<E> list, Rectangle rect) {
-			if (rect != null) {
-				list.repaint(rect);
-			}
+	private void processMouseMove(Point pt) {
+		JList<E> list = getList();
+		int index = list.locationToIndex(pt);
+		@SuppressWarnings("unchecked")
+		ButtonsRenderer renderer = (ButtonsRenderer) list.getCellRenderer();
+		renderer.rolloverIndex = index;
+		if (index < 0) {
+			renderer.rolloverCheckBoxIndex = index;
 		}
-		
+		if (!list.getCellBounds(index, index).contains(pt)) {
+			if (prevIndex >= 0) {
+				Rectangle r = list.getCellBounds(prevIndex, prevIndex);
+				listRepaint(list, r);
+			}
+			index = -1;
+			prevButton = null;
+			return;
+		}
+		if (index >= 0) {
+			JCheckBox button = getCheckBox(list, pt, index);
+			if (button != null) {
+				renderer.rolloverCheckBoxIndex = index;
+				if (!button.equals(prevButton)) {
+					Rectangle r = list.getCellBounds(prevIndex, index);
+					listRepaint(list, r);
+				}
+			} else {
+				renderer.rolloverCheckBoxIndex = -1;
+				Rectangle r = null;
+				if (prevIndex == index) {
+					if (prevIndex >= 0 && prevButton != null) {
+						r = list.getCellBounds(prevIndex, prevIndex);
+					}
+				} else {
+					r = list.getCellBounds(index, index);
+				}
+				listRepaint(list, r);
+				prevIndex = -1;
+			}
+			prevButton = button;
+		}
+		prevIndex = index;
+	}
+
+	private void processMouseRelease(Point pt) {
+		JList<E> list = getList();
+		int index = list.locationToIndex(pt);
+		if (index >= 0 && list.getCellBounds(index, index).contains(pt)) {
+			preventSelectionChange = false;
+			preventPopupClosing = false;
+			JCheckBox checkBox = getCheckBox(list, pt, index);
+			if (checkBox != null && !singular.get(index)) {
+				//click on checkbox
+				checkBox.doClick();
+				Rectangle r = list.getCellBounds(index, index);
+				listRepaint(list, r);
+				repaint();
+			} else {
+				//click on object
+				selected.clear();
+				selected.set(index);
+				//as we're preventing the pop-up from being hidden, we need to hide it ourselves now
+				setPopupVisible(false);
+			}
+			//notify listeners that something changed
+			notifyActionEvent();
+		}
+	}
+
+	private void processMousePressed(Point pt) {
+		JList<E> list = getList();
+		int index = list.locationToIndex(pt);
+		if (index >= 0) {
+			JCheckBox button = getCheckBox(list, pt, index);
+			if (button != null) {
+				listRepaint(list, list.getCellBounds(index, index));
+			}
+			preventSelectionChange = true;
+			preventPopupClosing = true;
+		}
+	}
+
+	private void listRepaint(JList<E> list, Rectangle rect) {
+		if (rect != null) {
+			list.repaint(rect);
+		}
+	}
+
+	private JCheckBox getCheckBox(JList<E> list, Point pt, int index) {
+		Container c = (Container) list.getCellRenderer().getListCellRendererComponent(list, null, index, false, false);
+		Rectangle r = list.getCellBounds(index, index);
+		c.setBounds(r);
+		//c.doLayout();
+		pt.translate(-r.x, -r.y);
+		Component b = SwingUtilities.getDeepestComponentAt(c, pt.x, pt.y);
+		if (b instanceof JCheckBox) {
+			return (JCheckBox) b;
+		} else {
+			return null;
+		}
+	}
+
+	private class ComboBoxMouseListener extends MouseAdapter {
+
+		/**
+		 * This class contains the mouse listeners on the combobox. These
+		 * require a point conversion.
+		 * 
+		 * @param e
+		 * @return
+		 */
+		public Point transform(MouseEvent e) {
+			return SwingUtilities.convertPoint(MultiComboBox.this, e.getPoint(), getList());
+		}
+
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			mouseMoved(e);
+			processMouseMove(transform(e));
 		};
 
 		@Override
-		public void mouseMoved(MouseEvent e) {
-			@SuppressWarnings("unchecked")
-			JList<E> list = (JList<E>) e.getComponent();
-			Point pt = e.getPoint();
-			int index = list.locationToIndex(pt);
-			@SuppressWarnings("unchecked")
-			ButtonsRenderer renderer = (ButtonsRenderer) list.getCellRenderer();
-			renderer.rolloverIndex = index;
-			if (index < 0) {
-				renderer.rolloverCheckBoxIndex = index;
-			}
-			if (!list.getCellBounds(index, index).contains(pt)) {
-				if (prevIndex >= 0) {
-					Rectangle r = list.getCellBounds(prevIndex, prevIndex);
-					listRepaint(list, r);
-				}
-				index = -1;
-				prevButton = null;
-				return;
-			}
-			if (index >= 0) {
-				JCheckBox button = getCheckBox(list, pt, index);
-				if (button != null) {
-					renderer.rolloverCheckBoxIndex = index;
-					if (!button.equals(prevButton)) {
-						Rectangle r = list.getCellBounds(prevIndex, index);
-						listRepaint(list, r);
-					}
-				} else {
-					renderer.rolloverCheckBoxIndex = -1;
-					Rectangle r = null;
-					if (prevIndex == index) {
-						if (prevIndex >= 0 && prevButton != null) {
-							r = list.getCellBounds(prevIndex, prevIndex);
-						}
-					} else {
-						r = list.getCellBounds(index, index);
-					}
-					listRepaint(list, r);
-					prevIndex = -1;
-				}
-				prevButton = button;
-			}
-			prevIndex = index;
+		public void mouseReleased(MouseEvent e) {
+			processMouseRelease(transform(e));
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			System.out.println("mouse pressed");
-			@SuppressWarnings("unchecked")
-			JList<E> list = (JList<E>) e.getComponent();
-			Point pt = e.getPoint();
-			int index = list.locationToIndex(pt);
-			if (index >= 0) {
-				JCheckBox button = getCheckBox(list, pt, index);
-				if (button != null) {
-					listRepaint(list, list.getCellBounds(index, index));
-				}
-				preventSelectionChange = true;
-				preventPopupClosing = true;
-			}
+			processMousePressed(transform(e));
+		}
+	}
+
+	private class CellButtonsMouseListener extends MouseAdapter {
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			processMouseMove(e.getPoint());
+		};
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			processMouseMove(e.getPoint());
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			processMousePressed(e.getPoint());
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			System.out.println("mouse released");
-			@SuppressWarnings("unchecked")
-			JList<E> list = (JList<E>) e.getComponent();
-			Point pt = e.getPoint();
-			int index = list.locationToIndex(pt);
-			if (index >= 0) {
-				preventSelectionChange = false;
-				preventPopupClosing = false;
-				JCheckBox checkBox = getCheckBox(list, pt, index);
-				if (checkBox != null && !singular.get(index)) {
-					//click on checkbox
-					checkBox.doClick();
-					Rectangle r = list.getCellBounds(index, index);
-					listRepaint(list, r);
-				} else {
-					//click on object
-					selected.clear();
-					selected.set(index);
-					//as we're preventing the pop-up from being hidden, we need to hide it ourselves now
-					setPopupVisible(false);
-				}
-				//notify listeners that something changed
-				notifyActionEvent();
-			}
+			processMouseRelease(e.getPoint());
 		}
 
 		@Override
@@ -346,21 +398,6 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 			renderer.rolloverCheckBoxIndex = -1;
 			renderer.rolloverIndex = -1;
 			list.repaint();
-		}
-
-		private JCheckBox getCheckBox(JList<E> list, Point pt, int index) {
-			Container c = (Container) list.getCellRenderer().getListCellRendererComponent(list, null, index, false,
-					false);
-			Rectangle r = list.getCellBounds(index, index);
-			c.setBounds(r);
-			//c.doLayout();
-			pt.translate(-r.x, -r.y);
-			Component b = SwingUtilities.getDeepestComponentAt(c, pt.x, pt.y);
-			if (b instanceof JCheckBox) {
-				return (JCheckBox) b;
-			} else {
-				return null;
-			}
 		}
 	}
 
@@ -384,7 +421,6 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 				if (selected.isEmpty()) {
 					selected.set(rolloverCheckBoxIndex);
 				}
-				showPopup();
 			}
 		}) {
 			private static final long serialVersionUID = 2518507718754515592L;
