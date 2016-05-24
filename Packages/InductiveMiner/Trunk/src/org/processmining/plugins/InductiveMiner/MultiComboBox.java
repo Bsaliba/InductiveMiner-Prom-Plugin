@@ -239,6 +239,11 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 				list.repaint(rect);
 			}
 		}
+		
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			mouseMoved(e);
+		};
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
@@ -289,6 +294,7 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+			System.out.println("mouse pressed");
 			@SuppressWarnings("unchecked")
 			JList<E> list = (JList<E>) e.getComponent();
 			Point pt = e.getPoint();
@@ -305,6 +311,7 @@ public class MultiComboBox<E> extends JComboBox<Object> {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			System.out.println("mouse released");
 			@SuppressWarnings("unchecked")
 			JList<E> list = (JList<E>) e.getComponent();
 			Point pt = e.getPoint();

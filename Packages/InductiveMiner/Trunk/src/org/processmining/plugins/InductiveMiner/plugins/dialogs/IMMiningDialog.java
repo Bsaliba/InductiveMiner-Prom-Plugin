@@ -375,7 +375,6 @@ public class IMMiningDialog extends JPanel {
 			add(classifierLabel, cClassifierLabel);
 		}
 
-		//final JComboBox<ClassifierWrapper> classifiers = factory.createComboBox(Classifiers.getClassifiers(log));
 		final ClassifierChooser classifiers = new ClassifierChooser(log);
 		{
 			GridBagConstraints cClassifiers = new GridBagConstraints();
@@ -477,6 +476,7 @@ public class IMMiningDialog extends JPanel {
 				p.parameters.setClassifier(classifiers.getSelectedClassifier());
 			}
 		});
+		p.parameters.setClassifier(classifiers.getSelectedClassifier());
 
 		doiValue.addMouseListener(new MouseAdapter() {
 			@Override
