@@ -5,6 +5,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -553,4 +554,35 @@ public class EfficientTree {
 		}
 
 	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((activity2int == null) ? 0 : activity2int.hashCode());
+		result = prime * result + Arrays.hashCode(int2activity);
+		result = prime * result + Arrays.hashCode(tree);
+		return result;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EfficientTree other = (EfficientTree) obj;
+		if (activity2int == null) {
+			if (other.activity2int != null)
+				return false;
+		} else if (!activity2int.equals(other.activity2int))
+			return false;
+		if (!Arrays.equals(int2activity, other.int2activity))
+			return false;
+		if (!Arrays.equals(tree, other.tree))
+			return false;
+		return true;
+	}
+	
+	
 }
