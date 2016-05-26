@@ -71,7 +71,11 @@ public class EfficientTreeReduceParameters {
 	}
 
 	public EfficientTreeReductionRule[] getRulesConcurrent() {
-		return rulesAndPro;
+		if (pro) {
+			return rulesAndPro;
+		} else {
+			return rulesAndBasic;
+		}
 	}
 
 	public EfficientTreeReductionRule[] getRulesInterleaved() {
