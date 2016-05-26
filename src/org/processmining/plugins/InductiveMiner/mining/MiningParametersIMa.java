@@ -16,12 +16,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaConc
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaOr;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityOncePerTraceConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithoutEpsilon;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoopStrict;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughIM;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterMaybeInterleaved;
@@ -64,12 +59,7 @@ public class MiningParametersIMa extends MiningParameters {
 				new LogSplitterOr()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
-				new FallThroughActivityOncePerTraceConcurrent(true),
-				new FallThroughActivityConcurrent(),
-				new FallThroughTauLoopStrict(),
-				new FallThroughTauLoop(false),
-				new FallThroughFlowerWithoutEpsilon(),
-				new FallThroughFlowerWithEpsilon()
+				new FallThroughIM()
 				)));
 		
 		setPostProcessors(new ArrayList<PostProcessor>());
