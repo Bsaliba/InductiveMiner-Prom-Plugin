@@ -14,11 +14,12 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Xor
 public class EfficientTreeReduceParameters {
 
 	private boolean collapsed;
+	private boolean pro = true;
 
 	/**
 	 * 
 	 * @param collapsed
-	 *            Denotes what a leaf A means: true = seq(xor(tau, A)), false =
+	 *            Denotes what a leaf A means: true = seq(xor(tau, A_start), A_complete), false =
 	 *            A.
 	 */
 	public EfficientTreeReduceParameters(boolean collapsed) {
@@ -32,13 +33,23 @@ public class EfficientTreeReduceParameters {
 	public void setCollapsed(boolean collapsed) {
 		this.collapsed = collapsed;
 	}
+	
+	public boolean isPro() {
+		return pro;
+	}
+	
+	public void setPro(boolean pro) {
+		this.pro = pro;
+	}
 
 	public EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
 			new XorTauTau(), new SameOperator() };
 	public EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
-	public EfficientTreeReductionRule[] rulesAnd = new EfficientTreeReductionRule[] { new SingleChild(),
+	public EfficientTreeReductionRule[] rulesAndPro = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator(), new And2Or() };
+	public EfficientTreeReductionRule[] rulesAndBasic = new EfficientTreeReductionRule[] { new SingleChild(),
+			new TauChildOfSeqAndInt(), new SameOperator() }; //the basic variant does not use OR's
 	public EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopLoop(), new LoopTau() };
 	public EfficientTreeReductionRule[] rulesIntCollapsed = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
@@ -60,7 +71,7 @@ public class EfficientTreeReduceParameters {
 	}
 
 	public EfficientTreeReductionRule[] getRulesConcurrent() {
-		return rulesAnd;
+		return rulesAndPro;
 	}
 
 	public EfficientTreeReductionRule[] getRulesInterleaved() {
