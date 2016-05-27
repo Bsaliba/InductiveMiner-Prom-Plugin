@@ -6,10 +6,13 @@ import gnu.trove.procedure.TObjectIntProcedure;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.google.common.primitives.Ints;
 
 public class Components<V> {
 
@@ -173,13 +176,42 @@ public class Components<V> {
 						}
 						return false;
 					}
-					
+
 					public void remove() {
-						
+
 					}
 				};
 			}
 		};
 
+	}
+
+	/**
+	 * Put the components in increasing order 0...n
+	 * 
+	 * @return The mapping from old component to new component.
+	 */
+	public int[] normalise() {
+		int max = Ints.max(components);
+		int[] old2new = new int[max + 1];
+		Arrays.fill(old2new, -1);
+		for (int old : components) {
+			old2new[old] = old;
+		}
+
+		int newv = 0;
+		for (int i = 0; i < old2new.length; i++) {
+			if (old2new[i] != -1) {
+				old2new[i] = newv;
+				newv++;
+			}
+		}
+
+		//replace
+		for (int i = 0; i < components.length; i++) {
+			components[i] = old2new[components[i]];
+		}
+		
+		return old2new;
 	}
 }
