@@ -28,8 +28,9 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMi;
-import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMin;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMc;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMflc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
@@ -59,7 +60,7 @@ public class IMMiningDialog extends JPanel {
 		public abstract boolean noNoiseImpliesFitness();
 
 		public abstract MiningParameters getMiningParameters();
-		
+
 		public abstract int getWarningThreshold();
 
 		public String getDoi() {
@@ -67,35 +68,9 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantIMe extends Variant {
-		public String toString() {
-			return "Inductive Miner - all operators";
-		}
-
-		public boolean hasNoise() {
-			return false;
-		}
-
-		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMa();
-		}
-
-		public boolean noNoiseImpliesFitness() {
-			return false;
-		}
-
-		public String getDoi() {
-			return null;
-		}
-
-		public int getWarningThreshold() {
-			return 0;
-		}
-	}
-
 	public class VariantIM extends Variant {
 		public String toString() {
-			return "Inductive Miner";
+			return "Inductive Miner (IM)";
 		}
 
 		public boolean hasNoise() {
@@ -119,9 +94,9 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantIMi extends Variant {
+	public class VariantIMf extends Variant {
 		public String toString() {
-			return "Inductive Miner - infrequent";
+			return "Inductive Miner - infrequent (IMf)";
 		}
 
 		public boolean hasNoise() {
@@ -129,7 +104,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMi();
+			return new MiningParametersIMf();
 		}
 
 		public boolean noNoiseImpliesFitness() {
@@ -145,9 +120,61 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantIMin extends Variant {
+	public class VariantIMa extends Variant {
 		public String toString() {
-			return "Inductive Miner - incompleteness";
+			return "Inductive Miner - all operators (IMa)";
+		}
+
+		public boolean hasNoise() {
+			return true;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMa();
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return true;
+		}
+
+		public String getDoi() {
+			return null;
+		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
+	}
+
+	public class VariantIMfa extends Variant {
+		public String toString() {
+			return "Inductive Miner - infrequent & all operators (IMfa)";
+		}
+
+		public boolean hasNoise() {
+			return true;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMa();
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return true;
+		}
+
+		public String getDoi() {
+			return null;
+		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
+	}
+
+	public class VariantIMc extends Variant {
+		public String toString() {
+			return "Inductive Miner - incompleteness (IMc)";
 		}
 
 		public boolean hasNoise() {
@@ -155,7 +182,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMin();
+			return new MiningParametersIMc();
 		}
 
 		public boolean noNoiseImpliesFitness() {
@@ -196,7 +223,7 @@ public class IMMiningDialog extends JPanel {
 	public class VariantIMlc extends Variant {
 
 		public String toString() {
-			return "Inductive Miner - life cycle";
+			return "Inductive Miner - life cycle (IMlc)";
 		}
 
 		public boolean hasNoise() {
@@ -220,10 +247,10 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantIMilc extends Variant {
+	public class VariantIMflc extends Variant {
 
 		public String toString() {
-			return "Inductive Miner - infrequent & life cycle";
+			return "Inductive Miner - infrequent & life cycle (IMflc)";
 		}
 
 		public boolean hasNoise() {
@@ -235,7 +262,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMlc();
+			return new MiningParametersIMflc();
 		}
 
 		public String getDoi() {
@@ -249,8 +276,8 @@ public class IMMiningDialog extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public IMMiningDialog(XLog log) {
-		p.parameters = new MiningParametersIMi();
-		p.variant = new VariantIMi();
+		p.parameters = new MiningParametersIMf();
+		p.variant = new VariantIMf();
 		SlickerFactory factory = SlickerFactory.instance();
 
 		int gridy = 1;
@@ -268,10 +295,8 @@ public class IMMiningDialog extends JPanel {
 			add(variantLabel, cVariantLabel);
 		}
 
-		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
-				new VariantIMEKS(), new VariantIMlc(), new VariantIMilc() });
-		//variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMi(), new VariantIMin(),
-		//		new VariantIMEKS(), new VariantIMlc(), new VariantIMilc(), new VariantThesisIM() });
+		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMf(), new VariantIMa(),
+				new VariantIMfa(), new VariantIMc(), new VariantIMEKS(), new VariantIMlc(), new VariantIMflc() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
@@ -493,7 +518,7 @@ public class IMMiningDialog extends JPanel {
 	public MiningParameters getMiningParameters() {
 		return p.parameters;
 	}
-	
+
 	public Variant getVariant() {
 		return p.variant;
 	}

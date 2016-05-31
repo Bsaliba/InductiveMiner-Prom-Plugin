@@ -22,44 +22,14 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXo
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
 
-public class MiningParametersIMi extends MiningParameters {
+/**
+ * Renamed to MiningParameters IMf
+ * @author sleemans
+ *
+ */
 
-	/*
-	 * No other parameter, except mentioned in this file, has influence on mined model
-	 */
-	
-	public MiningParametersIMi() {
-	
-		setLog2LogInfo(new IMLog2IMLogInfoDefault());
-		
-		setBaseCaseFinders(new ArrayList<BaseCaseFinder>(Arrays.asList(
-				new BaseCaseFinderIMi(),
-				new BaseCaseFinderIM()
-				)));
-		
-		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
-				new CutFinderIM(),
-				new CutFinderIMi()
-				)));
-		
-		setLogSplitter(new LogSplitterCombination(
-				new LogSplitterXorFiltering(), 
-				new LogSplitterSequenceFiltering(), 
-				new LogSplitterParallel(), 
-				new LogSplitterLoop(),
-				new LogSplitterMaybeInterleaved(),
-				new LogSplitterParallel(),
-				new LogSplitterOr()));
-		
-		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
-				new FallThroughIM()
-				)));
-		
-		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
-				new PostProcessorInterleaved()
-				)));
-		
-		//set parameters
-		setNoiseThreshold((float) 0.2);
-	}
+@Deprecated
+public class MiningParametersIMi extends MiningParametersIMf {
+
+
 }
