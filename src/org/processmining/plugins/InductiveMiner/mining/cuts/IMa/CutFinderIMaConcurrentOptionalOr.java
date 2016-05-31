@@ -28,7 +28,6 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 
 		Components<XEventClass> components = new Components<>(cut.getPartition());
 		ConcurrentOptionalOrLog cooLog = new ConcurrentOptionalOrLog(log, components);
-		boolean lastWasConcurrent = false;
 
 		while (components.getNumberOfComponents() > 1) {
 			ConcurrentOptionalOrLogInfo cooLogInfo = new ConcurrentOptionalOrLogInfo(cooLog);
@@ -80,7 +79,7 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 						 * till now. This is allowed, as by a base case, no
 						 * empty traces can be present.
 						 */
-						return new Cut(Operator.or, components.getComponents());
+						return new Cut(Operator.concurrent, components.getComponents());
 					}
 				}
 			}
