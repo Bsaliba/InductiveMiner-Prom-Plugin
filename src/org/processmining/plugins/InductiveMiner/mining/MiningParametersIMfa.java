@@ -18,6 +18,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughIM;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterInterleavedFiltering;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterMaybeInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterOr;
@@ -54,8 +55,7 @@ public class MiningParametersIMfa extends MiningParameters {
 				new LogSplitterParallel(),
 				new LogSplitterLoop(),
 				new LogSplitterMaybeInterleaved(),
-				//new LogSplitterInterleavedFiltering(),
-				new LogSplitterParallel(),
+				new LogSplitterInterleavedFiltering(),
 				new LogSplitterOr()));
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
