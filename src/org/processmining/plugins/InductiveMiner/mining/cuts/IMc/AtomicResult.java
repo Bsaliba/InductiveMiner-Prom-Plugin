@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc;
 
 import java.util.concurrent.atomic.AtomicReference;
 

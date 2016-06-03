@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.single;
 
 import gnu.trove.map.hash.THashMap;
 
@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Pair;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.SATResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMinInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.SATResult;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;

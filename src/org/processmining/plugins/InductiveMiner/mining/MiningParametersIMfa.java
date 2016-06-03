@@ -14,7 +14,8 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaConcurrentOptionalOr;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaInterleaved;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMf.CutFinderIMf;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMfa.CutFinderIMfa;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughIM;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
@@ -46,7 +47,8 @@ public class MiningParametersIMfa extends MiningParameters {
 				new CutFinderIMaConcurrentOptionalOr(),
 				new CutFinderIMaInterleaved(),
 				new CutFinderIMLoop(),
-				new CutFinderIMi()
+				new CutFinderIMf(),
+				new CutFinderIMfa()
 				)));
 		
 		setLogSplitter(new LogSplitterCombination(

@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +7,7 @@ import java.util.Set;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+
 
 public class SATResult {
 	private final Cut cut;

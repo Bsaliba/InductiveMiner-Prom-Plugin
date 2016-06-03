@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMi;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMf;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
@@ -10,7 +10,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
-public class CutFinderIMi implements CutFinder {
+public class CutFinderIMf implements CutFinder {
 
 	private static CutFinder cutFinderIM = new CutFinderIM();
 

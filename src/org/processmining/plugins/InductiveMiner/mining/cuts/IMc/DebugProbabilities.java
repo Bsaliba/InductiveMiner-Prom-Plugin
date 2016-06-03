@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Matrix;

@@ -9,7 +9,7 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderI
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIM;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMf.CutFinderIMf;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughIM;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;

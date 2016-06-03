@@ -8,7 +8,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogI
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReduceParameters;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.Probabilities;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;

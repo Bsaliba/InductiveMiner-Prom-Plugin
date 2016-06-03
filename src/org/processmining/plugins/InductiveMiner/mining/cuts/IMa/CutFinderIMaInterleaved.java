@@ -25,10 +25,10 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventItera
 public class CutFinderIMaInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(log, logInfo.getDfg());
+		return findCut(log, logInfo.getDfg(), true);
 	}
 
-	public Cut findCut(IMLog log, Dfg dfg) {
+	public static Cut findCut(IMLog log, Dfg dfg, boolean preserveFitness) {
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
 		//put each activity in a component.
@@ -74,39 +74,41 @@ public class CutFinderIMaInterleaved implements CutFinder {
 			return null;
 		}
 
-		/*
-		 * Perform an extra check for fitness: walk through all the traces and
-		 * make sure that the interleaving is not violated, i.e. that no trace
-		 * enters a component twice.
-		 */
+		if (preserveFitness) {
+			/*
+			 * Perform an extra check for fitness: walk through all the traces
+			 * and make sure that the interleaving is not violated, i.e. that no
+			 * trace enters a component twice.
+			 */
 
-		for (IMTrace trace : log) {
-			int currentComponent;
-			BitSet enteredComponents = new BitSet(components.getNumberOfComponents());
-			boolean done = false;
+			for (IMTrace trace : log) {
+				int currentComponent;
+				BitSet enteredComponents = new BitSet(components.getNumberOfComponents());
+				boolean done = false;
 
-			while (!done) {
-				done = true;
-				currentComponent = -1;
-				enteredComponents.clear();
-				for (IMEventIterator it = trace.iterator(); it.hasNext();) {
-					it.next();
-					int component = components.getComponentOf(it.classify());
-					if (component != currentComponent) {
-						//we are entering a new component with this event
-						//check whether it was visited before
-						if (!enteredComponents.get(component)) {
-							//first time we are entering this component: no problem
-							enteredComponents.set(component);
-						} else {
-							//second time we are entering this component: fitness violation
-							//merge the components
-							components.mergeComponents(currentComponent, component);
-							//recheck the trace
-							done = false;
-							break;
+				while (!done) {
+					done = true;
+					currentComponent = -1;
+					enteredComponents.clear();
+					for (IMEventIterator it = trace.iterator(); it.hasNext();) {
+						it.next();
+						int component = components.getComponentOf(it.classify());
+						if (component != currentComponent) {
+							//we are entering a new component with this event
+							//check whether it was visited before
+							if (!enteredComponents.get(component)) {
+								//first time we are entering this component: no problem
+								enteredComponents.set(component);
+							} else {
+								//second time we are entering this component: fitness violation
+								//merge the components
+								components.mergeComponents(currentComponent, component);
+								//recheck the trace
+								done = false;
+								break;
+							}
+							currentComponent = component;
 						}
-						currentComponent = component;
 					}
 				}
 			}
