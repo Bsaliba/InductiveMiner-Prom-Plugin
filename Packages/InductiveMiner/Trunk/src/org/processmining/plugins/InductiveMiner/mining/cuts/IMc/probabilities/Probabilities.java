@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities;
 
 import java.math.BigInteger;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.Sets;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMinInfo;
 
 import com.google.common.collect.ImmutableSet;
 

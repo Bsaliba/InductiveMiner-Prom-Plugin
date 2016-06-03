@@ -3,7 +3,7 @@ package org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMi.CutFinderIMi;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMf.CutFinderIMf;
 
 public class DfgCutFinderNoiseFiltering implements DfgCutFinder {
 
@@ -25,7 +25,7 @@ public class DfgCutFinderNoiseFiltering implements DfgCutFinder {
 		//filter the Dfg
 		float threshold = minerState.getParameters().getNoiseThreshold();
 
-		return CutFinderIMi.filterNoise(dfg, threshold);
+		return CutFinderIMf.filterNoise(dfg, threshold);
 	}
 
 }

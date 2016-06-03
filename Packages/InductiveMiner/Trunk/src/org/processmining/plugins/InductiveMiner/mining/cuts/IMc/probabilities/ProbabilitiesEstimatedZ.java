@@ -1,7 +1,7 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities;
 
 import org.deckfour.xes.classification.XEventClass;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMinInfo;
 
 public class ProbabilitiesEstimatedZ extends Probabilities {
 

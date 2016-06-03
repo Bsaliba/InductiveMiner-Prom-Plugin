@@ -4,7 +4,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBas
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.DfgSplitter;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.Probabilities;
 
 public abstract class DfgMiningParameters {
 

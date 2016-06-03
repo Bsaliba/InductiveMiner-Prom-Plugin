@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -17,11 +17,11 @@ import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveLoop;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveParallel;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveSequence;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.SATSolveXor;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.SATSolveLoop;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.SATSolveParallel;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.SATSolveSequence;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.SATSolveXor;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMin implements CutFinder, DfgCutFinder {

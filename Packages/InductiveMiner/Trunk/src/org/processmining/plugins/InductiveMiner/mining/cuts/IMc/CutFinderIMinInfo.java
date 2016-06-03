@@ -1,4 +1,4 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -10,7 +10,7 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.jobList.JobList;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.Probabilities;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.Probabilities;
 
 public class CutFinderIMinInfo {
 	private final Dfg dfg;

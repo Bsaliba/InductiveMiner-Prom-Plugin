@@ -57,7 +57,7 @@ public class LogSplitterInterleavedFiltering implements LogSplitter {
 
 	/**
 	 * Fills the result array: sets each element to the index of the component
-	 * it belongs to, or -2 if it is noise.
+	 * it belongs to, or -1 if it is noise.
 	 * 
 	 * @param result
 	 */
@@ -73,39 +73,46 @@ public class LogSplitterInterleavedFiltering implements LogSplitter {
 			int[] startOfRun = new int[components.getNumberOfComponents()];
 			int component;
 			for (int i = from; i < to; i++) {
-				XEventClass activity = log.classify(trace, trace.get(i));
-				component = components.getComponentOf(activity);
+				if (result[i] != -1) {
+					XEventClass activity = log.classify(trace, trace.get(i));
+					component = components.getComponentOf(activity);
 
-				if (values[component] < 0) {
-					//this starts a new run
-					values[component] = 1;
-					startOfRun[component] = i;
-				} else {
-					//this continues an existing run
-					values[component]++;
-				}
-
-				//decrease the other runs
-				for (int j = 0; j < components.getNumberOfComponents(); j++) {
-					if (j != component) {
-						values[j]--;
+					if (values[component] < 0) {
+						//this starts a new run
+						values[component] = 1;
+						startOfRun[component] = i;
+					} else {
+						//this continues an existing run
+						values[component]++;
 					}
-				}
 
-				if (values[component] > maxRunValue) {
-					maxRunComponent = component;
-					maxRunValue = values[component];
-					maxRunStart = startOfRun[component];
-					maxRunEnd = i;
+					//decrease the other runs
+					for (int j = 0; j < components.getNumberOfComponents(); j++) {
+						if (j != component) {
+							values[j]--;
+						}
+					}
+
+					if (values[component] > maxRunValue) {
+						maxRunComponent = component;
+						maxRunValue = values[component];
+						maxRunStart = startOfRun[component];
+						maxRunEnd = i;
+					}
 				}
 			}
 		}
 
 		//walk again over the trace to denote the children
 		for (int i = maxRunStart; i <= maxRunEnd; i++) {
-			if (components.getComponentOf(log.classify(trace, trace.get(i))) == maxRunComponent) {
-				result[i] = maxRunComponent;
-			} else {
+			if (maxRunStart <= i && i <= maxRunEnd) {
+				if (components.getComponentOf(log.classify(trace, trace.get(i))) == maxRunComponent) {
+					result[i] = maxRunComponent;
+				} else {
+					result[i] = -1;
+				}
+			} else if (components.getComponentOf(log.classify(trace, trace.get(i))) == maxRunComponent) {
+				//other occurrences of traces are noise
 				result[i] = -1;
 			}
 		}

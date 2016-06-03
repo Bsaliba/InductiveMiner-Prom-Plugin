@@ -10,8 +10,8 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinde
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThroughFlower;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.SimpleDfgSplitter;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMin;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.probabilities.ProbabilitiesEstimatedZ;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMin;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.ProbabilitiesEstimatedZ;
 
 public class DfgMiningParametersIMinD extends DfgMiningParameters {
 	public DfgMiningParametersIMinD() {

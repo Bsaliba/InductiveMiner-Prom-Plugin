@@ -1,9 +1,9 @@
-package org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve;
+package org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve;
 
 import org.processmining.plugins.InductiveMiner.mining.MinerStateBase;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.AtomicResult;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.CutFinderIMinInfo;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMin.solve.single.SATSolveSingleXor;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.AtomicResult;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMinInfo;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.solve.single.SATSolveSingleXor;
 
 public class SATSolveXor extends SATSolve {
 
