@@ -31,7 +31,6 @@ import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcess
 public class MiningParametersIMfa extends MiningParameters {
 	
 	public MiningParametersIMfa() {
-		setDebug(true);
 		
 		setLog2LogInfo(new IMLog2IMLogInfoDefault());
 	
