@@ -497,6 +497,23 @@ public class EfficientTree {
 	}
 
 	/**
+	 * Returns the parent of node. Do not call if node is the root. Notice that
+	 * this is an expensive operation; avoid if possible.
+	 * 
+	 * @param node
+	 * @return The parent of node.
+	 */
+	public int getParent(int node) {
+		assert (node != getRoot());
+
+		int potentialParent = node - 1;
+		while (traverse(potentialParent) <= node) {
+			potentialParent--;
+		}
+		return potentialParent;
+	}
+
+	/**
 	 * Replace the tree structure.
 	 * 
 	 * @param newTree
@@ -583,6 +600,5 @@ public class EfficientTree {
 			return false;
 		return true;
 	}
-	
-	
+
 }
