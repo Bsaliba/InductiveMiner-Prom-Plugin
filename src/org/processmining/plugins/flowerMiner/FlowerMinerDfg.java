@@ -17,11 +17,10 @@ public class FlowerMinerDfg {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public ProcessTree mine(PluginContext context, Dfg dfg) {
-		return EfficientTree2processTree.convert(mine(dfg));
+		return EfficientTree2processTree.convert(mine(dfg.getActivities()));
 	}
 
-	public static EfficientTree mine(Dfg dfg) {
-		XEventClass[] vertices = dfg.getDirectlyFollowsGraph().getVertices();
+	public static EfficientTree mine(XEventClass[] vertices) {
 
 		//construct activity structures
 		String[] int2activity = new String[vertices.length];

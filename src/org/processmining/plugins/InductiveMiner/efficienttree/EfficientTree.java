@@ -569,7 +569,6 @@ public class EfficientTree {
 		} else {
 			throw new UnknownTreeNodeException();
 		}
-
 	}
 
 	public int hashCode() {
