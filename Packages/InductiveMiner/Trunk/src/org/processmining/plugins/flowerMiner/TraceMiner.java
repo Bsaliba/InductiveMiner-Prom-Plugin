@@ -38,7 +38,7 @@ public class TraceMiner {
 		final TObjectIntMap<String> activity2int = EfficientTree.getEmptyActivity2int();
 		final ArrayList<String> int2activity = new ArrayList<>();
 		final TIntArrayList tree = new TIntArrayList();
-		if (log.isEmpty()) {
+		if (!log.isEmpty()) {
 			tree.add(EfficientTree.xor);
 
 			Set<int[]> set = new TCustomHashSet<int[]>(new HashingStrategy<int[]>() {
