@@ -30,7 +30,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 	private static final char SEPARATOR = ',';
 	private static final String CHARSET = Charset.defaultCharset().name();
 
-	protected Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
+	public Dfg importFromStream(PluginContext context, InputStream input, String filename, long fileSizeInBytes)
 			throws Exception {
 
 		//read the file
