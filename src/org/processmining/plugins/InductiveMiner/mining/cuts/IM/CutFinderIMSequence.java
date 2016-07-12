@@ -1,12 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.THashSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +25,13 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.THashSet;
 
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
@@ -146,8 +146,8 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		Collections.sort(result, new Comparator<Set<XEventClass>>() {
 
 			public int compare(Set<XEventClass> arg0, Set<XEventClass> arg1) {
-				if (scr2.getReachableFrom(condensedGraph2.getIndexOfVertex(arg0)).contains(
-						condensedGraph2.getIndexOfVertex(arg1))) {
+				if (scr2.getReachableFrom(condensedGraph2.getIndexOfVertex(arg0))
+						.contains(condensedGraph2.getIndexOfVertex(arg1))) {
 					return 1;
 				} else {
 					return -1;
@@ -166,69 +166,10 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		 * 
 		 * This solves the case {<a, b, c>, <c>}, where choosing the cut {a,
 		 * b}{c} increases precision over choosing the cut {a}{b}{c}.
+		 * 
+		 * Correction 11-7-2016: identify optional sub sequences and merge them.
 		 */
-		{
-			//make a mapping node -> subCut
-			//initialise counting of taus
-			TObjectIntMap<XEventClass> node2subCut = new TObjectIntHashMap<>();
-			long[] skippingTaus = new long[result.size() - 1];
-			for (int subCut = 0; subCut < result.size(); subCut++) {
-				for (XEventClass e : result.get(subCut)) {
-					node2subCut.put(e, subCut);
-				}
-			}
-
-			//count the number of taus that will be introduced by each edge
-			for (long edge : graph.getEdges()) {
-				XEventClass source = graph.getEdgeSource(edge);
-				XEventClass target = graph.getEdgeTarget(edge);
-				long cardinality = graph.getEdgeWeight(edge);
-				for (int c = node2subCut.get(source) + 1; c < node2subCut.get(target) - 1; c++) {
-					skippingTaus[c] += cardinality;
-				}
-			}
-
-			//count the number of taus that will be introduced by each start activity
-			for (XEventClass e : dfg.getStartActivities()) {
-				for (int c = 0; c < node2subCut.get(e) - 1; c++) {
-					skippingTaus[c] += dfg.getStartActivityCardinality(e);
-				}
-			}
-
-			//count the number of taus that will be introduced by each end activity
-			for (XEventClass e : dfg.getEndActivities()) {
-				for (int c = node2subCut.get(e) + 1; c < result.size() - 1; c++) {
-					skippingTaus[c] += dfg.getEndActivityCardinality(e);
-				}
-			}
-
-			//find the sub cut that introduces the least taus
-			int subCutWithMinimumTaus = -1;
-			{
-				long minimumTaus = Long.MAX_VALUE;
-				for (int i = 0; i < skippingTaus.length; i++) {
-					if (skippingTaus[i] < minimumTaus) {
-						subCutWithMinimumTaus = i;
-						minimumTaus = skippingTaus[i];
-					}
-				}
-			}
-
-			//make a new cut
-			Set<XEventClass> result1 = new THashSet<>();
-			Set<XEventClass> result2 = new THashSet<>();
-			for (int i = 0; i <= subCutWithMinimumTaus; i++) {
-				result1.addAll(result.get(i));
-			}
-			for (int i = subCutWithMinimumTaus + 1; i < result.size(); i++) {
-				result2.addAll(result.get(i));
-			}
-			result.clear();
-			result.add(result1);
-			result.add(result2);
-		}
-
-		return new Cut(Operator.sequence, result);
+		return new Cut(Operator.sequence, CutFinderIMSequenceOptionalMerger.merge(dfg, result));
 	}
 
 	public static Cut findCut2(Dfg dfg) {
