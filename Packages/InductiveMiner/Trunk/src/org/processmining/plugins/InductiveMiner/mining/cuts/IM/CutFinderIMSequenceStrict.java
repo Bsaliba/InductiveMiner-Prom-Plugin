@@ -13,13 +13,18 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-public class CutFinderIMSequenceOptionalMerger {
+public class CutFinderIMSequenceStrict {
 
 	public static List<Set<XEventClass>> merge(Dfg dfg, List<Set<XEventClass>> cut) {
 
 		if (cut.size() == 2) {
 			return cut;
 		}
+
+		/*
+		 * Assumption: there are no empty traces. (and if there are, they will
+		 * be ignored).
+		 */
 
 		Components<XEventClass> components = new Components<>(cut);
 
@@ -91,19 +96,19 @@ public class CutFinderIMSequenceOptionalMerger {
 			return components.getComponents();
 		}
 
-//		System.out.println(Arrays.toString(edgeMinFrom));
-//		System.out.println(Arrays.toString(edgeMaxTo));
+		//		System.out.println(Arrays.toString(edgeMinFrom));
+		//		System.out.println(Arrays.toString(edgeMaxTo));
 
 		//look for pivots
 		for (int i = 0; i < cut.size(); i++) {
 
 			//backward pivot
 			if (i >= 1 && hasSkippingEdges[i] && edgeMaxTo[i - 1] == i) {
-//				System.out.println("backward pivot found " + i);
+				//				System.out.println("backward pivot found " + i);
 				//walk backward to find dependent nodes
 				int j = i - 1;
 				while (j >= 0 && edgeMaxTo[j] <= i) {
-//					System.out.println(" depending node " + j);
+					//					System.out.println(" depending node " + j);
 					j--;
 				}
 				for (int k = j + 1; k < i; k++) {
@@ -113,11 +118,11 @@ public class CutFinderIMSequenceOptionalMerger {
 
 			//forward pivot
 			if (i < cut.size() - 1 && hasSkippingEdges[i] && edgeMinFrom[i + 1] == i) {
-//				System.out.println("forward pivot found " + i);
+				//				System.out.println("forward pivot found " + i);
 				//walk forward to find dependent nodes
 				int j = i + 1;
 				while (j < cut.size() && edgeMinFrom[j] >= i) {
-//					System.out.println(" depending node " + j);
+					//					System.out.println(" depending node " + j);
 					j++;
 				}
 				for (int k = i; k < j - 1; k++) {
@@ -126,8 +131,8 @@ public class CutFinderIMSequenceOptionalMerger {
 			}
 		}
 
-//		System.out.println(components.getComponents());
-//		System.out.println("");
+		//		System.out.println(components.getComponents());
+		//		System.out.println("");
 
 		return components.getComponents();
 	}
