@@ -169,7 +169,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		 * 
 		 * Correction 11-7-2016: identify optional sub sequences and merge them.
 		 */
-		return new Cut(Operator.sequence, CutFinderIMSequenceOptionalMerger.merge(dfg, result));
+		return new Cut(Operator.sequence, CutFinderIMSequenceStrict.merge(dfg, result));
 	}
 
 	public static Cut findCut2(Dfg dfg) {
