@@ -36,10 +36,10 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 			Pair<Integer, Integer> biImplication = cooLogInfo.findBiImplication();
 			if (biImplication != null) {
 				//found a bi-implication
-				
+
 				debug(minerState, "  and " + components.getComponents().get(biImplication.getA()) + ", "
 						+ components.getComponents().get(biImplication.getB()));
-				
+
 				if (components.getNumberOfComponents() == 2) {
 					return new Cut(Operator.concurrent, components.getComponents());
 				}
@@ -50,10 +50,10 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 				Pair<Integer, Integer> or = cooLogInfo.findOr(cooLog.getTraces());
 				if (or != null) {
 					//found an or-relation
-					
+
 					debug(minerState, "  or " + components.getComponents().get(or.getA()) + ", "
 							+ components.getComponents().get(or.getB()));
-					
+
 					if (components.getNumberOfComponents() == 2) {
 						return new Cut(Operator.or, components.getComponents());
 					}
@@ -62,10 +62,10 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 					Pair<Integer, Integer> optionalAnd = cooLogInfo.findOptionalAnd(cooLog.getTraces());
 					if (optionalAnd != null) {
 						//found an and with a single optional child
-						
-						debug(minerState, "  and-one-optional " + components.getComponents().get(optionalAnd.getA()) + ", "
-								+ components.getComponents().get(optionalAnd.getB()));
-						
+
+						debug(minerState, "  and-one-optional " + components.getComponents().get(optionalAnd.getA())
+								+ ", " + components.getComponents().get(optionalAnd.getB()));
+
 						if (components.getNumberOfComponents() == 2) {
 							return new Cut(Operator.concurrent, components.getComponents());
 						}
@@ -75,9 +75,9 @@ public class CutFinderIMaConcurrentOptionalOr implements CutFinder {
 						//found nothing
 
 						/*
-						 * As a fall-through, return an or of the components up
-						 * till now. This is allowed, as by a base case, no
-						 * empty traces can be present.
+						 * As a fall-through, return a concurrent cut of the
+						 * components up till now. This is allowed, as by a base
+						 * case, no empty traces can be present.
 						 */
 						return new Cut(Operator.concurrent, components.getComponents());
 					}

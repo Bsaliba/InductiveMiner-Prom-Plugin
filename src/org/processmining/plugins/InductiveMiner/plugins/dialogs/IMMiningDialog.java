@@ -30,6 +30,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMfa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMflc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
 
@@ -156,7 +157,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public MiningParameters getMiningParameters() {
-			return new MiningParametersIMa();
+			return new MiningParametersIMfa();
 		}
 
 		public boolean noNoiseImpliesFitness() {
