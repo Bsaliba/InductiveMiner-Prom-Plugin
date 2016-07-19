@@ -1,5 +1,10 @@
 package org.processmining.plugins.InductiveMiner.graphs;
 
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,11 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.primitives.Ints;
-
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.procedure.TObjectIntProcedure;
-import gnu.trove.set.hash.THashSet;
 
 public class Components<V> {
 
@@ -88,16 +88,21 @@ public class Components<V> {
 
 	/**
 	 * Merge two components. The second component is kept.
+	 * 
 	 * @param componentA
 	 * @param componentB
 	 */
 	public void mergeComponents(int componentA, int componentB) {
 		if (componentA != componentB) {
-			numberOfComponents--;
+			boolean found = false;
 			for (int i = 0; i < components.length; i++) {
 				if (components[i] == componentA) {
 					components[i] = componentB;
+					found = true;
 				}
+			}
+			if (found) {
+				numberOfComponents--;
 			}
 		}
 	}
@@ -216,7 +221,7 @@ public class Components<V> {
 		for (int i = 0; i < components.length; i++) {
 			components[i] = old2new[components[i]];
 		}
-		
+
 		return old2new;
 	}
 }
