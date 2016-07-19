@@ -1,5 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -7,11 +12,6 @@ import java.util.Set;
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Components;
-
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class CutFinderIMSequenceStrict {
 
@@ -112,7 +112,7 @@ public class CutFinderIMSequenceStrict {
 					j--;
 				}
 				for (int k = j + 1; k < i; k++) {
-					components.mergeComponents(k, k + 1);
+					components.mergeComponentsOf(k, k + 1);
 				}
 			}
 
@@ -126,7 +126,7 @@ public class CutFinderIMSequenceStrict {
 					j++;
 				}
 				for (int k = i; k < j - 1; k++) {
-					components.mergeComponents(k, k + 1);
+					components.mergeComponentsOf(k, k + 1);
 				}
 			}
 		}
