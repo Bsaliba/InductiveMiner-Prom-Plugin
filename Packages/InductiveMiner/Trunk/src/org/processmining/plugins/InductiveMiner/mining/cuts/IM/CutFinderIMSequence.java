@@ -1,5 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.THashSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,13 +32,6 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
-
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.THashSet;
 
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
@@ -146,8 +146,8 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		Collections.sort(result, new Comparator<Set<XEventClass>>() {
 
 			public int compare(Set<XEventClass> arg0, Set<XEventClass> arg1) {
-				if (scr2.getReachableFrom(condensedGraph2.getIndexOfVertex(arg0))
-						.contains(condensedGraph2.getIndexOfVertex(arg1))) {
+				if (scr2.getReachableFrom(condensedGraph2.getIndexOfVertex(arg0)).contains(
+						condensedGraph2.getIndexOfVertex(arg1))) {
 					return 1;
 				} else {
 					return -1;
@@ -169,7 +169,12 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 		 * 
 		 * Correction 11-7-2016: identify optional sub sequences and merge them.
 		 */
-		return new Cut(Operator.sequence, CutFinderIMSequenceStrict.merge(dfg, result));
+		Cut newCut = new Cut(Operator.sequence, CutFinderIMSequenceStrict.merge(dfg, result));
+		if (newCut.isValid()) {
+			return newCut;
+		} else {
+			return new Cut(Operator.sequence, result);
+		}
 	}
 
 	public static Cut findCut2(Dfg dfg) {
