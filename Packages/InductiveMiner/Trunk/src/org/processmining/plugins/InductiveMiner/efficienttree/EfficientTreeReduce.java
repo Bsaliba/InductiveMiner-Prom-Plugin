@@ -24,18 +24,19 @@ public class EfficientTreeReduce {
 		}
 
 		//filter superfluous taus under xor, and, seq
-		//		{
-		//			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
-		//			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
-		//			BitSet map = p.getA();
-		//			int[] parents = p.getB();
-		//			for (int node = tree.getTree().length - 1; node >= 0; node--) {
-		//				if (map.get(node)) {
-		//					tree.removeChild(parents[node], node);
-		//				}
-		//			}
-		//		}
+		{
+			BitSet canProduceTau = EfficientTreeMetrics.canProduceTau(tree);
+			Pair<BitSet, int[]> p = isSuperfluousTau(tree, canProduceTau);
+			BitSet map = p.getA();
+			int[] parents = p.getB();
+			for (int node = tree.getTree().length - 1; node >= 0; node--) {
+				if (map.get(node)) {
+					tree.removeChild(parents[node], node);
+				}
+			}
+		}
 		//this code works, but does not make reducing faster in repeated experiments
+		//update: it does massively on trace models
 
 		//apply other filters
 		while (reduceOne(tree, reduceParameters)) {
@@ -73,9 +74,9 @@ public class EfficientTreeReduce {
 
 				for (EfficientTreeReductionRule rule : rules) {
 					changed = changed | rule.apply(tree, node);
-					if (!tree.isConsistent()) {
-						throw new ReductionFailedException();
-					}
+//					if (!tree.isConsistent()) {
+//						throw new ReductionFailedException();
+//					}
 				}
 			}
 		}
