@@ -19,7 +19,7 @@ import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcess
 public class MiningParametersIMc extends MiningParameters {
 	
 	/*
-	 * No other parameter, except mentioned in this file, has influence on mined model
+	 * No other parameter, except mentioned in this file, has influence on the mined model
 	 */
 	
 	public MiningParametersIMc() {
