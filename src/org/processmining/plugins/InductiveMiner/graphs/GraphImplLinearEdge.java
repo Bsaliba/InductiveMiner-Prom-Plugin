@@ -120,7 +120,7 @@ public class GraphImplLinearEdge<V> implements Graph<V> {
 	}
 
 	public void addEdge(V source, V target, long weight) {
-		addEdge(v2index.get(source), v2index.get(target), weight);
+		addEdge(addVertex(source), addVertex(target), weight);
 	}
 
 	public V getVertexOfIndex(int index) {
