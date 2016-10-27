@@ -9,21 +9,12 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIM;
 import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderIMi;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
-import org.processmining.plugins.InductiveMiner.mining.cuts.IMflc.CutFinderIMilc;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMflc.CutFinderIMflc;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlc;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityOncePerTraceConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterCombination;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterLoop;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterMaybeInterleaved;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterParallel;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSequenceFiltering;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXorFiltering;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.IMlc.FallThroughIMlc;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMlc;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
-import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
 
 public class MiningParametersIMflc extends MiningParameters {
 
@@ -43,27 +34,16 @@ public class MiningParametersIMflc extends MiningParameters {
 		
 		setCutFinder(new ArrayList<CutFinder>(Arrays.asList(
 				new CutFinderIMlc(),
-				new CutFinderIMilc()
+				new CutFinderIMflc()
 				)));
 		
-		setLogSplitter(new LogSplitterCombination(
-				new LogSplitterXorFiltering(), 
-				new LogSplitterSequenceFiltering(), 
-				new LogSplitterParallel(), 
-				new LogSplitterLoop(),
-				new LogSplitterMaybeInterleaved(),
-				new LogSplitterParallel()));
+		setLogSplitter(new LogSplitterIMlc());
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
-				new FallThroughActivityOncePerTraceConcurrent(false),
-				new FallThroughActivityConcurrent(),
-				new FallThroughTauLoop(true),
-				new FallThroughFlowerWithEpsilon()
+				new FallThroughIMlc()
 				)));
 		
-		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
-				new PostProcessorInterleaved()
-				)));
+		setPostProcessors(new ArrayList<PostProcessor>());
 		
 		//set parameters
 		setNoiseThreshold((float) 0.2);
