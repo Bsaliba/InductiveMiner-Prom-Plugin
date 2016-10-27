@@ -24,7 +24,6 @@
 	<classpathentry kind="lib" path="stdlib/TableLayout-20050920.jar"/>
 	<classpathentry kind="lib" path="stdlib/Uitopia.jar"/>
 	<classpathentry kind="lib" path="stdlib/UITopiaResources.jar"/>
-	<classpathentry kind="lib" path="stdlib/weka.jar"/>
 	<classpathentry kind="lib" path="stdlib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="stdlib/ProM-Contexts.jar"/>
 	<classpathentry kind="lib" path="stdlib/ProM-Framework.jar"/>

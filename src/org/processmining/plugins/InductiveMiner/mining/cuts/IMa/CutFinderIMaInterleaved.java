@@ -1,7 +1,7 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMa;
 
 import java.util.BitSet;
-import java.util.function.BiConsumer;
+import java.util.Map.Entry;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
@@ -77,13 +77,11 @@ public class CutFinderIMaInterleaved implements CutFinder {
 		 * connections.
 		 */
 		if (logInfo != null) {
-			logInfo.getMinimumSelfDistancesBetween().forEach(new BiConsumer<XEventClass, MultiSet<XEventClass>>() {
-				public void accept(XEventClass t, MultiSet<XEventClass> u) {
-					for (XEventClass v : u) {
-						components.mergeComponentsOf(t, v);
-					}
+			for (Entry<XEventClass, MultiSet<XEventClass>> e : logInfo.getMinimumSelfDistancesBetween().entrySet()) {
+				for (XEventClass v : e.getValue()) {
+					components.mergeComponentsOf(e.getKey(), v);
 				}
-			});
+			}
 		}
 
 		if (components.getNumberOfComponents() < 2) {
