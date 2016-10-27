@@ -20,7 +20,6 @@ import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterPa
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterSequenceFiltering;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterXorFiltering;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
-import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
 
 public class MiningParametersIMf extends MiningParameters {
 	/*
@@ -54,9 +53,7 @@ public class MiningParametersIMf extends MiningParameters {
 				new FallThroughIM()
 				)));
 		
-		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
-				new PostProcessorInterleaved()
-				)));
+		setPostProcessors(new ArrayList<PostProcessor>());
 		
 		//set parameters
 		setNoiseThreshold((float) 0.2);

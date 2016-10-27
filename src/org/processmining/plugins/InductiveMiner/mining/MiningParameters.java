@@ -29,7 +29,7 @@ public abstract class MiningParameters {
 	private LogSplitter logSplitter;
 	private List<FallThrough> fallThroughs;
 	private List<PostProcessor> postProcessors;
-	
+
 	private EfficientTreeReduceParameters reduceParameters;
 
 	protected MiningParameters() {
@@ -37,7 +37,7 @@ public abstract class MiningParameters {
 		debug = false;
 		repairLifeCycle = false;
 		useMultiThreading = true;
-		
+
 		reduceParameters = new EfficientTreeReduceParameters(false);
 	}
 
@@ -108,7 +108,7 @@ public abstract class MiningParameters {
 	public void setUseMultithreading(boolean useMultithreading) {
 		this.useMultiThreading = useMultithreading;
 	}
-	
+
 	public boolean isUseMultithreading() {
 		return useMultiThreading;
 	}
@@ -120,7 +120,7 @@ public abstract class MiningParameters {
 	public void setLog2LogInfo(IMLog2IMLogInfo log2logInfo) {
 		this.log2logInfo = log2logInfo;
 	}
-	
+
 	public void setLogConverter(IMLog2IMLogInfo log2logInfo) {
 		this.log2logInfo = log2logInfo;
 	}
@@ -160,7 +160,13 @@ public abstract class MiningParameters {
 	public boolean isRepairLifeCycle() {
 		return repairLifeCycle;
 	}
-	
+
+	/**
+	 * Set whether inconsistent traces, e.g. (a_complete, a_start) should be
+	 * repaired in each mining recursion.
+	 * 
+	 * @param repairLifeCycle
+	 */
 	public void setRepairLifeCycle(boolean repairLifeCycle) {
 		this.repairLifeCycle = repairLifeCycle;
 	}
@@ -179,6 +185,7 @@ public abstract class MiningParameters {
 
 	/**
 	 * Set to null if the tree is not to be reduced.
+	 * 
 	 * @param reduceParameters
 	 */
 	public void setReduceParameters(EfficientTreeReduceParameters reduceParameters) {

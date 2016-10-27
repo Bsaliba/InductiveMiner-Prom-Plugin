@@ -10,12 +10,9 @@ import org.processmining.plugins.InductiveMiner.mining.baseCases.BaseCaseFinderI
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMlc.CutFinderIMlc;
 import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThrough;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughFlowerWithEpsilon;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughActivityOncePerTraceConcurrent;
-import org.processmining.plugins.InductiveMiner.mining.fallthrough.FallThroughTauLoop;
-import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMi;
+import org.processmining.plugins.InductiveMiner.mining.fallthrough.IMlc.FallThroughIMlc;
+import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitterIMlc;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
-import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessorInterleaved;
 
 public class MiningParametersIMlc extends MiningParameters {
 	
@@ -36,17 +33,13 @@ public class MiningParametersIMlc extends MiningParameters {
 				new CutFinderIMlc()
 				)));
 		
-		setLogSplitter(new LogSplitterIMi());
+		setLogSplitter(new LogSplitterIMlc());
 		
 		setFallThroughs(new ArrayList<FallThrough>(Arrays.asList(
-				new FallThroughActivityOncePerTraceConcurrent(true),
-				new FallThroughTauLoop(true),
-				new FallThroughFlowerWithEpsilon()
+				new FallThroughIMlc()
 				)));
 		
-		setPostProcessors(new ArrayList<PostProcessor>(Arrays.asList(
-				new PostProcessorInterleaved()
-				)));
+		setPostProcessors(new ArrayList<PostProcessor>());
 		
 		setReduceParameters(new EfficientTreeReduceParameters(true));
 	}

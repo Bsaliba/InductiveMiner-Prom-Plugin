@@ -1,8 +1,10 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IMa;
 
 import java.util.BitSet;
+import java.util.function.BiConsumer;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Components;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
@@ -25,14 +27,14 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventItera
 public class CutFinderIMaInterleaved implements CutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
-		return findCut(log, logInfo.getDfg(), true);
+		return findCut(log, logInfo, logInfo.getDfg(), true);
 	}
 
-	public static Cut findCut(IMLog log, Dfg dfg, boolean preserveFitness) {
+	public static Cut findCut(IMLog log, IMLogInfo logInfo, Dfg dfg, boolean preserveFitness) {
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
 		//put each activity in a component.
-		Components<XEventClass> components = new Components<XEventClass>(graph.getVertices());
+		final Components<XEventClass> components = new Components<XEventClass>(graph.getVertices());
 
 		/*
 		 * By semantics of the interleaved operator, a non-start activity cannot
@@ -68,6 +70,20 @@ public class CutFinderIMaInterleaved implements CutFinder {
 					}
 				}
 			}
+		}
+
+		/*
+		 * Between components, there cannot be minimum self-distance
+		 * connections.
+		 */
+		if (logInfo != null) {
+			logInfo.getMinimumSelfDistancesBetween().forEach(new BiConsumer<XEventClass, MultiSet<XEventClass>>() {
+				public void accept(XEventClass t, MultiSet<XEventClass> u) {
+					for (XEventClass v : u) {
+						components.mergeComponentsOf(t, v);
+					}
+				}
+			});
 		}
 
 		if (components.getNumberOfComponents() < 2) {

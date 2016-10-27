@@ -16,8 +16,8 @@ public class CutFinderIMfa implements CutFinder {
 		//filter logInfo
 		IMLogInfo logInfoFiltered = filterNoise(logInfo, minerState.parameters.getNoiseThreshold());
 
-		//call IMa cut detection, without log
-		Cut cut = CutFinderIMaInterleaved.findCut(null, logInfoFiltered.getDfg(), false);
+		//call IMa cut detection, without log and without minimum self distance
+		Cut cut = CutFinderIMaInterleaved.findCut(null, null, logInfoFiltered.getDfg(), false);
 
 		return cut;
 	}

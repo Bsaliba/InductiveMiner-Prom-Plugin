@@ -22,8 +22,8 @@ public class CutFinderIMlc implements CutFinder {
 			new CutFinderIMExclusiveChoice(),
 			new CutFinderIMSequence(),
 			new CutFinderIMlcConcurrent(),
-			new CutFinderIMlcInterleaved(),
-			new CutFinderIMConcurrentWithMinimumSelfDistance(),
+			//new CutFinderIMlcInterleaved(), //(not described in thesis)
+			new CutFinderIMConcurrentWithMinimumSelfDistance(), //(not described in thesis)
 			new CutFinderIMLoop(),
 			new CutFinderIMConcurrent()
 			));
