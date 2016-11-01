@@ -23,7 +23,7 @@ public class LogSplitterIMlc implements LogSplitter {
 				&& cut.getOperator() != Operator.concurrent) {
 			List<IMLog> newSublogs = new ArrayList<>();
 			for (IMLog sublog : result.sublogs) {
-				newSublogs.add(LifeCycles.preProcessLog(sublog));
+				newSublogs.add(new LifeCycles(minerState.parameters.isDebug()).preProcessLog(sublog));
 			}
 			result.sublogs = newSublogs;
 		}
