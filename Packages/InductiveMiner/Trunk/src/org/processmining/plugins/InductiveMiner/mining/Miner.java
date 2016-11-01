@@ -37,7 +37,7 @@ public class Miner {
 	public static ProcessTree mine(IMLog log, MiningParameters parameters, Canceller canceller) {
 		//repair life cycle if necessary
 		if (parameters.isRepairLifeCycle()) {
-			log = LifeCycles.preProcessLog(log);
+			log = new LifeCycles(parameters.isDebug()).preProcessLog(log);
 		}
 
 		//create process tree

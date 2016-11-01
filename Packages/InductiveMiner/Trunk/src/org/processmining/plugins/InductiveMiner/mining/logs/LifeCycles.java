@@ -1,8 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.logs;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.THashMap;
-
 import java.util.Map;
 
 import org.deckfour.xes.classification.XEventClassifier;
@@ -16,40 +13,45 @@ import org.deckfour.xes.model.XTrace;
 import org.deckfour.xes.model.impl.XEventImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.THashMap;
+
 public class LifeCycles {
 
 	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
-	
+
 	public static enum Transition {
-		start,
-		complete,
-		other
+		start, complete, other
 	}
-	
-	private static int tracesRemoved = 0;
-	private static int eventsRemoved = 0;
-	private static int eventsAdded = 0;
-	
+
+	private int eventsRemoved = 0;
+	private int eventsAdded = 0;
+	private boolean debug = false;
+
+	public LifeCycles(boolean debug) {
+		this.debug = debug;
+	}
+
 	public static Transition getLifeCycleTransition(XEvent event) {
 		return getLifeCycleTransition(lifeCycleClassifier.getClassIdentity(event));
 	}
-	
+
 	public static Transition getLifeCycleTransition(String lifeCycleTransition) {
 		switch (lifeCycleTransition) {
-			case "complete":
+			case "complete" :
 				return Transition.complete;
-			case "start":
+			case "start" :
 				return Transition.start;
-			default:
+			default :
 				return Transition.other;
 		}
 	}
-	
-	public static IMLog preProcessLog(IMLog log) {
+
+	public IMLog preProcessLog(IMLog log) {
 		return new IMLogImpl(preProcessLog(log.toXLog(), log.getClassifier()), log.getClassifier());
 	}
 
-	public static XLog preProcessLog(XLog log, XEventClassifier classifier) {
+	public XLog preProcessLog(XLog log, XEventClassifier classifier) {
 		XLog result = XFactoryRegistry.instance().currentDefault().createLog(log.getAttributes());
 
 		eventsRemoved = 0;
@@ -62,20 +64,12 @@ public class LifeCycles {
 			}
 		}
 
-		System.out.println("traces removed " + tracesRemoved);
-		System.out.println("events added " + eventsAdded);
-		System.out.println("events removed " + eventsRemoved);
+		if (debug) {
+			System.out.println("events added:   " + eventsAdded + " (unmatched start events after which a completion was inserted)");
+			System.out.println("events removed: " + eventsRemoved + " (other life cycles)");
+		}
 
 		return result;
-	}
-
-	public static XTrace preProcessTraceByRemovingTraces(XTrace trace, XEventClassifier classifier) {
-		Map<String, TIntArrayList> unmatchedStartEvents = getUnmatchedStartEvents(trace, classifier);
-		if (unmatchedStartEvents.isEmpty()) {
-			return trace;
-		}
-		tracesRemoved++;
-		return null;
 	}
 
 	/**
@@ -83,7 +77,7 @@ public class LifeCycles {
 	 * @param trace
 	 * @return a copy of the input trace, such that it is consistent.
 	 */
-	public static XTrace preProcessTraceByAddingCompleteEvents(XTrace trace, XEventClassifier classifier) {
+	public XTrace preProcessTraceByAddingCompleteEvents(XTrace trace, XEventClassifier classifier) {
 		Map<String, TIntArrayList> unmatchedStartEvents = getUnmatchedStartEvents(trace, classifier);
 
 		//repair the trace
@@ -106,11 +100,8 @@ public class LifeCycles {
 
 					//add life cycle transition
 					map.put(XLifecycleExtension.KEY_TRANSITION,
-							XFactoryRegistry
-									.instance()
-									.currentDefault()
-									.createAttributeLiteral(XLifecycleExtension.KEY_TRANSITION, "complete",
-											XLifecycleExtension.instance()));
+							XFactoryRegistry.instance().currentDefault().createAttributeLiteral(
+									XLifecycleExtension.KEY_TRANSITION, "complete", XLifecycleExtension.instance()));
 
 					//remove time stamp
 					map.remove(XTimeExtension.KEY_TIMESTAMP);
@@ -136,7 +127,8 @@ public class LifeCycles {
 	 * @param classifier
 	 * @return the unmatched start event indices
 	 */
-	public static Map<String, TIntArrayList> getUnmatchedStartEvents(Iterable<XEvent> trace, XEventClassifier classifier) {
+	public static Map<String, TIntArrayList> getUnmatchedStartEvents(Iterable<XEvent> trace,
+			XEventClassifier classifier) {
 		Map<String, TIntArrayList> unmatchedStartEvents = new THashMap<>();
 
 		int i = 0;
