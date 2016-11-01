@@ -16,9 +16,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParameters;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersIMcd;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersIMd;
-import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersIMiD;
-import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersIMinD;
+import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMiningParametersIMfd;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -46,7 +46,7 @@ public class IMdMiningDialog extends JPanel {
 
 	public class VariantIMd extends Variant {
 		public String toString() {
-			return "Inductive Miner - directly-follows";
+			return "Inductive Miner - directly-follows (IMd)";
 		}
 
 		public boolean hasNoise() {
@@ -58,9 +58,9 @@ public class IMdMiningDialog extends JPanel {
 		}
 	}
 
-	public class VariantIMiD extends Variant {
+	public class VariantIMfd extends Variant {
 		public String toString() {
-			return "Inductive Miner - infrequent - directly-follows";
+			return "Inductive Miner - infrequent - directly-follows (IMfd)";
 		}
 
 		public boolean hasNoise() {
@@ -68,14 +68,14 @@ public class IMdMiningDialog extends JPanel {
 		}
 
 		public DfgMiningParameters getMiningParameters() {
-			return new DfgMiningParametersIMiD();
+			return new DfgMiningParametersIMfd();
 		}
 
 	}
 
-	public class VariantIMinD extends Variant {
+	public class VariantIMcd extends Variant {
 		public String toString() {
-			return "Inductive Miner - incompleteness - directly-follows";
+			return "Inductive Miner - incompleteness - directly-follows (IMcd)";
 		}
 
 		public boolean hasNoise() {
@@ -83,13 +83,13 @@ public class IMdMiningDialog extends JPanel {
 		}
 
 		public DfgMiningParameters getMiningParameters() {
-			return new DfgMiningParametersIMinD();
+			return new DfgMiningParametersIMcd();
 		}
 
 	}
 
 	public IMdMiningDialog() {
-		p.parameters = new DfgMiningParametersIMiD();
+		p.parameters = new DfgMiningParametersIMfd();
 		SlickerFactory factory = SlickerFactory.instance();
 
 		int gridy = 1;
@@ -107,7 +107,7 @@ public class IMdMiningDialog extends JPanel {
 			add(variantLabel, cVariantLabel);
 		}
 
-		variantCombobox = factory.createComboBox(new Variant[] { new VariantIMd(), new VariantIMiD(), new VariantIMinD() });
+		variantCombobox = factory.createComboBox(new Variant[] { new VariantIMd(), new VariantIMfd(), new VariantIMcd() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;
