@@ -14,6 +14,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMConcur
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMExclusiveChoice;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMLoop;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IM.CutFinderIMSequence;
+import org.processmining.plugins.InductiveMiner.mining.cuts.IMa.CutFinderIMaInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
 public class CutFinderIMlc implements CutFinder {
@@ -22,7 +23,8 @@ public class CutFinderIMlc implements CutFinder {
 			new CutFinderIMExclusiveChoice(),
 			new CutFinderIMSequence(),
 			new CutFinderIMlcConcurrent(),
-			new CutFinderIMlcInterleaved(), //(not described in thesis)
+			//new CutFinderIMlcInterleaved(), //(not described in thesis, works with maybeInterleaved)
+			new CutFinderIMaInterleaved(),
 			new CutFinderIMConcurrentWithMinimumSelfDistance(), //(not described in thesis)
 			new CutFinderIMLoop(),
 			new CutFinderIMConcurrent()
