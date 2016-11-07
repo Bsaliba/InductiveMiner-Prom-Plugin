@@ -1,10 +1,7 @@
 package org.processmining.plugins.flowerMiner;
 
-import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.classification.XEventLifeTransClassifier;
-import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
@@ -21,6 +18,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 @Plugin(name = "Mine Petri net using Flower Miner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = {
@@ -30,8 +28,7 @@ public class FlowerMiner {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
-		XEventClassifier classifier = new XEventAndClassifier(new XEventNameClassifier(),
-				new XEventLifeTransClassifier());
+		XEventClassifier classifier = MiningParameters.getDefaultClassifier();
 		XLogInfo logInfo = XLogInfoFactory.createLogInfo(log, classifier);
 		XEventClass dummy = new XEventClass("", 1);
 
