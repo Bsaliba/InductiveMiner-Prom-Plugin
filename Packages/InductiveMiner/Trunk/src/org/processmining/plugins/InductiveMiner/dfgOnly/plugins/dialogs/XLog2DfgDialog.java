@@ -46,7 +46,7 @@ public class XLog2DfgDialog extends JPanel {
 	public class VariantDefault extends Variant {
 
 		public String toString() {
-			return "use event classes - (IMd, IMiD, IMinD)";
+			return "use event classes - (IMd, IMfd, IMcd)";
 		}
 
 		public boolean hasNoise() {
@@ -61,7 +61,7 @@ public class XLog2DfgDialog extends JPanel {
 	public class VariantLifeCycle extends Variant {
 
 		public String toString() {
-			return "use event classes and life cycles - (IMdLc, IMiDlc, IMinDlc)";
+			return "use event classes and life cycles - (IMdlc, IMfdlc, IMcdlc)";
 		}
 
 		public boolean hasNoise() {
