@@ -1,8 +1,5 @@
 package org.processmining.plugins.InductiveMiner;
 
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +10,9 @@ import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class AttributesInfo {
 
