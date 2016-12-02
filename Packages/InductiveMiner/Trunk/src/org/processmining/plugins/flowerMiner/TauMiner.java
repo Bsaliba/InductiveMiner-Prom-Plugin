@@ -12,7 +12,7 @@ import org.processmining.processtree.impl.ProcessTreeImpl;
 
 @Plugin(name = "Mine Process tree using Tau Miner", returnLabels = { "Process Tree" }, returnTypes = {
 		ProcessTree.class }, parameterLabels = {}, userAccessible = true, level = PluginLevel.Regular)
-public class EmptyTraceMiner {
+public class TauMiner {
 
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = {})
