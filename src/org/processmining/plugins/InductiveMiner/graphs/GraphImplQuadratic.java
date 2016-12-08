@@ -1,8 +1,5 @@
 package org.processmining.plugins.InductiveMiner.graphs;
 
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,12 +7,15 @@ import java.util.Iterator;
 
 import org.apache.commons.collections15.IteratorUtils;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 public class GraphImplQuadratic<V> implements Graph<V> {
 	private int vertices; //number of vertices
 	private long[][] edges; //matrix of weights of edges
 	private TObjectIntMap<V> v2index; //map V to its vertex index
 	private V[] index2x; //map vertex index to V
-	private final Class<?> clazz; 
+	private final Class<?> clazz;
 
 	public GraphImplQuadratic(Class<?> clazz) {
 		this(clazz, 1);
@@ -25,7 +25,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public GraphImplQuadratic(Class<?> clazz, int initialSize) {
 		vertices = 0;
 		edges = new long[initialSize][initialSize];
-		v2index = new TObjectIntHashMap<V>();
+		v2index = new TObjectIntHashMap<V>(10, 0.5f, -1);
 
 		index2x = (V[]) Array.newInstance(clazz, 0);
 		this.clazz = clazz;
@@ -65,7 +65,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public void addEdge(V source, V target, long weight) {
 		edges[v2index.get(source)][v2index.get(target)] += weight;
 	}
-	
+
 	public void removeEdge(long edge) {
 		edges[getEdgeSourceIndex(edge)][getEdgeTargetIndex(edge)] = 0;
 	}
@@ -73,7 +73,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public V getVertexOfIndex(int index) {
 		return index2x[index];
 	}
-	
+
 	public int getIndexOfVertex(V v) {
 		return v2index.get(v);
 	}
@@ -189,7 +189,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public Iterable<Long> getIncomingEdgesOf(V v) {
 		return new EdgeIterableIncoming(v2index.get(v));
 	}
-	
+
 	public Iterable<Long> getIncomingEdgesOf(int v) {
 		return new EdgeIterableIncoming(v2index.get(v));
 	}
@@ -204,7 +204,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 	public Iterable<Long> getOutgoingEdgesOf(V v) {
 		return new EdgeIterableOutgoing(v2index.get(v));
 	}
-	
+
 	public Iterable<Long> getOutgoingEdgesOf(int v) {
 		return new EdgeIterableOutgoing(v);
 	}
@@ -301,7 +301,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 
 		private EdgeIterableOutgoing(int row) {
 			this.row = row;
-			for (int e = 0; e < vertices ; e++) {
+			for (int e = 0; e < vertices; e++) {
 				if (edges[row][e] > 0) {
 					actual = e;
 					hasNext = true;
@@ -313,7 +313,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 
 		protected long next() {
 			int value = actual;
-			for (int e = actual + 1; e < vertices ; e++) {
+			for (int e = actual + 1; e < vertices; e++) {
 				if (edges[row][e] > 0) {
 					actual = e;
 					return value;
@@ -327,7 +327,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 			return hasNext;
 		}
 	}
-	
+
 	private final class EdgeIterableIncoming extends EdgeIterable {
 		private final int column;
 		int actual;
@@ -335,7 +335,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 
 		private EdgeIterableIncoming(int column) {
 			this.column = column;
-			for (int e = 0; e < vertices ; e++) {
+			for (int e = 0; e < vertices; e++) {
 				if (edges[e][column] > 0) {
 					actual = e;
 					hasNext = true;
@@ -347,7 +347,7 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 
 		protected long next() {
 			int value = actual;
-			for (int e = actual + 1; e < vertices ; e++) {
+			for (int e = actual + 1; e < vertices; e++) {
 				if (edges[e][column] > 0) {
 					actual = e;
 					return value;
@@ -395,11 +395,11 @@ public class GraphImplQuadratic<V> implements Graph<V> {
 			return nextIndex < vertices * vertices;
 		}
 	}
-	
+
 	public Graph<V> clone() {
 		GraphImplQuadratic<V> result = new GraphImplQuadratic<V>(clazz, edges.length);
 		result.vertices = vertices;
-		for (int i = 0; i < edges.length ; i++) {
+		for (int i = 0; i < edges.length; i++) {
 			System.arraycopy(edges[i], 0, result.edges[i], 0, edges[i].length);
 		}
 		result.v2index.putAll(v2index);
