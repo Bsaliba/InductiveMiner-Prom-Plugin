@@ -135,7 +135,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public boolean noNoiseImpliesFitness() {
-			return true;
+			return false;
 		}
 
 		public String getDoi() {
