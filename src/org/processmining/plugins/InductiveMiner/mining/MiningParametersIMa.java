@@ -59,7 +59,7 @@ public class MiningParametersIMa extends MiningParameters {
 				new FallThroughIM()
 				)));
 		
-		setNoiseThreshold((float) 0.2);
+		setNoiseThreshold(0f);
 		
 		setPostProcessors(new ArrayList<PostProcessor>());
 	}
