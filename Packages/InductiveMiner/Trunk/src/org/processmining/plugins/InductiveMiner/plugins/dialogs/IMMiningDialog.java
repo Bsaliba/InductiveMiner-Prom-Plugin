@@ -127,7 +127,7 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		public boolean hasNoise() {
-			return true;
+			return false;
 		}
 
 		public MiningParameters getMiningParameters() {
