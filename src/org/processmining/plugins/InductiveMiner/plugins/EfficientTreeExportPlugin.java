@@ -11,7 +11,7 @@ import org.processmining.contexts.uitopia.annotations.UIExportPlugin;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
-import org.processmining.plugins.inductiveVisualMiner.editModel.EfficientTree2HumanReadableString;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2HumanReadableString;
 
 @Plugin(name = "EfficientTree export", returnLabels = {}, returnTypes = {}, parameterLabels = { "EfficientTree", "File" }, userAccessible = true)
 @UIExportPlugin(description = "EfficientTree files", extension = "tree")

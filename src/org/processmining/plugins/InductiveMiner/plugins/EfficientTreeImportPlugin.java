@@ -14,7 +14,7 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.plugins.InductiveMiner.Triple;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
-import org.processmining.plugins.inductiveVisualMiner.editModel.ProcessTreeParser;
+import org.processmining.plugins.InductiveMiner.efficienttree.ProcessTreeParser;
 
 @Plugin(name = "Import an EfficientTree", parameterLabels = { "Filename" }, returnLabels = { "EfficientTree" }, returnTypes = { EfficientTree.class })
 @UIImportPlugin(description = "EfficientTree", extensions = { "tree" })
