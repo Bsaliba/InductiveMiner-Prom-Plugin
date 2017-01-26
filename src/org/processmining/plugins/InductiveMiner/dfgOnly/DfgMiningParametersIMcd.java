@@ -7,8 +7,7 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.DfgBas
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgBaseCaseFinder.SimpleDfgBaseCaseFinder;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderCombination;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgCutFinder.DfgCutFinderSimple;
-import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThrough;
-import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThroughFlower;
+import org.processmining.plugins.InductiveMiner.dfgOnly.dfgFallThrough.DfgFallThroughCombination;
 import org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter.SimpleDfgSplitter;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.CutFinderIMin;
 import org.processmining.plugins.InductiveMiner.mining.cuts.IMc.probabilities.ProbabilitiesEstimatedZ;
@@ -24,9 +23,7 @@ public class DfgMiningParametersIMcd extends DfgMiningParameters {
 				new CutFinderIMin()
 				));
 
-		setDfgFallThroughs(new ArrayList<DfgFallThrough>(Arrays.asList(
-				new DfgFallThroughFlower()
-				)));
+		setDfgFallThroughs(new DfgFallThroughCombination());
 
 		setDfgSplitter(
 				new SimpleDfgSplitter()
