@@ -20,6 +20,7 @@ public abstract class MiningParameters {
 
 	private boolean debug;
 	private boolean repairLifeCycle;
+	private boolean processStartEndComplete;
 	private boolean useMultiThreading;
 	private Probabilities satProbabilities;
 
@@ -34,8 +35,9 @@ public abstract class MiningParameters {
 
 	protected MiningParameters() {
 		classifier = getDefaultClassifier();
-		debug = false;
+		debug = true;
 		repairLifeCycle = false;
+		processStartEndComplete = false;
 		useMultiThreading = true;
 
 		reduceParameters = new EfficientTreeReduceParameters(false);
@@ -190,5 +192,13 @@ public abstract class MiningParameters {
 	 */
 	public void setReduceParameters(EfficientTreeReduceParameters reduceParameters) {
 		this.reduceParameters = reduceParameters;
+	}
+
+	public boolean isProcessStartEndComplete() {
+		return processStartEndComplete;
+	}
+
+	public void setProcessStartEndComplete(boolean processStartEndComplete) {
+		this.processStartEndComplete = processStartEndComplete;
 	}
 }

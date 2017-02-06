@@ -15,6 +15,7 @@ import org.processmining.plugins.InductiveMiner.mining.interleaved.Interleaved;
 import org.processmining.plugins.InductiveMiner.mining.interleaved.MaybeInterleaved;
 import org.processmining.plugins.InductiveMiner.mining.logSplitter.LogSplitter.LogSplitResult;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogStartEndComplete;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles;
 import org.processmining.plugins.InductiveMiner.mining.postprocessor.PostProcessor;
 import org.processmining.processtree.Block;
@@ -38,6 +39,10 @@ public class Miner {
 		//repair life cycle if necessary
 		if (parameters.isRepairLifeCycle()) {
 			log = new LifeCycles(parameters.isDebug()).preProcessLog(log);
+		}
+		
+		if (parameters.isProcessStartEndComplete()) {
+			log = IMLogStartEndComplete.fromIMLog(log);
 		}
 
 		//create process tree

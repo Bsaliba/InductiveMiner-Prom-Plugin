@@ -1,7 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +17,8 @@ import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
+
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Try to exclude a single activity, given that it occurs precisely once per
@@ -56,12 +56,12 @@ public class FallThroughActivityOncePerTraceConcurrent implements FallThrough {
 
 				long cardinality = logInfo.getActivities().getCardinalityOf(activity);
 				long epsilon = logInfo.getDfg().getNumberOfEmptyTraces();
-				boolean x = epsilon == 0 && cardinality == log.size();
-				
+				boolean x = epsilon == 0 && cardinality == logInfo.getNumberOfTraces();
+
 				double noise = minerState.parameters.getNoiseThreshold();
-				double avg = cardinality / log.size();
+				double avg = cardinality / logInfo.getNumberOfTraces();
 				double reverseNoise = noise == 1 ? Double.MAX_VALUE : 1 / (1 - noise);
-				boolean y = epsilon < log.size() * noise && avg > 1 - noise && avg < reverseNoise;  
+				boolean y = epsilon < logInfo.getNumberOfTraces() * noise && avg > 1 - noise && avg < reverseNoise;
 
 				if (x || (!strict && y)) {
 

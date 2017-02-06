@@ -1,8 +1,5 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo;
 
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.model.XEvent;
 import org.processmining.plugins.InductiveMiner.MultiSet;
@@ -13,6 +10,9 @@ import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace.IMEventIterator;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 
@@ -36,7 +36,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 		THashMap<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween = new THashMap<XEventClass, MultiSet<XEventClass>>();
 
 		return new IMLogInfo(dfg, count.activities, minimumSelfDistancesBetween, minimumSelfDistances,
-				count.numberOfEvents, count.numberOfActivityInstances);
+				count.numberOfEvents, count.numberOfActivityInstances, log.size());
 	}
 
 	private static Dfg log2Dfg(IMLog log, Count count) {

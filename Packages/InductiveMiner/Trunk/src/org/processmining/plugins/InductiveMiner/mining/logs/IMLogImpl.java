@@ -1,7 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.logs;
 
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
@@ -20,20 +18,22 @@ import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 
+import gnu.trove.list.array.TIntArrayList;
+
 public class IMLogImpl implements IMLog {
 
 	/*
 	 * Memory-lightweight implementation of a filtering system.
 	 */
 
-	private final XLog xLog;
+	protected final XLog xLog;
 	private final BitSet outTraces;
 	private final BitSet[] outEvents;
 
-	private final TIntArrayList addedTraces;
+	protected final TIntArrayList addedTraces;
 	private final List<BitSet> addedTracesOutEvents;
 
-	private final XEventClassifier activityClassifier;
+	protected final XEventClassifier activityClassifier;
 	private final XLogInfo xLogInfo;
 	private final XLogInfo xLogInfoLifecycle;
 
@@ -66,7 +66,7 @@ public class IMLogImpl implements IMLog {
 	 * 
 	 * @param log
 	 */
-	private IMLogImpl(IMLogImpl log) {
+	protected IMLogImpl(IMLogImpl log) {
 		this.xLog = log.xLog;
 		outTraces = (BitSet) log.outTraces.clone();
 		outEvents = new BitSet[xLog.size()];
