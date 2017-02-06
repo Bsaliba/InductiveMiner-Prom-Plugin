@@ -1,12 +1,12 @@
 package org.processmining.plugins.InductiveMiner.mining;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import java.util.Map;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
+
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class IMLogInfo {
 
@@ -19,16 +19,19 @@ public class IMLogInfo {
 
 	protected final long numberOfEvents;
 	protected final long numberOfActivityInstances;
+	protected final long numberOfTraces;
 
 	public IMLogInfo(Dfg directlyFollowsGraph, MultiSet<XEventClass> activities,
 			Map<XEventClass, MultiSet<XEventClass>> minimumSelfDistancesBetween,
-			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfActivityInstances) {
+			TObjectIntHashMap<XEventClass> minimumSelfDistances, long numberOfEvents, long numberOfActivityInstances,
+			long numberOfTraces) {
 		this.dfg = directlyFollowsGraph;
 		this.activities = activities;
 		this.minimumSelfDistancesBetween = minimumSelfDistancesBetween;
 		this.minimumSelfDistances = minimumSelfDistances;
 		this.numberOfEvents = numberOfEvents;
 		this.numberOfActivityInstances = numberOfActivityInstances;
+		this.numberOfTraces = numberOfTraces;
 	}
 
 	public Dfg getDfg() {
@@ -67,6 +70,10 @@ public class IMLogInfo {
 
 	public long getNumberOfActivityInstances() {
 		return numberOfActivityInstances;
+	}
+
+	public long getNumberOfTraces() {
+		return numberOfTraces;
 	}
 
 }

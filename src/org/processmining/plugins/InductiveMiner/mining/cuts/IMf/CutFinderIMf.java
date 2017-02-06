@@ -31,7 +31,7 @@ public class CutFinderIMf implements CutFinder {
 	public static IMLogInfo filterNoise(IMLogInfo logInfo, float threshold) {
 		return new IMLogInfo(filterNoise(logInfo.getDfg(), threshold), logInfo.getActivities().copy(),
 				logInfo.getMinimumSelfDistancesBetween(), logInfo.getMinimumSelfDistances(),
-				logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances());
+				logInfo.getNumberOfEvents(), logInfo.getNumberOfActivityInstances(), logInfo.getNumberOfTraces());
 	}
 
 	public static Dfg filterNoise(Dfg dfg, float threshold) {

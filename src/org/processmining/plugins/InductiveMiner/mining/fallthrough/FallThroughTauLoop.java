@@ -49,7 +49,7 @@ public class FallThroughTauLoop implements FallThrough {
 				filterTrace(log, sublog, trace, logInfo.getDfg(), useLifeCycle);
 			}
 
-			if (sublog.size() > log.size()) {
+			if (sublog.size() > logInfo.getNumberOfTraces()) {
 				Miner.debug(" fall through: tau loop", minerState);
 				//making a tau loop split makes sense
 				Block loop = new XorLoop("");

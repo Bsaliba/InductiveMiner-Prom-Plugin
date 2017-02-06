@@ -22,6 +22,7 @@ import org.processmining.plugins.InductiveMiner.Classifiers.ClassifierWrapper;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfo;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoDefault;
 import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoLifeCycle;
+import org.processmining.plugins.InductiveMiner.dfgOnly.log2logInfo.IMLog2IMLogInfoStartEndComplete;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -73,6 +74,21 @@ public class XLog2DfgDialog extends JPanel {
 		}
 	}
 
+	public class VariantPartialTraces extends Variant {
+
+		public String toString() {
+			return "use event classes but mind partial traces - (IMpt)";
+		}
+
+		public boolean hasNoise() {
+			return false;
+		}
+
+		public IMLog2IMLogInfo getIMLog2IMLogInfo() {
+			return new IMLog2IMLogInfoStartEndComplete();
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public XLog2DfgDialog(XLog log) {
 		SlickerFactory factory = SlickerFactory.instance();
@@ -93,7 +109,8 @@ public class XLog2DfgDialog extends JPanel {
 				add(variantLabel, cVariantLabel);
 			}
 
-			variantCombobox = factory.createComboBox(new Variant[] { new VariantDefault(), new VariantLifeCycle(), });
+			variantCombobox = factory.createComboBox(
+					new Variant[] { new VariantDefault(), new VariantLifeCycle(), new VariantPartialTraces() });
 			{
 				GridBagConstraints cVariantCombobox = new GridBagConstraints();
 				cVariantCombobox.gridx = 1;

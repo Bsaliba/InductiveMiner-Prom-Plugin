@@ -33,6 +33,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMfa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMflc;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMlc;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMpt;
 
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
@@ -275,6 +276,32 @@ public class IMMiningDialog extends JPanel {
 		}
 	}
 
+	public class VariantIMpt extends Variant {
+		public String toString() {
+			return "Inductive Miner - partial traces (IMpt)";
+		}
+
+		public boolean hasNoise() {
+			return false;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMpt();
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return false;
+		}
+
+		public String getDoi() {
+			return null;
+		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMf();
@@ -297,7 +324,8 @@ public class IMMiningDialog extends JPanel {
 		}
 
 		variantCombobox = factory.createComboBox(new Variant[] { new VariantIM(), new VariantIMf(), new VariantIMa(),
-				new VariantIMfa(), new VariantIMc(), new VariantIMEKS(), new VariantIMlc(), new VariantIMflc() });
+				new VariantIMfa(), new VariantIMc(), new VariantIMEKS(), new VariantIMlc(), new VariantIMflc(),
+				new VariantIMpt() });
 		{
 			GridBagConstraints cVariantCombobox = new GridBagConstraints();
 			cVariantCombobox.gridx = 1;

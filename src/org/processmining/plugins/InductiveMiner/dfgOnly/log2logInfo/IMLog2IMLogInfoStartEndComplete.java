@@ -11,18 +11,24 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import org.processmining.plugins.InductiveMiner.mining.IMLogInfo;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogStartEndComplete;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
+public class IMLog2IMLogInfoStartEndComplete implements IMLog2IMLogInfo {
 
 	public IMLogInfo createLogInfo(IMLog log) {
 		return log2logInfo(log);
 	}
 
 	public static IMLogInfo log2logInfo(IMLog log) {
+
+		if (!(log instanceof IMLogStartEndComplete)) {
+			log = IMLogStartEndComplete.fromIMLog(log);
+		}
+
 		//initialise, read the log
 		Dfg dfg = new DfgImpl();
 		MultiSet<XEventClass> activities = new MultiSet<XEventClass>();
@@ -38,8 +44,8 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 		Map<XEventClass, Integer> eventSeenAt;
 		List<XEventClass> readTrace;
 
+		int removedEmptyTraces = 0;
 		for (IMTrace trace : log) {
-
 			toEventClass = null;
 			fromEventClass = null;
 
@@ -88,7 +94,12 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 						dfg.addDirectlyFollowsEdge(fromEventClass, toEventClass, 1);
 					} else {
 						//add edge to start activities
-						dfg.addStartActivity(toEventClass, 1);
+
+						assert (log instanceof IMLogStartEndComplete);
+						if (log instanceof IMLogStartEndComplete
+								&& ((IMLogStartEndComplete) log).isStartComplete(trace.getIMTraceIndex())) {
+							dfg.addStartActivity(toEventClass, 1);
+						}
 					}
 				}
 
@@ -98,16 +109,29 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 			numberOfEvents += trace.size();
 			numberOfActivityInstances += trace.size();
 
+			//process end activities
 			if (toEventClass != null) {
-				dfg.addEndActivity(toEventClass, 1);
+				assert (log instanceof IMLogStartEndComplete);
+				if (log instanceof IMLogStartEndComplete
+						&& ((IMLogStartEndComplete) log).isEndComplete(trace.getIMTraceIndex())) {
+					dfg.addEndActivity(toEventClass, 1);
+				}
 			}
 
+			//process empty traces
 			if (traceSize == 0) {
-				dfg.addEmptyTraces(1);
+				assert (log instanceof IMLogStartEndComplete);
+				if (((IMLogStartEndComplete) log).isStartComplete(trace.getIMTraceIndex())
+						&& ((IMLogStartEndComplete) log).isEndComplete(trace.getIMTraceIndex())) {
+					dfg.addEmptyTraces(1);
+				} else {
+					removedEmptyTraces++;
+				}
 			}
 		}
 
 		return new IMLogInfo(dfg, activities, minimumSelfDistancesBetween, minimumSelfDistances, numberOfEvents,
-				numberOfActivityInstances, log.size());
+				numberOfActivityInstances, log.size() - removedEmptyTraces);
 	}
+
 }
