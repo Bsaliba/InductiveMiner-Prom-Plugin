@@ -74,7 +74,7 @@ public class IMTrace implements Iterable<XEvent> {
 		StringBuilder result = new StringBuilder();
 		for (XEvent e : this) {
 			result.append(log.classify(this, e));
-			result.append(log.getLifeCycle(e).toString());
+			//result.append(log.getLifeCycle(e).toString());
 			result.append(",");
 		}
 		return result.toString();

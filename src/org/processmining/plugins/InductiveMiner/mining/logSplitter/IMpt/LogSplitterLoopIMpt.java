@@ -22,43 +22,48 @@ import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transitio
 public class LogSplitterLoopIMpt implements LogSplitter {
 
 	public LogSplitResult split(IMLog log, IMLogInfo logInfo, Cut cut, MinerState minerState) {
-		assert(log instanceof IMLogStartEndComplete);
-		return new LogSplitResult(split((IMLogStartEndComplete) log, cut.getPartition(), minerState), new MultiSet<XEventClass>());
+		assert (log instanceof IMLogStartEndComplete);
+		return new LogSplitResult(split((IMLogStartEndComplete) log, cut.getPartition(), minerState),
+				new MultiSet<XEventClass>());
 	}
 
-	public static List<IMLog> split(IMLogStartEndComplete log, Collection<Set<XEventClass>> partition, MinerState minerState) {
+	public static List<IMLog> split(IMLogStartEndComplete log, Collection<Set<XEventClass>> partition,
+			MinerState minerState) {
 
-		//		System.out.println("==before==");
-		//		System.out.println(log);
-		//		System.out.println("--");
+		//System.out.println("==before==");
+		//System.out.print(log);
+		//System.out.println("--");
 		List<IMLog> result = new ArrayList<>();
 		boolean firstSigma = true;
 		//walk through the partition
 		for (Set<XEventClass> sigma : partition) {
 			IMLogStartEndComplete sublog = log.clone();
-//			System.out.println("sigma " + sigma);
+			//			System.out.println("sigma " + sigma);
 
 			//walk through traces
 			for (Iterator<IMTrace> itTrace = sublog.iterator(); itTrace.hasNext();) {
-				
+				IMTrace trace = itTrace.next();
+
+				//System.out.println(" trace " + trace + " sigma " + sigma);
+
 				if (minerState.isCancelled()) {
 					return null;
 				}
-				
-				IMTrace trace = itTrace.next();
 
-//				System.out.println(" trace " + trace);
 				boolean lastIn = firstSigma; //whether the last seen event was in sigma
 				boolean anyIn = false; //whether there is any event in this subtrace
 				MultiSet<XEventClass> openActivityInstances = new MultiSet<>();
-				
-				boolean startComplete = log.isStartComplete(trace.getIMTraceIndex());
+
+				boolean lastEventRemoved = false;
 
 				//walk through the events
 				for (IMEventIterator itEvent = trace.iterator(); itEvent.hasNext();) {
 					XEvent event = itEvent.next();
 					XEventClass eventClass = log.classify(trace, event);
 					Transition transition = log.getLifeCycle(event);
+					lastEventRemoved = false;
+					
+					//System.out.println(" trace " + trace + " sigma " + sigma);
 
 					//keep track of open activity instances (by consistency assumption, should work out)
 					switch (transition) {
@@ -78,9 +83,12 @@ public class LogSplitterLoopIMpt implements LogSplitter {
 						if (!lastIn && (firstSigma || anyIn)) {
 							//this is the first activity of a new subtrace, so the part up till now is a completed subtrace
 
-							IMTrace lastTrace = itEvent.split();
-//							System.out.println("   split trace " + newTrace + " | " + trace);
+							IMTrace oldTrace = itEvent.split();
+							//System.out.println("   split trace " + oldTrace + " # " + trace);
 							
+							sublog.setStartComplete(trace.getIMTraceIndex(), true);
+							sublog.setEndComplete(oldTrace.getIMTraceIndex(), true);
+
 						}
 						lastIn = true;
 						anyIn = true;
@@ -90,26 +98,29 @@ public class LogSplitterLoopIMpt implements LogSplitter {
 
 						//remove
 						itEvent.remove();
+						lastEventRemoved = true;
 
 						//the last seen event was not in sigma
 						if (openActivityInstances.isEmpty()) {
 							//if there are no activity instances open, we can split the trace further ahead
 							lastIn = false;
 						}
-						
-						//after an event of another sigma, we can be sure that we have seen the start of the trace
-						startComplete = true;
 					}
 				}
 
-				if (!firstSigma && !anyIn) {
+				//check if we are not introducing an empty trace
+				if (!anyIn && !firstSigma) {
 					itTrace.remove();
+				}
+
+				if (lastEventRemoved) {
+					sublog.setEndComplete(trace.getIMTraceIndex(), true);
 				}
 			}
 			firstSigma = false;
-//			System.out.println("--");
-//			System.out.println(sublog);
-//			System.out.println("--");
+			//System.out.println("--");
+			//System.out.print(sublog);
+			//System.out.println("--");
 			result.add(sublog);
 		}
 

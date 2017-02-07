@@ -132,7 +132,7 @@ public class IMLogImpl implements IMLog {
 		addedTraces.add(index);
 		BitSet newOutEvents = (BitSet) traceOutEvents.clone();
 		addedTracesOutEvents.add(newOutEvents);
-		return new IMTrace(index, addedTraces.size() - 1, newOutEvents, this);
+		return new IMTrace(index, -addedTraces.size(), newOutEvents, this);
 	}
 
 	public Iterator<IMTrace> iterator() {
