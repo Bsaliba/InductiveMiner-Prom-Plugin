@@ -133,6 +133,18 @@ public class IMLogStartEndComplete extends IMLogImpl {
 		XLog xLog = toXLog();
 		return new IMLogStartEndComplete(xLog, activityClassifier);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (IMTrace trace : this) {
+			result.append(isStartComplete(trace.getIMTraceIndex()) ? "< " : "| ");
+			result.append(trace.toString());
+			result.append(isEndComplete(trace.getIMTraceIndex()) ? " >" : " |");
+			result.append("\n");
+		}
+		return result.toString();
+	}
 
 	public boolean isStartComplete(int traceIndex) {
 		if (traceIndex >= 0) {
