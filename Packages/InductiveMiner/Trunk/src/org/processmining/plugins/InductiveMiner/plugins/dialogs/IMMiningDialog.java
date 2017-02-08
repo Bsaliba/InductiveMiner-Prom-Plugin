@@ -29,6 +29,7 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersEKS;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIM;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMc;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMcpt;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMfa;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMflc;
@@ -287,6 +288,32 @@ public class IMMiningDialog extends JPanel {
 
 		public MiningParameters getMiningParameters() {
 			return new MiningParametersIMpt();
+		}
+
+		public boolean noNoiseImpliesFitness() {
+			return false;
+		}
+
+		public String getDoi() {
+			return null;
+		}
+
+		public int getWarningThreshold() {
+			return 0;
+		}
+	}
+	
+	public class VariantIMcpt extends Variant {
+		public String toString() {
+			return "Inductive Miner - incomplete & partial traces (IMcpt)";
+		}
+
+		public boolean hasNoise() {
+			return false;
+		}
+
+		public MiningParameters getMiningParameters() {
+			return new MiningParametersIMcpt();
 		}
 
 		public boolean noNoiseImpliesFitness() {
