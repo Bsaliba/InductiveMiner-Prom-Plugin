@@ -14,6 +14,7 @@ import org.processmining.plugins.InductiveMiner.mining.Miner;
 import org.processmining.plugins.InductiveMiner.mining.MinerState;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLogImpl;
+import org.processmining.plugins.InductiveMiner.mining.logs.IMLogStartEndComplete;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMTrace;
 import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycles.Transition;
 import org.processmining.processtree.Block;
@@ -56,7 +57,12 @@ public class FallThroughTauLoop implements FallThrough {
 				Miner.addNode(tree, loop);
 
 				{
-					Node body = Miner.mineNode(new IMLogImpl(sublog, log.getClassifier()), tree, minerState);
+					Node body;
+					if (log instanceof IMLogStartEndComplete) {
+						body = Miner.mineNode(new IMLogStartEndComplete(sublog, log.getClassifier()), tree, minerState);
+					} else {
+						body = Miner.mineNode(new IMLogImpl(sublog, log.getClassifier()), tree, minerState);
+					}
 					Miner.addChild(loop, body, minerState);
 				}
 
