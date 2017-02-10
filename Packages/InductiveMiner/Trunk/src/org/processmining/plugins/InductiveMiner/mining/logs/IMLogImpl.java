@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.info.XLogInfo;
-import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
@@ -34,8 +32,8 @@ public class IMLogImpl implements IMLog {
 	private final List<BitSet> addedTracesOutEvents;
 
 	protected final XEventClassifier activityClassifier;
-	private final XLogInfo xLogInfo;
-	private final XLogInfo xLogInfoLifecycle;
+	//private final XLogInfo xLogInfo;
+	//private final XLogInfo xLogInfoLifecycle;
 
 	@Deprecated
 	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
@@ -57,8 +55,8 @@ public class IMLogImpl implements IMLog {
 		addedTracesOutEvents = new ArrayList<>();
 
 		this.activityClassifier = activityClassifier;
-		xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
-		xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifeCycleClassifier);
+		//xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
+		//xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifeCycleClassifier);
 	}
 
 	/**
@@ -81,8 +79,8 @@ public class IMLogImpl implements IMLog {
 		}
 
 		activityClassifier = log.activityClassifier;
-		xLogInfo = log.xLogInfo;
-		xLogInfoLifecycle = log.xLogInfoLifecycle;
+		//xLogInfo = log.xLogInfo;
+		//xLogInfoLifecycle = log.xLogInfoLifecycle;
 	}
 
 	public IMLog clone() {
@@ -95,7 +93,8 @@ public class IMLogImpl implements IMLog {
 	 * @return
 	 */
 	public XEventClass classify(IMTrace IMTrace, XEvent event) {
-		return xLogInfo.getEventClasses().getClassOf(event);
+		return new XEventClass(activityClassifier.getClassIdentity(event), 0);
+		//return xLogInfo.getEventClasses().getClassOf(event);
 	}
 
 	public XEventClassifier getClassifier() {
