@@ -32,8 +32,6 @@ public class IMLogImpl implements IMLog {
 	private final List<BitSet> addedTracesOutEvents;
 
 	protected final XEventClassifier activityClassifier;
-	//private final XLogInfo xLogInfo;
-	//private final XLogInfo xLogInfoLifecycle;
 
 	@Deprecated
 	public final static XEventClassifier lifeCycleClassifier = new LifeCycleClassifier();
@@ -55,8 +53,6 @@ public class IMLogImpl implements IMLog {
 		addedTracesOutEvents = new ArrayList<>();
 
 		this.activityClassifier = activityClassifier;
-		//xLogInfo = XLogInfoFactory.createLogInfo(xLog, activityClassifier);
-		//xLogInfoLifecycle = XLogInfoFactory.createLogInfo(xLog, lifeCycleClassifier);
 	}
 
 	/**
@@ -79,8 +75,6 @@ public class IMLogImpl implements IMLog {
 		}
 
 		activityClassifier = log.activityClassifier;
-		//xLogInfo = log.xLogInfo;
-		//xLogInfoLifecycle = log.xLogInfoLifecycle;
 	}
 
 	public IMLog clone() {
@@ -94,7 +88,6 @@ public class IMLogImpl implements IMLog {
 	 */
 	public XEventClass classify(IMTrace IMTrace, XEvent event) {
 		return new XEventClass(activityClassifier.getClassIdentity(event), 0);
-		//return xLogInfo.getEventClasses().getClassOf(event);
 	}
 
 	public XEventClassifier getClassifier() {
