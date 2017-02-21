@@ -83,6 +83,10 @@ public class ProcessTreeParser {
 						return Triple
 								.of(null, nodiser.getLastLineNumber(), "A loop node must have at least one child.");
 					}
+					if (children.size() > 3) {
+						return Triple
+								.of(null, nodiser.getLastLineNumber(), "A loop node must have at most three children.");
+					}
 					// allow loops with less than 3 children
 					while (children.size() < 3) {
 						children.add(InlineTree.tau());
