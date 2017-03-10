@@ -1,11 +1,5 @@
 package org.processmining.plugins.flowerMiner;
 
-import gnu.trove.iterator.TObjectIntIterator;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.set.hash.TCustomHashSet;
-import gnu.trove.strategy.HashingStrategy;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -22,12 +16,19 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2processTree;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMMiningDialog;
 import org.processmining.processtree.ProcessTree;
+
+import gnu.trove.iterator.TObjectIntIterator;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.set.hash.TCustomHashSet;
+import gnu.trove.strategy.HashingStrategy;
 
 @Plugin(name = "Mine Process tree using Trace Miner", returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Log" }, userAccessible = true, level = PluginLevel.Regular)
 public class TraceMiner {
 
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public ProcessTree mineDefaultPetrinet(PluginContext context, XLog log) {
 		return EfficientTree2processTree.convert(mineTraceModel(log, MiningParameters.getDefaultClassifier()));
