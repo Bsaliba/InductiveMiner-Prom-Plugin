@@ -23,7 +23,7 @@ import org.processmining.processtree.ProcessTree;
 public class IM {
 
 	@Plugin(name = "Mine process tree with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = { "Process Tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Log" }, userAccessible = true)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public ProcessTree mineGuiProcessTree(final UIPluginContext context, XLog log) {
 		IMMiningDialog dialog = new IMMiningDialog(log);

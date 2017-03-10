@@ -1,7 +1,5 @@
 package org.processmining.plugins.flowerMiner;
 
-import gnu.trove.map.TObjectIntMap;
-
 import org.deckfour.xes.classification.XEventClass;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
@@ -10,11 +8,14 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2processTree;
+import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMMiningDialog;
 import org.processmining.processtree.ProcessTree;
+
+import gnu.trove.map.TObjectIntMap;
 
 public class FlowerMinerDfg {
 	@Plugin(name = "Mine process tree using Flower Miner - directly-follows", returnLabels = { "Process tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Directly-follows graph" }, userAccessible = true)
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public ProcessTree mine(PluginContext context, Dfg dfg) {
 		return EfficientTree2processTree.convert(mine(dfg.getActivities()));

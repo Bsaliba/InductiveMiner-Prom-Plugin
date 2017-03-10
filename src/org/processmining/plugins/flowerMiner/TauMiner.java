@@ -5,6 +5,7 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMMiningDialog;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractTask;
@@ -14,7 +15,7 @@ import org.processmining.processtree.impl.ProcessTreeImpl;
 		ProcessTree.class }, parameterLabels = {}, userAccessible = true, level = PluginLevel.Regular)
 public class TauMiner {
 
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = {})
 	public ProcessTree mine(PluginContext context) {
 		return mine();

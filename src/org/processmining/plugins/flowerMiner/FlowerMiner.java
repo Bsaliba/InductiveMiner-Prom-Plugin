@@ -19,13 +19,14 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.plugins.dialogs.IMMiningDialog;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 
 @Plugin(name = "Mine Petri net using Flower Miner", returnLabels = { "Petri net", "Initial marking", "Final marking" }, returnTypes = {
 		Petrinet.class, Marking.class, Marking.class }, parameterLabels = { "Log" }, userAccessible = true, level = PluginLevel.Regular)
 public class FlowerMiner {
 
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public Object[] mineDefaultPetrinet(PluginContext context, XLog log) {
 		XEventClassifier classifier = MiningParameters.getDefaultClassifier();
