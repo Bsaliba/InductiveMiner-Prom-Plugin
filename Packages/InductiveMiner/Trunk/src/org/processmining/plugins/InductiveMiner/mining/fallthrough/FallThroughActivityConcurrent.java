@@ -1,7 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.fallthrough;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +23,8 @@ import org.processmining.processtree.Block;
 import org.processmining.processtree.Node;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.AbstractBlock;
+
+import gnu.trove.set.hash.THashSet;
 
 public class FallThroughActivityConcurrent implements FallThrough {
 
@@ -87,7 +87,7 @@ public class FallThroughActivityConcurrent implements FallThrough {
 						Miner.debug("  try cut " + cut, minerState);
 
 						//see if a cut applies
-						//for performance reasons, only on the directly-follows graph
+						//for performance reasons, only on the directly follows graph
 						Cut cut2 = dfgCutFinder.findCut(logInfo.getDfg(), null);
 						
 						if (minerState.isCancelled()) {

@@ -8,7 +8,7 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 public class DfgCutFinderMergeParallelGraph implements DfgCutFinder {
 
 	/**
-	 * Combine the parallel graph with the directly-follows graph.
+	 * Combine the parallel graph with the directly follows graph.
 	 */
 	public Cut findCut(Dfg dfg, DfgMinerState minerState) {
 		

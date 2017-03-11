@@ -84,7 +84,7 @@ public class IMLog2IMLogInfoDefault implements IMLog2IMLogInfo {
 				eventSeenAt.put(toEventClass, traceSize);
 				{
 					if (fromEventClass != null) {
-						//add edge to directly-follows graph
+						//add edge to directly follows graph
 						dfg.addDirectlyFollowsEdge(fromEventClass, toEventClass, 1);
 					} else {
 						//add edge to start activities

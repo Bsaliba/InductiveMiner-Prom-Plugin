@@ -14,7 +14,7 @@ import org.processmining.processtree.ProcessTree;
 import gnu.trove.map.TObjectIntMap;
 
 public class FlowerMinerDfg {
-	@Plugin(name = "Mine process tree using Flower Miner - directly-follows", returnLabels = { "Process tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Directly-follows graph" }, userAccessible = true)
+	@Plugin(name = "Mine process tree using Flower Miner - directly follows", returnLabels = { "Process tree" }, returnTypes = { ProcessTree.class }, parameterLabels = { "Directly-follows graph" }, userAccessible = true)
 	@UITopiaVariant(affiliation = IMMiningDialog.affiliation, author = IMMiningDialog.author, email = IMMiningDialog.email)
 	@PluginVariant(variantLabel = "Mine a flower Petri net", requiredParameterLabels = { 0 })
 	public ProcessTree mine(PluginContext context, Dfg dfg) {

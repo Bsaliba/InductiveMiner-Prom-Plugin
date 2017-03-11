@@ -22,8 +22,8 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
-@Plugin(name = "Import a CSV file and convert it to dfg", parameterLabels = { "Filename" }, returnLabels = { "Directly-follows graph" }, returnTypes = { Dfg.class })
-@UIImportPlugin(description = "Directly-follows graph", extensions = { "dfg", "csv" })
+@Plugin(name = "Import a CSV file and convert it to dfg", parameterLabels = { "Filename" }, returnLabels = { "Directly follows graph" }, returnTypes = { Dfg.class })
+@UIImportPlugin(description = "Directly follows graph", extensions = { "dfg", "csv" })
 public class DfgImportPlugin extends AbstractImportPlugin {
 
 	private static final int BUFFER_SIZE = 8192 * 4;
@@ -58,7 +58,7 @@ public class DfgImportPlugin extends AbstractImportPlugin {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				JOptionPane.showMessageDialog(null, "Invalid directly-follows graph file", "Invalid file",
+				JOptionPane.showMessageDialog(null, "Invalid directly follows graph file", "Invalid file",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		});

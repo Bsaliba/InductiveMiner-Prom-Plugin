@@ -55,7 +55,7 @@ public interface Dfg {
 	public void addEndActivity(XEventClass activity, long cardinality);
 
 	/**
-	 * Adds a directly-follows graph edge (in each direction) for each parallel
+	 * Adds a directly follows graph edge (in each direction) for each parallel
 	 * edge.
 	 */
 	public void collapseParallelIntoDirectly();
@@ -184,7 +184,7 @@ public interface Dfg {
 	 */
 	public XEventClass[] getActivities();
 
-	// ========= directly-follows graph ==========
+	// ========= directly follows graph ==========
 
 	public void removeDirectlyFollowsEdge(long edgeIndex);
 

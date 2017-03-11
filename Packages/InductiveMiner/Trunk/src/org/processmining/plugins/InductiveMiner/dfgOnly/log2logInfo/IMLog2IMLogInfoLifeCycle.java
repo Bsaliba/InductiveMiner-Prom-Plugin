@@ -60,7 +60,7 @@ public class IMLog2IMLogInfoLifeCycle implements IMLog2IMLogInfo {
 			return;
 		}
 
-		//directly-follows relation
+		//directly follows relation
 		processDirectlyFollows(log, dfg, trace, count);
 
 		//parallelism

@@ -1,12 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.cuts.IM;
 
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.THashSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +26,13 @@ import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
 import org.processmining.plugins.InductiveMiner.mining.cuts.CutFinder;
 import org.processmining.plugins.InductiveMiner.mining.logs.IMLog;
 
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.THashSet;
+
 public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 
 	public Cut findCut(IMLog log, IMLogInfo logInfo, MinerState minerState) {
@@ -46,7 +46,7 @@ public class CutFinderIMSequence implements CutFinder, DfgCutFinder {
 	public static Cut findCut(Dfg dfg) {
 		Graph<XEventClass> graph = dfg.getDirectlyFollowsGraph();
 
-		//compute the strongly connected components of the directly-follows graph
+		//compute the strongly connected components of the directly follows graph
 		Set<Set<XEventClass>> SCCs = StronglyConnectedComponents.compute(graph);
 
 		//condense the strongly connected components

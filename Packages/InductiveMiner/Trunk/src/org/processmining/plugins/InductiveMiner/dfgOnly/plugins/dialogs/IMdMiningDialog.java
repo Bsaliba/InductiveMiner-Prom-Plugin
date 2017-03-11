@@ -46,7 +46,7 @@ public class IMdMiningDialog extends JPanel {
 
 	public class VariantIMd extends Variant {
 		public String toString() {
-			return "Inductive Miner - directly-follows (IMd)";
+			return "Inductive Miner - directly follows (IMd)";
 		}
 
 		public boolean hasNoise() {
@@ -60,7 +60,7 @@ public class IMdMiningDialog extends JPanel {
 
 	public class VariantIMfd extends Variant {
 		public String toString() {
-			return "Inductive Miner - infrequent - directly-follows (IMfd)";
+			return "Inductive Miner - infrequent - directly follows (IMfd)";
 		}
 
 		public boolean hasNoise() {
@@ -75,7 +75,7 @@ public class IMdMiningDialog extends JPanel {
 
 	public class VariantIMcd extends Variant {
 		public String toString() {
-			return "Inductive Miner - incompleteness - directly-follows (IMcd)";
+			return "Inductive Miner - incompleteness - directly follows (IMcd)";
 		}
 
 		public boolean hasNoise() {

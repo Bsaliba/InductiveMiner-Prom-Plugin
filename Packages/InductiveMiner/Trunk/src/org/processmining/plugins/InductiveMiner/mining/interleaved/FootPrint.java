@@ -1,7 +1,5 @@
 package org.processmining.plugins.InductiveMiner.mining.interleaved;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.Arrays;
 
 import org.processmining.plugins.InductiveMiner.MultiSet;
@@ -17,6 +15,8 @@ import org.processmining.processtree.Node;
 import org.processmining.processtree.Task.Automatic;
 import org.processmining.processtree.Task.Manual;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.UnfoldedNode;
+
+import gnu.trove.set.hash.THashSet;
 
 public class FootPrint {
 
@@ -42,10 +42,10 @@ public class FootPrint {
 				return false;
 			}
 
-			//compare directly-follows graph activities
+			//compare directly follows graph activities
 			compareActivities(directlyFollowsGraph.getVertices(), other.directlyFollowsGraph.getVertices());
 
-			//compare directly-follows graphs
+			//compare directly follows graphs
 			for (long e1 : directlyFollowsGraph.getEdges()) {
 				if (!other.directlyFollowsGraph.containsEdge(directlyFollowsGraph.getEdgeSource(e1),
 						directlyFollowsGraph.getEdgeTarget(e1))) {

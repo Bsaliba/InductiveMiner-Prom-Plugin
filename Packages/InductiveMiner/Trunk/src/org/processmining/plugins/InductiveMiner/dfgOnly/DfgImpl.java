@@ -1,9 +1,5 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly;
 
-import gnu.trove.iterator.TIntLongIterator;
-import gnu.trove.map.TIntLongMap;
-import gnu.trove.map.hash.TIntLongHashMap;
-
 import java.util.Iterator;
 
 import org.deckfour.xes.classification.XEventClass;
@@ -12,13 +8,17 @@ import org.processmining.plugins.InductiveMiner.MultiSet;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 import org.processmining.plugins.InductiveMiner.graphs.GraphFactory;
 
+import gnu.trove.iterator.TIntLongIterator;
+import gnu.trove.map.TIntLongMap;
+import gnu.trove.map.hash.TIntLongHashMap;
+
 public class DfgImpl implements Dfg {
 	private Graph<XEventClass> directlyFollowsGraph;
 	private Graph<XEventClass> concurrencyGraph;
 
 	/**
 	 * Keep track of start and end activities. The keys are the activities (the
-	 * directly-follows graph keeps the mapping start activities-keys), the
+	 * directly follows graph keeps the mapping start activities-keys), the
 	 * value is the cardinality. Assumption: values are never 0.
 	 */
 	private final TIntLongMap startActivities;
@@ -259,7 +259,7 @@ public class DfgImpl implements Dfg {
 		return max;
 	}
 
-	// ========= directly-follows graph ==========
+	// ========= directly follows graph ==========
 
 	@Override
 	public void removeDirectlyFollowsEdge(long edgeIndex) {

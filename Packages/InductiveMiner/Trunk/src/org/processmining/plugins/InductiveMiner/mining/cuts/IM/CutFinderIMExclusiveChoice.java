@@ -27,7 +27,7 @@ public class CutFinderIMExclusiveChoice implements CutFinder, DfgCutFinder {
 	}
 
 	public static Cut findCut(final Graph<XEventClass> graph) {
-		//compute the connected components of the directly-follows graph
+		//compute the connected components of the directly follows graph
 		Collection<Set<XEventClass>> connectedComponents = ConnectedComponents2.compute(graph);
 
 		return new Cut(Operator.xor, connectedComponents);

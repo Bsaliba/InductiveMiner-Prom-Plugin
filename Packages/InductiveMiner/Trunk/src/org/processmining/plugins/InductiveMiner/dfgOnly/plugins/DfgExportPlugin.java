@@ -15,11 +15,11 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.InductiveMiner.dfgOnly.Dfg;
 import org.processmining.plugins.InductiveMiner.graphs.Graph;
 
-@Plugin(name = "Dfg export (directly-follows graph)", returnLabels = {}, returnTypes = {}, parameterLabels = {
+@Plugin(name = "Dfg export (directly follows graph)", returnLabels = {}, returnTypes = {}, parameterLabels = {
 		"Directly-follows graph", "File" }, userAccessible = true)
 @UIExportPlugin(description = "Dfg files", extension = "dfg")
 public class DfgExportPlugin {
-	@PluginVariant(variantLabel = "Dfg export (Directly-follows graph)", requiredParameterLabels = { 0, 1 })
+	@PluginVariant(variantLabel = "Dfg export (Directly follows graph)", requiredParameterLabels = { 0, 1 })
 	public void exportDefault(UIPluginContext context, Dfg dfg, File file) throws IOException {
 		export(dfg, file);
 	}

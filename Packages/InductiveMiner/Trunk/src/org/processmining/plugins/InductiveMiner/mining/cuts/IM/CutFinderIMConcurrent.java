@@ -55,7 +55,7 @@ public class CutFinderIMConcurrent implements CutFinder, DfgCutFinder {
 			}
 		}
 
-		//if wanted, apply an extension to the IM algorithm to account for loops that have the same directly-follows graph as a parallel operator would have
+		//if wanted, apply an extension to the IM algorithm to account for loops that have the same directly follows graph as a parallel operator would have
 		//make sure that activities on the minimum-self-distance-path are not separated by a parallel operator
 		if (minimumSelfDistanceBetween != null) {
 			for (XEventClass activity : dfg.getActivities()) {
