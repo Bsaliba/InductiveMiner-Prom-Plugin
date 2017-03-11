@@ -43,7 +43,7 @@ public class IM {
 	}
 
 	@Plugin(name = "Mine Petri net with Inductive Miner", level = PluginLevel.PeerReviewed, returnLabels = {
-			"Petri net", "Initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class,
+			"Petri net", "initial marking", "final marking" }, returnTypes = { Petrinet.class, Marking.class,
 			Marking.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })

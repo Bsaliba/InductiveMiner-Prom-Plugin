@@ -1,7 +1,5 @@
 package org.processmining.plugins.InductiveMiner.dfgOnly.dfgSplitter;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +10,8 @@ import org.processmining.plugins.InductiveMiner.dfgOnly.DfgImpl;
 import org.processmining.plugins.InductiveMiner.dfgOnly.DfgMinerState;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut;
 import org.processmining.plugins.InductiveMiner.mining.cuts.Cut.Operator;
+
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class SimpleDfgSplitter implements DfgSplitter {
 
@@ -46,7 +46,7 @@ public class SimpleDfgSplitter implements DfgSplitter {
 
 			//walk through the edges
 			{
-				//directly-follows graph
+				//directly follows graph
 				for (long edge : dfg.getDirectlyFollowsGraph().getEdges()) {
 					int cardinality = (int) dfg.getDirectlyFollowsGraph().getEdgeWeight(edge);
 					XEventClass source = dfg.getDirectlyFollowsGraph().getEdgeSource(edge);
