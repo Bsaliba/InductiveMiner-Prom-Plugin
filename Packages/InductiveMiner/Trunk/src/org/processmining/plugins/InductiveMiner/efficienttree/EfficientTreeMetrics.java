@@ -125,9 +125,10 @@ public class EfficientTreeMetrics {
 	 * @param node
 	 * @param activity
 	 * @return whether the given node can produce the trace <activity>
-	 * @throws UnknownTreeNodeException 
+	 * @throws UnknownTreeNodeException
 	 */
-	public static boolean canProduceSingleActivity(EfficientTree tree, int node, int activity) throws UnknownTreeNodeException {
+	public static boolean canProduceSingleActivity(EfficientTree tree, int node, int activity)
+			throws UnknownTreeNodeException {
 		if (tree.isTau(node)) {
 			return false;
 		} else if (tree.isActivity(node)) {
@@ -200,7 +201,7 @@ public class EfficientTreeMetrics {
 	 * @param tree
 	 * @param node
 	 * @return whether each trace of the node has a length of at most one.
-	 * @throws UnknownTreeNodeException 
+	 * @throws UnknownTreeNodeException
 	 */
 	public static boolean traceLengthAtMostOne(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
@@ -215,7 +216,8 @@ public class EfficientTreeMetrics {
 					}
 				}
 				return true;
-			} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
+			} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)
+					|| tree.isOr(node)) {
 				//one child can produce a singleton trace, the others cannot anymore then
 				boolean singletonTraceChildSeen = false;
 				for (int child : tree.getChildren(node)) {
@@ -243,7 +245,7 @@ public class EfficientTreeMetrics {
 	 * @param tree
 	 * @param node
 	 * @return whether each trace of the node has a length of at most zero.
-	 * @throws UnknownTreeNodeException 
+	 * @throws UnknownTreeNodeException
 	 */
 	public static boolean onlyEmptyTrace(EfficientTree tree, int node) throws UnknownTreeNodeException {
 		if (tree.isActivity(node)) {
