@@ -9,6 +9,7 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Sam
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfOr;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAndInt;
+import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorDoubleSingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
 
 public class EfficientTreeReduceParameters {
@@ -41,14 +42,9 @@ public class EfficientTreeReduceParameters {
 	public void setReduceToOr(boolean reduceToOr) {
 		this.reduceToOr = reduceToOr;
 	}
-	
-	@Deprecated
-	public void setPro(boolean b) {
-		// TODO Auto-generated method stub
-	}
 
 	public EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
-			new XorTauTau(), new SameOperator() };
+			new XorTauTau(), new SameOperator(), new XorDoubleSingleChild() };
 	public EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
 	public EfficientTreeReductionRule[] rulesAndWithReduceToOr = new EfficientTreeReductionRule[] { new SingleChild(),
