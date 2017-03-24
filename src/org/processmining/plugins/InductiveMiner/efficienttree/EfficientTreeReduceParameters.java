@@ -9,7 +9,6 @@ import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.Sam
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.SingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfOr;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.TauChildOfSeqAndInt;
-import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorDoubleSingleChild;
 import org.processmining.plugins.InductiveMiner.efficienttree.reductionrules.XorTauTau;
 
 public class EfficientTreeReduceParameters {
@@ -20,8 +19,8 @@ public class EfficientTreeReduceParameters {
 	/**
 	 * 
 	 * @param collapsed
-	 *            Denotes what a leaf A means: true = seq(xor(tau, A_start), A_complete), false =
-	 *            A.
+	 *            Denotes what a leaf A means: true = seq(xor(tau, A_start),
+	 *            A_complete), false = A.
 	 */
 	public EfficientTreeReduceParameters(boolean collapsed) {
 		setCollapsed(collapsed);
@@ -34,29 +33,30 @@ public class EfficientTreeReduceParameters {
 	public void setCollapsed(boolean collapsed) {
 		this.collapsed = collapsed;
 	}
-	
+
 	public boolean isReduceToOr() {
 		return reduceToOr;
 	}
-	
+
 	public void setReduceToOr(boolean reduceToOr) {
 		this.reduceToOr = reduceToOr;
 	}
 
-	public EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
-			new XorTauTau(), new SameOperator(), new XorDoubleSingleChild() };
-	public EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
+	protected EfficientTreeReductionRule[] rulesXor = new EfficientTreeReductionRule[] { new SingleChild(),
+			new XorTauTau(), new SameOperator() };
+	protected EfficientTreeReductionRule[] rulesSeq = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
-	public EfficientTreeReductionRule[] rulesAndWithReduceToOr = new EfficientTreeReductionRule[] { new SingleChild(),
-			new TauChildOfSeqAndInt(), new SameOperator(), new And2Or() };
-	public EfficientTreeReductionRule[] rulesAndWithoutReduceToOr = new EfficientTreeReductionRule[] { new SingleChild(),
-			new TauChildOfSeqAndInt(), new SameOperator() }; //the basic variant does not use OR's
-	public EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopLoop(), new LoopTau() };
-	public EfficientTreeReductionRule[] rulesIntCollapsed = new EfficientTreeReductionRule[] { new SingleChild(),
+	protected EfficientTreeReductionRule[] rulesAndWithReduceToOr = new EfficientTreeReductionRule[] {
+			new SingleChild(), new TauChildOfSeqAndInt(), new SameOperator(), new And2Or() };
+	protected EfficientTreeReductionRule[] rulesAndWithoutReduceToOr = new EfficientTreeReductionRule[] {
+			new SingleChild(), new TauChildOfSeqAndInt(), new SameOperator() }; //the basic variant does not use OR's
+	protected EfficientTreeReductionRule[] rulesLoop = new EfficientTreeReductionRule[] { new LoopLoop(),
+			new LoopTau() };
+	protected EfficientTreeReductionRule[] rulesIntCollapsed = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator() };
-	public EfficientTreeReductionRule[] rulesIntExpanded = new EfficientTreeReductionRule[] { new SingleChild(),
+	protected EfficientTreeReductionRule[] rulesIntExpanded = new EfficientTreeReductionRule[] { new SingleChild(),
 			new TauChildOfSeqAndInt(), new SameOperator(), new IntShortLanguage() };
-	public EfficientTreeReductionRule[] rulesOr = new EfficientTreeReductionRule[] { new SingleChild(),
+	protected EfficientTreeReductionRule[] rulesOr = new EfficientTreeReductionRule[] { new SingleChild(),
 			new SameOperator(), new TauChildOfOr(), new OrXorTau() };
 
 	public EfficientTreeReductionRule[] getRulesXor() {
@@ -86,7 +86,7 @@ public class EfficientTreeReduceParameters {
 			return rulesIntExpanded;
 		}
 	}
-	
+
 	public EfficientTreeReductionRule[] getRulesOr() {
 		return rulesOr;
 	}

@@ -5,7 +5,6 @@ import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeMetri
 import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTreeReductionRule;
 import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 
-@Deprecated
 public class LoopATauTau2flower implements EfficientTreeReductionRule {
 
 	public boolean apply(EfficientTree tree, int loop) throws UnknownTreeNodeException {
@@ -26,7 +25,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 
 				//loop through all nodes for activities
 				int countActivities = 0;
-				for (int i = 0; i < tau4; i++) {
+				for (int i = body; i < tau3; i++) {
 					if (tree.isActivity(i)) {
 						countActivities++;
 						int activity = tree.getActivity(i);
@@ -41,7 +40,7 @@ public class LoopATauTau2flower implements EfficientTreeReductionRule {
 				//gather the activities
 				int[] activities = new int[countActivities];
 				int j = 0;
-				for (int i = 0; i < tau4; i++) {
+				for (int i = body; i < tau3; i++) {
 					if (tree.isActivity(i)) {
 						activities[j] = tree.getTree()[i];
 						j++;

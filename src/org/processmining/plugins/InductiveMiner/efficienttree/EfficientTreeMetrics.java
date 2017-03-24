@@ -133,14 +133,14 @@ public class EfficientTreeMetrics {
 			return false;
 		} else if (tree.isActivity(node)) {
 			return tree.getActivity(node) == activity;
-		} else if (tree.isXor(node)) {
+		} else if (tree.isXor(node) || tree.isOr(node)) {
 			for (int child : tree.getChildren(node)) {
 				if (canProduceSingleActivity(tree, child, activity)) {
 					return true;
 				}
 			}
 			return false;
-		} else if (tree.isSequence(node) || tree.isConcurrent(node)) {
+		} else if (tree.isSequence(node) || tree.isConcurrent(node) || tree.isInterleaved(node)) {
 			//gather information
 			boolean[] canProduceTau = new boolean[tree.getNumberOfChildren(node)];
 			boolean[] canProduceSingleActivity = new boolean[tree.getNumberOfChildren(node)];
