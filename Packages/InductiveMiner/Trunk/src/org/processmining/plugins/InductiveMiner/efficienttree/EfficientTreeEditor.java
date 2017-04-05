@@ -43,7 +43,7 @@ public class EfficientTreeEditor extends JPanel {
 	 */
 	public EfficientTreeEditor(EfficientTree tree, String message) {
 		setLayout(new BorderLayout());
-		
+
 		//text area
 		text = new RSyntaxTextArea();
 		text.setTabSize(spacesPerTab);
@@ -62,6 +62,13 @@ public class EfficientTreeEditor extends JPanel {
 		}
 		if (message != null) {
 			setMessage(message);
+		} else {
+			try {
+				setErrorMessage(-1, null);
+			} catch (BadLocationException e1) {
+				//can never happen
+				e1.printStackTrace();
+			}
 		}
 
 		// set update timer
