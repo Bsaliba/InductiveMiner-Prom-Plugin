@@ -15,5 +15,6 @@
         <dependency org="prom" name="PetriNets" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="Sat4j" rev="latest" changing="true" transitive="true" />
+        <dependency conf="lib->default" org="com.fifesoft" name="rsyntaxtextarea" rev="2.5.8" />
     </dependencies>
 </ivy-module>
