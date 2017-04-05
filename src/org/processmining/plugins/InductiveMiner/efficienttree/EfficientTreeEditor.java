@@ -2,7 +2,6 @@ package org.processmining.plugins.InductiveMiner.efficienttree;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -19,10 +18,6 @@ import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.processmining.plugins.InductiveMiner.Triple;
-import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
-import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2HumanReadableString;
-import org.processmining.plugins.InductiveMiner.efficienttree.ProcessTreeParser;
-import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeException;
 
 public class EfficientTreeEditor extends JPanel {
 
@@ -39,7 +34,6 @@ public class EfficientTreeEditor extends JPanel {
 
 	/**
 	 * 
-	 * @param parent
 	 * @param tree
 	 *            May be null, in which case no tree will be set-up in the
 	 *            editor.
@@ -47,7 +41,7 @@ public class EfficientTreeEditor extends JPanel {
 	 *            If not null, the message will be shown to the user and editing
 	 *            the model will be disabled.
 	 */
-	public EfficientTreeEditor(Component parent, EfficientTree tree, String message) {
+	public EfficientTreeEditor(EfficientTree tree, String message) {
 		setLayout(new BorderLayout());
 		
 		//text area
